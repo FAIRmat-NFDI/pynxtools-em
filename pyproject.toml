@@ -1,0 +1,73 @@
+[build-system]
+requires = ["setuptools>=64.0.1", "setuptools-scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pynxtools-em"
+dynamic = ["version"]
+authors = [
+    { name = "Markus Kühbach", email = "markus.kuehbach@physik.hu-berlin.de" },
+]
+description = "Make electron microscopy results interoperable via NeXus"
+readme = "README.md"
+license= {text = "Apache-2.0"}
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pynxtools>=0.0.10"
+]
+
+[project.optional-dependencies]
+dev = [
+    "mypy",
+    "ruff",
+    "pytest",
+    "types-pyyaml",
+    "pip-tools",
+]
+
+[project.entry-points."pynxtools.reader"]
+em = "pynxtools_em.reader:EMReader"
+
+[tool.setuptools_scm]
+version_scheme = "no-guess-dev"
+local_scheme = "node-and-date"
+
+[tool.ruff]
+include = ["pynxtools_em/*.py", "tests/*.py"]
+lint.select = [
+    "E", # pycodestyle
+    "W", # pycodestyle
+    "PL", # pylint
+]
+lint.ignore = [
+    "E501", # Line too long ({width} > {limit} characters)
+    "E701", # Multiple statements on one line (colon)
+    "E731", # Do not assign a lambda expression, use a def
+    "E402",  # Module level import not at top of file
+    "PLR0911", # Too many return statements
+    "PLR0912", # Too many branches
+    "PLR0913", # Too many arguments in function definition
+    "PLR0915", # Too many statements
+    "PLR2004", # Magic value used instead of constant
+    "PLW0603", # Using the global statement
+    "PLW2901", # redefined-loop-name
+    "PLR1714", # consider-using-in
+    "PLR5501", # else-if-used
+]
+lint.fixable = ["ALL"]
+
+[tool.mypy]
+strict = false
+ignore_missing_imports = true
+follow_imports = "silent"
+no_strict_optional = true
+disable_error_code = "import, annotation-unchecked"
