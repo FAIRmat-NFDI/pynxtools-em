@@ -31,9 +31,9 @@ Install the package with its dependencies:
 
 ```shell
 git clone https://github.com/FAIRmat-NFDI/pynxtools-em.git \\
-    --branch master \\
+    --branch main \\
     --recursive pynxtools_em
-cd pynxtools_apm
+cd pynxtools_em
 python -m pip install --upgrade pip
 python -m pip install -e .
 python -m pip install -e ".[dev]"
