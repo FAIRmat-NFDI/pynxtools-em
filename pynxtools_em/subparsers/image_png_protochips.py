@@ -30,13 +30,13 @@ from pynxtools_em.subparsers.image_png_protochips_concepts import (
     get_protochips_variadic_concept,
 )
 from pynxtools_em.subparsers.image_png_protochips_cfg import PNG_PROTOCHIPS_TO_NEXUS_CFG
-from pynxtools.dataconverter.readers.shared.map_concepts.mapping_functors import (
+from pynxtools_em.shared.mapping_functors import (
     variadic_path_to_specific_path,
 )
 from pynxtools_em.subparsers.image_png_protochips_modifier import get_nexus_value
 from pynxtools_em.subparsers.image_base import ImgsBaseParser
 from pynxtools_em.utils.xml_utils import flatten_xml_to_dict
-from pynxtools.dataconverter.readers.shared.shared_utils import (
+from pynxtools_em.shared.shared_utils import (
     get_sha256_of_file_content,
 )
 from pynxtools_em.utils.sorting import sort_ascendingly_by_second_argument_iso8601

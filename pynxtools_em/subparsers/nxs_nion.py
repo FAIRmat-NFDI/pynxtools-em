@@ -32,15 +32,15 @@ from typing import Dict, List
 
 from pynxtools_em.utils.nion_utils import uuid_to_file_name
 
-# from pynxtools.dataconverter.readers.em_nion.utils.swift_generate_dimscale_axes \
+# from pynxtools_em.utils.swift_generate_dimscale_axes \
 #     import get_list_of_dimension_scale_axes
-# from pynxtools.dataconverter.readers.em_nion.map_concepts.swift_display_items_to_nx \
+# from pynxtools_em.utils.swift_display_items_to_nx \
 #     import nexus_concept_dict, identify_nexus_concept_key
-# from pynxtools.dataconverter.readers.shared.map_concepts.mapping_functors \
+# from pynxtools_em.shared.mapping_functors \
 #    import apply_modifier, variadic_path_to_specific_path
-# from pynxtools.dataconverter.readers.em_nion.map_concepts.swift_to_nx_image_real_space \
+# from pynxtools_em.swift_to_nx_image_real_space \
 #    import NxImageRealSpaceDict
-from pynxtools.dataconverter.readers.shared.shared_utils import (
+from pynxtools_em.shared.shared_utils import (
     get_sha256_of_file_content,
 )
 

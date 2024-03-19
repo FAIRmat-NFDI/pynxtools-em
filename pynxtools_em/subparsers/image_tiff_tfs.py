@@ -33,7 +33,7 @@ from pynxtools_em.utils.image_utils import (
     sort_ascendingly_by_second_argument,
     if_str_represents_float,
 )
-from pynxtools.dataconverter.readers.shared.map_concepts.mapping_functors import (
+from pynxtools_em.shared.mapping_functors import (
     variadic_path_to_specific_path,
 )
 from pynxtools_em.subparsers.image_tiff_tfs_modifier import get_nexus_value

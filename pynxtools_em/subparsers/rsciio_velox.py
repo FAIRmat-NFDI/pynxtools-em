@@ -31,7 +31,7 @@ from pynxtools_em.utils.rsciio_hyperspy_utils import (
     get_axes_dims,
     get_axes_units,
 )
-from pynxtools.dataconverter.readers.shared.shared_utils import (
+from pynxtools_em.shared.shared_utils import (
     get_sha256_of_file_content,
 )
 from pynxtools_em.subparsers.rsciio_velox_concepts import NX_VELOX_TO_NX_EVENT_DATA_EM
@@ -77,7 +77,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
             "Core/MetadataDefinitionVersion": None,
             "Core/MetadataSchemaVersion": None,
         }
-        self.obj_idx_supported = []
+        self.obj_idx_supported: List = []
         self.supported = True
         self.verbose = verbose
         self.check_if_supported()
@@ -299,13 +299,15 @@ class RsciioVeloxSubParser(RsciioBaseParser):
                         # TODO::is this really a UNIX timestamp, what about the timezone?
             elif tpl[1] == "concatenate":
                 if isinstance(tpl[2], list) and all(isinstance(x, str) for x in tpl[2]):
-                    res = f""
-                    for idx in np.arange(0, len(tpl[2])):
-                        if tpl[2][idx] in orgmeta:
-                            res += f"{tpl[2][idx]}: {orgmeta[tpl[2][idx]]}, "
-                        else:
-                            continue
-                        template[f"{trg}"] = f"{res[0:len(res) - 2]}"
+                    print("concatenate needs a fix!")
+                    # res = f""
+                    # for idx in np.arange(0, len(tpl[2])):
+                    #     if tpl[2][idx] in orgmeta:
+                    #         res += f"{tpl[2][idx]}: {orgmeta[tpl[2][idx]]}, "
+                    #     else:
+                    #         continue
+                    template[f"{trg}"] = f"concatenate needs a fix!!!"
+                    # f"{res[0:len(res) - 2]}"
             else:
                 # if self.verbose == True:
                 print(f"Found modifier {tpl[1]}")
@@ -547,7 +549,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
             n_dims = 3
         else:
             print(f"WARNING eds_spc for {dims} is not implemented!")
-            return
+            return template
         trg = (
             f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
             f"EVENT_DATA_EM[event_data_em{self.id_mgn['event']}]/"
