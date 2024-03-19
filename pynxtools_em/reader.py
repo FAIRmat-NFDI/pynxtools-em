@@ -46,7 +46,7 @@ from pynxtools.dataconverter.readers.em.utils.default_plots import NxEmDefaultPl
 #     import em_om_default_plot_generator
 
 
-class EmReader(BaseReader):
+class EMReader(BaseReader):
     """Parse content from file formats of the electron microscopy community."""
 
     # pylint: disable=too-few-public-methods
@@ -182,4 +182,4 @@ class EmReader(BaseReader):
 
 
 # This has to be set to allow the convert script to use this reader.
-READER = EmReader
+READER = EMReader
