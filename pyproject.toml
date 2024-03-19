@@ -22,7 +22,13 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pynxtools>=0.0.10"
+    "pynxtools @ git+https://github.com/FAIRmat-NFDI/pynxtools@apm-em-plugins-nxdefs-tracking",
+    "hyperspy>=2.0",
+    "rosettasciio>=0.3",
+    "kikuchipy>=0.9",
+    "pyxem>=0.17",
+    "nionswift>=0.16.10",
+    "flatdict>=4.0.1"
 ]
 
 [project.optional-dependencies]
