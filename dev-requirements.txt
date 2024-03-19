@@ -84,6 +84,8 @@ gitdb==4.0.11
     # via gitpython
 gitpython==3.1.42
     # via pynxtools
+greenlet==3.0.3
+    # via sqlalchemy
 h5py==3.10.0
     # via
     #   fabio
@@ -260,6 +262,7 @@ numpy==1.26.4
     #   sparse
     #   tifffile
     #   xarray
+    #   xraydb
     #   zarr
 numpy-quaternion==2023.0.3
     # via orix
@@ -280,6 +283,7 @@ packaging==24.0
     #   scikit-image
     #   silx
     #   xarray
+    #   xraydb
 pandas==2.2.1
     # via
     #   pynxtools
@@ -308,6 +312,7 @@ platformdirs==4.2.0
     # via
     #   jupyter-core
     #   pooch
+    #   xraydb
 pluggy==1.4.0
     # via pytest
 ply==3.11
@@ -412,6 +417,7 @@ scipy==1.12.0
     #   scikit-image
     #   scikit-learn
     #   sparse
+    #   xraydb
 silx==2.0.1
     # via pyfai
 six==1.16.0
@@ -423,6 +429,8 @@ smmap==5.0.1
     # via gitdb
 sparse==0.15.1
     # via hyperspy
+sqlalchemy==2.0.28
+    # via xraydb
 stack-data==0.6.3
     # via ipython
 sympy==1.12
@@ -474,6 +482,7 @@ typing-extensions==4.10.0
     # via
     #   mypy
     #   pint
+    #   sqlalchemy
 tzdata==2024.1
     # via
     #   pandas
@@ -482,6 +491,7 @@ tzlocal==4.3
     # via
     #   nionswift
     #   pynxtools
+    #   pynxtools-em (pyproject.toml)
 uncertainties==3.1.7
     # via lmfit
 urllib3==2.2.1
@@ -494,6 +504,10 @@ wheel==0.43.0
     # via pip-tools
 xarray==2024.2.0
     # via pynxtools
+xmltodict==0.13.0
+    # via pynxtools-em (pyproject.toml)
+xraydb==4.5.4
+    # via pynxtools-em (pyproject.toml)
 zarr==2.17.1
     # via hyperspy
 zipfile37==0.1.3

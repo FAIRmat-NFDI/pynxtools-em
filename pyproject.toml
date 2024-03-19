@@ -28,7 +28,10 @@ dependencies = [
     "kikuchipy>=0.9",
     "pyxem==0.16.0",
     "nionswift>=0.16.10",
-    "flatdict>=4.0.1"
+    "flatdict>=4.0.1",
+    "xmltodict",
+    "xraydb",
+    "tzlocal"
 ]
 
 [project.optional-dependencies]
