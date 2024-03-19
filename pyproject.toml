@@ -23,7 +23,7 @@ classifiers = [
 ]
 dependencies = [
     "pynxtools @ git+https://github.com/FAIRmat-NFDI/pynxtools@apm-em-plugins-nxdefs-tracking",
-    "hyperspy>=2.0",
+    "hyperspy==1.7.6",
     "rosettasciio>=0.3",
     "kikuchipy>=0.9",
     "pyxem>=0.17",
