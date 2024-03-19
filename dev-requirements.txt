@@ -104,7 +104,6 @@ hyperspy==1.7.6
     # via
     #   kikuchipy
     #   pynxtools
-    #   pynxtools-em (pyproject.toml)
     #   pyxem
 idna==3.6
     # via requests
