@@ -21,8 +21,12 @@
 
 import numpy as np
 
-from pynxtools_em.examples.ebsd_database import \
-    HEXAGONAL_GRID, SQUARE_GRID, REGULAR_TILING, FLIGHT_PLAN
+from pynxtools_em.examples.ebsd_database import (
+    HEXAGONAL_GRID,
+    SQUARE_GRID,
+    REGULAR_TILING,
+    FLIGHT_PLAN,
+)
 
 
 def get_scan_point_axis_values(inp: dict, dim_name: str):
@@ -36,10 +40,13 @@ def get_scan_point_axis_values(inp: dict, dim_name: str):
             raise ValueError(f"Unable to find required key {key} in inp !")
 
     if inp["grid_type"] in [HEXAGONAL_GRID, SQUARE_GRID]:
-        return np.asarray(np.linspace(0,
-                                      inp[f"n_{dim_name}"] - 1,
-                                      num=inp[f"n_{dim_name}"],
-                                      endpoint=True) * inp[f"s_{dim_name}"], np.float32)
+        return np.asarray(
+            np.linspace(
+                0, inp[f"n_{dim_name}"] - 1, num=inp[f"n_{dim_name}"], endpoint=True
+            )
+            * inp[f"s_{dim_name}"],
+            np.float32,
+        )
     else:
         return None
 
@@ -55,14 +62,22 @@ def threed(inp: dict):
 
 def square_grid(inp: dict):
     """Identify if square grid with specific assumptions."""
-    if inp["grid_type"] == SQUARE_GRID and inp["tiling"] == REGULAR_TILING and inp["flight_plan"] == FLIGHT_PLAN:
+    if (
+        inp["grid_type"] == SQUARE_GRID
+        and inp["tiling"] == REGULAR_TILING
+        and inp["flight_plan"] == FLIGHT_PLAN
+    ):
         return True
     return False
 
 
 def hexagonal_grid(inp: dict):
     """Identify if square grid with specific assumptions."""
-    if inp["grid_type"] == HEXAGONAL_GRID and inp["tiling"] == REGULAR_TILING and inp["flight_plan"] == FLIGHT_PLAN:
+    if (
+        inp["grid_type"] == HEXAGONAL_GRID
+        and inp["tiling"] == REGULAR_TILING
+        and inp["flight_plan"] == FLIGHT_PLAN
+    ):
         return True
     return False
 
@@ -88,9 +103,15 @@ def get_scan_point_coords(inp: dict) -> dict:
                 if "scan_point_{dim}" in inp.keys():
                     print("WARNING::Overwriting scan_point_{dim} !")
             inp["scan_point_x"] = np.tile(
-                np.linspace(0, inp["n_x"] - 1, num=inp["n_x"], endpoint=True) * inp["s_x"], inp["n_y"])
+                np.linspace(0, inp["n_x"] - 1, num=inp["n_x"], endpoint=True)
+                * inp["s_x"],
+                inp["n_y"],
+            )
             inp["scan_point_y"] = np.repeat(
-                np.linspace(0, inp["n_y"] - 1, num=inp["n_y"], endpoint=True) * inp["s_y"], inp["n_x"])
+                np.linspace(0, inp["n_y"] - 1, num=inp["n_y"], endpoint=True)
+                * inp["s_y"],
+                inp["n_x"],
+            )
         elif hexagonal_grid(inp) is True:
             for dim in dims:
                 if "scan_point_{dim}" in inp.keys():
@@ -99,9 +120,15 @@ def get_scan_point_coords(inp: dict) -> dict:
             # typically the tech partners already take into account and export scan step
             # values such that for a hexagonal grid one s_{dim} (typically s_y) is sqrt(3)/2*s_{other_dim} !
             inp["scan_point_x"] = np.tile(
-                np.linspace(0, inp["n_x"] - 1, num=inp["n_x"], endpoint=True) * inp["s_x"], inp["n_y"])
+                np.linspace(0, inp["n_x"] - 1, num=inp["n_x"], endpoint=True)
+                * inp["s_x"],
+                inp["n_y"],
+            )
             inp["scan_point_y"] = np.repeat(
-                np.linspace(0, inp["n_y"] - 1, num=inp["n_y"], endpoint=True) * inp["s_y"], inp["n_x"])
+                np.linspace(0, inp["n_y"] - 1, num=inp["n_y"], endpoint=True)
+                * inp["s_y"],
+                inp["n_x"],
+            )
         else:
             print("WARNING::{__name__} facing an unknown scan strategy !")
     else:

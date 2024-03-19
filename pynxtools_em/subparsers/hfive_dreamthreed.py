@@ -22,10 +22,14 @@ import h5py
 from typing import Dict
 
 from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
-from pynxtools_em.utils.hfive_utils import \
-    read_strings_from_dataset  # EBSD_MAP_SPACEGROUP
-from pynxtools_em.examples.ebsd_database import \
-    SQUARE_GRID, REGULAR_TILING, FLIGHT_PLAN  # ASSUME_PHASE_NAME_TO_SPACE_GROUP, HEXAGONAL_GRID
+from pynxtools_em.utils.hfive_utils import (
+    read_strings_from_dataset,
+)  # EBSD_MAP_SPACEGROUP
+from pynxtools_em.examples.ebsd_database import (
+    SQUARE_GRID,
+    REGULAR_TILING,
+    FLIGHT_PLAN,
+)  # ASSUME_PHASE_NAME_TO_SPACE_GROUP, HEXAGONAL_GRID
 
 # DREAM3D implements essentially a data analysis workflow with individual steps
 # in the DREAM3D jargon each step is referred to as a filter, filters have well-defined
@@ -74,12 +78,14 @@ DREAM_SPACEGROUPS_TO_REPRESENTATIVE_SPACEGROUP = {
     7: 83,
     8: 123,
     9: 147,
-    10: 162}
+    10: 162,
+}
 # UnknownCrystalStructure, 999, Undefined Crystal Structure
 
 
 class HdfFiveDreamThreedReader(HdfFiveBaseParser):
     """Read DREAM3D HDF5 files (from Bluequartz's DREAM3D)"""
+
     def __init__(self, file_path: str = ""):
         super().__init__(file_path)
         self.prfx = None
@@ -114,7 +120,8 @@ class HdfFiveDreamThreedReader(HdfFiveBaseParser):
             "4.3.6052.263064d",
             "1.2.828.f45085c83",
             "2.0.170.4eecce207",
-            "1.2.826.7c66a0e77"]
+            "1.2.826.7c66a0e77",
+        ]
 
     def check_if_supported(self):
         # check if instance to process matches any of these constraints
@@ -128,9 +135,15 @@ class HdfFiveDreamThreedReader(HdfFiveBaseParser):
                 if f"{req_field}" not in h5r["/"].attrs.keys():
                     self.supported = False
                     return
-            if read_strings_from_dataset(h5r["/"].attrs["DREAM3D Version"]) in self.supported_version["writer_version"]:
+            if (
+                read_strings_from_dataset(h5r["/"].attrs["DREAM3D Version"])
+                in self.supported_version["writer_version"]
+            ):
                 self.supported += 1
-            if read_strings_from_dataset(h5r["/"].attrs["FileVersion"]) in self.supported_version["schema_version"]:
+            if (
+                read_strings_from_dataset(h5r["/"].attrs["FileVersion"])
+                in self.supported_version["schema_version"]
+            ):
                 self.supported += 1
 
             if self.supported == 2:
@@ -152,7 +165,8 @@ class HdfFiveDreamThreedReader(HdfFiveBaseParser):
             "group_data": None,
             "group_phases": None,
             "is_simulated": None,
-            "roi_info": None}
+            "roi_info": None,
+        }
         # is_simulated is True when that DREAM3D pipeline generated just a synthetic structure
         # roi_info should be pair of absolute path to dataset (HDF5) and BC, CI or MAD
         # (like BC, CI, or MAD) to explain from which to render a greyscale image of the ROI
@@ -167,8 +181,8 @@ class HdfFiveDreamThreedReader(HdfFiveBaseParser):
                 candidate_paths.append((hdf_node_path, idx))
         #    which has childs "DIMENSIONS, ORIGIN, SPACING"
         for path_idx in candidate_paths:
-            head = path_idx[0][0:path_idx[1]]
-            tail = path_idx[0][path_idx[1]:]
+            head = path_idx[0][0 : path_idx[1]]
+            tail = path_idx[0][path_idx[1] :]
             found = 0
             req_fields = ["DIMENSIONS", "ORIGIN", "SPACING"]
             for req_field in req_fields:
@@ -188,9 +202,12 @@ class HdfFiveDreamThreedReader(HdfFiveBaseParser):
         i_j_k = (None, None, None)
         group_data = None
         for entry in self.datasets.keys():
-            if entry.startswith(f"{group_geometry}") is True and entry.endswith(f"EulerAngles") is True:
+            if (
+                entry.startswith(f"{group_geometry}") is True
+                and entry.endswith(f"EulerAngles") is True
+            ):
                 group_data = entry[0:-12]  # removing the trailing fwslash
-        #       which has a dset of named EulerAngles shape 4d, (i, j, k, 1) +
+                #       which has a dset of named EulerAngles shape 4d, (i, j, k, 1) +
                 shp = self.datasets[entry][2]
                 if isinstance(shp, tuple) and len(shp) == 4:
                     if shp[3] == 3:
@@ -202,15 +219,17 @@ class HdfFiveDreamThreedReader(HdfFiveBaseParser):
         #       which has a dset named BC or CI or MAD shape 4d (i, j, k, 1) +
         group_roi = None
         roi_info = (None, None)
-        one_key_required = {"BC": "bc",
-                            "Band Contrast": "bc",
-                            "BandContrast": "bc",
-                            "CI": "ci",
-                            "Confidence Index": "ci",
-                            "ConfidenceIndex": "ci",
-                            "MAD": "mad",
-                            "Mean Angular Deviation": "mad",
-                            "MeanAngularDeviation": "mad"}
+        one_key_required = {
+            "BC": "bc",
+            "Band Contrast": "bc",
+            "BandContrast": "bc",
+            "CI": "ci",
+            "Confidence Index": "ci",
+            "ConfidenceIndex": "ci",
+            "MAD": "mad",
+            "Mean Angular Deviation": "mad",
+            "MeanAngularDeviation": "mad",
+        }
         for key in one_key_required.keys():
             if f"{group_data}/{key}" in self.datasets.keys():
                 shp = self.datasets[f"{group_data}/{key}"][2]
@@ -246,12 +265,19 @@ class HdfFiveDreamThreedReader(HdfFiveBaseParser):
                         group_phases = entry[0:-18]  # remove trailing fwslash
         else:
             is_simulated = False
-            possible_locs = ["Phase Data", "CellEnsembleData"]  # these locations found in the examples but likely they can be changed depending on how the filters are set
+            possible_locs = [
+                "Phase Data",
+                "CellEnsembleData",
+            ]  # these locations found in the examples but likely they can be changed depending on how the filters are set
             for loc in ["Phase Data", "CellEnsembleData"]:
                 if f"{group_geometry}/{loc}/CrystalStructures" in self.datasets.keys():
                     group_phases = f"{group_geometry}/{loc}"
                     found = 0
-                    for req_field in ["CrystalStructures", "LatticeConstants", "MaterialName"]:
+                    for req_field in [
+                        "CrystalStructures",
+                        "LatticeConstants",
+                        "MaterialName",
+                    ]:
                         if f"{group_phases}/{req_field}" in self.datasets.keys():
                             found += 1
                     if found != 3:
@@ -292,12 +318,15 @@ class HdfFiveDreamThreedReader(HdfFiveBaseParser):
 
     def parse_and_normalize_ebsd_header(self, ckey: str):
         with h5py.File(self.file_path, "r") as h5r:
-            dims = h5r[f"{self.path_registry['group_geometry']}"
-                       f"/_SIMPL_GEOMETRY/DIMENSIONS"][:].flatten()
-            org = h5r[f"{self.path_registry['group_geometry']}"
-                      f"/_SIMPL_GEOMETRY/ORIGIN"][:].flatten()
-            spc = h5r[f"{self.path_registry['group_geometry']}"
-                      f"/_SIMPL_GEOMETRY/SPACING"][:].flatten()
+            dims = h5r[
+                f"{self.path_registry['group_geometry']}" f"/_SIMPL_GEOMETRY/DIMENSIONS"
+            ][:].flatten()
+            org = h5r[
+                f"{self.path_registry['group_geometry']}" f"/_SIMPL_GEOMETRY/ORIGIN"
+            ][:].flatten()
+            spc = h5r[
+                f"{self.path_registry['group_geometry']}" f"/_SIMPL_GEOMETRY/SPACING"
+            ][:].flatten()
             idx = 0
 
             # TODO::is it correct an assumption that DREAM3D regrids using square voxel
@@ -320,26 +349,40 @@ class HdfFiveDreamThreedReader(HdfFiveBaseParser):
         self.tmp[ckey]["space_group"] = []
         self.tmp[ckey]["phases"] = {}
         with h5py.File(self.file_path, "r") as h5r:
-            idx = np.asarray(h5r[f"{self.path_registry['group_phases']}/CrystalStructures"][:].flatten(), np.uint32)
+            idx = np.asarray(
+                h5r[f"{self.path_registry['group_phases']}/CrystalStructures"][
+                    :
+                ].flatten(),
+                np.uint32,
+            )
             print(f"csys {np.shape(idx)}, {idx}")
             nms = None
             if f"{self.path_registry['group_phases']}/MaterialName" in h5r:
-                nms = read_strings_from_dataset(h5r[f"{self.path_registry['group_phases']}/MaterialName"][:])
+                nms = read_strings_from_dataset(
+                    h5r[f"{self.path_registry['group_phases']}/MaterialName"][:]
+                )
                 print(f"nms ---------> {nms}")
                 if len(idx) != len(nms):
-                    raise ValueError(f"{__name__} MaterialName was recoverable but array has different length than for CrystalStructures!")
+                    raise ValueError(
+                        f"{__name__} MaterialName was recoverable but array has different length than for CrystalStructures!"
+                    )
             # alternatively
             if f"{self.path_registry['group_phases']}/PhaseName" in h5r:
-                nms = read_strings_from_dataset(h5r[f"{self.path_registry['group_phases']}/PhaseName"][:])
+                nms = read_strings_from_dataset(
+                    h5r[f"{self.path_registry['group_phases']}/PhaseName"][:]
+                )
                 print(f"nms ---------> {nms}")
                 if len(idx) != len(nms):
-                    raise ValueError(f"{__name__} PhaseName was recoverable but array has different length than for CrystalStructures!")
+                    raise ValueError(
+                        f"{__name__} PhaseName was recoverable but array has different length than for CrystalStructures!"
+                    )
             ijk = 0
             for entry in idx:
                 if entry != 999:
                     self.tmp[ckey]["phases"][ijk] = {}
-                    self.tmp[ckey]["phases"][ijk]["space_group"] \
-                        = DREAM_SPACEGROUPS_TO_REPRESENTATIVE_SPACEGROUP[entry]
+                    self.tmp[ckey]["phases"][ijk]["space_group"] = (
+                        DREAM_SPACEGROUPS_TO_REPRESENTATIVE_SPACEGROUP[entry]
+                    )
                     self.tmp[ckey]["phases"][ijk]["phase_name"] = nms[ijk]
                 ijk += 1
                 # TODO::need to do a reindexing of the phase ids as they
@@ -361,20 +404,24 @@ class HdfFiveDreamThreedReader(HdfFiveBaseParser):
     def parse_and_normalize_ebsd_data(self, ckey: str):
         with h5py.File(self.file_path, "r") as h5r:
             self.tmp[ckey]["euler"] = np.asarray(
-                h5r[f"{self.path_registry['group_data']}/EulerAngles"], np.float32)
+                h5r[f"{self.path_registry['group_data']}/EulerAngles"], np.float32
+            )
             old_shp = np.shape(self.tmp[ckey]["euler"])
-            self.tmp[ckey]["euler"] = np.reshape(self.tmp[ckey]["euler"],
-                                                 (int(np.prod(old_shp[0:3])), int(old_shp[3])),
-                                                 order="C")
+            self.tmp[ckey]["euler"] = np.reshape(
+                self.tmp[ckey]["euler"],
+                (int(np.prod(old_shp[0:3])), int(old_shp[3])),
+                order="C",
+            )
             # TODO::DREAM3D uses Rowenhorst et. al. conventions
             # so we are already in positive halfspace, and radiants
 
             self.tmp[ckey]["phase_id"] = np.asarray(
-                h5r[f"{self.path_registry['group_data']}/Phases"], np.int32)
+                h5r[f"{self.path_registry['group_data']}/Phases"], np.int32
+            )
             old_shp = np.shape(self.tmp[ckey]["phase_id"])
-            self.tmp[ckey]["phase_id"] = np.reshape(self.tmp[ckey]["phase_id"],
-                                                    (int(np.prod(old_shp[0:3])),),
-                                                    order="C")
+            self.tmp[ckey]["phase_id"] = np.reshape(
+                self.tmp[ckey]["phase_id"], (int(np.prod(old_shp[0:3])),), order="C"
+            )
             print(np.unique(self.tmp[ckey]["phase_id"]))
             # Phases here stores C-style index which Phase of the possible ones
             # we are facing, the marker 999 is equivalent to the null-model notIndexed
@@ -383,18 +430,35 @@ class HdfFiveDreamThreedReader(HdfFiveBaseParser):
 
             # normalize pixel coordinates to physical positions even though the origin can still dangle somewhere
             if self.tmp[ckey]["grid_type"] != SQUARE_GRID:
-                print(f"WARNING: Check carefully correct interpretation of scan_point coords!")
+                print(
+                    f"WARNING: Check carefully correct interpretation of scan_point coords!"
+                )
             # TODO::all other hfive parsers normalize scan_point_{dim} arrays into
             # tiled and repeated coordinate tuples and not like below
             # only the dimension scale axes values!
             for dim in ["x", "y", "z"]:
-                self.tmp[ckey][f"scan_point_{dim}"] = np.asarray(np.linspace(
-                    0, self.tmp[ckey][f"n_{dim}"] - 1, num=self.tmp[ckey][f"n_{dim}"], endpoint=True)
-                    * self.tmp[ckey][f"s_{dim}"] + 0.5 * self.tmp[ckey][f"s_{dim}"], np.float32)
+                self.tmp[ckey][f"scan_point_{dim}"] = np.asarray(
+                    np.linspace(
+                        0,
+                        self.tmp[ckey][f"n_{dim}"] - 1,
+                        num=self.tmp[ckey][f"n_{dim}"],
+                        endpoint=True,
+                    )
+                    * self.tmp[ckey][f"s_{dim}"]
+                    + 0.5 * self.tmp[ckey][f"s_{dim}"],
+                    np.float32,
+                )
             # ROI overviewed rendered from either bc, ci, or mad
-            if isinstance(self.path_registry["roi_info"], tuple) and len(self.path_registry["roi_info"]) == 2:
-                if isinstance(self.path_registry["roi_info"][0], str) is True and isinstance(self.path_registry["roi_info"][1], str) is True:
-                    self.tmp[ckey][self.path_registry["roi_info"][1]] \
-                        = np.asarray(h5r[f"{self.path_registry['roi_info'][0]}"], np.float32)
+            if (
+                isinstance(self.path_registry["roi_info"], tuple)
+                and len(self.path_registry["roi_info"]) == 2
+            ):
+                if (
+                    isinstance(self.path_registry["roi_info"][0], str) is True
+                    and isinstance(self.path_registry["roi_info"][1], str) is True
+                ):
+                    self.tmp[ckey][self.path_registry["roi_info"][1]] = np.asarray(
+                        h5r[f"{self.path_registry['roi_info'][0]}"], np.float32
+                    )
             for key, val in self.tmp[ckey].items():
                 print(f"{key}, {np.shape(val)}")

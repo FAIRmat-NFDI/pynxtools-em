@@ -22,31 +22,39 @@ from typing import Dict, List
 from pynxtools_em.concepts.nxs_object import NxObject
 
 
-NX_EM_EDS_INDEXING_HDF_PATH = ["indexing/element_names-field",
-                               "indexing/IMAGE_R_SET/PROCESS-group",
-                               "indexing/IMAGE_R_SET/PROCESS/peaks-field",
-                               "indexing/IMAGE_R_SET/description-field",
-                               "indexing/IMAGE_R_SET/iupac_line_candidates-field",
-                               "indexing/IMAGE_R_SET/PROCESS/weights-field",
-                               "indexing/IMAGE_R_SET/PROCESS/weights-field",
-                               "indexing/IMAGE_R_SET/image_twod/axis_x-field",
-                               "indexing/IMAGE_R_SET/image_twod/axis_x@long_name-attribute",
-                               "indexing/IMAGE_R_SET/image_twod/axis_y-field",
-                               "indexing/IMAGE_R_SET/image_twod/axis_y@long_name-attribute",
-                               "indexing/IMAGE_R_SET/image_twod/intensity-field",
-                               "indexing/PEAK/ION/energy-field",
-                               "indexing/PEAK/ION/energy_range-field",
-                               "indexing/PEAK/ION/iupac_line_names-field"]
+NX_EM_EDS_INDEXING_HDF_PATH = [
+    "indexing/element_names-field",
+    "indexing/IMAGE_R_SET/PROCESS-group",
+    "indexing/IMAGE_R_SET/PROCESS/peaks-field",
+    "indexing/IMAGE_R_SET/description-field",
+    "indexing/IMAGE_R_SET/iupac_line_candidates-field",
+    "indexing/IMAGE_R_SET/PROCESS/weights-field",
+    "indexing/IMAGE_R_SET/PROCESS/weights-field",
+    "indexing/IMAGE_R_SET/image_twod/axis_x-field",
+    "indexing/IMAGE_R_SET/image_twod/axis_x@long_name-attribute",
+    "indexing/IMAGE_R_SET/image_twod/axis_y-field",
+    "indexing/IMAGE_R_SET/image_twod/axis_y@long_name-attribute",
+    "indexing/IMAGE_R_SET/image_twod/intensity-field",
+    "indexing/PEAK/ION/energy-field",
+    "indexing/PEAK/ION/energy_range-field",
+    "indexing/PEAK/ION/iupac_line_names-field",
+]
 
 
-class NxEmEdsIndexing():
+class NxEmEdsIndexing:
     def __init__(self):
         self.tmp: Dict = {}
         self.tmp["source"] = None
         for entry in NX_EM_EDS_INDEXING_HDF_PATH:
             if entry.endswith("-field") is True:
-                self.tmp[entry[0:len(entry) - len("-field")]] = NxObject(eqv_hdf="dataset")
+                self.tmp[entry[0 : len(entry) - len("-field")]] = NxObject(
+                    eqv_hdf="dataset"
+                )
             elif entry.endswith("-attribute") is True:
-                self.tmp[entry[0:len(entry) - len("-attribute")]] = NxObject(eqv_hdf="attribute")
+                self.tmp[entry[0 : len(entry) - len("-attribute")]] = NxObject(
+                    eqv_hdf="attribute"
+                )
             else:
-                self.tmp[entry[0:len(entry) - len("-group")]] = NxObject(eqv_hdf="group")
+                self.tmp[entry[0 : len(entry) - len("-group")]] = NxObject(
+                    eqv_hdf="group"
+                )

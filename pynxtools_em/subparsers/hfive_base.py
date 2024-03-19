@@ -21,9 +21,14 @@ import numpy as np
 import h5py
 from typing import Dict, List
 
-from pynxtools_em.subparsers.hfive_concept import \
-    IS_GROUP, IS_REGULAR_DATASET, IS_COMPOUND_DATASET, IS_ATTRIBUTE, \
-    IS_FIELD_IN_COMPOUND_DATASET, Concept
+from pynxtools_em.subparsers.hfive_concept import (
+    IS_GROUP,
+    IS_REGULAR_DATASET,
+    IS_COMPOUND_DATASET,
+    IS_ATTRIBUTE,
+    IS_FIELD_IN_COMPOUND_DATASET,
+    Concept,
+)
 
 # the base parser implements the processing of standardized orientation maps via
 # the pyxem software package from the electron microscopy community
@@ -100,141 +105,163 @@ class HdfFiveBaseParser:
                 if hasattr(h5obj, "dtype"):
                     if hasattr(h5obj.dtype, "fields") and hasattr(h5obj.dtype, "names"):
                         if h5obj.dtype.names is not None:
-                            self.datasets[node_name] \
-                                = ("IS_COMPOUND_DATASET",
-                                   type(h5obj),
-                                   np.shape(h5obj),
-                                   h5obj[0])
-                            self.instances[node_name] \
-                                = Concept(node_name,
-                                          None,
-                                          None,
-                                          type(h5obj),
-                                          np.shape(h5obj), None,
-                                          hdf_type="compound_dataset")
+                            self.datasets[node_name] = (
+                                "IS_COMPOUND_DATASET",
+                                type(h5obj),
+                                np.shape(h5obj),
+                                h5obj[0],
+                            )
+                            self.instances[node_name] = Concept(
+                                node_name,
+                                None,
+                                None,
+                                type(h5obj),
+                                np.shape(h5obj),
+                                None,
+                                hdf_type="compound_dataset",
+                            )
                             n_dims = len(np.shape(h5obj))
                             if n_dims == 1:
                                 for name in h5obj.dtype.names:
-                                    self.datasets[f"{node_name}/#{name}"] \
-                                        = ("IS_FIELD_IN_COMPOUND_DATASET",
-                                           h5obj.fields(name)[()].dtype,
-                                           np.shape(h5obj.fields(name)[()]),
-                                           h5obj.fields(name)[0])
-                                    self.instances[f"{node_name}/{name}"] \
-                                        = Concept(node_name,
-                                                  None,
-                                                  None,
-                                                  h5obj.fields(name)[()].dtype,
-                                                  np.shape(h5obj.fields(name)[()]),
-                                                  None,
-                                                  hdf_type="compound_dataset_entry")
+                                    self.datasets[f"{node_name}/#{name}"] = (
+                                        "IS_FIELD_IN_COMPOUND_DATASET",
+                                        h5obj.fields(name)[()].dtype,
+                                        np.shape(h5obj.fields(name)[()]),
+                                        h5obj.fields(name)[0],
+                                    )
+                                    self.instances[f"{node_name}/{name}"] = Concept(
+                                        node_name,
+                                        None,
+                                        None,
+                                        h5obj.fields(name)[()].dtype,
+                                        np.shape(h5obj.fields(name)[()]),
+                                        None,
+                                        hdf_type="compound_dataset_entry",
+                                    )
                             else:
                                 raise ValueError(
-                                    f"Unknown formatting of an h5py.Dataset, inspect {node_name} !")
+                                    f"Unknown formatting of an h5py.Dataset, inspect {node_name} !"
+                                )
                         else:  # h5obj.dtype.names is a tuple of struct variable names
                             n_dims = len(np.shape(h5obj))
                             if n_dims == 0:
-                                self.datasets[node_name] \
-                                    = ("IS_REGULAR_DATASET",
-                                       type(h5obj),
-                                       np.shape(h5obj),
-                                       h5obj[()])
-                                self.instances[node_name] \
-                                    = Concept(node_name,
-                                              None,
-                                              None,
-                                              type(h5obj),
-                                              np.shape(h5obj),
-                                              None,
-                                              hdf_type="regular_dataset")
+                                self.datasets[node_name] = (
+                                    "IS_REGULAR_DATASET",
+                                    type(h5obj),
+                                    np.shape(h5obj),
+                                    h5obj[()],
+                                )
+                                self.instances[node_name] = Concept(
+                                    node_name,
+                                    None,
+                                    None,
+                                    type(h5obj),
+                                    np.shape(h5obj),
+                                    None,
+                                    hdf_type="regular_dataset",
+                                )
                             elif n_dims == 1:
                                 if 0 not in np.shape(h5obj):
-                                    self.datasets[node_name] \
-                                        = ("IS_REGULAR_DATASET",
-                                           type(h5obj),
-                                           np.shape(h5obj),
-                                           h5obj[0])
-                                    self.instances[node_name] \
-                                        = Concept(node_name,
-                                                  None,
-                                                  None,
-                                                  type(h5obj),
-                                                  np.shape(h5obj),
-                                                  None,
-                                                  hdf_type="regular_dataset")
+                                    self.datasets[node_name] = (
+                                        "IS_REGULAR_DATASET",
+                                        type(h5obj),
+                                        np.shape(h5obj),
+                                        h5obj[0],
+                                    )
+                                    self.instances[node_name] = Concept(
+                                        node_name,
+                                        None,
+                                        None,
+                                        type(h5obj),
+                                        np.shape(h5obj),
+                                        None,
+                                        hdf_type="regular_dataset",
+                                    )
                                 else:
-                                    self.datasets[node_name] \
-                                        = ("IS_REGULAR_DATASET",
-                                           type(h5obj),
-                                           np.shape(h5obj),
-                                           h5obj[()])
-                                    self.instances[node_name] \
-                                        = Concept(node_name,
-                                                  None,
-                                                  None,
-                                                  type(h5obj),
-                                                  np.shape(h5obj),
-                                                  None,
-                                                  hdf_type="regular_dataset")
+                                    self.datasets[node_name] = (
+                                        "IS_REGULAR_DATASET",
+                                        type(h5obj),
+                                        np.shape(h5obj),
+                                        h5obj[()],
+                                    )
+                                    self.instances[node_name] = Concept(
+                                        node_name,
+                                        None,
+                                        None,
+                                        type(h5obj),
+                                        np.shape(h5obj),
+                                        None,
+                                        hdf_type="regular_dataset",
+                                    )
                             elif n_dims == 2:
-                                self.datasets[node_name] \
-                                    = ("IS_REGULAR_DATASET",
-                                       type(h5obj),
-                                       np.shape(h5obj),
-                                       h5obj[0, 0])
-                                self.instances[node_name] \
-                                    = Concept(node_name,
-                                              None,
-                                              None,
-                                              type(h5obj),
-                                              np.shape(h5obj),
-                                              None,
-                                              hdf_type="regular_dataset")
+                                self.datasets[node_name] = (
+                                    "IS_REGULAR_DATASET",
+                                    type(h5obj),
+                                    np.shape(h5obj),
+                                    h5obj[0, 0],
+                                )
+                                self.instances[node_name] = Concept(
+                                    node_name,
+                                    None,
+                                    None,
+                                    type(h5obj),
+                                    np.shape(h5obj),
+                                    None,
+                                    hdf_type="regular_dataset",
+                                )
                             elif n_dims == 3:
-                                self.datasets[node_name] \
-                                    = ("IS_REGULAR_DATASET",
-                                       type(h5obj),
-                                       np.shape(h5obj),
-                                       h5obj[0, 0, 0])
-                                self.instances[node_name] \
-                                    = Concept(node_name,
-                                              None,
-                                              None,
-                                              type(h5obj),
-                                              np.shape(h5obj),
-                                              None,
-                                              hdf_type="regular_dataset")
+                                self.datasets[node_name] = (
+                                    "IS_REGULAR_DATASET",
+                                    type(h5obj),
+                                    np.shape(h5obj),
+                                    h5obj[0, 0, 0],
+                                )
+                                self.instances[node_name] = Concept(
+                                    node_name,
+                                    None,
+                                    None,
+                                    type(h5obj),
+                                    np.shape(h5obj),
+                                    None,
+                                    hdf_type="regular_dataset",
+                                )
                             else:
-                                self.datasets[node_name] \
-                                    = ("IS_REGULAR_DATASET",
-                                       type(h5obj),
-                                       np.shape(h5obj),
-                                       "Inspect in HDF5 file directly!")
-                                self.instances[node_name] \
-                                    = Concept(node_name,
-                                              None,
-                                              None,
-                                              type(h5obj),
-                                              np.shape(h5obj),
-                                              None,
-                                              hdf_type="regular_dataset")
+                                self.datasets[node_name] = (
+                                    "IS_REGULAR_DATASET",
+                                    type(h5obj),
+                                    np.shape(h5obj),
+                                    "Inspect in HDF5 file directly!",
+                                )
+                                self.instances[node_name] = Concept(
+                                    node_name,
+                                    None,
+                                    None,
+                                    type(h5obj),
+                                    np.shape(h5obj),
+                                    None,
+                                    hdf_type="regular_dataset",
+                                )
                     else:
                         raise ValueError(
                             f"hasattr(h5obj.dtype, 'fields') and hasattr("
-                            f"h5obj.dtype, 'names') failed, inspect {node_name} !")
+                            f"h5obj.dtype, 'names') failed, inspect {node_name} !"
+                        )
                 else:
-                    raise ValueError(f"hasattr(h5obj, dtype) failed, inspect {node_name} !")
+                    raise ValueError(
+                        f"hasattr(h5obj, dtype) failed, inspect {node_name} !"
+                    )
         else:
             if node_name not in self.groups.keys():
-                self.groups[node_name] = ("IS_GROUP")
-                self.instances[node_name] \
-                    = Concept(node_name,
-                              None,
-                              None,
-                              type(h5obj),
-                              np.shape(h5obj),
-                              None,
-                              hdf_type="group")
+                self.groups[node_name] = "IS_GROUP"
+                self.instances[node_name] = Concept(
+                    node_name,
+                    None,
+                    None,
+                    type(h5obj),
+                    np.shape(h5obj),
+                    None,
+                    hdf_type="group",
+                )
         # if hasattr(h5obj, 'dtype') and not node_name in self.metadata.keys():
         #     self.metadata[node_name] = ["dataset"]
 
@@ -243,33 +270,43 @@ class HdfFiveBaseParser:
         for key, val in src_dct.items():
             if f"{prefix}/@{key}" not in self.attributes.keys():
                 if isinstance(val, str):
-                    self.attributes[f"{prefix}/@{key}"] \
-                        = ("IS_ATTRIBUTE", type(val), np.shape(val), str, val)
-                    self.instances[f"{prefix}/{key}"] \
-                        = Concept(f"{prefix}/@{key}",
-                                  None,
-                                  None,
-                                  type(val),
-                                  np.shape(val),
-                                  None,
-                                  hdf_type="attribute")
+                    self.attributes[f"{prefix}/@{key}"] = (
+                        "IS_ATTRIBUTE",
+                        type(val),
+                        np.shape(val),
+                        str,
+                        val,
+                    )
+                    self.instances[f"{prefix}/{key}"] = Concept(
+                        f"{prefix}/@{key}",
+                        None,
+                        None,
+                        type(val),
+                        np.shape(val),
+                        None,
+                        hdf_type="attribute",
+                    )
                 elif hasattr(val, "dtype"):
-                    self.attributes[f"{prefix}/@{key}"] \
-                        = ("IS_ATTRIBUTE",
-                           type(val),
-                           np.shape(val),
-                           val.dtype, val)
-                    self.instances[f"{prefix}/{key}"] \
-                        = Concept(f"{prefix}/@{key}",
-                                  None,
-                                  None,
-                                  type(val),
-                                  np.shape(val),
-                                  None,
-                                  hdf_type="attribute")
+                    self.attributes[f"{prefix}/@{key}"] = (
+                        "IS_ATTRIBUTE",
+                        type(val),
+                        np.shape(val),
+                        val.dtype,
+                        val,
+                    )
+                    self.instances[f"{prefix}/{key}"] = Concept(
+                        f"{prefix}/@{key}",
+                        None,
+                        None,
+                        type(val),
+                        np.shape(val),
+                        None,
+                        hdf_type="attribute",
+                    )
                 else:
                     raise ValueError(
-                        f"Unknown formatting of an attribute, inspect {prefix}/@{key} !")
+                        f"Unknown formatting of an attribute, inspect {prefix}/@{key} !"
+                    )
 
     def get_content(self):
         """Walk recursively through the file to get content."""
@@ -282,8 +319,12 @@ class HdfFiveBaseParser:
             for h5path, h5ifo in self.groups.items():
                 self.get_attribute_data_structure(h5path, dict(self.h5r[h5path].attrs))
             for h5path, h5ifo in self.datasets.items():
-                if h5path.count("#") == 0:  # skip resolved fields in compound data types
-                    self.get_attribute_data_structure(h5path, dict(self.h5r[h5path].attrs))
+                if (
+                    h5path.count("#") == 0
+                ):  # skip resolved fields in compound data types
+                    self.get_attribute_data_structure(
+                        h5path, dict(self.h5r[h5path].attrs)
+                    )
 
     def report_groups(self):
         print(f"{self.file_path} contains the following groups:")
@@ -305,35 +346,49 @@ class HdfFiveBaseParser:
         self.report_datasets()
         self.report_attributes()
 
-    def store_report(self,
-                     store_instances=False,
-                     store_instances_templatized=True,
-                     store_templates=False):
+    def store_report(
+        self,
+        store_instances=False,
+        store_instances_templatized=True,
+        store_templates=False,
+    ):
         if store_instances is True:
-            print(f"Storing analysis results in "
-                  f"{self.file_path[self.file_path.rfind('/')+1:]}."
-                  f"EbsdHdfFileInstanceNames.txt...")
+            print(
+                f"Storing analysis results in "
+                f"{self.file_path[self.file_path.rfind('/')+1:]}."
+                f"EbsdHdfFileInstanceNames.txt..."
+            )
             with open(f"{self.file_path}.EbsdHdfFileInstanceNames.txt", "w") as txt:
                 for instance_name, concept in self.instances.items():
-                    txt.write(f"/{instance_name}, hdf: {concept.hdf}, "
-                              f"type: {concept.dtype}, shape: {concept.shape}\n")
+                    txt.write(
+                        f"/{instance_name}, hdf: {concept.hdf}, "
+                        f"type: {concept.dtype}, shape: {concept.shape}\n"
+                    )
 
         if store_instances_templatized is True:
-            print(f"Storing analysis results in "
-                  f"{self.file_path[self.file_path.rfind('/')+1:]}"
-                  f".EbsdHdfFileInstanceNamesTemplatized.txt...")
-            with open(f"{self.file_path}.EbsdHdfFileInstanceNamesTemplatized.txt", "w") as txt:
+            print(
+                f"Storing analysis results in "
+                f"{self.file_path[self.file_path.rfind('/')+1:]}"
+                f".EbsdHdfFileInstanceNamesTemplatized.txt..."
+            )
+            with open(
+                f"{self.file_path}.EbsdHdfFileInstanceNamesTemplatized.txt", "w"
+            ) as txt:
                 for instance_name, concept in self.instances.items():
                     txt.write(f"/{instance_name}, hdf: {concept.hdf}\n")
 
         if store_templates is True:
-            print(f"Storing analysis results in "
-                  f"{self.file_path[self.file_path.rfind('/')+1:]}"
-                  f".EbsdHdfFileTemplateNames.txt...")
+            print(
+                f"Storing analysis results in "
+                f"{self.file_path[self.file_path.rfind('/')+1:]}"
+                f".EbsdHdfFileTemplateNames.txt..."
+            )
             with open(f"{self.file_path}.EbsdHdfFileTemplateNames.txt", "w") as txt:
                 for template_name, concept in self.templates.items():
-                    txt.write(f"{template_name}, hdf: {concept.hdf}, "
-                              f"type: {concept.dtype}, shape: {concept.shape}\n")
+                    txt.write(
+                        f"{template_name}, hdf: {concept.hdf}, "
+                        f"type: {concept.dtype}, shape: {concept.shape}\n"
+                    )
 
     def get_attribute_value(self, h5path):
         if self.h5r is not None:
@@ -360,8 +415,8 @@ class HdfFiveBaseParser:
             # implement get the entire compound dataset
             if h5path.count("#") == 1:
                 # with (self.file_path, "r") as h5r:
-                obj = self.h5r[h5path[0:h5path.rfind("#")]]
-                return obj.fields(h5path[h5path.rfind("#") + 1:])[:]
+                obj = self.h5r[h5path[0 : h5path.rfind("#")]]
+                return obj.fields(h5path[h5path.rfind("#") + 1 :])[:]
             return None
 
     def get_value(self, h5path):
@@ -375,6 +430,7 @@ class HdfFiveBaseParser:
             return self.get_attribute_value(h5path)
         # no need to check groups as they have no value
         return None
+
 
 # Like TIFF, HDF5 is a container file format
 # Therefore, inspecting the mime type alone is insufficient to infer the schema

@@ -21,14 +21,18 @@
 
 # ,duplicate-code
 
-from pynxtools_em.geometry.handed_cartesian \
-    import REFERENCE_FRAMES, AXIS_DIRECTIONS, is_cs_well_defined
+from pynxtools_em.geometry.handed_cartesian import (
+    REFERENCE_FRAMES,
+    AXIS_DIRECTIONS,
+    is_cs_well_defined,
+)
 
-from pynxtools_em.concepts.concept_mapper \
-    import variadic_path_to_specific_path, apply_modifier
+from pynxtools_em.concepts.concept_mapper import (
+    variadic_path_to_specific_path,
+    apply_modifier,
+)
 
-from pynxtools_em.geometry.geometry \
-    import NxEmConventions
+from pynxtools_em.geometry.geometry import NxEmConventions
 
 # example how to check against different types of Euler angle conventions
 # from pynxtools_em.geometry.euler_angle_convention \
@@ -40,11 +44,11 @@ from pynxtools_em.geometry.geometry \
 
 
 class NxEmConventionMapper:
-    """TODO::
+    """TODO::"""
 
-    """
-
-    def __init__(self, file_name: str, entry_id: int = 1):  # , pattern_simulation: bool):
+    def __init__(
+        self, file_name: str, entry_id: int = 1
+    ):  # , pattern_simulation: bool):
         """Fill template with ELN pieces of information."""
         if entry_id > 0:
             self.entry_id = entry_id

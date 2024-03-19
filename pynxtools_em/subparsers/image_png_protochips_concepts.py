@@ -18,8 +18,7 @@
 """Configuration of the image_png_protochips subparser."""
 
 from typing import List
-from pynxtools_em.subparsers.image_png_protochips_cfg import \
-    PNG_PROTOCHIPS_TO_NEXUS_CFG
+from pynxtools_em.subparsers.image_png_protochips_cfg import PNG_PROTOCHIPS_TO_NEXUS_CFG
 
 
 def get_protochips_variadic_concept(png_metadata_tag) -> str:

@@ -20,8 +20,7 @@
 # pylint: disable=no-member,too-few-members
 
 from typing import List
-from pynxtools_em.concepts.concept_mapper \
-    import variadic_path_to_specific_path
+from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
 
 
 PYNXTOOLS_VERSION = "n/a"
@@ -31,23 +30,26 @@ NXEM_NAME = "NXem"
 NXEM_VERSION = "n/a"
 NXEM_URL = "https://www.github.com/FAIRmat-NFDI/nexus_definitions"
 
-NxEmRoot = {"/ENTRY[entry*]/PROGRAM[program1]/program": "pynxtools/dataconverter/readers/em",
-            "/ENTRY[entry*]/PROGRAM[program1]/program/@version": PYNXTOOLS_VERSION,
-            "/ENTRY[entry*]/PROGRAM[program1]/program/@url": PYNXTOOLS_URL,
-            "/ENTRY[entry*]/@url": NXEM_URL,
-            "/ENTRY[entry*]/definition": NXEM_NAME,
-            "/ENTRY[entry*]/definition/@version": NXEM_VERSION}
+NxEmRoot = {
+    "/ENTRY[entry*]/PROGRAM[program1]/program": "pynxtools/dataconverter/readers/em",
+    "/ENTRY[entry*]/PROGRAM[program1]/program/@version": PYNXTOOLS_VERSION,
+    "/ENTRY[entry*]/PROGRAM[program1]/program/@url": PYNXTOOLS_URL,
+    "/ENTRY[entry*]/@url": NXEM_URL,
+    "/ENTRY[entry*]/definition": NXEM_NAME,
+    "/ENTRY[entry*]/definition/@version": NXEM_VERSION,
+}
 # alternatively the above-mentioned program1 entries to place under "/"
 
 
-class NxEmAppDef():
-    """Add NeXus NXem appdef specific contextualization.
+class NxEmAppDef:
+    """Add NeXus NXem appdef specific contextualization."""
 
-    """
     def __init__(self):
         pass
 
-    def parse(self, template: dict, entry_id: int = 1, cmd_line_args: List = []) -> dict:
+    def parse(
+        self, template: dict, entry_id: int = 1, cmd_line_args: List = []
+    ) -> dict:
         """Parse application definition."""
         for nx_path, value in NxEmRoot.items():
             if (nx_path != "IGNORE") and (nx_path != "UNCLEAR"):
@@ -61,10 +63,9 @@ class NxEmAppDef():
         return template
 
 
-class NxConcept():
-    """"Define a NeXus concept object to handle paths.
+class NxConcept:
+    """ "Define a NeXus concept object to handle paths."""
 
-    """
     def __init__(self, hdf_paths: List = []):
         # TODO::remove redundant code for instantiating specific NxConcepts like
         # NxSpectrum, NxImageRealSpaceSet, NxEmEdsIndexing

@@ -29,10 +29,10 @@ def specific_to_variadic(token):
     if isinstance(token, str) and token != "":
         concept = token.strip()
         idxs = re.finditer(r".\[[0-9]+\].", concept)
-        if (sum(1 for _ in idxs) > 0):
+        if sum(1 for _ in idxs) > 0:
             variadic = concept
             for idx in re.finditer(r".\[[0-9]+\].", concept):
-                variadic = variadic.replace(concept[idx.start(0):idx.end(0)], ".[*].")
+                variadic = variadic.replace(concept[idx.start(0) : idx.end(0)], ".[*].")
             return variadic
         else:
             return concept

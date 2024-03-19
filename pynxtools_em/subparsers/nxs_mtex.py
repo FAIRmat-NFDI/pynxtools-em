@@ -19,12 +19,16 @@
 
 import re
 import h5py
+
 # from typing_extensions import SupportsIndex
 # from typing import Any
 from ase.data import chemical_symbols
 
-from pynxtools_em.examples.ebsd_database import \
-    FreeTextToUniquePhase, UniquePhaseToAtomTypes, ProjectIdToCitation
+from pynxtools_em.examples.ebsd_database import (
+    FreeTextToUniquePhase,
+    UniquePhaseToAtomTypes,
+    ProjectIdToCitation,
+)
 
 """
 README.md
@@ -51,10 +55,9 @@ of the sub-parsers.
 """
 
 
-class NxEmNxsMTexSubParser():
-    """Map content from *.nxs.mtex files on an instance of NXem.
+class NxEmNxsMTexSubParser:
+    """Map content from *.nxs.mtex files on an instance of NXem."""
 
-    """
     def __init__(self, entry_id: int = 1, input_file_name: str = ""):
         if entry_id > 0:
             self.entry_id = entry_id
@@ -86,14 +89,16 @@ class NxEmNxsMTexSubParser():
             for node_name in h5r[trg].keys():
                 if re.match("phase[0-9]+", node_name) is not None:
                     if f"{trg}/{node_name}/phase_name" in h5r:
-                        obj = h5r[f"{trg}/{node_name}/phase_name"][()].decode('utf-8')
+                        obj = h5r[f"{trg}/{node_name}/phase_name"][()].decode("utf-8")
                         free_text_phase_name = obj.rstrip(" ").lstrip(" ")
                         if free_text_phase_name in FreeTextToUniquePhase.keys():
-                            unique_phase_name \
-                                = FreeTextToUniquePhase[free_text_phase_name]
+                            unique_phase_name = FreeTextToUniquePhase[
+                                free_text_phase_name
+                            ]
                             if unique_phase_name in UniquePhaseToAtomTypes.keys():
-                                curr_atom_types \
-                                    = UniquePhaseToAtomTypes[unique_phase_name]
+                                curr_atom_types = UniquePhaseToAtomTypes[
+                                    unique_phase_name
+                                ]
                                 symbols = curr_atom_types.split(";")
                                 for symbol in symbols:
                                     if symbol in chemical_symbols[1::]:
@@ -101,8 +106,9 @@ class NxEmNxsMTexSubParser():
         h5r.close()
 
         if len(atom_types) > 0:
-            template[f"/ENTRY[entry{self.entry_id}]/sample/atom_types"] \
-                = ", ".join(list(atom_types))
+            template[f"/ENTRY[entry{self.entry_id}]/sample/atom_types"] = ", ".join(
+                list(atom_types)
+            )
         else:
             template[f"/ENTRY[entry{self.entry_id}]/sample/atom_types"] = ""
         return template
@@ -115,27 +121,32 @@ class NxEmNxsMTexSubParser():
             # data citation
             cite_id = 1
             if "data" in ProjectIdToCitation[proj_id_key].keys():
-                template[f"/ENTRY[entry{self.entry_id}]/CITE[cite{cite_id}]/url"] \
-                    = ProjectIdToCitation[proj_id_key]["data"]
-                template[f"/ENTRY[entry{self.entry_id}]/CITE[cite{cite_id}]/description"] \
-                    = "Link to the actual data repository from where these data were collected."
+                template[f"/ENTRY[entry{self.entry_id}]/CITE[cite{cite_id}]/url"] = (
+                    ProjectIdToCitation[proj_id_key]["data"]
+                )
+                template[
+                    f"/ENTRY[entry{self.entry_id}]/CITE[cite{cite_id}]/description"
+                ] = "Link to the actual data repository from where these data were collected."
                 cite_id += 1
             if "paper" in ProjectIdToCitation[proj_id_key].keys():
-                template[f"/ENTRY[entry{self.entry_id}]/CITE[cite{cite_id}]/url"] \
-                    = ProjectIdToCitation[proj_id_key]["paper"]
-                template[f"/ENTRY[entry{self.entry_id}]/CITE[cite{cite_id}]/description"] \
-                    = "Link to (the or a) paper which is evidently associated with these data."
+                template[f"/ENTRY[entry{self.entry_id}]/CITE[cite{cite_id}]/url"] = (
+                    ProjectIdToCitation[proj_id_key]["paper"]
+                )
+                template[
+                    f"/ENTRY[entry{self.entry_id}]/CITE[cite{cite_id}]/description"
+                ] = "Link to (the or a) paper which is evidently associated with these data."
         return template
 
-    def example_ebsd_database_set_project(self,
-                                          template: dict,
-                                          proj_id: str = "",
-                                          map_id: str = "") -> dict:
+    def example_ebsd_database_set_project(
+        self, template: dict, proj_id: str = "", map_id: str = ""
+    ) -> dict:
         """Add top-level project and map identifier."""
-        template[f"/ENTRY[entry{self.entry_id}]/experiment_identifier"] \
-            = f"map_id: {map_id}"
-        template[f"/ENTRY[entry{self.entry_id}]/experiment_description"] \
-            = f"project_id: {proj_id}, map_id: {map_id}"
+        template[f"/ENTRY[entry{self.entry_id}]/experiment_identifier"] = (
+            f"map_id: {map_id}"
+        )
+        template[f"/ENTRY[entry{self.entry_id}]/experiment_description"] = (
+            f"project_id: {proj_id}, map_id: {map_id}"
+        )
         # TODO::start_time and end_time, other missing sample details
         return template
 

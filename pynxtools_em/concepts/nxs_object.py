@@ -27,19 +27,22 @@ from typing import Dict
 class NxObject:
     """An object in a graph e.g. an attribute, dataset, or group in NeXus."""
 
-    def __init__(self,
-                 name: str = None,
-                 unit: str = None,
-                 dtype=None,
-                 value=None,
-                 **kwargs):
+    def __init__(
+        self, name: str = None, unit: str = None, dtype=None, value=None, **kwargs
+    ):
         if (name is not None) and (name == ""):
-            raise ValueError(f"Value for argument name needs to be a non-empty string !")
+            raise ValueError(
+                f"Value for argument name needs to be a non-empty string !"
+            )
         if (unit is not None) and (unit == ""):
-            raise ValueError(f"Value for argument unit needs to be a non-empty string !")
+            raise ValueError(
+                f"Value for argument unit needs to be a non-empty string !"
+            )
         if (dtype is not None) and isinstance(dtype, type) is False:
-            raise ValueError(f"Value of argument dtype must not be None "
-                             f" and a valid, ideally a numpy datatype !")
+            raise ValueError(
+                f"Value of argument dtype must not be None "
+                f" and a valid, ideally a numpy datatype !"
+            )
         # self.doc = None  # docstring
         self.name = name  # name of the field
         self.unit = unit  # not unit category but actual unit
@@ -55,7 +58,9 @@ class NxObject:
             if kwargs["eqv_hdf"] in ["group", "dataset", "attribute"]:
                 self.eqv_hdf = kwargs["eqv_hdf"]
             else:
-                raise ValueError(f"Value of keyword argument eqv_hdf needs to be one of grp, dset, attr !")
+                raise ValueError(
+                    f"Value of keyword argument eqv_hdf needs to be one of grp, dset, attr !"
+                )
 
     def __repr__(self):
         """Report values."""

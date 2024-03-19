@@ -23,14 +23,24 @@ from typing import Dict
 from diffpy.structure import Lattice, Structure
 
 from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
-from pynxtools_em.utils.hfive_utils import EULER_SPACE_SYMMETRY, \
-    read_strings_from_dataset, read_first_scalar, format_euler_parameterization
-from pynxtools_em.examples.ebsd_database import \
-    ASSUME_PHASE_NAME_TO_SPACE_GROUP, HEXAGONAL_GRID, SQUARE_GRID, REGULAR_TILING, FLIGHT_PLAN
+from pynxtools_em.utils.hfive_utils import (
+    EULER_SPACE_SYMMETRY,
+    read_strings_from_dataset,
+    read_first_scalar,
+    format_euler_parameterization,
+)
+from pynxtools_em.examples.ebsd_database import (
+    ASSUME_PHASE_NAME_TO_SPACE_GROUP,
+    HEXAGONAL_GRID,
+    SQUARE_GRID,
+    REGULAR_TILING,
+    FLIGHT_PLAN,
+)
 
 
 class HdfFiveEdaxOimAnalysisReader(HdfFiveBaseParser):
     """Read EDAX (O)H5"""
+
     def __init__(self, file_path: str = ""):
         super().__init__(file_path)
         self.prfx = None
@@ -46,11 +56,15 @@ class HdfFiveEdaxOimAnalysisReader(HdfFiveBaseParser):
         """Init supported versions."""
         self.supported_version["tech_partner"] = ["EDAX"]
         self.supported_version["schema_name"] = ["H5"]
-        self.supported_version["schema_version"] \
-            = ["OIM Analysis 8.6.0050 x64 [18 Oct 2021]", "OIM Analysis 8.5.1002 x64 [07-17-20]"]
+        self.supported_version["schema_version"] = [
+            "OIM Analysis 8.6.0050 x64 [18 Oct 2021]",
+            "OIM Analysis 8.5.1002 x64 [07-17-20]",
+        ]
         self.supported_version["writer_name"] = ["OIM Analysis"]
-        self.supported_version["writer_version"] \
-            = ["OIM Analysis 8.6.0050 x64 [18 Oct 2021]", "OIM Analysis 8.5.1002 x64 [07-17-20]"]
+        self.supported_version["writer_version"] = [
+            "OIM Analysis 8.6.0050 x64 [18 Oct 2021]",
+            "OIM Analysis 8.5.1002 x64 [07-17-20]",
+        ]
 
     def check_if_supported(self):
         """Check if instance matches all constraints to qualify as old EDAX"""
@@ -62,18 +76,27 @@ class HdfFiveEdaxOimAnalysisReader(HdfFiveBaseParser):
                     self.supported = False
                     return
 
-            self.version["tech_partner"] = read_strings_from_dataset(h5r["/Manufacturer"][()])
+            self.version["tech_partner"] = read_strings_from_dataset(
+                h5r["/Manufacturer"][()]
+            )
             # for 8.6.0050 but for 8.5.1002 it is a matrix, this is because how strings end up in HDF5 allowed for so much flexibility!
             if self.version["tech_partner"] in self.supported_version["tech_partner"]:
                 self.supported += 1
-            self.version["schema_version"] = read_strings_from_dataset(h5r["/Version"][()])
-            if self.version["schema_version"] in self.supported_version["schema_version"]:
+            self.version["schema_version"] = read_strings_from_dataset(
+                h5r["/Version"][()]
+            )
+            if (
+                self.version["schema_version"]
+                in self.supported_version["schema_version"]
+            ):
                 self.supported += 1
 
             if self.supported == 2:
                 self.version["schema_name"] = self.supported_version["schema_name"]
                 self.version["writer_name"] = self.supported_version["writer_name"]
-                self.version["writer_version"] = self.supported_version["writer_version"]
+                self.version["writer_version"] = self.supported_version[
+                    "writer_version"
+                ]
                 self.supported = True
             else:
                 self.supported = False
@@ -141,10 +164,16 @@ class HdfFiveEdaxOimAnalysisReader(HdfFiveBaseParser):
                     sub_grp_name = f"{grp_name}/{phase_id}"
                     # Name
                     if f"{sub_grp_name}/MaterialName" in fp:
-                        phase_name = read_strings_from_dataset(fp[f"{sub_grp_name}/MaterialName"][0])
-                        self.tmp[ckey]["phases"][int(phase_id)]["phase_name"] = phase_name
+                        phase_name = read_strings_from_dataset(
+                            fp[f"{sub_grp_name}/MaterialName"][0]
+                        )
+                        self.tmp[ckey]["phases"][int(phase_id)]["phase_name"] = (
+                            phase_name
+                        )
                     else:
-                        raise ValueError(f"Unable to parse {sub_grp_name}/MaterialName !")
+                        raise ValueError(
+                            f"Unable to parse {sub_grp_name}/MaterialName !"
+                        )
 
                     # Reference not available only Info but this can be empty
                     self.tmp[ckey]["phases"][int(phase_id)]["reference"] = "n/a"
@@ -152,18 +181,26 @@ class HdfFiveEdaxOimAnalysisReader(HdfFiveBaseParser):
                     req_fields = ["a", "b", "c", "alpha", "beta", "gamma"]
                     for req_field in req_fields:
                         if f"{sub_grp_name}/Lattice Constant {req_field}" not in fp:
-                            raise ValueError(f"Unable to parse ../Lattice Constant {req_field} !")
-                    a_b_c = [fp[f"{sub_grp_name}/Lattice Constant a"][()],
-                             fp[f"{sub_grp_name}/Lattice Constant b"][()],
-                             fp[f"{sub_grp_name}/Lattice Constant c"][()]]
-                    angles = [fp[f"{sub_grp_name}/Lattice Constant alpha"][()],
-                              fp[f"{sub_grp_name}/Lattice Constant beta"][()],
-                              fp[f"{sub_grp_name}/Lattice Constant gamma"][()]]
+                            raise ValueError(
+                                f"Unable to parse ../Lattice Constant {req_field} !"
+                            )
+                    a_b_c = [
+                        fp[f"{sub_grp_name}/Lattice Constant a"][()],
+                        fp[f"{sub_grp_name}/Lattice Constant b"][()],
+                        fp[f"{sub_grp_name}/Lattice Constant c"][()],
+                    ]
+                    angles = [
+                        fp[f"{sub_grp_name}/Lattice Constant alpha"][()],
+                        fp[f"{sub_grp_name}/Lattice Constant beta"][()],
+                        fp[f"{sub_grp_name}/Lattice Constant gamma"][()],
+                    ]
                     # TODO::available examples support reporting in angstroem and degree
-                    self.tmp[ckey]["phases"][int(phase_id)]["a_b_c"] \
-                        = np.asarray(a_b_c, np.float32) * 0.1
-                    self.tmp[ckey]["phases"][int(phase_id)]["alpha_beta_gamma"] \
-                        = np.asarray(angles, np.float32)
+                    self.tmp[ckey]["phases"][int(phase_id)]["a_b_c"] = (
+                        np.asarray(a_b_c, np.float32) * 0.1
+                    )
+                    self.tmp[ckey]["phases"][int(phase_id)]["alpha_beta_gamma"] = (
+                        np.asarray(angles, np.float32)
+                    )
 
                     # Space Group not stored, only laue group, point group and symmetry
                     # https://doi.org/10.1107/S1600576718012724 is a relevant read here
@@ -182,16 +219,34 @@ class HdfFiveEdaxOimAnalysisReader(HdfFiveBaseParser):
 
                     if len(self.tmp[ckey]["phase"]) > 0:
                         self.tmp[ckey]["phase"].append(
-                            Structure(title=phase_name,
-                                      atoms=None,
-                                      lattice=Lattice(a_b_c[0], a_b_c[1], a_b_c[2],
-                                                      angles[0], angles[1], angles[2])))
+                            Structure(
+                                title=phase_name,
+                                atoms=None,
+                                lattice=Lattice(
+                                    a_b_c[0],
+                                    a_b_c[1],
+                                    a_b_c[2],
+                                    angles[0],
+                                    angles[1],
+                                    angles[2],
+                                ),
+                            )
+                        )
                     else:
-                        self.tmp[ckey]["phase"] \
-                            = [Structure(title=phase_name,
-                                         atoms=None,
-                                         lattice=Lattice(a_b_c[0], a_b_c[1], a_b_c[2],
-                                                         angles[0], angles[1], angles[2]))]
+                        self.tmp[ckey]["phase"] = [
+                            Structure(
+                                title=phase_name,
+                                atoms=None,
+                                lattice=Lattice(
+                                    a_b_c[0],
+                                    a_b_c[1],
+                                    a_b_c[2],
+                                    angles[0],
+                                    angles[1],
+                                    angles[2],
+                                ),
+                            )
+                        ]
         else:
             raise ValueError(f"Unable to parse {grp_name} !")
 
@@ -213,9 +268,13 @@ class HdfFiveEdaxOimAnalysisReader(HdfFiveBaseParser):
         # normalization for each software version, TODO::here rad is assumed but then values
         # as large as 12.... should not be possible
         # TODO::there has to be a mechanism which treats these dirty scan points!
-        self.tmp[ckey]["euler"][:, 0] = np.asarray(fp[f"{grp_name}/Phi1"][:], np.float32)
+        self.tmp[ckey]["euler"][:, 0] = np.asarray(
+            fp[f"{grp_name}/Phi1"][:], np.float32
+        )
         self.tmp[ckey]["euler"][:, 1] = np.asarray(fp[f"{grp_name}/Phi"][:], np.float32)
-        self.tmp[ckey]["euler"][:, 2] = np.asarray(fp[f"{grp_name}/Phi2"][:], np.float32)
+        self.tmp[ckey]["euler"][:, 2] = np.asarray(
+            fp[f"{grp_name}/Phi2"][:], np.float32
+        )
         # TODO::seems to be the situation in the example but there is no documentation
         self.tmp[ckey]["euler"] = format_euler_parameterization(self.tmp[ckey]["euler"])
 
@@ -227,7 +286,9 @@ class HdfFiveEdaxOimAnalysisReader(HdfFiveBaseParser):
         if np.all(fp[f"{grp_name}/Phase"][:] == 0):
             self.tmp[ckey]["phase_id"] = np.zeros(n_pts, np.int32) + 1
         else:
-            self.tmp[ckey]["phase_id"] = np.asarray(fp[f"{grp_name}/Phase"][:], np.int32)
+            self.tmp[ckey]["phase_id"] = np.asarray(
+                fp[f"{grp_name}/Phase"][:], np.int32
+            )
         # TODO::mark scan points as dirty
         # the line below shows an example how this could be achieved
         # is_dirty = np.zeros((n_pts,), bool)
@@ -246,20 +307,30 @@ class HdfFiveEdaxOimAnalysisReader(HdfFiveBaseParser):
         # multiplication with step size in the other one must not multiple with step size
         # as the step size has already been accounted for by the tech partner when writing!
         if self.version["schema_version"] in ["OIM Analysis 8.5.1002 x64 [07-17-20]"]:
-            print(f"{self.version['schema_version']}, tech partner accounted for calibration")
+            print(
+                f"{self.version['schema_version']}, tech partner accounted for calibration"
+            )
             if self.tmp[ckey]["grid_type"] != SQUARE_GRID:
-                print(f"WARNING: Check carefully correct interpretation of scan_point coords!")
-            self.tmp[ckey]["scan_point_x"] \
-                = np.asarray(fp[f"{grp_name}/X Position"][:], np.float32)
-            self.tmp[ckey]["scan_point_y"] \
-                = np.asarray(fp[f"{grp_name}/Y Position"][:], np.float32)
+                print(
+                    f"WARNING: Check carefully correct interpretation of scan_point coords!"
+                )
+            self.tmp[ckey]["scan_point_x"] = np.asarray(
+                fp[f"{grp_name}/X Position"][:], np.float32
+            )
+            self.tmp[ckey]["scan_point_y"] = np.asarray(
+                fp[f"{grp_name}/Y Position"][:], np.float32
+            )
         else:
             print(f"{self.version['schema_version']}, parser has to do the calibration")
             if self.tmp[ckey]["grid_type"] != SQUARE_GRID:
-                print(f"WARNING: Check carefully correct interpretation of scan_point coords!")
+                print(
+                    f"WARNING: Check carefully correct interpretation of scan_point coords!"
+                )
             self.tmp[ckey]["scan_point_x"] = np.asarray(
-                fp[f"{grp_name}/X Position"][:] * self.tmp[ckey]["s_x"], np.float32)
+                fp[f"{grp_name}/X Position"][:] * self.tmp[ckey]["s_x"], np.float32
+            )
             self.tmp[ckey]["scan_point_y"] = np.asarray(
-                fp[f"{grp_name}/Y Position"][:] * self.tmp[ckey]["s_y"], np.float32)
+                fp[f"{grp_name}/Y Position"][:] * self.tmp[ckey]["s_y"], np.float32
+            )
         # despite differences in reported calibrations the scan_point_{dim} arrays are
         # already provided by the tech partner as tile and repeat coordinates

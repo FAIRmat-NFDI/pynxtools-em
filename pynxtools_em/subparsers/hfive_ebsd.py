@@ -23,16 +23,24 @@ from typing import Dict
 from diffpy.structure import Lattice, Structure
 
 from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
-from pynxtools_em.utils.hfive_utils import \
-    EBSD_MAP_SPACEGROUP, read_strings_from_dataset, all_equal, format_euler_parameterization
-from pynxtools_em.examples.ebsd_database import \
-    ASSUME_PHASE_NAME_TO_SPACE_GROUP, SQUARE_GRID, REGULAR_TILING, FLIGHT_PLAN  # HEXAGONAL_GRID
-from pynxtools_em.utils.get_scan_points import \
-    get_scan_point_coords
+from pynxtools_em.utils.hfive_utils import (
+    EBSD_MAP_SPACEGROUP,
+    read_strings_from_dataset,
+    all_equal,
+    format_euler_parameterization,
+)
+from pynxtools_em.examples.ebsd_database import (
+    ASSUME_PHASE_NAME_TO_SPACE_GROUP,
+    SQUARE_GRID,
+    REGULAR_TILING,
+    FLIGHT_PLAN,
+)  # HEXAGONAL_GRID
+from pynxtools_em.utils.get_scan_points import get_scan_point_coords
 
 
 class HdfFiveCommunityReader(HdfFiveBaseParser):
     """Read modified H5EBSD (likely from Britton group)"""
+
     def __init__(self, file_path: str = ""):
         super().__init__(file_path)
         self.prfx = None
@@ -64,17 +72,26 @@ class HdfFiveCommunityReader(HdfFiveBaseParser):
                     self.supported = False
                     return
 
-            self.version["tech_partner"] = read_strings_from_dataset(h5r["/Manufacturer"][()])
+            self.version["tech_partner"] = read_strings_from_dataset(
+                h5r["/Manufacturer"][()]
+            )
             if self.version["tech_partner"] in self.supported_version["tech_partner"]:
                 self.supported += 1
-            self.version["schema_version"] = read_strings_from_dataset(h5r["/Version"][()])
-            if self.version["schema_version"] in self.supported_version["schema_version"]:
+            self.version["schema_version"] = read_strings_from_dataset(
+                h5r["/Version"][()]
+            )
+            if (
+                self.version["schema_version"]
+                in self.supported_version["schema_version"]
+            ):
                 self.supported += 1
 
             if self.supported == 2:
                 self.version["schema_name"] = self.supported_version["schema_name"]
                 self.version["writer_name"] = self.supported_version["writer_name"]
-                self.version["writer_version"] = self.supported_version["writer_version"]
+                self.version["writer_version"] = self.supported_version[
+                    "writer_version"
+                ]
                 self.supported = True
             else:
                 self.supported = False
@@ -140,7 +157,9 @@ class HdfFiveCommunityReader(HdfFiveBaseParser):
                 req_fields = ["Name", "LatticeConstants", "SpaceGroup"]
                 for req_field in req_fields:
                     if f"{sub_grp_name}/{req_field}" not in fp:
-                        raise ValueError(f"Unable to parse {sub_grp_name}/{req_field} !")
+                        raise ValueError(
+                            f"Unable to parse {sub_grp_name}/{req_field} !"
+                        )
                 # Name
                 phase_name = read_strings_from_dataset(fp[f"{sub_grp_name}/Name"][()])
                 self.tmp[ckey]["phases"][int(phase_id)]["phase_name"] = phase_name
@@ -160,7 +179,9 @@ class HdfFiveCommunityReader(HdfFiveBaseParser):
                 # The attribute Symbol contains the string representation, for example P m -3 m.
                 # formatting is a nightmare F m#ovl3m for F m 3bar m... but IT i.e.
                 # international table of crystallography identifier
-                spc_grp = read_strings_from_dataset(fp[f"{sub_grp_name}/SpaceGroup"][()])
+                spc_grp = read_strings_from_dataset(
+                    fp[f"{sub_grp_name}/SpaceGroup"][()]
+                )
                 if spc_grp in EBSD_MAP_SPACEGROUP.keys():
                     space_group = EBSD_MAP_SPACEGROUP[spc_grp]
                     self.tmp[ckey]["phases"][int(phase_id)]["space_group"] = space_group
@@ -168,7 +189,9 @@ class HdfFiveCommunityReader(HdfFiveBaseParser):
                     space_group = ASSUME_PHASE_NAME_TO_SPACE_GROUP[phase_name]
                     self.tmp[ckey]["phases"][int(phase_id)]["space_group"] = space_group
                 else:
-                    raise ValueError(f"Unable to decode improperly formatted space group {spc_grp} !")
+                    raise ValueError(
+                        f"Unable to decode improperly formatted space group {spc_grp} !"
+                    )
 
                 if len(self.tmp[ckey]["space_group"]) > 0:
                     self.tmp[ckey]["space_group"].append(space_group)
@@ -177,16 +200,34 @@ class HdfFiveCommunityReader(HdfFiveBaseParser):
 
                 if len(self.tmp[ckey]["phase"]) > 0:
                     self.tmp[ckey]["phase"].append(
-                        Structure(title=phase_name,
-                                  atoms=None,
-                                  lattice=Lattice(a_b_c[0], a_b_c[1], a_b_c[2],
-                                                  angles[0], angles[1], angles[2])))
+                        Structure(
+                            title=phase_name,
+                            atoms=None,
+                            lattice=Lattice(
+                                a_b_c[0],
+                                a_b_c[1],
+                                a_b_c[2],
+                                angles[0],
+                                angles[1],
+                                angles[2],
+                            ),
+                        )
+                    )
                 else:
-                    self.tmp[ckey]["phase"] \
-                        = [Structure(title=phase_name,
-                                     atoms=None,
-                                     lattice=Lattice(a_b_c[0], a_b_c[1], a_b_c[2],
-                                                     angles[0], angles[1], angles[2]))]
+                    self.tmp[ckey]["phase"] = [
+                        Structure(
+                            title=phase_name,
+                            atoms=None,
+                            lattice=Lattice(
+                                a_b_c[0],
+                                a_b_c[1],
+                                a_b_c[2],
+                                angles[0],
+                                angles[1],
+                                angles[2],
+                            ),
+                        )
+                    ]
 
     def parse_and_normalize_group_ebsd_data(self, fp, ckey: str):
         # no official documentation yet from Bruker but seems inspired by H5EBSD
@@ -200,24 +241,33 @@ class HdfFiveCommunityReader(HdfFiveBaseParser):
                 raise ValueError(f"Unable to parse {grp_name}/{req_field} !")
 
         # Euler
-        n_pts_probe = (np.shape(fp[f"{grp_name}/phi1"][:])[0],
-                       np.shape(fp[f"{grp_name}/PHI"][:])[0],
-                       np.shape(fp[f"{grp_name}/phi2"][:])[0])
-        if all_equal(n_pts_probe) is True and n_pts_probe[0] == (self.tmp[ckey]["n_x"] * self.tmp[ckey]["n_y"]):
+        n_pts_probe = (
+            np.shape(fp[f"{grp_name}/phi1"][:])[0],
+            np.shape(fp[f"{grp_name}/PHI"][:])[0],
+            np.shape(fp[f"{grp_name}/phi2"][:])[0],
+        )
+        if all_equal(n_pts_probe) is True and n_pts_probe[0] == (
+            self.tmp[ckey]["n_x"] * self.tmp[ckey]["n_y"]
+        ):
             self.tmp[ckey]["euler"] = np.zeros((n_pts_probe[0], 3), np.float32)
             column_id = 0
             for angle in ["phi1", "PHI", "phi2"]:
                 # TODO::available examples support that community H5EBSD reports Euler triplets in degree
-                self.tmp[ckey]["euler"][:, column_id] \
-                    = np.asarray(fp[f"{grp_name}/{angle}"][:], np.float32) / 180. * np.pi
+                self.tmp[ckey]["euler"][:, column_id] = (
+                    np.asarray(fp[f"{grp_name}/{angle}"][:], np.float32) / 180.0 * np.pi
+                )
                 column_id += 1
-            self.tmp[ckey]["euler"] = format_euler_parameterization(self.tmp[ckey]["euler"])
+            self.tmp[ckey]["euler"] = format_euler_parameterization(
+                self.tmp[ckey]["euler"]
+            )
             n_pts = n_pts_probe[0]
 
         # index of phase, 0 if not indexed
         # no normalization needed, also in NXem_ebsd the null model notIndexed is phase_identifier 0
         if np.shape(fp[f"{grp_name}/Phase"][:])[0] == n_pts:
-            self.tmp[ckey]["phase_id"] = np.asarray(fp[f"{grp_name}/Phase"][:], np.int32)
+            self.tmp[ckey]["phase_id"] = np.asarray(
+                fp[f"{grp_name}/Phase"][:], np.int32
+            )
         else:
             raise ValueError(f"{grp_name}/Phase has unexpected shape !")
 
@@ -227,7 +277,9 @@ class HdfFiveCommunityReader(HdfFiveBaseParser):
         # and TODO::just calibrate on image dimension
         # TODO::calculation below x/y only valid if self.tmp[ckey]["grid_type"] == SQUARE_GRID
         if self.tmp[ckey]["grid_type"] != SQUARE_GRID:
-            print(f"WARNING: Check carefully correct interpretation of scan_point coords!")
+            print(
+                f"WARNING: Check carefully correct interpretation of scan_point coords!"
+            )
         # self.tmp[ckey]["scan_point_x"] \
         #     = np.asarray(np.tile(np.linspace(0.,
         #                                      self.tmp[ckey]["n_x"] - 1.,

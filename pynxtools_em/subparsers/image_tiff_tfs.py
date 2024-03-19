@@ -24,16 +24,19 @@ from PIL import Image
 from PIL.TiffTags import TAGS
 
 from pynxtools_em.subparsers.image_tiff import TiffSubParser
-from pynxtools_em.subparsers.image_tiff_tfs_concepts import \
-    get_fei_parent_concepts, get_fei_childs
-from pynxtools_em.subparsers.image_tiff_tfs_cfg import \
-    TIFF_TFS_TO_NEXUS_CFG
-from pynxtools_em.utils.image_utils import \
-    sort_ascendingly_by_second_argument, if_str_represents_float
-from pynxtools.dataconverter.readers.shared.map_concepts.mapping_functors \
-    import variadic_path_to_specific_path
-from pynxtools_em.subparsers.image_tiff_tfs_modifier import \
-    get_nexus_value
+from pynxtools_em.subparsers.image_tiff_tfs_concepts import (
+    get_fei_parent_concepts,
+    get_fei_childs,
+)
+from pynxtools_em.subparsers.image_tiff_tfs_cfg import TIFF_TFS_TO_NEXUS_CFG
+from pynxtools_em.utils.image_utils import (
+    sort_ascendingly_by_second_argument,
+    if_str_represents_float,
+)
+from pynxtools.dataconverter.readers.shared.map_concepts.mapping_functors import (
+    variadic_path_to_specific_path,
+)
+from pynxtools_em.subparsers.image_tiff_tfs_modifier import get_nexus_value
 
 
 class TfsTiffSubParser(TiffSubParser):
@@ -42,8 +45,7 @@ class TfsTiffSubParser(TiffSubParser):
         self.entry_id = entry_id
         self.event_id = 1
         self.prfx = None
-        self.tmp: Dict = {"data": None,
-                          "meta": {}}
+        self.tmp: Dict = {"data": None, "meta": {}}
         self.supported_version: Dict = {}
         self.version: Dict = {}
         self.tags: Dict = {}
@@ -53,10 +55,10 @@ class TfsTiffSubParser(TiffSubParser):
     def check_if_tiff_tfs(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file."""
         self.supported = 0  # voting-based
-        with open(self.file_path, 'rb', 0) as file:
+        with open(self.file_path, "rb", 0) as file:
             s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
             magic = s.read(4)
-            if magic == b'II*\x00':  # https://en.wikipedia.org/wiki/TIFF
+            if magic == b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                 self.supported += 1
 
         with Image.open(self.fiele_path, mode="r") as fp:
@@ -83,7 +85,7 @@ class TfsTiffSubParser(TiffSubParser):
         tfs_parent_concepts_byte_offset = {}
         for concept in tfs_parent_concepts:
             tfs_parent_concepts_byte_offset[concept] = None
-        with open(self.file_path, 'rb', 0) as fp:
+        with open(self.file_path, "rb", 0) as fp:
             s = mmap.mmap(fp.fileno(), 0, access=mmap.ACCESS_READ)
             for concept in tfs_parent_concepts:
                 pos = s.find(bytes(f"[{concept}]", "utf8"))  # != -1
@@ -112,7 +114,9 @@ class TfsTiffSubParser(TiffSubParser):
                     # TODO::better use official convention to not read beyond the end of file
                 idx += 1
                 if pos_s is None or pos_e is None:
-                    raise ValueError(f"Definition of byte boundaries for reading childs of [{parent}] was unsuccessful !")
+                    raise ValueError(
+                        f"Definition of byte boundaries for reading childs of [{parent}] was unsuccessful !"
+                    )
                 # print(f"Search for [{parent}] in between byte offsets {pos_s} and {pos_e}")
 
                 # fish metadata of e.g. the system section
@@ -127,13 +131,19 @@ class TfsTiffSubParser(TiffSubParser):
                             if value != "":
                                 # execution order of the check here matters!
                                 if value.isdigit() is True:
-                                    self.tmp["meta"][f"{parent}/{term}"] = np.int64(value)
+                                    self.tmp["meta"][f"{parent}/{term}"] = np.int64(
+                                        value
+                                    )
                                 elif if_str_represents_float(value) is True:
-                                    self.tmp["meta"][f"{parent}/{term}"] = np.float64(value)
+                                    self.tmp["meta"][f"{parent}/{term}"] = np.float64(
+                                        value
+                                    )
                                 else:
                                     self.tmp["meta"][f"{parent}/{term}"] = value
                         else:
-                            raise ValueError(f"Detected an unexpected case {parent}/{term}, type: {type(value)} !")
+                            raise ValueError(
+                                f"Detected an unexpected case {parent}/{term}, type: {type(value)} !"
+                            )
                     else:
                         pass
 
@@ -145,8 +155,10 @@ class TfsTiffSubParser(TiffSubParser):
             # for key in self.tmp["meta"].keys():
             #     print(f"{key}")
         else:
-            print(f"{self.file_path} is not a ThermoFisher-specific "
-                  f"TIFF file that this parser can process !")
+            print(
+                f"{self.file_path} is not a ThermoFisher-specific "
+                f"TIFF file that this parser can process !"
+            )
 
     def process_into_template(self, template: dict) -> dict:
         if self.supported is True:
@@ -170,17 +182,23 @@ class TfsTiffSubParser(TiffSubParser):
             # remember H5Web images can be scaled based on the metadata allowing basically the same
             # explorative viewing using H5Web than what traditionally typical image viewers are meant for
             image_identifier = 1
-            trg = f"/ENTRY[entry{self.entry_id}]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/" \
-                  f"EVENT_DATA_EM[event_data_em{self.event_id}]/" \
-                  f"IMAGE_R_SET[image_r_set{image_identifier}]/DATA[image]"
+            trg = (
+                f"/ENTRY[entry{self.entry_id}]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/"
+                f"EVENT_DATA_EM[event_data_em{self.event_id}]/"
+                f"IMAGE_R_SET[image_r_set{image_identifier}]/DATA[image]"
+            )
             # TODO::writer should decorate automatically!
             template[f"{trg}/title"] = f"Image"
-            template[f"{trg}/@NX_class"] = f"NXdata"  # TODO::writer should decorate automatically!
+            template[f"{trg}/@NX_class"] = (
+                f"NXdata"  # TODO::writer should decorate automatically!
+            )
             template[f"{trg}/@signal"] = "intensity"
             dims = ["x", "y"]
             idx = 0
             for dim in dims:
-                template[f"{trg}/@AXISNAME_indices[axis_{dim}_indices]"] = np.uint32(idx)
+                template[f"{trg}/@AXISNAME_indices[axis_{dim}_indices]"] = np.uint32(
+                    idx
+                )
                 idx += 1
             template[f"{trg}/@axes"] = []
             for dim in dims[::-1]:
@@ -189,12 +207,16 @@ class TfsTiffSubParser(TiffSubParser):
             #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
             template[f"{trg}/intensity/@long_name"] = f"Signal"
 
-            sxy = {"x": 1., "y": 1.}
+            sxy = {"x": 1.0, "y": 1.0}
             scan_unit = {"x": "m", "y": "m"}  # assuming FEI reports SI units
             # we may face the CCD overview camera for the chamber for which there might not be a calibration!
-            if ("EScan/PixelWidth" in self.tmp["meta"].keys()) and ("EScan/PixelHeight" in self.tmp["meta"].keys()):
-                sxy = {"x": self.tmp["meta"]["EScan/PixelWidth"],
-                       "y": self.tmp["meta"]["EScan/PixelHeight"]}
+            if ("EScan/PixelWidth" in self.tmp["meta"].keys()) and (
+                "EScan/PixelHeight" in self.tmp["meta"].keys()
+            ):
+                sxy = {
+                    "x": self.tmp["meta"]["EScan/PixelWidth"],
+                    "y": self.tmp["meta"]["EScan/PixelHeight"],
+                }
                 scan_unit = {"x": "px", "y": "px"}
             nxy = {"x": np.shape(np.array(fp))[1], "y": np.shape(np.array(fp))[0]}
             # TODO::be careful we assume here a very specific coordinate system
@@ -211,13 +233,17 @@ class TfsTiffSubParser(TiffSubParser):
             # and there is already a proper TIFF tag for the width and height of an
             # image in number of pixel
             for dim in dims:
-                template[f"{trg}/AXISNAME[axis_{dim}]"] \
-                    = {"compress": np.asarray(np.linspace(0,
-                                                          nxy[dim] - 1,
-                                                          num=nxy[dim],
-                                                          endpoint=True) * sxy[dim], np.float64), "strength": 1}
-                template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] \
-                    = f"Coordinate along {dim}-axis ({scan_unit[dim]})"
+                template[f"{trg}/AXISNAME[axis_{dim}]"] = {
+                    "compress": np.asarray(
+                        np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
+                        * sxy[dim],
+                        np.float64,
+                    ),
+                    "strength": 1,
+                }
+                template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
+                    f"Coordinate along {dim}-axis ({scan_unit[dim]})"
+                )
                 template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit[dim]}"
         return template
 

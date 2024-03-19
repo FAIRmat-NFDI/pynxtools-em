@@ -28,6 +28,7 @@ from pynxtools_em.subparsers.image_base import ImgsBaseParser
 
 class TiffSubParser(ImgsBaseParser):
     """Read Tagged Image File Format TIF/TIFF."""
+
     def __init__(self, file_path: str = ""):
         super().__init__(file_path)
         self.prfx = None
@@ -71,10 +72,10 @@ class TiffSubParser(ImgsBaseParser):
         # Our conviction is that these should be used and explored more frequently.
         # Exactly for this reason we provided an example for the differences
         # in the current state of and documentation of EBSD data stored in HDF5
-        with open(self.file_path, 'rb', 0) as file:
+        with open(self.file_path, "rb", 0) as file:
             s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
             magic = s.read(4)
-            if magic == b'II*\x00':  # https://en.wikipedia.org/wiki/TIFF
+            if magic == b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                 self.supported += 1
             if self.supported == 1:
                 self.supported = True

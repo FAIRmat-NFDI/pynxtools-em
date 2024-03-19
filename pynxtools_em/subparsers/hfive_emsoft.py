@@ -27,6 +27,7 @@ from pynxtools_em.utils.hfive_utils import read_strings_from_dataset
 
 class HdfFiveEmSoftReader(HdfFiveBaseParser):
     """Read EMsoft H5 (Marc deGraeff Carnegie Mellon)"""
+
     def __init__(self, file_path: str = ""):
         super().__init__(file_path)
         self.prfx = None
@@ -50,7 +51,13 @@ class HdfFiveEmSoftReader(HdfFiveBaseParser):
         """Check if instance matches all constraints to EMsoft"""
         self.supported = True
         with h5py.File(self.file_path, "r") as h5r:
-            req_groups = ["CrystalData", "EMData", "EMheader", "NMLfiles", "NMLparameters"]
+            req_groups = [
+                "CrystalData",
+                "EMData",
+                "EMheader",
+                "NMLfiles",
+                "NMLparameters",
+            ]
             for req_group in req_groups:
                 if f"/{req_group}" not in h5r:
                     self.supported = False

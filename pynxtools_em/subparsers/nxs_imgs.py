@@ -18,6 +18,7 @@
 """Parser mapping content of specific image files on NeXus."""
 
 import numpy as np
+
 # from typing import Dict, Any, List
 from PIL import Image
 
@@ -67,6 +68,6 @@ class NxEmImagesSubParser:
             pngs.parse_and_normalize()
             pngs.process_into_template(template)
         # else:
-            # TODO::add here specific content parsers for other tech partner
-            # or other custom parsing of images
+        # TODO::add here specific content parsers for other tech partner
+        # or other custom parsing of images
         return template

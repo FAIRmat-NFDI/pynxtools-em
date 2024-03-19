@@ -23,14 +23,20 @@ from typing import Dict
 from diffpy.structure import Lattice, Structure
 
 from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
-from pynxtools_em.utils.hfive_utils import \
-    read_strings_from_dataset, format_euler_parameterization
-from pynxtools_em.examples.ebsd_database import \
-    SQUARE_GRID, REGULAR_TILING, FLIGHT_PLAN  # HEXAGONAL_GRID
+from pynxtools_em.utils.hfive_utils import (
+    read_strings_from_dataset,
+    format_euler_parameterization,
+)
+from pynxtools_em.examples.ebsd_database import (
+    SQUARE_GRID,
+    REGULAR_TILING,
+    FLIGHT_PLAN,
+)  # HEXAGONAL_GRID
 
 
 class HdfFiveOxfordReader(HdfFiveBaseParser):
     """Overwrite constructor of hfive_base reader"""
+
     def __init__(self, file_path: str = ""):
         super().__init__(file_path)
         # this specialized reader implements reading capabilities for the following formats
@@ -53,8 +59,13 @@ class HdfFiveOxfordReader(HdfFiveBaseParser):
         self.supported_version["schema_name"] = ["H5OINA"]
         self.supported_version["schema_version"] = ["2.0", "3.0", "4.0", "5.0"]
         self.supported_version["writer_name"] = ["AZTec"]
-        self.supported_version["writer_version"] \
-            = ["4.4.7495.1", "5.0.7643.1", "5.1.7829.1", "6.0.8014.1", "6.0.8196.1"]
+        self.supported_version["writer_version"] = [
+            "4.4.7495.1",
+            "5.0.7643.1",
+            "5.1.7829.1",
+            "6.0.8014.1",
+            "6.0.8196.1",
+        ]
 
     def check_if_supported(self):
         """Check if instance matches all constraints to qualify as supported H5OINA"""
@@ -66,18 +77,30 @@ class HdfFiveOxfordReader(HdfFiveBaseParser):
                     self.supported = False
                     return
 
-            self.version["tech_partner"] = read_strings_from_dataset(h5r["/Manufacturer"][()])
+            self.version["tech_partner"] = read_strings_from_dataset(
+                h5r["/Manufacturer"][()]
+            )
             if self.version["tech_partner"] in self.supported_version["tech_partner"]:
                 # print(f"{self.version['tech_partner']} is not {self.version['tech_partner']} !")
                 self.supported += 1
             # only because we know (thanks to Philippe Pinard who wrote the H5OINA writer) that different
             # writer versions should implement the different HDF version correctly we can lift the
             # constraint on the writer_version for which we had examples available
-            self.version["writer_version"] = read_strings_from_dataset(h5r["/Software Version"][()])
-            if self.version["writer_version"] in self.supported_version["writer_version"]:
+            self.version["writer_version"] = read_strings_from_dataset(
+                h5r["/Software Version"][()]
+            )
+            if (
+                self.version["writer_version"]
+                in self.supported_version["writer_version"]
+            ):
                 self.supported += 1
-            self.version["schema_version"] = read_strings_from_dataset(h5r["/Format Version"][()])
-            if self.version["schema_version"] in self.supported_version["schema_version"]:
+            self.version["schema_version"] = read_strings_from_dataset(
+                h5r["/Format Version"][()]
+            )
+            if (
+                self.version["schema_version"]
+                in self.supported_version["schema_version"]
+            ):
                 self.supported += 1
 
             if self.supported == 3:
@@ -93,10 +116,16 @@ class HdfFiveOxfordReader(HdfFiveBaseParser):
             cache_id = 1
             slice_ids = sorted(list(h5r["/"]))
             for slice_id in slice_ids:
-                if slice_id.isdigit() is True and slice_id == "1" and f"/{slice_id}/EBSD" in h5r:
+                if (
+                    slice_id.isdigit() is True
+                    and slice_id == "1"
+                    and f"/{slice_id}/EBSD" in h5r
+                ):
                     # non-negative int, parse for now only the 1. slice
                     self.prfx = f"/{slice_id}"
-                    ckey = self.init_named_cache(f"ebsd{cache_id}")  # name of the cache to use
+                    ckey = self.init_named_cache(
+                        f"ebsd{cache_id}"
+                    )  # name of the cache to use
                     self.parse_and_normalize_slice_ebsd_header(h5r, ckey)
                     self.parse_and_normalize_slice_ebsd_phases(h5r, ckey)
                     self.parse_and_normalize_slice_ebsd_data(h5r, ckey)
@@ -154,32 +183,63 @@ class HdfFiveOxfordReader(HdfFiveBaseParser):
                 self.tmp[ckey]["phases"][int(phase_id)] = {}
                 sub_grp_name = f"/{grp_name}/{phase_id}"
 
-                req_fields = ["Phase Name", "Reference", "Lattice Angles",
-                              "Lattice Dimensions", "Space Group"]
+                req_fields = [
+                    "Phase Name",
+                    "Reference",
+                    "Lattice Angles",
+                    "Lattice Dimensions",
+                    "Space Group",
+                ]
                 for req_field in req_fields:
                     if f"{sub_grp_name}/{req_field}" not in fp:
-                        raise ValueError(f"Unable to parse {sub_grp_name}/{req_field} !")
+                        raise ValueError(
+                            f"Unable to parse {sub_grp_name}/{req_field} !"
+                        )
 
                 # Phase Name, yes, H5T_STRING, (1, 1)
-                phase_name = read_strings_from_dataset(fp[f"{sub_grp_name}/Phase Name"][()])
+                phase_name = read_strings_from_dataset(
+                    fp[f"{sub_grp_name}/Phase Name"][()]
+                )
                 self.tmp[ckey]["phases"][int(phase_id)]["phase_name"] = phase_name
 
                 # Reference, yes, H5T_STRING, (1, 1), Changed in version 2.0 to mandatory
-                self.tmp[ckey]["phases"][int(phase_id)]["reference"] \
-                    = read_strings_from_dataset(fp[f"{sub_grp_name}/Reference"][()])
+                self.tmp[ckey]["phases"][int(phase_id)]["reference"] = (
+                    read_strings_from_dataset(fp[f"{sub_grp_name}/Reference"][()])
+                )
 
                 # Lattice Angles, yes, H5T_NATIVE_FLOAT, (1, 3), Three columns for the alpha, beta and gamma angles in radians
-                if read_strings_from_dataset(fp[f"{sub_grp_name}/Lattice Angles"].attrs["Unit"]) == "rad":
-                    angles = np.asarray(fp[f"{sub_grp_name}/Lattice Angles"][:].flatten())
+                if (
+                    read_strings_from_dataset(
+                        fp[f"{sub_grp_name}/Lattice Angles"].attrs["Unit"]
+                    )
+                    == "rad"
+                ):
+                    angles = np.asarray(
+                        fp[f"{sub_grp_name}/Lattice Angles"][:].flatten()
+                    )
                 else:
-                    raise ValueError(f"Unexpected case that Lattice Angles are not reported in rad !")
+                    raise ValueError(
+                        f"Unexpected case that Lattice Angles are not reported in rad !"
+                    )
                 self.tmp[ckey]["phases"][int(phase_id)]["alpha_beta_gamma"] = angles
 
                 # Lattice Dimensions, yes, H5T_NATIVE_FLOAT, (1, 3), Three columns for a, b and c dimensions in Angstroms
-                if read_strings_from_dataset(fp[f"{sub_grp_name}/Lattice Dimensions"].attrs["Unit"]) == "angstrom":
-                    a_b_c = np.asarray(fp[f"{sub_grp_name}/Lattice Dimensions"][:].flatten()) * 0.1
+                if (
+                    read_strings_from_dataset(
+                        fp[f"{sub_grp_name}/Lattice Dimensions"].attrs["Unit"]
+                    )
+                    == "angstrom"
+                ):
+                    a_b_c = (
+                        np.asarray(
+                            fp[f"{sub_grp_name}/Lattice Dimensions"][:].flatten()
+                        )
+                        * 0.1
+                    )
                 else:
-                    raise ValueError(f"Unexpected case that Lattice Dimensions are not reported in angstroem !")
+                    raise ValueError(
+                        f"Unexpected case that Lattice Dimensions are not reported in angstroem !"
+                    )
                 self.tmp[ckey]["phases"][int(phase_id)]["a_b_c"] = a_b_c
 
                 # Space Group, no, H5T_NATIVE_INT32, (1, 1), Space group index.
@@ -193,16 +253,34 @@ class HdfFiveOxfordReader(HdfFiveBaseParser):
 
                 if len(self.tmp[ckey]["phase"]) > 0:
                     self.tmp[ckey]["phase"].append(
-                        Structure(title=phase_name,
-                                  atoms=None,
-                                  lattice=Lattice(a_b_c[0], a_b_c[1], a_b_c[2],
-                                                  angles[0], angles[1], angles[2])))
+                        Structure(
+                            title=phase_name,
+                            atoms=None,
+                            lattice=Lattice(
+                                a_b_c[0],
+                                a_b_c[1],
+                                a_b_c[2],
+                                angles[0],
+                                angles[1],
+                                angles[2],
+                            ),
+                        )
+                    )
                 else:
-                    self.tmp[ckey]["phase"] \
-                        = [Structure(title=phase_name,
-                                     atoms=None,
-                                     lattice=Lattice(a_b_c[0], a_b_c[1], a_b_c[2],
-                                                     angles[0], angles[1], angles[2]))]
+                    self.tmp[ckey]["phase"] = [
+                        Structure(
+                            title=phase_name,
+                            atoms=None,
+                            lattice=Lattice(
+                                a_b_c[0],
+                                a_b_c[1],
+                                a_b_c[2],
+                                angles[0],
+                                angles[1],
+                                angles[2],
+                            ),
+                        )
+                    ]
 
     def parse_and_normalize_slice_ebsd_data(self, fp, ckey: str):
         # https://github.com/oinanoanalysis/h5oina/blob/master/H5OINAFile.md
@@ -219,7 +297,9 @@ class HdfFiveOxfordReader(HdfFiveBaseParser):
         if read_strings_from_dataset(fp[f"{grp_name}/Euler"].attrs["Unit"]) == "rad":
             self.tmp[ckey]["euler"] = np.asarray(fp[f"{grp_name}/Euler"], np.float32)
         else:
-            raise ValueError(f"Unexpected case that Euler angle are not reported in rad !")
+            raise ValueError(
+                f"Unexpected case that Euler angle are not reported in rad !"
+            )
         self.tmp[ckey]["euler"] = format_euler_parameterization(self.tmp[ckey]["euler"])
 
         # Phase, yes, H5T_NATIVE_INT32, (size, 1), Index of phase, 0 if not indexed
@@ -231,7 +311,9 @@ class HdfFiveOxfordReader(HdfFiveBaseParser):
         # followed by as many copies of this linear sequence for each y increment
         # no action needed Oxford reports already the pixel coordinate multiplied by step
         if self.tmp[ckey]["grid_type"] != SQUARE_GRID:
-            print(f"WARNING: Check carefully correct interpretation of scan_point coords!")
+            print(
+                f"WARNING: Check carefully correct interpretation of scan_point coords!"
+            )
         # X, no, H5T_NATIVE_FLOAT, (size, 1), X position of each pixel in micrometers (origin: top left corner)
         # for Oxford instrument this is already the required tile and repeated array of shape (size,1)
         self.tmp[ckey]["scan_point_x"] = np.asarray(fp[f"{grp_name}/X"], np.float32)

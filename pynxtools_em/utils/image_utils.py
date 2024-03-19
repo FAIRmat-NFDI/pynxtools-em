@@ -22,13 +22,13 @@ import numpy as np
 # https://www.geeksforgeeks.org/python-program-to-sort-a-list-of-tuples-by-second-item/
 def sort_ascendingly_by_second_argument(tup):
     # convert the list of tuples to a numpy array with data type (object, int)
-    arr = np.array(tup, dtype=[('col1', object), ('col2', int)])
+    arr = np.array(tup, dtype=[("col1", object), ("col2", int)])
     # get the indices that would sort the array based on the second column
-    indices = np.argsort(arr['col2'])
+    indices = np.argsort(arr["col2"])
     # use the resulting indices to sort the array
     sorted_arr = arr[indices]
     # convert the sorted numpy array back to a list of tuples
-    sorted_tup = [(row['col1'], row['col2']) for row in sorted_arr]
+    sorted_tup = [(row["col1"], row["col2"]) for row in sorted_arr]
     return sorted_tup
 
 

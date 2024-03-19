@@ -24,15 +24,26 @@ IS_REGULAR_DATASET = 1
 IS_COMPOUND_DATASET = 2
 IS_FIELD_IN_COMPOUND_DATASET = 3
 IS_ATTRIBUTE = 4
-VERSION_MANAGEMENT: Dict = {"tech_partner": [],
-                            "schema_name": [], "schema_version": [],
-                            "writer_name": [], "writer_version": []}
+VERSION_MANAGEMENT: Dict = {
+    "tech_partner": [],
+    "schema_name": [],
+    "schema_version": [],
+    "writer_name": [],
+    "writer_version": [],
+}
 
 
-class Concept():
-    def __init__(self, instance_name=None,
-                 concept_name=None, value=None, dtype=None,
-                 shape=None, unit_info=None, **kwargs):
+class Concept:
+    def __init__(
+        self,
+        instance_name=None,
+        concept_name=None,
+        value=None,
+        dtype=None,
+        shape=None,
+        unit_info=None,
+        **kwargs,
+    ):
         if instance_name is not None:
             if isinstance(instance_name, str):
                 if len(instance_name) > 0:
@@ -71,17 +82,20 @@ class Concept():
         if "hdf_type" in kwargs.keys():
             if kwargs["hdf_type"] is not None:
                 if isinstance(kwargs["hdf_type"], str):
-                    if kwargs["hdf_type"] in ["group",
-                                              "regular_dataset",
-                                              "compound_dataset",
-                                              "compound_dataset_entry",
-                                              "attribute"]:
+                    if kwargs["hdf_type"] in [
+                        "group",
+                        "regular_dataset",
+                        "compound_dataset",
+                        "compound_dataset_entry",
+                        "attribute",
+                    ]:
                         self.hdf = kwargs["hdf_type"]
 
     def report(self):
         members = vars(self)
         for key, val in members.items():
             print(f"{key}, type: {type(val)}, value: {val}")
+
 
 # test = Concept("1/@Test", "*/@Test", 1, type(1), np.shape(1),
 #                "UNITLESS", hdf_type="group")

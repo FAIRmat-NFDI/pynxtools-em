@@ -26,7 +26,7 @@ def get_named_axis(axes_metadata, dim_name):
     if len(axes_metadata) >= 1:
         for axis in axes_metadata:
             if isinstance(axis, dict):
-                if ("name" in axis):
+                if "name" in axis:
                     if axis["name"] == dim_name:
                         reqs = ["offset", "scale", "size", "units"]
                         # "index_in_array" and "navigate" are currently not required
@@ -34,13 +34,22 @@ def get_named_axis(axes_metadata, dim_name):
                         for req in reqs:
                             if req not in axis:
                                 raise ValueError(f"{req} not in {axis}!")
-                        retval = (np.asarray(axis["offset"]
-                                             + (np.linspace(0.,
-                                                            axis["size"] - 1.,
-                                                            num=int(axis["size"]),
-                                                            endpoint=True)
-                                             * axis["scale"]),
-                                             np.float64), axis["units"])
+                        retval = (
+                            np.asarray(
+                                axis["offset"]
+                                + (
+                                    np.linspace(
+                                        0.0,
+                                        axis["size"] - 1.0,
+                                        num=int(axis["size"]),
+                                        endpoint=True,
+                                    )
+                                    * axis["scale"]
+                                ),
+                                np.float64,
+                            ),
+                            axis["units"],
+                        )
     return retval
 
 
@@ -50,15 +59,17 @@ def get_axes_dims(axes_metadata):
     if len(axes_metadata) >= 1:
         for axis in axes_metadata:
             if isinstance(axis, dict):
-                if ("name" in axis):
+                if "name" in axis:
                     if "index_in_array" in axis:
                         retval.append((axis["name"], axis["index_in_array"]))
                     else:
                         if len(axes_metadata) == 1:
                             retval.append((axis["name"], 0))
                         else:
-                            raise ValueError(f"get_axes_dims {axes_metadata} " \
-                                             f"is a case not implemented!")
+                            raise ValueError(
+                                f"get_axes_dims {axes_metadata} "
+                                f"is a case not implemented!"
+                            )
     # TODO::it seems that hyperspy sorts this by index_in_array
     return retval
 

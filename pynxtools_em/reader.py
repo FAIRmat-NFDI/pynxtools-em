@@ -22,9 +22,11 @@
 from typing import Tuple, Any
 
 from pynxtools.dataconverter.readers.base.reader import BaseReader
+
 # from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 # from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
 from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
+
 # from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
 # from pynxtools_em.subparsers.nxs_nion import NxEmZippedNionProjectSubParser
 from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
@@ -55,10 +57,12 @@ class EMReader(BaseReader):
     supported_nxdls = ["NXem"]
 
     # pylint: disable=duplicate-code
-    def read(self,
-             template: dict = None,
-             file_paths: Tuple[str] = None,
-             objects: Tuple[Any] = None) -> dict:
+    def read(
+        self,
+        template: dict = None,
+        file_paths: Tuple[str] = None,
+        objects: Tuple[Any] = None,
+    ) -> dict:
         """Read data from given file, return filled template dictionary em."""
         # pylint: disable=duplicate-code
         template.clear()
@@ -77,7 +81,9 @@ class EMReader(BaseReader):
         #     print("Generation of example data not implemented yet...!")
         #     return {}
 
-        print("Identify information sources (ELN, RDM config, tech files) to deal with...")
+        print(
+            "Identify information sources (ELN, RDM config, tech files) to deal with..."
+        )
         # case = EmUseCaseSelector(file_paths)
         # if case.is_valid is False:
         #     print("Such a combination of input (file) is not supported !")
@@ -164,7 +170,8 @@ class EMReader(BaseReader):
             nxs_plt = NxEmDefaultPlotResolver()
             # if nxs_mtex is the sub-parser
             resolved_path = nxs_plt.nxs_mtex_get_nxpath_to_default_plot(
-                entry_id, file_paths[0])
+                entry_id, file_paths[0]
+            )
             # print(f"DEFAULT PLOT IS {resolved_path}")
             if resolved_path != "":
                 nxs_plt.annotate_default_plot(template, resolved_path)

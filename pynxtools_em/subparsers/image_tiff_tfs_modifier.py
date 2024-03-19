@@ -29,7 +29,7 @@ def get_nexus_value(modifier, qnt_name, metadata: dict):
             return metadata[qnt_name]
         elif modifier == "load_from_rad_to_deg":
             if qnt_name in metadata.keys():
-                return metadata[qnt_name] / pi * 180.
+                return metadata[qnt_name] / pi * 180.0
         elif modifier == "load_from_lower_case":
             if isinstance(metadata[qnt_name], str):
                 return metadata[qnt_name].lower()

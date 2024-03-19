@@ -23,27 +23,26 @@ from typing import Dict
 from diffpy.structure import Lattice, Structure
 from orix.quaternion import Orientation
 
-from pynxtools_em.subparsers.hfive_base \
-    import HdfFiveBaseParser
-from pynxtools_em.utils.hfive_utils \
-    import read_strings_from_dataset
-from pynxtools_em.examples.ebsd_database import \
-    ASSUME_PHASE_NAME_TO_SPACE_GROUP, HEXAGONAL_GRID, SQUARE_GRID, REGULAR_TILING, FLIGHT_PLAN
-from pynxtools_em.utils.get_scan_points \
-    import get_scan_point_coords
-from pynxtools_em.concepts.nxs_image_r_set \
-    import NxImageRealSpaceSet
-from pynxtools_em.concepts.nxs_spectrum_set \
-    import NxSpectrumSet
-from pynxtools_em.concepts.nxs_em_eds_indexing \
-    import NxEmEdsIndexing
-from pynxtools_em.utils.get_xrayline_iupac_names \
-    import get_xrayline_candidates
+from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
+from pynxtools_em.utils.hfive_utils import read_strings_from_dataset
+from pynxtools_em.examples.ebsd_database import (
+    ASSUME_PHASE_NAME_TO_SPACE_GROUP,
+    HEXAGONAL_GRID,
+    SQUARE_GRID,
+    REGULAR_TILING,
+    FLIGHT_PLAN,
+)
+from pynxtools_em.utils.get_scan_points import get_scan_point_coords
+from pynxtools_em.concepts.nxs_image_r_set import NxImageRealSpaceSet
+from pynxtools_em.concepts.nxs_spectrum_set import NxSpectrumSet
+from pynxtools_em.concepts.nxs_em_eds_indexing import NxEmEdsIndexing
+from pynxtools_em.utils.get_xrayline_iupac_names import get_xrayline_candidates
 from pynxtools_em.concepts.nxs_object import NxObject
 
 
 class HdfFiveEdaxApexReader(HdfFiveBaseParser):
     """Read APEX edaxh5"""
+
     def __init__(self, file_path: str = ""):
         super().__init__(file_path)
         self.prfx = None
@@ -60,13 +59,17 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         """Init supported versions."""
         self.supported_version["tech_partner"] = ["EDAX, LLC"]
         self.supported_version["schema_name"] = ["EDAXH5"]
-        self.supported_version["schema_version"] = ["2.1.0009.0001",
-                                                    "2.2.0001.0001",
-                                                    "2.5.1001.0001"]
+        self.supported_version["schema_version"] = [
+            "2.1.0009.0001",
+            "2.2.0001.0001",
+            "2.5.1001.0001",
+        ]
         self.supported_version["writer_name"] = ["APEX"]
-        self.supported_version["writer_version"] = ["2.1.0009.0001",
-                                                    "2.2.0001.0001",
-                                                    "2.5.1001.0001"]
+        self.supported_version["writer_version"] = [
+            "2.1.0009.0001",
+            "2.2.0001.0001",
+            "2.5.1001.0001",
+        ]
 
     def check_if_supported(self):
         """Check if instance matches all constraints to qualify as supported H5OINA"""
@@ -80,14 +83,18 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
             grp_names = list(h5r["/"])
             if len(grp_names) == 1:
                 if "Company" in h5r[grp_names[0]].attrs:
-                    if read_strings_from_dataset(
-                        h5r[grp_names[0]].attrs["Company"][0]) \
-                            in self.supported_version["tech_partner"]:
+                    if (
+                        read_strings_from_dataset(h5r[grp_names[0]].attrs["Company"][0])
+                        in self.supported_version["tech_partner"]
+                    ):
                         self.supported += 1
                 if "PRODUCT_VERSION" in h5r[grp_names[0]].attrs:
-                    if read_strings_from_dataset(
-                        h5r[grp_names[0]].attrs["PRODUCT_VERSION"][0]) \
-                            in self.supported_version["schema_version"]:
+                    if (
+                        read_strings_from_dataset(
+                            h5r[grp_names[0]].attrs["PRODUCT_VERSION"][0]
+                        )
+                        in self.supported_version["schema_version"]
+                    ):
                         self.supported += 1
             if self.supported >= 1:
                 # this is not as strict because IKZ example does not contain Company EDAX, LLC
@@ -114,15 +121,20 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
                             self.parse_and_normalize_eds_fov(h5r)
 
                             # get oim_maps, live_maps, or full area if available
-                            area_grp_nms = list(h5r[f"/{grp_nm}/{sub_grp_nm}/{sub_sub_grp_nm}"])
+                            area_grp_nms = list(
+                                h5r[f"/{grp_nm}/{sub_grp_nm}/{sub_sub_grp_nm}"]
+                            )
                             for area_grp_nm in area_grp_nms:
-
                                 if area_grp_nm.startswith("OIM Map"):
                                     self.prfx = f"/{grp_nm}/{sub_grp_nm}/{sub_sub_grp_nm}/{area_grp_nm}"
                                     print(f"Parsing {self.prfx}")
                                     ckey = self.init_named_cache(f"ebsd{self.cache_id}")
-                                    self.parse_and_normalize_group_ebsd_header(h5r, ckey)
-                                    self.parse_and_normalize_group_ebsd_phases(h5r, ckey)
+                                    self.parse_and_normalize_group_ebsd_header(
+                                        h5r, ckey
+                                    )
+                                    self.parse_and_normalize_group_ebsd_phases(
+                                        h5r, ckey
+                                    )
                                     self.parse_and_normalize_group_ebsd_data(h5r, ckey)
                                     self.parse_and_normalize_group_ebsd_check(ckey)
                                     self.cache_id += 1
@@ -143,8 +155,9 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
                                 # Area 1 | ZAF AtLineScan 1 | 2023-01-16-15-37-41
                                 # but mirror concept tree similar to those of the here
                                 # implemented OIM Map and Live Map concept trees
-                                if area_grp_nm.startswith("Full Area") \
-                                        or area_grp_nm.startswith("Selected Area"):
+                                if area_grp_nm.startswith(
+                                    "Full Area"
+                                ) or area_grp_nm.startswith("Selected Area"):
                                     # TODO: Selected Area groups have a REGION and I assume that this
                                     # is the use case when one filters from the FOV a sub-set but
                                     # not a free-form but a rectangular sub-FOV this is also substantiated
@@ -175,8 +188,9 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
                                     # element-specific ROI (aka element map)
                                     self.parse_and_normalize_eds_area_rois(h5r)
 
-                                if area_grp_nm.startswith("LineScan") \
-                                        or area_grp_nm.startswith("ROILineScan"):
+                                if area_grp_nm.startswith(
+                                    "LineScan"
+                                ) or area_grp_nm.startswith("ROILineScan"):
                                     # "free form? or (which I assume) orthogonal line grid inside the FOV
                                     # TODO::currently I assume that the internal organization of LineScan and ROILineScan
                                     # groups is the same TODO but maybe the physical ROI which they reference
@@ -197,9 +211,13 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         n_pts = 0
         # their vertical center of mass distance is smaller than the horizontal
         # center of mass distance (x cols, y rows)
-        req_fields = ["Grid Type",
-                      "Step X", "Step Y",
-                      "Number Of Rows", "Number Of Columns"]
+        req_fields = [
+            "Grid Type",
+            "Step X",
+            "Step Y",
+            "Number Of Rows",
+            "Number Of Columns",
+        ]
         for req_field in req_fields:
             if f"{self.prfx}/Sample/{req_field}" not in fp:
                 raise ValueError(f"Unable to parse {self.prfx}/Sample/{req_field} !")
@@ -240,7 +258,9 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
                 sub_grp_name = f"{grp_name}/{phase_id}"
                 # Name
                 if f"{sub_grp_name}/Material Name" in fp:
-                    phase_name = read_strings_from_dataset(fp[f"{sub_grp_name}/Material Name"][0])
+                    phase_name = read_strings_from_dataset(
+                        fp[f"{sub_grp_name}/Material Name"][0]
+                    )
                     self.tmp[ckey]["phases"][int(phase_id)]["phase_name"] = phase_name
                 else:
                     raise ValueError(f"Unable to parse {sub_grp_name}/Material Name !")
@@ -251,18 +271,26 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
                 req_fields = ["A", "B", "C", "Alpha", "Beta", "Gamma"]
                 for req_field in req_fields:
                     if f"{sub_grp_name}/Lattice Constant {req_field}" not in fp:
-                        raise ValueError(f"Unable to parse ../Lattice Constant {req_field} !")
-                a_b_c = [fp[f"{sub_grp_name}/Lattice Constant A"][0],
-                         fp[f"{sub_grp_name}/Lattice Constant B"][0],
-                         fp[f"{sub_grp_name}/Lattice Constant C"][0]]
-                angles = [fp[f"{sub_grp_name}/Lattice Constant Alpha"][0],
-                          fp[f"{sub_grp_name}/Lattice Constant Beta"][0],
-                          fp[f"{sub_grp_name}/Lattice Constant Gamma"][0]]
+                        raise ValueError(
+                            f"Unable to parse ../Lattice Constant {req_field} !"
+                        )
+                a_b_c = [
+                    fp[f"{sub_grp_name}/Lattice Constant A"][0],
+                    fp[f"{sub_grp_name}/Lattice Constant B"][0],
+                    fp[f"{sub_grp_name}/Lattice Constant C"][0],
+                ]
+                angles = [
+                    fp[f"{sub_grp_name}/Lattice Constant Alpha"][0],
+                    fp[f"{sub_grp_name}/Lattice Constant Beta"][0],
+                    fp[f"{sub_grp_name}/Lattice Constant Gamma"][0],
+                ]
                 # TODO::available examples support reporting in angstroem and degree
-                self.tmp[ckey]["phases"][int(phase_id)]["a_b_c"] \
-                    = np.asarray(a_b_c, np.float32) * 0.1
-                self.tmp[ckey]["phases"][int(phase_id)]["alpha_beta_gamma"] \
-                    = np.asarray(angles, np.float32)
+                self.tmp[ckey]["phases"][int(phase_id)]["a_b_c"] = (
+                    np.asarray(a_b_c, np.float32) * 0.1
+                )
+                self.tmp[ckey]["phases"][int(phase_id)]["alpha_beta_gamma"] = (
+                    np.asarray(angles, np.float32)
+                )
 
                 # Space Group not stored, only laue group, point group and symmetry
                 # problematic because mapping is not bijective!
@@ -272,7 +300,9 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
                 if phase_name in ASSUME_PHASE_NAME_TO_SPACE_GROUP.keys():
                     space_group = ASSUME_PHASE_NAME_TO_SPACE_GROUP[phase_name]
                 else:
-                    raise ValueError(f"{phase_name} is not in ASSUME_PHASE_NAME_TO_SPACE_GROUP !")
+                    raise ValueError(
+                        f"{phase_name} is not in ASSUME_PHASE_NAME_TO_SPACE_GROUP !"
+                    )
                 self.tmp[ckey]["phases"][int(phase_id)]["space_group"] = space_group
 
                 if len(self.tmp[ckey]["space_group"]) > 0:
@@ -282,16 +312,34 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
 
                 if len(self.tmp[ckey]["phase"]) > 0:
                     self.tmp[ckey]["phase"].append(
-                        Structure(title=phase_name,
-                                  atoms=None,
-                                  lattice=Lattice(a_b_c[0], a_b_c[1], a_b_c[2],
-                                                  angles[0], angles[1], angles[2])))
+                        Structure(
+                            title=phase_name,
+                            atoms=None,
+                            lattice=Lattice(
+                                a_b_c[0],
+                                a_b_c[1],
+                                a_b_c[2],
+                                angles[0],
+                                angles[1],
+                                angles[2],
+                            ),
+                        )
+                    )
                 else:
                     self.tmp[ckey]["phase"] = [
-                        Structure(title=phase_name,
-                                  atoms=None,
-                                  lattice=Lattice(a_b_c[0], a_b_c[1], a_b_c[2],
-                                                  angles[0], angles[1], angles[2]))]
+                        Structure(
+                            title=phase_name,
+                            atoms=None,
+                            lattice=Lattice(
+                                a_b_c[0],
+                                a_b_c[1],
+                                a_b_c[2],
+                                angles[0],
+                                angles[1],
+                                angles[2],
+                            ),
+                        )
+                    ]
 
     def parse_and_normalize_group_ebsd_data(self, fp, ckey: str):
         grp_name = f"{self.prfx}/EBSD/ANG/DATA/DATA"
@@ -339,8 +387,10 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         # the material which they typically never scan (time, interest, costs, instrument
         # availability) completely!
         if self.tmp[ckey]["grid_type"] != SQUARE_GRID:
-            print(f"WARNING: {self.tmp[ckey]['grid_type']}: check carefully the "
-                  f"correct interpretation of scan_point coords!")
+            print(
+                f"WARNING: {self.tmp[ckey]['grid_type']}: check carefully the "
+                f"correct interpretation of scan_point coords!"
+            )
         # the case of EDAX APEX shows the key problem with implicit assumptions
         # edaxh5 file not necessarily store the scan_point_{dim} positions
         # therefore the following code is deprecated as the axes coordinates anyway
@@ -380,33 +430,43 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         reqs = ["PixelHeight", "PixelWidth"]
         for req in reqs:
             if req not in fp[f"{src}/FOVIMAGE"].attrs.keys():  # also check for shape
-                raise ValueError(f"Required attribute named {req} not found in {src}/FOVIMAGE !")
+                raise ValueError(
+                    f"Required attribute named {req} not found in {src}/FOVIMAGE !"
+                )
         reqs = ["MicronsPerPixelX", "MicronsPerPixelY"]
         for req in reqs:
             if req not in fp[f"{src}/FOVIPR"].dtype.names:
-                raise ValueError(f"Required attribute named {req} not found in {src}/FOVIPR !")
+                raise ValueError(
+                    f"Required attribute named {req} not found in {src}/FOVIPR !"
+                )
 
         ckey = self.init_named_cache(f"eds_roi{self.cache_id}")
         self.tmp[ckey] = NxImageRealSpaceSet()
         self.tmp[ckey].tmp["source"] = f"{src}/FOVIMAGE"
-        nyx = {"y": fp[f"{src}/FOVIMAGE"].attrs["PixelHeight"][0],
-               "x": fp[f"{src}/FOVIMAGE"].attrs["PixelWidth"][0]}
-        syx = {"x": fp[f"{src}/FOVIPR"]["MicronsPerPixelX"][0],
-               "y": fp[f"{src}/FOVIPR"]["MicronsPerPixelY"][0]}
+        nyx = {
+            "y": fp[f"{src}/FOVIMAGE"].attrs["PixelHeight"][0],
+            "x": fp[f"{src}/FOVIMAGE"].attrs["PixelWidth"][0],
+        }
+        syx = {
+            "x": fp[f"{src}/FOVIPR"]["MicronsPerPixelX"][0],
+            "y": fp[f"{src}/FOVIPR"]["MicronsPerPixelY"][0],
+        }
         scan_unit = {"x": "µm", "y": "µm"}
         # is micron because MicronsPerPixel{dim} used by EDAX
-        self.tmp[ckey].tmp["image_twod/intensity"].value \
-            = np.reshape(np.asarray(fp[f"{src}/FOVIMAGE"]), (nyx["y"], nyx["x"]))
+        self.tmp[ckey].tmp["image_twod/intensity"].value = np.reshape(
+            np.asarray(fp[f"{src}/FOVIMAGE"]), (nyx["y"], nyx["x"])
+        )
         dims = ["y", "x"]
         for dim in dims:
-            self.tmp[ckey].tmp[f"image_twod/axis_{dim}"].value \
-                = np.asarray(0. + np.linspace(0.,
-                                              nyx[dim] - 1,
-                                              num=nyx[dim],
-                                              endpoint=True) * syx[dim],
-                             syx["x"].dtype)
-            self.tmp[ckey].tmp[f"image_twod/axis_{dim}@long_name"].value \
-                = f"Position along {dim} ({scan_unit[dim]})"
+            self.tmp[ckey].tmp[f"image_twod/axis_{dim}"].value = np.asarray(
+                0.0
+                + np.linspace(0.0, nyx[dim] - 1, num=nyx[dim], endpoint=True)
+                * syx[dim],
+                syx["x"].dtype,
+            )
+            self.tmp[ckey].tmp[
+                f"image_twod/axis_{dim}@long_name"
+            ].value = f"Position along {dim} ({scan_unit[dim]})"
         self.cache_id += 1
 
         for key, obj in self.tmp[ckey].tmp.items():
@@ -429,7 +489,9 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         reqs = ["eVOffset", "evPch", "NumberOfPoints", "SpectrumCounts"]
         for req in reqs:
             if req not in fp[f"{src}/SPC"].dtype.names:  # also check for shape
-                raise ValueError(f"Required attribute named {req} not found in {src}/SPC !")
+                raise ValueError(
+                    f"Required attribute named {req} not found in {src}/SPC !"
+                )
 
         ckey = self.init_named_cache(f"eds_spc{self.cache_id}")
         self.tmp[ckey] = NxSpectrumSet()
@@ -437,18 +499,21 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         e_zero = fp[f"{src}/SPC"]["eVOffset"][0]
         e_delta = fp[f"{src}/SPC"]["evPch"][0]
         e_n = fp[f"{src}/SPC"]["NumberOfPoints"][0]
-        self.tmp[ckey].tmp["spectrum_zerod/axis_energy"].value \
-            = e_zero + np.asarray(e_delta * np.linspace(0.,
-                                                        int(e_n) - 1,
-                                                        num=int(e_n),
-                                                        endpoint=True),
-                                  e_zero.dtype) / 1000.  # keV
-        self.tmp[ckey].tmp["spectrum_zerod/axis_energy@long_name"].value \
-            = "Energy (keV)"
-        self.tmp[ckey].tmp["spectrum_zerod/intensity"].value \
-            = np.asarray(fp[f"{src}/SPC"]["SpectrumCounts"][0], np.int32)
-        self.tmp[ckey].tmp["spectrum_zerod/intensity@long_name"].value \
-            = f"Count (1)"
+        self.tmp[ckey].tmp["spectrum_zerod/axis_energy"].value = (
+            e_zero
+            + np.asarray(
+                e_delta * np.linspace(0.0, int(e_n) - 1, num=int(e_n), endpoint=True),
+                e_zero.dtype,
+            )
+            / 1000.0
+        )  # keV
+        self.tmp[ckey].tmp[
+            "spectrum_zerod/axis_energy@long_name"
+        ].value = "Energy (keV)"
+        self.tmp[ckey].tmp["spectrum_zerod/intensity"].value = np.asarray(
+            fp[f"{src}/SPC"]["SpectrumCounts"][0], np.int32
+        )
+        self.tmp[ckey].tmp["spectrum_zerod/intensity@long_name"].value = f"Count (1)"
         self.cache_id += 1
 
         for key, obj in self.tmp[ckey].tmp.items():
@@ -466,21 +531,27 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         print(f"Parsing {src} ...")
         if f"{src}/SPD" not in fp.keys():
             return
-        reqs = ["MicronPerPixelX",
-                "MicronPerPixelY",
-                "NumberOfLines",
-                "NumberOfPoints",
-                "NumberofChannels"]  # TODO: mind the typo here, can break parsing easily!
+        reqs = [
+            "MicronPerPixelX",
+            "MicronPerPixelY",
+            "NumberOfLines",
+            "NumberOfPoints",
+            "NumberofChannels",
+        ]  # TODO: mind the typo here, can break parsing easily!
         for req in reqs:
             if req not in fp[f"{src}/SPD"].attrs.keys():  # also check for shape
-                raise ValueError(f"Required attribute named {req} not found in {src}/SPD !")
+                raise ValueError(
+                    f"Required attribute named {req} not found in {src}/SPD !"
+                )
 
         ckey = self.init_named_cache(f"eds_spc{self.cache_id}")
         self.tmp[ckey] = NxSpectrumSet()
         self.tmp[ckey].tmp["source"] = f"{src}/SPD"
-        nyxe = {"y": fp[f"{src}/SPD"].attrs["NumberOfLines"][0],
-                "x": fp[f"{src}/SPD"].attrs["NumberOfPoints"][0],
-                "e": fp[f"{src}/SPD"].attrs["NumberofChannels"][0]}
+        nyxe = {
+            "y": fp[f"{src}/SPD"].attrs["NumberOfLines"][0],
+            "x": fp[f"{src}/SPD"].attrs["NumberOfPoints"][0],
+            "e": fp[f"{src}/SPD"].attrs["NumberofChannels"][0],
+        }
         print(f"lines: {nyxe['y']}, points: {nyxe['x']}, channels: {nyxe['e']}")
         # the native APEX SPD concept instance is a two-dimensional array of arrays of length e (n_energy_bins)
         # likely EDAX has in their C(++) code a vector of vector or something equivalent either way we faced
@@ -490,8 +561,12 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         # without some extra logic to resolve the third (energy) dimension reading them can be super inefficient
         # so let's read chunk-by-chunk to reuse chunk cache, hopefully...
         chk_bnds: Dict = {"x": [], "y": []}
-        chk_info = {"ny": nyxe["y"], "cy": fp[f"{src}/SPD"].chunks[0],
-                    "nx": nyxe["x"], "cx": fp[f"{src}/SPD"].chunks[1]}
+        chk_info = {
+            "ny": nyxe["y"],
+            "cy": fp[f"{src}/SPD"].chunks[0],
+            "nx": nyxe["x"],
+            "cx": fp[f"{src}/SPD"].chunks[1],
+        }
         for dim in ["y", "x"]:
             idx = 0
             while idx < chk_info[f"n{dim}"]:
@@ -502,15 +577,22 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
                 idx += chk_info[f"c{dim}"]
         for key, val in chk_bnds.items():
             print(f"{key}, {val}")
-        spd_chk = np.zeros((nyxe["y"], nyxe["x"], nyxe["e"]), fp[f"{src}/SPD"][0, 0][0].dtype)
+        spd_chk = np.zeros(
+            (nyxe["y"], nyxe["x"], nyxe["e"]), fp[f"{src}/SPD"][0, 0][0].dtype
+        )
         print(f"edax: {np.shape(spd_chk)}, {type(spd_chk)}, {spd_chk.dtype}")
-        print("WARNING::Currently the parsing of the SPD is switched off for debugging but works!")
+        print(
+            "WARNING::Currently the parsing of the SPD is switched off for debugging but works!"
+        )
         self.cache_id += 1
         return
         for chk_bnd_y in chk_bnds["y"]:
             for chk_bnd_x in chk_bnds["x"]:
-                spd_chk[chk_bnd_y[0]:chk_bnd_y[1], chk_bnd_x[0]:chk_bnd_x[1], :] \
-                    = fp[f"{src}/SPD"][chk_bnd_y[0]:chk_bnd_y[1], chk_bnd_x[0]:chk_bnd_x[1]]
+                spd_chk[chk_bnd_y[0] : chk_bnd_y[1], chk_bnd_x[0] : chk_bnd_x[1], :] = (
+                    fp[
+                        f"{src}/SPD"
+                    ][chk_bnd_y[0] : chk_bnd_y[1], chk_bnd_x[0] : chk_bnd_x[1]]
+                )
         for key, obj in self.tmp[ckey].tmp.items():
             if isinstance(obj, NxObject):
                 if obj.value is not None:
@@ -544,13 +626,17 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         reqs = ["eVOffset", "evPch", "NumberOfPoints", "SpectrumCounts"]
         for req in reqs:
             if req not in fp[f"{src}/SPC"].dtype.names:  # also check for shape
-                raise ValueError(f"Required attribute named {req} not found in {src}/SPC !")
+                raise ValueError(
+                    f"Required attribute named {req} not found in {src}/SPC !"
+                )
         reqs = ["ResolutionX", "ResolutionY", "mmFieldWidth", "mmFieldHeight"]
         for req in reqs:
             if req not in fp[f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"].dtype.names:
                 # also check for shape
-                raise ValueError(f"Required attribute named {req} not found in "
-                                 f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS !")
+                raise ValueError(
+                    f"Required attribute named {req} not found in "
+                    f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS !"
+                )
         # find relevant EDS maps (pairs of <symbol>.dat, <symbol>.ipr) groups
         uniq = set()
         for group_name in fp[f"{src}/ROIs"].keys():
@@ -558,12 +644,14 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
             if (len(token) == 2) and (token[1] in ("dat", "ipr")):
                 uniq.add(token[0])
         for entry in uniq:
-            if (f"{src}/ROIs/{entry}.dat" not in fp[f"{src}/ROIs"].keys()) \
-                    or (f"{src}/ROIs/{entry}.ipr" not in fp[f"{src}/ROIs"].keys()):
+            if (f"{src}/ROIs/{entry}.dat" not in fp[f"{src}/ROIs"].keys()) or (
+                f"{src}/ROIs/{entry}.ipr" not in fp[f"{src}/ROIs"].keys()
+            ):
                 uniq.remove(entry)
                 continue
-            if ("RoiStartChan" not in fp[f"{src}/ROIs/{entry}.dat"].attrs) \
-                    or ("RoiEndChan" not in fp[f"{src}/ROIs/{entry}.dat"].attrs):
+            if ("RoiStartChan" not in fp[f"{src}/ROIs/{entry}.dat"].attrs) or (
+                "RoiEndChan" not in fp[f"{src}/ROIs/{entry}.dat"].attrs
+            ):
                 uniq.remove(entry)
 
         ckey = self.init_named_cache(f"eds_map{self.cache_id}")
@@ -574,19 +662,18 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         e_zero = fp[f"{src}/SPC"]["eVOffset"][0]
         e_delta = fp[f"{src}/SPC"]["evPch"][0]
         e_n = fp[f"{src}/SPC"]["NumberOfPoints"][0]
-        e_channels = e_zero + np.asarray(e_delta * np.linspace(0.,
-                                                               e_n - 1.,
-                                                               num=int(e_n),
-                                                               endpoint=True),
-                                         e_zero.dtype)  # eV, as xraydb demands
-        nxy = {"x": fp[f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["ResolutionX"],
-               "y": fp[f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["ResolutionY"],
-               "lx": fp[f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["mmFieldWidth"],
-               "ly": fp[f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["mmFieldHeight"]}
-        sxy = {"x": nxy["lx"] / nxy["x"],
-               "y": nxy["ly"] / nxy["y"]}
-        scan_unit = {"x": "µm",
-                     "y": "µm"}
+        e_channels = e_zero + np.asarray(
+            e_delta * np.linspace(0.0, e_n - 1.0, num=int(e_n), endpoint=True),
+            e_zero.dtype,
+        )  # eV, as xraydb demands
+        nxy = {
+            "x": fp[f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["ResolutionX"],
+            "y": fp[f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["ResolutionY"],
+            "lx": fp[f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["mmFieldWidth"],
+            "ly": fp[f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["mmFieldHeight"],
+        }
+        sxy = {"x": nxy["lx"] / nxy["x"], "y": nxy["ly"] / nxy["y"]}
+        scan_unit = {"x": "µm", "y": "µm"}
         for entry in uniq:
             eds_map = NxImageRealSpaceSet()
             eds_map.tmp["source"] = f"{src}/ROIs/{entry}"
@@ -596,24 +683,26 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
             # theoretical candidates within integrated energy region [e_roi_s, e_roi_e]
             e_roi_s = fp[f"{src}/ROIs/{entry}.dat"].attrs["RoiStartChan"][0]
             e_roi_e = fp[f"{src}/ROIs/{entry}.dat"].attrs["RoiEndChan"][0]
-            eds_map.tmp["energy_range"] \
-                = NxObject(unit="eV",
-                           value=np.asarray([e_channels[e_roi_s],
-                                             e_channels[e_roi_e + 1]]))
-            eds_map.tmp["iupac_line_candidates"] \
-                = ", ".join(get_xrayline_candidates(e_channels[e_roi_s],
-                                                    e_channels[e_roi_e + 1]))
+            eds_map.tmp["energy_range"] = NxObject(
+                unit="eV",
+                value=np.asarray([e_channels[e_roi_s], e_channels[e_roi_e + 1]]),
+            )
+            eds_map.tmp["iupac_line_candidates"] = ", ".join(
+                get_xrayline_candidates(e_channels[e_roi_s], e_channels[e_roi_e + 1])
+            )
             for dim in ["x", "y"]:
-                eds_map.tmp[f"image_twod/axis_{dim}"].value \
-                    = np.asarray(0. + sxy[dim] * np.linspace(0.,
-                                                             nxy[dim] - 1,
-                                                             num=int(nxy[dim]),
-                                                             endpoint=True),
-                                 np.float32)
-                eds_map.tmp[f"image_twod/axis_{dim}@long_name"].value \
-                    = f"{dim}-axis pixel coordinate ({scan_unit[dim]})"
-                eds_map.tmp["image_twod/intensity"].value \
-                    = np.asarray(fp[f"{src}/ROIs/{entry}.dat"])
+                eds_map.tmp[f"image_twod/axis_{dim}"].value = np.asarray(
+                    0.0
+                    + sxy[dim]
+                    * np.linspace(0.0, nxy[dim] - 1, num=int(nxy[dim]), endpoint=True),
+                    np.float32,
+                )
+                eds_map.tmp[
+                    f"image_twod/axis_{dim}@long_name"
+                ].value = f"{dim}-axis pixel coordinate ({scan_unit[dim]})"
+                eds_map.tmp["image_twod/intensity"].value = np.asarray(
+                    fp[f"{src}/ROIs/{entry}.dat"]
+                )
             self.tmp[ckey].tmp["IMAGE_R_SET"].append(eds_map)  # copy
         self.cache_id += 1
 
@@ -641,61 +730,78 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         for req in reqs:
             if f"{src}/{req}" not in fp.keys():
                 return
-        reqs = ["NumberOfSpectra",
-                "NumberofChannels"]  # TODO: mind the typo here, can break parsing easily!
+        reqs = [
+            "NumberOfSpectra",
+            "NumberofChannels",
+        ]  # TODO: mind the typo here, can break parsing easily!
         for req in reqs:  # also check all following four for shape
             if req not in fp[f"{src}/LSD"].attrs.keys():
-                raise ValueError(f"Required attribute named {req} not found in {src}/LSD !")
+                raise ValueError(
+                    f"Required attribute named {req} not found in {src}/LSD !"
+                )
         reqs = ["evPCh"]
         for req in reqs:
             if req not in fp[f"{src}/SPC"].attrs.keys():
-                raise ValueError(f"Required attribute named {req} not found in {src}/SPC !")
+                raise ValueError(
+                    f"Required attribute named {req} not found in {src}/SPC !"
+                )
         reqs = ["Step", "X1", "X2", "Y1", "Y2"]
         for req in reqs:
             if req not in fp[f"{src}/REGION"].attrs.keys():
-                raise ValueError(f"Required attribute named {req} not found in {src}/REGION !")
+                raise ValueError(
+                    f"Required attribute named {req} not found in {src}/REGION !"
+                )
         reqs = ["mmFieldWidth", "mmFieldHeight"]  # mm as the name implies
         for req in reqs:
             if req not in fp[f"{src}/LINEMAPIMAGECOLLECTIONPARAMS"].attrs.keys():
-                raise ValueError(f"Required attribute named {req} not found "
-                                 f"in {src}/LINEMAPIMAGECOLLECTIONPARAMS !")
+                raise ValueError(
+                    f"Required attribute named {req} not found "
+                    f"in {src}/LINEMAPIMAGECOLLECTIONPARAMS !"
+                )
 
         ckey = self.init_named_cache(f"eds_lsd{self.cache_id}")
         self.tmp[ckey] = NxSpectrumSet()
         self.tmp[ckey].tmp["source"] = f"{src}/LSD"
-        e_zero = 0.  # strong assumption based on VInP_108_L2 example from IKZ
+        e_zero = 0.0  # strong assumption based on VInP_108_L2 example from IKZ
         e_delta = fp[f"{src}/SPC"].attrs["eVPCh"][0]
         e_n = fp[f"{src}/LSD"].attrs["NumberofChannels"][0]
-        self.tmp[ckey].tmp["spectrum_oned/axis_energy"].value \
-            = e_zero + np.asarray(e_delta * np.linspace(0.,
-                                                        int(e_n) - 1,
-                                                        num=int(e_n),
-                                                        endpoint=True),
-                                  e_zero.dtype)
-        self.tmp[ckey].tmp["spectrum_oned/axis_energy@long_name"].value \
-            = "Energy (eV)"
+        self.tmp[ckey].tmp["spectrum_oned/axis_energy"].value = e_zero + np.asarray(
+            e_delta * np.linspace(0.0, int(e_n) - 1, num=int(e_n), endpoint=True),
+            e_zero.dtype,
+        )
+        self.tmp[ckey].tmp["spectrum_oned/axis_energy@long_name"].value = "Energy (eV)"
 
         # vector representation of the line's physical length from mm to µm
-        line = np.asarray([
-            (fp[f"{src}/REGION"].attrs["X2"][0] - fp[f"{src}/REGION"].attrs["X1"][0])
-            * fp[f"{src}/LINEMAPIMAGECOLLECTIONPARAMS"].attrs["mmFieldWidth"] * 1000.,
-            (fp[f"{src}/REGION"].attrs["Y2"][0] - fp[f"{src}/REGION"].attrs["Y1"][0])
-            * fp[f"{src}/LINEMAPIMAGECOLLECTIONPARAMS"].attrs["mmFieldHeight"] * 1000.])
+        line = np.asarray(
+            [
+                (
+                    fp[f"{src}/REGION"].attrs["X2"][0]
+                    - fp[f"{src}/REGION"].attrs["X1"][0]
+                )
+                * fp[f"{src}/LINEMAPIMAGECOLLECTIONPARAMS"].attrs["mmFieldWidth"]
+                * 1000.0,
+                (
+                    fp[f"{src}/REGION"].attrs["Y2"][0]
+                    - fp[f"{src}/REGION"].attrs["Y1"][0]
+                )
+                * fp[f"{src}/LINEMAPIMAGECOLLECTIONPARAMS"].attrs["mmFieldHeight"]
+                * 1000.0,
+            ]
+        )
         i_n = fp[f"{src}/LSD"].attrs["NumberOfSpectra"][0]
-        line_length = np.sqrt(line[0]**2 + line[1]**2)
+        line_length = np.sqrt(line[0] ** 2 + line[1] ** 2)
         line_incr = line_length / i_n
-        self.tmp[ckey].tmp["spectrum_oned/axis_x"].value \
-            = np.asarray(np.linspace(0.5 * line_incr,
-                                     line_length,
-                                     num=i_n,
-                                     endpoint=True),
-                         fp[f"{src}/REGION"].attrs["X2"][0].dtype)
-        self.tmp[ckey].tmp["spectrum_oned/axis_x@long_name"] \
-            = "Position along the line (µm)"
-        self.tmp[ckey].tmp["spectrum_oned/intensity"].value \
-            = np.asarray(fp[f"{src}/LSD"][0], np.int32)
-        self.tmp[ckey].tmp["spectrum_oned/intensity@long_name"].value \
-            = f"Count (1)"
+        self.tmp[ckey].tmp["spectrum_oned/axis_x"].value = np.asarray(
+            np.linspace(0.5 * line_incr, line_length, num=i_n, endpoint=True),
+            fp[f"{src}/REGION"].attrs["X2"][0].dtype,
+        )
+        self.tmp[ckey].tmp["spectrum_oned/axis_x@long_name"] = (
+            "Position along the line (µm)"
+        )
+        self.tmp[ckey].tmp["spectrum_oned/intensity"].value = np.asarray(
+            fp[f"{src}/LSD"][0], np.int32
+        )
+        self.tmp[ckey].tmp["spectrum_oned/intensity@long_name"].value = f"Count (1)"
         self.cache_id += 1
 
         for key, val in self.tmp[ckey].tmp.items():

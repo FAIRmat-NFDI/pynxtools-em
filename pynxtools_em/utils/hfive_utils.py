@@ -29,18 +29,20 @@ from itertools import groupby
 from typing import List, Dict
 
 
-EBSD_MAP_SPACEGROUP = {"P 6#sub3mc": 186,
-                       "P 6/mmm": 191,
-                       "P 6#sub3/mmc": 194,
-                       "F #ovl43m": 216,
-                       "P m#ovl3m": 221,
-                       "F m#ovl3m": 225,
-                       "Fd#ovl3m(*)": 227,
-                       "I m#ovl3m": 229}
+EBSD_MAP_SPACEGROUP = {
+    "P 6#sub3mc": 186,
+    "P 6/mmm": 191,
+    "P 6#sub3/mmc": 194,
+    "F #ovl43m": 216,
+    "P m#ovl3m": 221,
+    "F m#ovl3m": 225,
+    "Fd#ovl3m(*)": 227,
+    "I m#ovl3m": 229,
+}
 # see here for typical examples http://img.chem.ucl.ac.uk/sgp/large/186az1.htm
 
 DIRTY_FIX_SPACEGROUP: Dict = {}
-EULER_SPACE_SYMMETRY: List = [2. * np.pi, np.pi, 2. * np.pi]
+EULER_SPACE_SYMMETRY: List = [2.0 * np.pi, np.pi, 2.0 * np.pi]
 
 
 def format_euler_parameterization(triplet_set):
@@ -53,10 +55,11 @@ def format_euler_parameterization(triplet_set):
     # scan points where not reported in radiant but rather using 4pi as a marker to indicate
     # there was a problem with the scan point
     for column_id in [0, 1, 2]:
-        here = np.where(triplet_set[:, column_id] < 0.)
+        here = np.where(triplet_set[:, column_id] < 0.0)
         if len(here[0]) > 0:
-            triplet_set[here, column_id] \
-                = EULER_SPACE_SYMMETRY[column_id] + triplet_set[here, column_id]
+            triplet_set[here, column_id] = (
+                EULER_SPACE_SYMMETRY[column_id] + triplet_set[here, column_id]
+            )
     return triplet_set
 
 
@@ -98,7 +101,9 @@ def read_first_scalar(obj):
         elif obj.shape == (1,):
             return obj[0]
         else:
-            raise ValueError(f"Unexpected shape found in {__name__} from object {obj} !")
+            raise ValueError(
+                f"Unexpected shape found in {__name__} from object {obj} !"
+            )
     else:
         raise ValueError(f"Unexpected input passed to {__name__} with object {obj} !")
 

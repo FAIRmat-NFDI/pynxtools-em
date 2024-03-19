@@ -21,10 +21,9 @@ import h5py
 import numpy as np
 
 
-class NxEmDefaultPlotResolver():
-    """Annotate the default plot in an instance of NXem.
+class NxEmDefaultPlotResolver:
+    """Annotate the default plot in an instance of NXem."""
 
-    """
     def __init__(self):
         pass
 
@@ -40,9 +39,9 @@ class NxEmDefaultPlotResolver():
                         template[f'{"/".join(tmp[0:idx])}/@default'] = tmp[idx]
         return template
 
-    def nxs_mtex_get_nxpath_to_default_plot(self,
-                                            entry_id: int = 1,
-                                            nxs_mtex_file_name: str = "") -> str:
+    def nxs_mtex_get_nxpath_to_default_plot(
+        self, entry_id: int = 1, nxs_mtex_file_name: str = ""
+    ) -> str:
         """Find a path to a default plot (i.e. NXdata instance) if any."""
         h5r = h5py.File(nxs_mtex_file_name, "r")
         if f"/entry{entry_id}/roi1/ebsd/indexing/roi" in h5r:

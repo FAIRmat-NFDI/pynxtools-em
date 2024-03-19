@@ -22,6 +22,7 @@ from collections import OrderedDict
 
 def flatten_xml_to_dict(xml_content) -> dict:
     """Flatten content of an XML tree into a Python dictionary."""
+
     # https://codereview.stackexchange.com/a/21035
     # https://stackoverflow.com/questions/38852822/how-to-flatten-xml-file-in-python
     def items():
@@ -29,13 +30,14 @@ def flatten_xml_to_dict(xml_content) -> dict:
             # nested subtree
             if isinstance(value, dict):
                 for subkey, subvalue in flatten_xml_to_dict(value).items():
-                    yield '{}.{}'.format(key, subkey), subvalue
+                    yield "{}.{}".format(key, subkey), subvalue
             # nested list
             elif isinstance(value, list):
                 for num, elem in enumerate(value):
                     for subkey, subvalue in flatten_xml_to_dict(elem).items():
-                        yield '{}.[{}].{}'.format(key, num, subkey), subvalue
+                        yield "{}.[{}].{}".format(key, num, subkey), subvalue
             # everything else (only leafs should remain)
             else:
                 yield key, value
+
     return OrderedDict(items())

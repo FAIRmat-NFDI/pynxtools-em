@@ -25,6 +25,7 @@ from pynxtools_em.subparsers.rsciio_base import RsciioBaseParser
 
 class RsciioBrukerSubParser(RsciioBaseParser):
     """Read Bruker BCF File Format bcf."""
+
     def __init__(self, file_path: str = ""):
         super().__init__(file_path)
         self.prfx = None
@@ -53,8 +54,10 @@ class RsciioBrukerSubParser(RsciioBaseParser):
             print(f"Parsing with {self.__name__}...")
             self.tech_partner_to_nexus_normalization()
         else:
-            print(f"{self.file_path} is not a Bruker-specific "
-                  f"BCF file that this parser can process !")
+            print(
+                f"{self.file_path} is not a Bruker-specific "
+                f"BCF file that this parser can process !"
+            )
 
     def tech_partner_to_nexus_normalization(self):
         """Translate tech partner concepts to NeXus concepts."""
