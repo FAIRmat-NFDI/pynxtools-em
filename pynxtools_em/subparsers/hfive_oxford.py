@@ -22,10 +22,10 @@ import h5py
 from typing import Dict
 from diffpy.structure import Lattice, Structure
 
-from pynxtools.dataconverter.readers.em.subparsers.hfive_base import HdfFiveBaseParser
-from pynxtools.dataconverter.readers.em.utils.hfive_utils import \
+from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
+from pynxtools_em.utils.hfive_utils import \
     read_strings_from_dataset, format_euler_parameterization
-from pynxtools.dataconverter.readers.em.examples.ebsd_database import \
+from pynxtools_em.examples.ebsd_database import \
     SQUARE_GRID, REGULAR_TILING, FLIGHT_PLAN  # HEXAGONAL_GRID
 
 

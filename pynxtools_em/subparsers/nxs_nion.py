@@ -30,7 +30,7 @@ import nion.swift.model.NDataHandler as nsnd
 from zipfile import ZipFile
 from typing import Dict, List
 
-from pynxtools.dataconverter.readers.em.utils.nion_utils import \
+from pynxtools_em.utils.nion_utils import \
     uuid_to_file_name
 # from pynxtools.dataconverter.readers.em_nion.utils.swift_generate_dimscale_axes \
 #     import get_list_of_dimension_scale_axes

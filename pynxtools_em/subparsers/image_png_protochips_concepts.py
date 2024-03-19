@@ -18,7 +18,7 @@
 """Configuration of the image_png_protochips subparser."""
 
 from typing import List
-from pynxtools.dataconverter.readers.em.subparsers.image_png_protochips_cfg import \
+from pynxtools_em.subparsers.image_png_protochips_cfg import \
     PNG_PROTOCHIPS_TO_NEXUS_CFG
 
 

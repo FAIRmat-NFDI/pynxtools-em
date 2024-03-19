@@ -23,7 +23,7 @@ import h5py
 # from typing import Any
 from ase.data import chemical_symbols
 
-from pynxtools.dataconverter.readers.em.examples.ebsd_database import \
+from pynxtools_em.examples.ebsd_database import \
     FreeTextToUniquePhase, UniquePhaseToAtomTypes, ProjectIdToCitation
 
 """

@@ -20,7 +20,7 @@
 # pylint: disable=no-member,too-few-members
 
 from typing import List
-from pynxtools.dataconverter.readers.em.concepts.concept_mapper \
+from pynxtools_em.concepts.concept_mapper \
     import variadic_path_to_specific_path
 
 

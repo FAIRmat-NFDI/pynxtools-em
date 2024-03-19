@@ -23,16 +23,16 @@ from typing import Dict
 from PIL import Image
 from PIL.TiffTags import TAGS
 
-from pynxtools.dataconverter.readers.em.subparsers.image_tiff import TiffSubParser
-from pynxtools.dataconverter.readers.em.subparsers.image_tiff_tfs_concepts import \
+from pynxtools_em.subparsers.image_tiff import TiffSubParser
+from pynxtools_em.subparsers.image_tiff_tfs_concepts import \
     get_fei_parent_concepts, get_fei_childs
-from pynxtools.dataconverter.readers.em.subparsers.image_tiff_tfs_cfg import \
+from pynxtools_em.subparsers.image_tiff_tfs_cfg import \
     TIFF_TFS_TO_NEXUS_CFG
-from pynxtools.dataconverter.readers.em.utils.image_utils import \
+from pynxtools_em.utils.image_utils import \
     sort_ascendingly_by_second_argument, if_str_represents_float
 from pynxtools.dataconverter.readers.shared.map_concepts.mapping_functors \
     import variadic_path_to_specific_path
-from pynxtools.dataconverter.readers.em.subparsers.image_tiff_tfs_modifier import \
+from pynxtools_em.subparsers.image_tiff_tfs_modifier import \
     get_nexus_value
 
 

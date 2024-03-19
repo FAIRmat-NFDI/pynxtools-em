@@ -25,15 +25,15 @@ from datetime import datetime
 from rsciio import emd
 from ase.data import chemical_symbols
 
-from pynxtools.dataconverter.readers.em.subparsers.rsciio_base \
+from pynxtools_em.subparsers.rsciio_base \
     import RsciioBaseParser
-from pynxtools.dataconverter.readers.em.utils.rsciio_hyperspy_utils \
+from pynxtools_em.utils.rsciio_hyperspy_utils \
     import get_named_axis, get_axes_dims, get_axes_units
 from pynxtools.dataconverter.readers.shared.shared_utils \
     import get_sha256_of_file_content
-from pynxtools.dataconverter.readers.em.subparsers.rsciio_velox_concepts \
+from pynxtools_em.subparsers.rsciio_velox_concepts \
     import NX_VELOX_TO_NX_EVENT_DATA_EM
-from pynxtools.dataconverter.readers.em.concepts.concept_mapper \
+from pynxtools_em.concepts.concept_mapper \
     import variadic_path_to_specific_path
 
 REAL_SPACE = 0

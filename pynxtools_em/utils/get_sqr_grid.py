@@ -22,8 +22,8 @@
 import numpy as np
 from scipy.spatial import KDTree
 
-from pynxtools.dataconverter.readers.em.examples.ebsd_database import SQUARE_GRID
-from pynxtools.dataconverter.readers.em.utils.get_scan_points import \
+from pynxtools_em.examples.ebsd_database import SQUARE_GRID
+from pynxtools_em.utils.get_scan_points import \
     threed, square_grid, hexagonal_grid
 
 

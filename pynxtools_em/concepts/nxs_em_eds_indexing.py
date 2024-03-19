@@ -19,7 +19,7 @@
 
 from typing import Dict, List
 
-from pynxtools.dataconverter.readers.em.concepts.nxs_object import NxObject
+from pynxtools_em.concepts.nxs_object import NxObject
 
 
 NX_EM_EDS_INDEXING_HDF_PATH = ["indexing/element_names-field",

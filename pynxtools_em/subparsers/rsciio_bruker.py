@@ -20,7 +20,7 @@
 from typing import Dict, List
 from rsciio import bruker
 
-from pynxtools.dataconverter.readers.em.subparsers.rsciio_base import RsciioBaseParser
+from pynxtools_em.subparsers.rsciio_base import RsciioBaseParser
 
 
 class RsciioBrukerSubParser(RsciioBaseParser):

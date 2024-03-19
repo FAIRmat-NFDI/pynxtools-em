@@ -41,25 +41,25 @@ from orix.quaternion import Rotation
 from orix.quaternion.symmetry import get_point_group
 from orix.vector import Vector3d
 
-from pynxtools.dataconverter.readers.em.utils.hfive_utils import read_strings_from_dataset
-from pynxtools.dataconverter.readers.em.utils.hfive_web_constants \
+from pynxtools_em.utils.hfive_utils import read_strings_from_dataset
+from pynxtools_em.utils.hfive_web_constants \
     import HFIVE_WEB_MAXIMUM_ROI, HFIVE_WEB_MAXIMUM_RGB
-from pynxtools.dataconverter.readers.em.utils.hfive_web_utils \
+from pynxtools_em.utils.hfive_web_utils \
     import hfive_web_decorate_nxdata
-from pynxtools.dataconverter.readers.em.utils.image_processing import thumbnail
-from pynxtools.dataconverter.readers.em.utils.get_sqr_grid import \
+from pynxtools_em.utils.image_processing import thumbnail
+from pynxtools_em.utils.get_sqr_grid import \
     get_scan_points_with_mark_data_discretized_on_sqr_grid
-from pynxtools.dataconverter.readers.em.utils.get_scan_points import \
+from pynxtools_em.utils.get_scan_points import \
     square_grid, hexagonal_grid, threed, get_scan_point_axis_values, get_scan_point_coords
 
-from pynxtools.dataconverter.readers.em.subparsers.hfive_oxford import HdfFiveOxfordReader
-from pynxtools.dataconverter.readers.em.subparsers.hfive_bruker import HdfFiveBrukerEspritReader
-from pynxtools.dataconverter.readers.em.subparsers.hfive_edax import HdfFiveEdaxOimAnalysisReader
-from pynxtools.dataconverter.readers.em.subparsers.hfive_apex import HdfFiveEdaxApexReader
-from pynxtools.dataconverter.readers.em.subparsers.hfive_ebsd import HdfFiveCommunityReader
-from pynxtools.dataconverter.readers.em.subparsers.hfive_emsoft import HdfFiveEmSoftReader
-from pynxtools.dataconverter.readers.em.subparsers.hfive_dreamthreed import HdfFiveDreamThreedReader
-from pynxtools.dataconverter.readers.em.concepts.nxs_image_r_set import NxImageRealSpaceSet
+from pynxtools_em.subparsers.hfive_oxford import HdfFiveOxfordReader
+from pynxtools_em.subparsers.hfive_bruker import HdfFiveBrukerEspritReader
+from pynxtools_em.subparsers.hfive_edax import HdfFiveEdaxOimAnalysisReader
+from pynxtools_em.subparsers.hfive_apex import HdfFiveEdaxApexReader
+from pynxtools_em.subparsers.hfive_ebsd import HdfFiveCommunityReader
+from pynxtools_em.subparsers.hfive_emsoft import HdfFiveEmSoftReader
+from pynxtools_em.subparsers.hfive_dreamthreed import HdfFiveDreamThreedReader
+from pynxtools_em.concepts.nxs_image_r_set import NxImageRealSpaceSet
 
 
 PROJECTION_VECTORS = [Vector3d.xvector(), Vector3d.yvector(), Vector3d.zvector()]

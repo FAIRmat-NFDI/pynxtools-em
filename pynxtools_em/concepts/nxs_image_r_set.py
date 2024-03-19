@@ -19,7 +19,7 @@
 
 from typing import Dict
 
-from pynxtools.dataconverter.readers.em.concepts.nxs_object import NxObject
+from pynxtools_em.concepts.nxs_object import NxObject
 
 
 NX_IMAGE_REAL_SPACE_SET_HDF_PATH = ["image_oned/axis_x-field",

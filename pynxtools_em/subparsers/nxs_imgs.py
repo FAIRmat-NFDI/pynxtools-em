@@ -21,9 +21,9 @@ import numpy as np
 # from typing import Dict, Any, List
 from PIL import Image
 
-from pynxtools.dataconverter.readers.em.subparsers.image_tiff_tfs import TfsTiffSubParser
-from pynxtools.dataconverter.readers.em.subparsers.image_png_protochips import ProtochipsPngSetSubParser
-from pynxtools.dataconverter.readers.em.utils.hfive_web_utils import hfive_web_decorate_nxdata
+from pynxtools_em.subparsers.image_tiff_tfs import TfsTiffSubParser
+from pynxtools_em.subparsers.image_png_protochips import ProtochipsPngSetSubParser
+from pynxtools_em.utils.hfive_web_utils import hfive_web_decorate_nxdata
 
 
 class NxEmImagesSubParser:

@@ -23,7 +23,7 @@ from typing import Dict
 from PIL import Image
 from PIL.TiffTags import TAGS
 
-from pynxtools.dataconverter.readers.em.subparsers.image_base import ImgsBaseParser
+from pynxtools_em.subparsers.image_base import ImgsBaseParser
 
 
 class TiffSubParser(ImgsBaseParser):

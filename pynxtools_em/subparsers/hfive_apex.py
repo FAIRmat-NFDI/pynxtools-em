@@ -23,23 +23,23 @@ from typing import Dict
 from diffpy.structure import Lattice, Structure
 from orix.quaternion import Orientation
 
-from pynxtools.dataconverter.readers.em.subparsers.hfive_base \
+from pynxtools_em.subparsers.hfive_base \
     import HdfFiveBaseParser
-from pynxtools.dataconverter.readers.em.utils.hfive_utils \
+from pynxtools_em.utils.hfive_utils \
     import read_strings_from_dataset
-from pynxtools.dataconverter.readers.em.examples.ebsd_database import \
+from pynxtools_em.examples.ebsd_database import \
     ASSUME_PHASE_NAME_TO_SPACE_GROUP, HEXAGONAL_GRID, SQUARE_GRID, REGULAR_TILING, FLIGHT_PLAN
-from pynxtools.dataconverter.readers.em.utils.get_scan_points \
+from pynxtools_em.utils.get_scan_points \
     import get_scan_point_coords
-from pynxtools.dataconverter.readers.em.concepts.nxs_image_r_set \
+from pynxtools_em.concepts.nxs_image_r_set \
     import NxImageRealSpaceSet
-from pynxtools.dataconverter.readers.em.concepts.nxs_spectrum_set \
+from pynxtools_em.concepts.nxs_spectrum_set \
     import NxSpectrumSet
-from pynxtools.dataconverter.readers.em.concepts.nxs_em_eds_indexing \
+from pynxtools_em.concepts.nxs_em_eds_indexing \
     import NxEmEdsIndexing
-from pynxtools.dataconverter.readers.em.utils.get_xrayline_iupac_names \
+from pynxtools_em.utils.get_xrayline_iupac_names \
     import get_xrayline_candidates
-from pynxtools.dataconverter.readers.em.concepts.nxs_object import NxObject
+from pynxtools_em.concepts.nxs_object import NxObject
 
 
 class HdfFiveEdaxApexReader(HdfFiveBaseParser):

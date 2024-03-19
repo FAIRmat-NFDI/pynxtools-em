@@ -21,21 +21,21 @@
 
 # ,duplicate-code
 
-from pynxtools.dataconverter.readers.em.geometry.handed_cartesian \
+from pynxtools_em.geometry.handed_cartesian \
     import REFERENCE_FRAMES, AXIS_DIRECTIONS, is_cs_well_defined
 
-from pynxtools.dataconverter.readers.em.concepts.concept_mapper \
+from pynxtools_em.concepts.concept_mapper \
     import variadic_path_to_specific_path, apply_modifier
 
-from pynxtools.dataconverter.readers.em.geometry.geometry \
+from pynxtools_em.geometry.geometry \
     import NxEmConventions
 
 # example how to check against different types of Euler angle conventions
-# from pynxtools.dataconverter.readers.em.geometry.euler_angle_convention \
+# from pynxtools_em.geometry.euler_angle_convention \
 #    import which_euler_convention
 
 # example how to check if set of conventions matches to some suggestion in the literature
-# from pynxtools.dataconverter.readers.em.geometry.msmse_convention \
+# from pynxtools_em.geometry.msmse_convention \
 #     import is_consistent_with_msmse_convention
 
 

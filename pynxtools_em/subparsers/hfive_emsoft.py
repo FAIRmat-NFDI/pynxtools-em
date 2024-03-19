@@ -21,8 +21,8 @@ import numpy as np
 import h5py
 from typing import Dict
 
-from pynxtools.dataconverter.readers.em.subparsers.hfive_base import HdfFiveBaseParser
-from pynxtools.dataconverter.readers.em.utils.hfive_utils import read_strings_from_dataset
+from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
+from pynxtools_em.utils.hfive_utils import read_strings_from_dataset
 
 
 class HdfFiveEmSoftReader(HdfFiveBaseParser):

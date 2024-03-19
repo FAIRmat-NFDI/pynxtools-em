@@ -21,7 +21,7 @@ import numpy as np
 import h5py
 from typing import Dict, List
 
-from pynxtools.dataconverter.readers.em.subparsers.hfive_concept import \
+from pynxtools_em.subparsers.hfive_concept import \
     IS_GROUP, IS_REGULAR_DATASET, IS_COMPOUND_DATASET, IS_ATTRIBUTE, \
     IS_FIELD_IN_COMPOUND_DATASET, Concept
 

@@ -22,14 +22,14 @@
 from typing import Tuple, Any
 
 from pynxtools.dataconverter.readers.base.reader import BaseReader
-# from pynxtools.dataconverter.readers.em.concepts.nxs_concepts import NxEmAppDef
-# from pynxtools.dataconverter.readers.em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
-from pynxtools.dataconverter.readers.em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
-# from pynxtools.dataconverter.readers.em.subparsers.nxs_imgs import NxEmImagesSubParser
-# from pynxtools.dataconverter.readers.em.subparsers.nxs_nion import NxEmZippedNionProjectSubParser
-from pynxtools.dataconverter.readers.em.subparsers.rsciio_velox import RsciioVeloxSubParser
-from pynxtools.dataconverter.readers.em.utils.default_plots import NxEmDefaultPlotResolver
-# from pynxtools.dataconverter.readers.em.geometry.convention_mapper import NxEmConventionMapper
+# from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
+# from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
+from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
+# from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
+# from pynxtools_em.subparsers.nxs_nion import NxEmZippedNionProjectSubParser
+from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
+from pynxtools_em.utils.default_plots import NxEmDefaultPlotResolver
+# from pynxtools_em.geometry.convention_mapper import NxEmConventionMapper
 
 # remaining subparsers to be implemented and merged into this one
 # from pynxtools.dataconverter.readers.em_om.utils.generic_eln_io \
@@ -52,7 +52,7 @@ class EMReader(BaseReader):
     # pylint: disable=too-few-public-methods
 
     # Whitelist for the NXDLs that the reader supports and can process
-    supported_nxdls = ["NXem", "NXroot"]
+    supported_nxdls = ["NXem"]
 
     # pylint: disable=duplicate-code
     def read(self,

@@ -21,10 +21,10 @@ import numpy as np
 import h5py
 from typing import Dict
 
-from pynxtools.dataconverter.readers.em.subparsers.hfive_base import HdfFiveBaseParser
-from pynxtools.dataconverter.readers.em.utils.hfive_utils import \
+from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
+from pynxtools_em.utils.hfive_utils import \
     read_strings_from_dataset  # EBSD_MAP_SPACEGROUP
-from pynxtools.dataconverter.readers.em.examples.ebsd_database import \
+from pynxtools_em.examples.ebsd_database import \
     SQUARE_GRID, REGULAR_TILING, FLIGHT_PLAN  # ASSUME_PHASE_NAME_TO_SPACE_GROUP, HEXAGONAL_GRID
 
 # DREAM3D implements essentially a data analysis workflow with individual steps
