@@ -26,7 +26,7 @@ dependencies = [
     "hyperspy==1.7.6",
     "rosettasciio>=0.3",
     "kikuchipy>=0.9",
-    "pyxem>=0.17",
+    "pyxem==0.16.0",
     "nionswift>=0.16.10",
     "flatdict>=4.0.1"
 ]
