@@ -19,18 +19,20 @@
 
 # pylint: disable=no-member,fixme
 
+from time import perf_counter_ns
 from typing import Tuple, Any
 
 from pynxtools.dataconverter.readers.base.reader import BaseReader
-
-# from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
+from pynxtools_em.utils.em_define_io_cases import (
+    EmUseCaseSelector,
+)
 # from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
-from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
+## from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
 
 # from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
 # from pynxtools_em.subparsers.nxs_nion import NxEmZippedNionProjectSubParser
-from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
-from pynxtools_em.utils.default_plots import NxEmDefaultPlotResolver
+## from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
+## from pynxtools_em.utils.default_plots import NxEmDefaultPlotResolver
 # from pynxtools_em.geometry.convention_mapper import NxEmConventionMapper
 
 # remaining subparsers to be implemented and merged into this one
@@ -46,6 +48,10 @@ from pynxtools_em.utils.default_plots import NxEmDefaultPlotResolver
 #     import NxEmOmDreamThreedEbsdParser
 # from pynxtools.dataconverter.readers.em_om.utils.em_nexus_plots \
 #     import em_om_default_plot_generator
+
+from pynxtools_em.subparsers.oasis_config_reader import NxEmNomadOasisConfigurationParser
+from pynxtools_em.subparsers.eln_reader import NxEmNomadOasisElnSchemaParser
+from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 
 
 class EMReader(BaseReader):
@@ -65,60 +71,49 @@ class EMReader(BaseReader):
     ) -> dict:
         """Read data from given file, return filled template dictionary em."""
         # pylint: disable=duplicate-code
+        tic = perf_counter_ns()
         template.clear()
 
-        # debug_id = 3
-        # template[f"/ENTRY[entry1]/test{debug_id}"] = f"test{debug_id}"
-        # this em_om parser combines multiple sub-parsers
         # so we need the following input:
         # logical analysis which use case
+        # optional data input from a NOMAD Oasis-specific configuration YAML
         # data input from an ELN (using an ELN-agnostic) YAML representation
-        # data input from technology partner files
-        # functionalities for creating default plots
+        # data input from technology partner files (different formats)
+        # functionalities for creating NeXus default plots
 
         entry_id = 1
-        # if len(file_paths) != 2:
-        #     print("Generation of example data not implemented yet...!")
-        #     return {}
-
         print(
-            "Identify information sources (ELN, RDM config, tech files) to deal with..."
+            "Identify information sources (RDM config, ELN, tech-partner files) to deal with..."
         )
-        # case = EmUseCaseSelector(file_paths)
-        # if case.is_valid is False:
-        #     print("Such a combination of input (file) is not supported !")
-        #    return {}
+        case = EmUseCaseSelector(file_paths)
+        if not case.is_valid:
+            print("Such a combination of input-file(s, if any) is not supported !")
+            return {}
 
-        print("Process pieces of information within RDM-specific ELN export file...")
-        # if case.eln_parser_type == "oasis":
-        #     # pattern_simulation = False
-        #     # if case.dat_parser_type == "zip":
-        #     #     pattern_simulation = True
-        #     eln = OasisCustomSchemaInstanceFileParser(case.eln[0], entry_id)
-        #     eln.parse(template)
-        # else:
-        #     print("No interpretable ELN input found!")
+        print("Parse (meta)data coming from a configuration of an RDM...")
+        if len(case.cfg) == 1:
+            nx_em_cfg = NxEmNomadOasisConfigurationParser(case.cfg[0], entry_id)
+            nx_em_cfg.report(template)
+        # having or using a deployment-specific configuration is optional
 
-        # print("Process pieces of information in RDM-specific configuration files...")
-        # if case.cfg_parser_type == "oasis":
-        #     cfg = OasisSpecificConfigInstanceFileParser(case.cfg[0], entry_id)
-        #     cfg.parse(template)
-        # else:
-        #     print("No interpretable configuration file offered")
+        print("arse (meta)data coming from an ELN...")
+        if len(case.eln) == 1:
+            nx_em_eln = NxEmNomadOasisElnSchemaParser(case.eln[0], entry_id)
+            nx_em_eln.report(template)
 
-        input_file_names = []
+        input_fpaths = []
         for file_path in file_paths:
             if file_path != "":
-                input_file_names.append(file_path)
+                input_fpaths.append(file_path)
         print("Parse NeXus appdef-specific content...")
-        # nxs = NxEmAppDef()
-        # nxs.parse(template, entry_id, input_file_names)
+        nxs = NxEmAppDef()
+        nxs.parse(template, entry_id, input_fpaths)
 
-        print("Parse conventions of reference frames...")
+        # print("Parse conventions of reference frames...")
         # conventions = NxEmConventionMapper(entry_id)
         # conventions.parse(template)
 
-        print("Parse and map pieces of information within files from tech partners...")
+        # print("Parse and map pieces of information within files from tech partners...")
         # sub_parser = "nxs_mtex"
         # subparser = NxEmNxsMTexSubParser(entry_id, file_paths[0])
         # subparser.parse(template)
@@ -142,8 +137,8 @@ class EMReader(BaseReader):
         # TODO::check correct loop through!
 
         # sub_parser = "velox_emd"
-        subparser = RsciioVeloxSubParser(entry_id, file_paths[0], verbose=False)
-        subparser.parse(template)
+        # subparser = RsciioVeloxSubParser(entry_id, file_paths[0], verbose=False)
+        # subparser.parse(template)
 
         # for dat_instance in case.dat_parser_type:
         #     print(f"Process pieces of information in {dat_instance} tech partner file...")
@@ -165,26 +160,31 @@ class EMReader(BaseReader):
         # print("Create NeXus default plottable data...")
         # em_default_plot_generator(template, 1)
 
-        run_block = False
-        if run_block is True:
-            nxs_plt = NxEmDefaultPlotResolver()
-            # if nxs_mtex is the sub-parser
-            resolved_path = nxs_plt.nxs_mtex_get_nxpath_to_default_plot(
-                entry_id, file_paths[0]
-            )
-            # print(f"DEFAULT PLOT IS {resolved_path}")
-            if resolved_path != "":
-                nxs_plt.annotate_default_plot(template, resolved_path)
+        # run_block = False
+        # if run_block is True:
+        #     nxs_plt = NxEmDefaultPlotResolver()
+        #     # if nxs_mtex is the sub-parser
+        #     resolved_path = nxs_plt.nxs_mtex_get_nxpath_to_default_plot(
+        #         entry_id, file_paths[0]
+        #     )
+        #     # print(f"DEFAULT PLOT IS {resolved_path}")
+        #     if resolved_path != "":
+        #         nxs_plt.annotate_default_plot(template, resolved_path)
 
         debugging = False
         if debugging is True:
             print("Reporting state of template before passing to HDF5 writing...")
             for keyword in template.keys():
                 print(keyword)
-                # print(type(template[keyword]))
                 print(template[keyword])
 
         print("Forward instantiated template to the NXS writer...")
+        toc = perf_counter_ns()
+        trg = f"/entry{entry_id}/profiling"
+        # TODO remove # template[f"{trg}/@NX_class"] = "NXcs_profiling"
+        template[f"{trg}/template_filling_elapsed_time"] \
+            = np.float64((toc - tic) / 1.0e9)
+        template[f"{trg}/template_filling_elapsed_time/@units"] = "s"
         return template
 
 
