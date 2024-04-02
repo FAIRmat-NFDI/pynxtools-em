@@ -12,7 +12,7 @@ asteval==0.9.32
     # via lmfit
 asttokens==2.4.1
     # via stack-data
-build==1.1.1
+build==1.2.1
     # via pip-tools
 certifi==2024.2.2
     # via requests
@@ -34,7 +34,7 @@ contourpy==1.2.0
     # via matplotlib
 cycler==0.12.1
     # via matplotlib
-dask[array]==2024.3.1
+dask[array]==2024.4.0
     # via
     #   hyperspy
     #   kikuchipy
@@ -69,9 +69,7 @@ fabio==2023.10.0
 fasteners==0.19
     # via zarr
 flatdict==4.0.1
-    # via
-    #   pynxtools
-    #   pynxtools-em (pyproject.toml)
+    # via pynxtools-em (pyproject.toml)
 fonttools==4.50.0
     # via matplotlib
 fsspec==2024.3.1
@@ -80,10 +78,6 @@ fsspec==2024.3.1
     #   hyperspy
 future==1.0.0
     # via uncertainties
-gitdb==4.0.11
-    # via gitpython
-gitpython==3.1.42
-    # via pynxtools
 greenlet==3.0.3
     # via sqlalchemy
 h5py==3.10.0
@@ -103,7 +97,6 @@ hdf5plugin==4.4.0
 hyperspy==1.7.6
     # via
     #   kikuchipy
-    #   pynxtools
     #   pyxem
 idna==3.6
     # via requests
@@ -115,18 +108,18 @@ imageio==2.27.0
     #   nionswift-io
     #   nionui
     #   scikit-image
-importlib-metadata==7.0.2
+importlib-metadata==7.1.0
     # via
     #   dask
     #   hyperspy
     #   pynxtools
 iniconfig==2.0.0
     # via pytest
-ipykernel==6.29.3
+ipykernel==6.29.4
     # via ipyparallel
 ipyparallel==8.7.0
     # via hyperspy
-ipython==8.22.2
+ipython==8.23.0
     # via
     #   hyperspy
     #   ipykernel
@@ -146,9 +139,7 @@ jupyter-core==5.7.2
     #   ipykernel
     #   jupyter-client
 kikuchipy==0.9.0
-    # via
-    #   pynxtools
-    #   pynxtools-em (pyproject.toml)
+    # via pynxtools-em (pyproject.toml)
 kiwisolver==1.4.5
     # via matplotlib
 lazy-loader==0.3
@@ -159,8 +150,10 @@ lmfit==1.2.2
     # via pyxem
 locket==1.0.0
     # via partd
-lxml==5.1.0
-    # via fabio
+lxml==5.2.1
+    # via
+    #   fabio
+    #   pynxtools
 markupsafe==2.1.5
     # via jinja2
 matplotlib==3.8.3
@@ -198,9 +191,7 @@ niondata==15.6.2
     #   nionswift
     #   nionswift-io
 nionswift==16.10.0
-    # via
-    #   pynxtools
-    #   pynxtools-em (pyproject.toml)
+    # via pynxtools-em (pyproject.toml)
 nionswift-io==15.2.1
     # via nionswift
 nionui==7.0.3
@@ -211,7 +202,7 @@ nionutils==0.4.10
     #   nionswift
     #   nionswift-io
     #   nionui
-numba==0.59.0
+numba==0.59.1
     # via
     #   diffsims
     #   hyperspy
@@ -221,7 +212,7 @@ numba==0.59.0
     #   sparse
 numcodecs==0.12.1
     # via zarr
-numexpr==2.9.0
+numexpr==2.10.0
     # via
     #   hyperspy
     #   pyfai
@@ -340,7 +331,7 @@ pyfai==2024.2.0
     # via pyxem
 pygments==2.17.2
     # via ipython
-pynxtools @ git+https://github.com/FAIRmat-NFDI/pynxtools@apm-em-plugins-nxdefs-tracking
+pynxtools @ git+https://github.com/FAIRmat-NFDI/pynxtools@sprint19-em-tracking-01
     # via pynxtools-em (pyproject.toml)
 pyparsing==3.1.2
     # via matplotlib
@@ -364,13 +355,8 @@ pytz==2024.1
     # via
     #   nionswift
     #   pandas
-    #   pynxtools
-pytz-deprecation-shim==0.1.0.post0
-    # via tzlocal
 pyxem==0.16.0
-    # via
-    #   pynxtools
-    #   pynxtools-em (pyproject.toml)
+    # via pynxtools-em (pyproject.toml)
 pyyaml==6.0.1
     # via
     #   dask
@@ -389,7 +375,7 @@ requests==2.31.0
     #   pooch
 rosettasciio==0.3
     # via pynxtools-em (pyproject.toml)
-ruff==0.3.3
+ruff==0.3.5
     # via pynxtools-em (pyproject.toml)
 scikit-image==0.22.0
     # via
@@ -411,7 +397,6 @@ scipy==1.12.0
     #   nionswift
     #   orix
     #   pyfai
-    #   pynxtools
     #   pyxem
     #   scikit-image
     #   scikit-learn
@@ -424,17 +409,15 @@ six==1.16.0
     #   asttokens
     #   diffpy-structure
     #   python-dateutil
-smmap==5.0.1
-    # via gitdb
 sparse==0.15.1
     # via hyperspy
-sqlalchemy==2.0.28
+sqlalchemy==2.0.29
     # via xraydb
 stack-data==0.6.3
     # via ipython
 sympy==1.12
     # via hyperspy
-threadpoolctl==3.3.0
+threadpoolctl==3.4.0
     # via scikit-learn
 tifffile==2024.2.12
     # via
@@ -479,17 +462,15 @@ types-pyyaml==6.0.12.20240311
     # via pynxtools-em (pyproject.toml)
 typing-extensions==4.10.0
     # via
+    #   ipython
     #   mypy
     #   pint
     #   sqlalchemy
 tzdata==2024.1
-    # via
-    #   pandas
-    #   pytz-deprecation-shim
-tzlocal==4.3
+    # via pandas
+tzlocal==5.2
     # via
     #   nionswift
-    #   pynxtools
     #   pynxtools-em (pyproject.toml)
 uncertainties==3.1.7
     # via lmfit
@@ -501,7 +482,7 @@ wcwidth==0.2.13
     #   prompt-toolkit
 wheel==0.43.0
     # via pip-tools
-xarray==2024.2.0
+xarray==2024.3.0
     # via pynxtools
 xmltodict==0.13.0
     # via pynxtools-em (pyproject.toml)
@@ -509,8 +490,6 @@ xraydb==4.5.4
     # via pynxtools-em (pyproject.toml)
 zarr==2.17.1
     # via hyperspy
-zipfile37==0.1.3
-    # via pynxtools
 zipp==3.18.1
     # via importlib-metadata
 
