@@ -34,7 +34,17 @@ from pynxtools_em.utils.rsciio_hyperspy_utils import (
 from pynxtools_em.shared.shared_utils import (
     get_sha256_of_file_content,
 )
-from pynxtools_em.subparsers.rsciio_velox_concepts import NX_VELOX_TO_NX_EVENT_DATA_EM
+from pynxtools_em.subparsers.rsciio_velox_concepts import (
+    VELOX_EXEMPLAR_SELECTION_TO_NX_EM,
+    VELOX_ENTRY_TO_NX_EM,
+    VELOX_EBEAM_STATIC_TO_NX_EM,
+    VELOX_FABRICATION_TO_NX_EM,
+    VELOX_SCAN_TO_NX_EM,
+    VELOX_OPTICS_TO_NX_EM,
+    VELOX_STAGE_TO_NX_EM,
+    VELOX_DYNAMIC_TO_NX_EM,
+    VELOX_EBEAM_DYNAMIC_TO_NX_EM )
+
 from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
 
 REAL_SPACE = 0
@@ -254,7 +264,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
             raise ValueError(
                 f"Argument identifier {identifier} needs three int values!"
             )
-        for tpl in NX_VELOX_TO_NX_EVENT_DATA_EM:
+        for tpl in VELOX_EXEMPLAR_SELECTION_TO_NX_EM:
             if not isinstance(tpl, tuple):
                 continue
             if len(tpl) != 3:
@@ -313,6 +323,78 @@ class RsciioVeloxSubParser(RsciioBaseParser):
                 print(f"Found modifier {tpl[1]}")
         return template
 
+    def add_specific_metadata(self, concept_mapping: dict, orgmeta: fd.FlatDict, identifier: list, template: dict
+    ) -> dict:
+        """Map specific concept instance data from Velox to NeXus NXem."""
+        variadic_prefix = concept_mapping["prefix"]
+        if "use" in concept_mapping:
+            for entry in concept_mapping["use"]:
+                if isinstance(entry, tuple):
+                    if entry[1] in orgmeta:
+                        trg = variadic_path_to_specific_path(
+                            f"{variadic_prefix}/{entry[0]}", identifier)
+                        template[f"{trg}/{entry[0]}"] = entry[1]
+        if "load_from" in concept_mapping:
+            for entry in concept_mapping["load_from"]:
+                if isinstance(entry, tuple):
+                    if entry[1] in orgmeta:
+                        trg = variadic_path_to_specific_path(
+                            f"{variadic_prefix}/{entry[0]}", identifier)
+                        template[f"{trg}/{entry[0]}"] = orgmeta[entry[1]]
+        if "map_to_real" in concept_mapping:
+            for entry in concept_mapping["map_to_real"]:
+                if isinstance(entry, tuple):
+                    print("IMPLEMENT MAP TO REAL!!!")
+        return template
+
+    def add_entry_header(self, orgmeta: fd.FlatDict, identifier: list, template: dict
+    ) -> dict:
+        """Map entry-specific metadata on NXem instance."""
+        self.add_specific_metadata(VELOX_ENTRY_TO_NX_EM, orgmeta, identifier, template)
+        return template
+
+    def add_ebeam_static(self, orgmeta: fd.FlatDict, identifier: list, template: dict
+    ) -> dict:
+        """Map em_lab ebeam."""
+        self.add_specific_metadata(VELOX_EBEAM_STATIC_TO_NX_EM, orgmeta, identifier, template)
+        return template
+
+    def add_fabrication(self, orgmeta: fd.FlatDict, identifier: list, template: dict
+    ) -> dict:
+        """Map fabrication-specific metadata on NXem instance"""
+        self.add_specific_metadata(VELOX_FABRICATION_TO_NX_EM, orgmeta, identifier, template)
+        return template
+
+    def add_scan(self, orgmeta: fd.FlatDict, identifier: list, template: dict
+    ) -> dict:
+        """Map scan-specific metadata on NXem instance."""
+        self.add_specific_metadata(VELOX_SCAN_TO_NX_EM, orgmeta, identifier, template)
+        return template
+
+    def add_optics(self, orgmeta: fd.FlatDict, identifier: list, template: dict
+    ) -> dict:
+        """Map optics-specific metadata on NXem instance."""
+        self.add_specific_metadata(VELOX_OPTICS_TO_NX_EM, orgmeta, identifier, template)
+        return template
+
+    def add_stage(self, orgmeta: fd.FlatDict, identifier: list, template: dict
+    ) -> dict:
+        """Map optics-specific metadata on NXem instance."""
+        self.add_specific_metadata(VELOX_STAGE_TO_NX_EM, orgmeta, identifier, template)
+        return template
+
+    def add_various_dynamic(self, orgmeta: fd.FlatDict, identifier: list, template: dict
+    ) -> dict:
+        """Map optics-specific metadata on NXem instance."""
+        self.add_specific_metadata(VELOX_DYNAMIC_TO_NX_EM, orgmeta, identifier, template)
+        return template
+
+    def add_ebeam_dynamic(self, orgmeta: fd.FlatDict, identifier: list, template: dict
+    ) -> dict:
+        """Map optics-specific metadata on NXem instance."""
+        self.add_specific_metadata(VELOX_EBEAM_DYNAMIC_TO_NX_EM, orgmeta, identifier, template)
+        return template
+
     def add_lens_event_data(
         self, orgmeta: fd.FlatDict, identifier: list, template: dict
     ) -> dict:
@@ -356,6 +438,23 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         # Optics/GunLensSetting
         return template
 
+    def add_metadata(self, orgmeta: fd.FlatDict, identifier: list, template: dict) -> dict:
+        """Map Velox-specific concept representations on NeXus concepts."""
+        # use an own function for each instead of a loop of a template function call
+        # as for each section there are typically always some extra formatting
+        # steps required
+        self.add_entry_header(orgmeta, identifier, template)
+        self.add_ebeam_static(orgmeta, identifier, template)
+        self.add_fabrication(orgmeta, identifier, template)
+        self.add_scan(orgmeta, identifier, template)
+        self.add_optics(orgmeta, identifier, template)
+        self.add_stage(orgmeta, identifier, template)
+        self.add_various_dynamic(orgmeta, identifier, template)
+        self.add_ebeam_dynamic(orgmeta, identifier, template)
+        # self.add_various_event_metadata(orgmeta, identifier, template)
+        self.add_lens_event_data(orgmeta, identifier, template)
+        return template
+
     def normalize_imgs_content(self, obj: dict, template: dict) -> dict:
         """Map generic scanned images (e.g. BF/DF) to NeXus."""
         meta = fd.FlatDict(obj["metadata"], "/")
@@ -396,14 +495,9 @@ class RsciioVeloxSubParser(RsciioBaseParser):
             "strength": 1,
         }
         # template[f"{trg}/image_twod/intensity/@units"]
-        self.add_various_event_metadata(
-            orgmeta,
-            [self.entry_id, self.id_mgn["event"], self.id_mgn["event_img"]],
-            template,
-        )
-        self.add_lens_event_data(
-            orgmeta,
-            [self.entry_id, self.id_mgn["event"], self.id_mgn["event_img"]],
+        self.add_metadata(orgmeta,
+                          [self.entry_id, self.id_mgn["event"],
+                          self.id_mgn["event_img"]],
             template,
         )
         # TODO: add detector data

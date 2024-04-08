@@ -5,7 +5,7 @@ dsrc="../../../../paper_paper_paper/scidat_nomad_ebsd/bb_analysis/data/developme
 esrc="examples"
 trg="debug"
 
-examples="1340 Camera Ceta 440 kx.emd"
+examples="1340_Camera_Ceta_440_kx.emd"
 
 for example in $examples; do
 	echo $example
