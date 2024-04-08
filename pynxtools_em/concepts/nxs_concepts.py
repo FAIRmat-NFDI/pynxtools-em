@@ -17,7 +17,6 @@
 #
 """Implement NeXus-specific groups and fields to document software and versions used."""
 
-from typing import List
 from pynxtools_em.shared.mapping_functors import variadic_path_to_specific_path
 
 
@@ -48,8 +47,7 @@ class NxEmAppDef:
         pass
 
     def parse(
-        self, template: dict, entry_id: int = 1, cmd_line_args: List = []
-    ) -> dict:
+        self, template: dict, entry_id: int = 1, cmd_line_args: tuple = ()) -> dict:
         """Parse application definition."""
         variadic_prefix = EM_APPDEF["prefix"]
         for entry in EM_APPDEF["use"]:
