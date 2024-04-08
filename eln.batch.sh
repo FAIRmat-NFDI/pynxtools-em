@@ -8,5 +8,5 @@ examples="eln"
 
 for example in $examples; do
 	echo $example
-	dataconverter convert $esrc/em.oasis.specific.yaml --reader em --nxdl NXem --output=debug.$example.nxs 1>stdout.$example.nxs.txt 2>stderr.$example.nxs.txt
+	dataconverter convert $esrc/em.oasis.specific.yaml $esrc/eln_data.yaml --reader em --nxdl NXem --output=debug.$example.nxs 1>stdout.$example.nxs.txt 2>stderr.$example.nxs.txt
 done

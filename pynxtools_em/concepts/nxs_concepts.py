@@ -17,28 +17,29 @@
 #
 """Implement NeXus-specific groups and fields to document software and versions used."""
 
-# pylint: disable=no-member,too-few-members
-
 from typing import List
-from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
+from pynxtools_em.shared.mapping_functors import (
+    variadic_path_to_specific_path
+)
 
 
-PYNXTOOLS_VERSION = "n/a"
-PYNXTOOLS_URL = "https://www.github.com/FAIRmat-NFDI/pynxtools"
+PYNXTOOLS_EM_VERSION = "n/a"
+PYNXTOOLS_EM_URL = "https://www.github.com/FAIRmat-NFDI/pynxtools-em"
 
 NXEM_NAME = "NXem"
 NXEM_VERSION = "n/a"
 NXEM_URL = "https://www.github.com/FAIRmat-NFDI/nexus_definitions"
 
-NxEmRoot = {
-    "/ENTRY[entry*]/PROGRAM[program1]/program": "pynxtools/dataconverter/readers/em",
-    "/ENTRY[entry*]/PROGRAM[program1]/program/@version": PYNXTOOLS_VERSION,
-    "/ENTRY[entry*]/PROGRAM[program1]/program/@url": PYNXTOOLS_URL,
-    "/ENTRY[entry*]/@url": NXEM_URL,
-    "/ENTRY[entry*]/definition": NXEM_NAME,
-    "/ENTRY[entry*]/definition/@version": NXEM_VERSION,
+EM_APPDEF = {
+    "prefix": "/ENTRY[entry*]",
+    "use": [
+        ("PROGRAM[program1]/program", "pynxtools/dataconverter/readers/em"),
+        ("PROGRAM[program1]/program/@version", PYNXTOOLS_EM_VERSION),
+        ("PROGRAM[program1]/program/@url", PYNXTOOLS_EM_URL),
+        ("definition", NXEM_NAME),
+        ("definition/@version", NXEM_VERSION),
+        ("definition/@url", NXEM_URL)]
 }
-# alternatively the above-mentioned program1 entries to place under "/"
 
 
 class NxEmAppDef:
@@ -51,22 +52,14 @@ class NxEmAppDef:
         self, template: dict, entry_id: int = 1, cmd_line_args: List = []
     ) -> dict:
         """Parse application definition."""
-        for nx_path, value in NxEmRoot.items():
-            if (nx_path != "IGNORE") and (nx_path != "UNCLEAR"):
-                trg = variadic_path_to_specific_path(nx_path, [entry_id])
-                res = value
-                if res is not None:
-                    template[trg] = res
+        variadic_prefix = EM_APPDEF["prefix"]
+        for entry in EM_APPDEF["use"]:
+            if isinstance(entry, tuple) and len(entry) == 2:
+                trg = variadic_path_to_specific_path(
+                    f"{variadic_prefix}/{entry[0]}", [entry_id])
+                template[trg] = entry[1]
+
         if cmd_line_args != [] and all(isinstance(item, str) for item in cmd_line_args):
-            template["/cs_profiling/@NX_class"] = "NXcs_profiling"
-            template["/cs_profiling/command_line_call"] = cmd_line_args
+            # template["f/ENTRY[entry{entry_id}]/profiling/@NX_class"] = "NXcs_profiling"
+            template[f"/ENTRY[entry{entry_id}]/profiling/command_line_call"] = cmd_line_args
         return template
-
-
-class NxConcept:
-    """ "Define a NeXus concept object to handle paths."""
-
-    def __init__(self, hdf_paths: List = []):
-        # TODO::remove redundant code for instantiating specific NxConcepts like
-        # NxSpectrum, NxImageRealSpaceSet, NxEmEdsIndexing
-        pass

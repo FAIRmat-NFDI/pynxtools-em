@@ -18,15 +18,22 @@
 """Dict mapping values for a specifically configured NOMAD Oasis."""
 
 # see specific comments about the design that should be moved to mkdocs
-# see pynxtools-apm
 
-import datetime as dt
+# import datetime as dt
+# f"{dt.datetime.now(dt.timezone.utc).isoformat().replace('+00:00', 'Z')}",
 
 
-EM_OASIS_TO_NEXUS_CFG = [
-    ("/ENTRY[entry*]/definition", "NXem"),
-    (
-        "/ENTRY[entry*]/start_time",
-        f"{dt.datetime.now(dt.timezone.utc).isoformat().replace('+00:00', 'Z')}",
-    ),
-]
+EM_EXAMPLE_CSYS_TO_NEXUS = {
+   "prefix": "/ENTRY[entry*]/coordinate_system_set/COORDINATE_SYSTEM[coordinate_system*]",
+   "load_from": [
+       "alias",
+       "type",
+       "handedness",
+       ("x_direction", "xaxis_direction"),
+       ("x_alias", "xaxis_alias"),
+       ("y_direction", "yaxis_direction"),
+       ("y_alias", "yaxis_alias"),
+       ("z_direction", "zaxis_direction"),
+       ("z_alias", "zaxis_alias"),
+       "origin"]
+}
