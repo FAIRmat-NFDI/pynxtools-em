@@ -29,20 +29,13 @@
 
 EM_EXAMPLE_ENTRY_TO_NEXUS = {
     "prefix": "/ENTRY[entry*]",
-    "load_from": [
-        "experiment_alias",
-        "start_time"
-    ]
+    "load_from": ["experiment_alias", "start_time"],
 }
 
 
 EM_EXAMPLE_SAMPLE_TO_NEXUS = {
     "prefix": "/ENTRY[entry*]",
-    "load_from": [
-        "method",
-        "atom_types",
-        "preparation_date"
-    ]
+    "load_from": ["method", "atom_types", "preparation_date"],
 }
 
 
@@ -51,12 +44,14 @@ EM_EXAMPLE_USER_TO_NEXUS = {
     "use": [
         ("IDENTIFIER[identifier]/identifier", "orcid"),
         ("IDENTIFIER[identifier]/service", "orcid"),
-        ("IDENTIFIER[identifier]/is_persistent", False)],
+        ("IDENTIFIER[identifier]/is_persistent", False),
+    ],
     "load_from": [
         "name",
         "affiliation",
         "address",
         "email",
         "telephone_number",
-        "role"]
+        "role",
+    ],
 }

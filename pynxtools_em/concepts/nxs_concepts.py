@@ -18,9 +18,7 @@
 """Implement NeXus-specific groups and fields to document software and versions used."""
 
 from typing import List
-from pynxtools_em.shared.mapping_functors import (
-    variadic_path_to_specific_path
-)
+from pynxtools_em.shared.mapping_functors import variadic_path_to_specific_path
 
 
 PYNXTOOLS_EM_VERSION = "n/a"
@@ -38,7 +36,8 @@ EM_APPDEF = {
         ("PROGRAM[program1]/program/@url", PYNXTOOLS_EM_URL),
         ("definition", NXEM_NAME),
         ("definition/@version", NXEM_VERSION),
-        ("definition/@url", NXEM_URL)]
+        ("definition/@url", NXEM_URL),
+    ],
 }
 
 
@@ -56,10 +55,13 @@ class NxEmAppDef:
         for entry in EM_APPDEF["use"]:
             if isinstance(entry, tuple) and len(entry) == 2:
                 trg = variadic_path_to_specific_path(
-                    f"{variadic_prefix}/{entry[0]}", [entry_id])
+                    f"{variadic_prefix}/{entry[0]}", [entry_id]
+                )
                 template[trg] = entry[1]
 
         if cmd_line_args != [] and all(isinstance(item, str) for item in cmd_line_args):
             # template["f/ENTRY[entry{entry_id}]/profiling/@NX_class"] = "NXcs_profiling"
-            template[f"/ENTRY[entry{entry_id}]/profiling/command_line_call"] = cmd_line_args
+            template[f"/ENTRY[entry{entry_id}]/profiling/command_line_call"] = (
+                cmd_line_args
+            )
         return template
