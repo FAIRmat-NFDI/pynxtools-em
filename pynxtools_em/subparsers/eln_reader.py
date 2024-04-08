@@ -86,10 +86,8 @@ class NxEmNomadOasisElnSchemaParser:
         if src in self.yml:
             if isinstance(self.yml[src], fd.FlatDict):
                 for key in self.yml[src]:
-                    print(f"----->Parse {key} >>>>>>>")
                     variadic_prefix = EM_EXAMPLE_SAMPLE_TO_NEXUS["prefix"]
                     for entry in EM_EXAMPLE_SAMPLE_TO_NEXUS["load_from"]:
-                        print(f">>>>>>>>>>>>>>>>>>>{entry}")
                         if isinstance(entry, str):
                             if key == entry:
                                 trg = variadic_path_to_specific_path(
@@ -135,9 +133,8 @@ class NxEmNomadOasisElnSchemaParser:
                                                 f"{variadic_prefix}/{entry[0]}",
                                                 identifier,
                                             )
-                                            # res = apply_modifier(modifier, user_dict)
                                             template[trg] = user_dict[entry[1]]
-                                            break  # key found
+                                            break
                             else:
                                 trg = variadic_path_to_specific_path(
                                     f"{variadic_prefix}", identifier
