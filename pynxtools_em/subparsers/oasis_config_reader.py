@@ -76,15 +76,17 @@ class NxEmNomadOasisConfigurationParser:
                                 if isinstance(entry, str):
                                     if key == entry:
                                         trg = variadic_path_to_specific_path(
-                                            f"{variadic_prefix}/{entry}", identifier)
+                                            f"{variadic_prefix}/{entry}", identifier
+                                        )
                                         template[trg] = csys_dict[entry]
                                         break
                                 if isinstance(entry, tuple) and len(entry) == 2:
                                     if key == entry[1]:
-                                       trg = variadic_path_to_specific_path(
-                                           f"{variadic_prefix}/{entry[0]}", identifier)
-                                       template[trg] = csys_dict[entry[1]]
-                                       break
+                                        trg = variadic_path_to_specific_path(
+                                            f"{variadic_prefix}/{entry[0]}", identifier
+                                        )
+                                        template[trg] = csys_dict[entry[1]]
+                                        break
                         csys_id += 1
         return template
 

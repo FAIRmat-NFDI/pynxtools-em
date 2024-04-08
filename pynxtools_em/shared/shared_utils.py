@@ -102,5 +102,6 @@ class NxObject:  # pylint: disable=R0903
         print("dtype: ")
         print(self.dtype)
 
+
 # test = NxObject(name="test", unit="baud", dtype=np.uint32, value=32000)
 # test.print()

@@ -50,7 +50,9 @@ from pynxtools_em.utils.em_define_io_cases import (
 # from pynxtools.dataconverter.readers.em_om.utils.em_nexus_plots \
 #     import em_om_default_plot_generator
 
-from pynxtools_em.subparsers.oasis_config_reader import NxEmNomadOasisConfigurationParser
+from pynxtools_em.subparsers.oasis_config_reader import (
+    NxEmNomadOasisConfigurationParser,
+)
 from pynxtools_em.subparsers.eln_reader import NxEmNomadOasisElnSchemaParser
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 
@@ -191,8 +193,9 @@ class EMReader(BaseReader):
         toc = perf_counter_ns()
         trg = f"/ENTRY[entry{entry_id}]/profiling"
         # TODO remove # template[f"{trg}/@NX_class"] = "NXcs_profiling"
-        template[f"{trg}/template_filling_elapsed_time"] \
-            = np.float64((toc - tic) / 1.0e9)
+        template[f"{trg}/template_filling_elapsed_time"] = np.float64(
+            (toc - tic) / 1.0e9
+        )
         template[f"{trg}/template_filling_elapsed_time/@units"] = "s"
         return template
 

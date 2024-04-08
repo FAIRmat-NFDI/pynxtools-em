@@ -22,18 +22,18 @@
 # import datetime as dt
 # f"{dt.datetime.now(dt.timezone.utc).isoformat().replace('+00:00', 'Z')}",
 
-
 EM_EXAMPLE_CSYS_TO_NEXUS = {
-   "prefix": "/ENTRY[entry*]/coordinate_system_set/COORDINATE_SYSTEM[coordinate_system*]",
-   "load_from": [
-       "alias",
-       "type",
-       "handedness",
-       ("x_direction", "xaxis_direction"),
-       ("x_alias", "xaxis_alias"),
-       ("y_direction", "yaxis_direction"),
-       ("y_alias", "yaxis_alias"),
-       ("z_direction", "zaxis_direction"),
-       ("z_alias", "zaxis_alias"),
-       "origin"]
+    "prefix": "/ENTRY[entry*]/coordinate_system_set/COORDINATE_SYSTEM[coordinate_system*]",
+    "load_from": [
+        "alias",
+        "type",
+        "handedness",
+        ("x_direction", "xaxis_direction"),
+        ("x_alias", "xaxis_alias"),
+        ("y_direction", "yaxis_direction"),
+        ("y_alias", "yaxis_alias"),
+        ("z_direction", "zaxis_direction"),
+        ("z_alias", "zaxis_alias"),
+        "origin",
+    ],
 }

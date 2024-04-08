@@ -24,7 +24,7 @@ import yaml
 from pynxtools_em.config.em_example_eln_to_nx_map import (
     EM_EXAMPLE_ENTRY_TO_NEXUS,
     EM_EXAMPLE_SAMPLE_TO_NEXUS,
-    EM_EXAMPLE_USER_TO_NEXUS
+    EM_EXAMPLE_USER_TO_NEXUS,
 )
 from pynxtools_em.shared.mapping_functors import variadic_path_to_specific_path
 
@@ -65,13 +65,15 @@ class NxEmNomadOasisElnSchemaParser:
                     for entry in EM_EXAMPLE_ENTRY_TO_NEXUS["load_from"]:
                         if isinstance(entry, str) and key == entry:
                             trg = variadic_path_to_specific_path(
-                                f"{variadic_prefix}/{entry}", identifier)
+                                f"{variadic_prefix}/{entry}", identifier
+                            )
                             template[trg] = self.yml[src][entry]
                             break
                         if isinstance(entry, tuple) and len(entry) == 2:
                             if key == entry[1]:
                                 trg = variadic_path_to_specific_path(
-                                    f"{variadic_prefix}/{entry[0]}", identifier)
+                                    f"{variadic_prefix}/{entry[0]}", identifier
+                                )
                                 template[trg] = self.yml[src][entry[1]]
                                 break
         return template
@@ -87,13 +89,15 @@ class NxEmNomadOasisElnSchemaParser:
                     for entry in EM_EXAMPLE_SAMPLE_TO_NEXUS["load_from"]:
                         if isinstance(entry, str) and key == entry:
                             trg = variadic_path_to_specific_path(
-                                f"{variadic_prefix}/{entry}", identifier)
+                                f"{variadic_prefix}/{entry}", identifier
+                            )
                             template[trg] = self.yml[src][entry]
                             break
                         if isinstance(entry, tuple) and len(entry) == 2:
                             if key == entry[1]:
                                 trg = variadic_path_to_specific_path(
-                                    f"{variadic_prefix}/{entry[0]}", identifier)
+                                    f"{variadic_prefix}/{entry[0]}", identifier
+                                )
                                 template[trg] = self.yml[src][entry[1]]
                                 break
         return template
@@ -117,17 +121,25 @@ class NxEmNomadOasisElnSchemaParser:
                                     if isinstance(entry, tuple) and len(entry) == 2:
                                         if key == entry[1]:
                                             trg = variadic_path_to_specific_path(
-                                                f"{variadic_prefix}/{entry[0]}", identifier
+                                                f"{variadic_prefix}/{entry[0]}",
+                                                identifier,
                                             )
                                             # res = apply_modifier(modifier, user_dict)
                                             template[trg] = user_dict[entry[1]]
                                             break  # key found
                             else:
                                 trg = variadic_path_to_specific_path(
-                                    f"{variadic_prefix}", identifier)
-                                template[f"{trg}/IDENTIFIER[identifier]/identifier"] = user_dict["orcid"]
-                                template[f"{trg}/IDENTIFIER[identifier]/service"] = "orcid"
-                                template[f"{trg}/IDENTIFIER[identifier]/is_persistent"] = False
+                                    f"{variadic_prefix}", identifier
+                                )
+                                template[f"{trg}/IDENTIFIER[identifier]/identifier"] = (
+                                    user_dict["orcid"]
+                                )
+                                template[f"{trg}/IDENTIFIER[identifier]/service"] = (
+                                    "orcid"
+                                )
+                                template[
+                                    f"{trg}/IDENTIFIER[identifier]/is_persistent"
+                                ] = False
                         user_id += 1
         return template
 
