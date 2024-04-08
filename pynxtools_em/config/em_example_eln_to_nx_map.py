@@ -20,28 +20,45 @@
 
 EM_EXAMPLE_OTHER_TO_NEXUS = []
 
-# NeXus concept specific mapping tables which require special treatment as the current
-# NOMAD Oasis custom schema implementation delivers them as a list of dictionaries instead
-# of a directly flattenable list of key, value pairs
+# mapping instructions as a dictionary
+#   prefix is the (variadic prefix to be add to every path on the target side)
+#   different modifiers are used
+#       "use": list of pair of trg, src endpoint, take the value in src copy into trg
+#       "load_from": list of single value or pair (trg, src)
+#           if single value this means that the endpoint of trg and src is the same
+#           e.g. in the example below "name" means
+#           ("/ENTRY[entry*]/USER[user*]/name, "load_from", "name")
+#           if pair load the value pointed to by src and copy into trg
 
-EM_EXAMPLE_USER_TO_NEXUS = [
-    ("/ENTRY[entry*]/USER[user*]/name", "load_from", "name"),
-    ("/ENTRY[entry*]/USER[user*]/affiliation", "load_from", "affiliation"),
-    ("/ENTRY[entry*]/USER[user*]/address", "load_from", "address"),
-    ("/ENTRY[entry*]/USER[user*]/email", "load_from", "email"),
-    (
-        "/ENTRY[entry*]/USER[user*]/IDENTIFIER[identifier]/identifier",
-        "load_from",
-        "orcid",
-    ),
-    ("/ENTRY[entry*]/USER[user*]/IDENTIFIER[identifier]/service", "orcid"),
-    ("/ENTRY[entry*]/USER[user*]/IDENTIFIER[identifier]/is_persistent", False),
-    ("/ENTRY[entry*]/USER[user*]/telephone_number", "load_from", "telephone_number"),
-    ("/ENTRY[entry*]/USER[user*]/role", "load_from", "role"),
-    ("/ENTRY[entry*]/USER[user*]/social_media_name", "load_from", "social_media_name"),
-    (
-        "/ENTRY[entry*]/USER[user*]/social_media_platform",
-        "load_from",
-        "social_media_platform",
-    ),
-]
+EM_EXAMPLE_USER_TO_NEXUS = {
+    "prefix": "/ENTRY[entry*]/USER[user*]",
+    "use": [
+        ("IDENTIFIER[identifier]/identifier", "orcid"),
+        ("IDENTIFIER[identifier]/service", "orcid"),
+        ("IDENTIFIER[identifier]/is_persistent", False)],
+    "load_from": [
+        "name",
+        "affiliation"
+        "affiliation",
+        "address",
+        "email",
+        "telephone_number",
+        "role"]
+}
+
+
+EM_EXAMPLE_CSYS_TO_NEXUS = {
+   "prefix": "ENTRY[entry*]/coordinate_system_set/COORDINATE_SYSTEM[coordinate_system*]",
+   "use": None,
+   "load_from": [
+       "alias",
+       "type",
+       "handedness"
+       "xaxis_direction"
+       "xaxis_alias"
+       "yaxis_direction"
+       "yaxis_alias"
+       "zaxis_direction"
+       "zaxis_alias",
+       "origin"]
+}
