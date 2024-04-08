@@ -22,14 +22,14 @@
 from typing import Tuple, Dict, List
 
 from pynxtools_em.shared.mapping_functors import (
-    variadic_path_to_specific_path,
+    variadic_path_to_specific_path
 )
 from pynxtools_em.shared.shared_utils import (
-    get_sha256_of_file_content,
+    get_sha256_of_file_content
 )
 
 VALID_FILE_NAME_SUFFIX_CONFIG = [".yaml", ".yml"]
-VALID_FILE_NAME_SUFFIX_DATA = [".hdf5", ".h5", ".dream3d"]
+VALID_FILE_NAME_SUFFIX_DATA = [".hdf5", ".h5", ".dream3d", ".mtex"]
 
 
 class EmUseCaseSelector:
@@ -48,7 +48,7 @@ class EmUseCaseSelector:
         self.is_valid = False
         self.supported_file_name_suffixes = (
             VALID_FILE_NAME_SUFFIX_CONFIG
-            + VALID_FILE_NAME_SUFFIX_DATA 
+            + VALID_FILE_NAME_SUFFIX_DATA
         )
         print(f"self.supported_file_name_suffixes: {self.supported_file_name_suffixes}")
         print(f"{file_paths}")
@@ -57,7 +57,7 @@ class EmUseCaseSelector:
 
     def sort_files_by_file_name_suffix(self, file_paths: Tuple[str] = None):
         """Sort all input-files based on their name suffix to prepare validity check.
-        
+
         Individual readers have more sophisticated internal check if specific
         format instances are parseable or not and will do their own version checks.
         """
@@ -80,7 +80,7 @@ class EmUseCaseSelector:
             else:
                 continue
         # print(f"{dat_input}, {other_input}")
-        if (dat_input == 1) and (1 <= other_input <= 2):
+        if 1 <= other_input <= 2:
             self.is_valid = True
             self.dat: List[str] = []
             for suffix in VALID_FILE_NAME_SUFFIX_DATA:

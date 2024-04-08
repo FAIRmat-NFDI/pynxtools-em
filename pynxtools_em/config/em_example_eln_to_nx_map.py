@@ -17,9 +17,6 @@
 #
 """Dict mapping custom schema instances from eln_data.yaml file on concepts in NXem."""
 
-
-EM_EXAMPLE_OTHER_TO_NEXUS = []
-
 # mapping instructions as a dictionary
 #   prefix is the (variadic prefix to be add to every path on the target side)
 #   different modifiers are used
@@ -30,6 +27,25 @@ EM_EXAMPLE_OTHER_TO_NEXUS = []
 #           ("/ENTRY[entry*]/USER[user*]/name, "load_from", "name")
 #           if pair load the value pointed to by src and copy into trg
 
+EM_EXAMPLE_ENTRY_TO_NEXUS = {
+    "prefix": "/ENTRY[entry*]",
+    "load_from": [
+        "experiment_alias",
+        "start_time"
+    ]
+}
+
+
+EM_EXAMPLE_SAMPLE_TO_NEXUS = {
+    "prefix": "/ENTRY[entry*]",
+    "load_from": [
+        "method",
+        "atom_types",
+        "preparation_date"
+    ]
+}
+
+
 EM_EXAMPLE_USER_TO_NEXUS = {
     "prefix": "/ENTRY[entry*]/USER[user*]",
     "use": [
@@ -38,27 +54,9 @@ EM_EXAMPLE_USER_TO_NEXUS = {
         ("IDENTIFIER[identifier]/is_persistent", False)],
     "load_from": [
         "name",
-        "affiliation"
         "affiliation",
         "address",
         "email",
         "telephone_number",
         "role"]
-}
-
-
-EM_EXAMPLE_CSYS_TO_NEXUS = {
-   "prefix": "ENTRY[entry*]/coordinate_system_set/COORDINATE_SYSTEM[coordinate_system*]",
-   "use": None,
-   "load_from": [
-       "alias",
-       "type",
-       "handedness"
-       "xaxis_direction"
-       "xaxis_alias"
-       "yaxis_direction"
-       "yaxis_alias"
-       "zaxis_direction"
-       "zaxis_alias",
-       "origin"]
 }

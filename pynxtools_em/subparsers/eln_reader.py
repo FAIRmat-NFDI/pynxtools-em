@@ -15,23 +15,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Wrapping multiple parsers for vendor files with NOMAD Oasis/ELN/YAML metadata."""
+"""Parser generic ELN content serialized as eln_data.yaml to NeXus NXem."""
 
 import flatdict as fd
 import yaml
 
 
 from pynxtools_em.config.em_example_eln_to_nx_map import (
-    EM_EXAMPLE_OTHER_TO_NEXUS,
-    EM_EXAMPLE_CSYS_TO_NEXUS,
-    EM_EXAMPLE_USER_TO_NEXUS,
+    EM_EXAMPLE_ENTRY_TO_NEXUS,
+    EM_EXAMPLE_SAMPLE_TO_NEXUS,
+    EM_EXAMPLE_USER_TO_NEXUS
 )
-from pynxtools_em.shared.shared_utils import (
-    rchop, get_sha256_of_file_content
-)
-from pynxtools_em.shared.mapping_functors import (
-    variadic_path_to_specific_path
-)
+from pynxtools_em.shared.mapping_functors import variadic_path_to_specific_path
 
 
 class NxEmNomadOasisElnSchemaParser:
@@ -59,34 +54,48 @@ class NxEmNomadOasisElnSchemaParser:
             self.file_path = ""
             self.yml = {}
 
-    def parse_reference_frames(self, template: dict) -> dict:
-        """Copy details about frames of reference into template."""
-        src = "coordinate_system"
+    def parse_entry(self, template: dict) -> dict:
+        """Copy data from entry section into template."""
+        src = "entry"
+        identifier = [self.entry_id]
         if src in self.yml:
-            if isinstance(self.yml[src], list):
-                if all(isinstance(entry, dict) for entry in self.yml[src]):
-                    csys_id = 1
-                    # custom schema delivers a list of dictionaries...
-                    for csys_dict in self.yml[src]:
-                        if csys_dict == {}:
-                            continue
-                        identifier = [self.entry_id, csys_id]
-                        variadic_prefix = EM_EXAMPLE_CSYS_TO_NEXUS["prefix"]
-                        for key in csys_dict:
-                            # EM_EXAMPLE_CSYS_TO_NEXUS["use"] is None
-                            for entry in EM_EXAMPLE_CSYS_TO_NEXUS["load_from"]:
-                                if isinstance(entry, str) and key == entry:
-                                    trg = variadic_path_to_specific_path(
-                                        f"{variadic_prefix}/{entry}", identifier
-                                    )
-                                    template[trg] = csys_dict[entry]
-                                if isinstance(entry, tuple) and len(entry) == 2:
-                                    if key == entry[1]:
-                                       trg = variadic_path_to_specific_path(
-                                           f"{variadic_prefix}/{entry[0]}", identifier
-                                       )
-                                       template[trg] = csys_dict[entry[1]]
-                        csys_id += 1
+            if isinstance(self.yml[src], dict):
+                for key in self.yml[src]:
+                    variadic_prefix = EM_EXAMPLE_ENTRY_TO_NEXUS["prefix"]
+                    for entry in EM_EXAMPLE_ENTRY_TO_NEXUS["load_from"]:
+                        if isinstance(entry, str) and key == entry:
+                            trg = variadic_path_to_specific_path(
+                                f"{variadic_prefix}/{entry}", identifier)
+                            template[trg] = self.yml[src][entry]
+                            break
+                        if isinstance(entry, tuple) and len(entry) == 2:
+                            if key == entry[1]:
+                                trg = variadic_path_to_specific_path(
+                                    f"{variadic_prefix}/{entry[0]}", identifier)
+                                template[trg] = self.yml[src][entry[1]]
+                                break
+        return template
+
+    def parse_sample(self, template: dict) -> dict:
+        """Copy data from entry section into template."""
+        src = "sample"
+        identifier = [self.entry_id]
+        if src in self.yml:
+            if isinstance(self.yml[src], dict):
+                for key in self.yml[src]:
+                    variadic_prefix = EM_EXAMPLE_SAMPLE_TO_NEXUS["prefix"]
+                    for entry in EM_EXAMPLE_SAMPLE_TO_NEXUS["load_from"]:
+                        if isinstance(entry, str) and key == entry:
+                            trg = variadic_path_to_specific_path(
+                                f"{variadic_prefix}/{entry}", identifier)
+                            template[trg] = self.yml[src][entry]
+                            break
+                        if isinstance(entry, tuple) and len(entry) == 2:
+                            if key == entry[1]:
+                                trg = variadic_path_to_specific_path(
+                                    f"{variadic_prefix}/{entry[0]}", identifier)
+                                template[trg] = self.yml[src][entry[1]]
+                                break
         return template
 
     def parse_user(self, template: dict) -> dict:
@@ -103,19 +112,28 @@ class NxEmNomadOasisElnSchemaParser:
                         identifier = [self.entry_id, user_id]
                         variadic_prefix = EM_EXAMPLE_USER_TO_NEXUS["prefix"]
                         for key in user_dict:
-                            for tpl in EM_EXAMPLE_USER_TO_NEXUS["member"]:
-                                if isinstance(tpl, tuple) and (len(tpl) == 3):
-                                    if (tpl[1] == "load_from") and (key == tpl[2]):
-                                        trg = variadic_path_to_specific_path(
-                                            f"{variadic_prefix}/{tpl[0]}", identifier
-                                        )
-                                        # res = apply_modifier(modifier, user_dict)
-                                        template[trg] = user_dict[tpl[2]]
+                            if key != "orcid":
+                                for entry in EM_EXAMPLE_USER_TO_NEXUS["load_from"]:
+                                    if isinstance(entry, tuple) and len(entry) == 2:
+                                        if key == entry[1]:
+                                            trg = variadic_path_to_specific_path(
+                                                f"{variadic_prefix}/{entry[0]}", identifier
+                                            )
+                                            # res = apply_modifier(modifier, user_dict)
+                                            template[trg] = user_dict[entry[1]]
+                                            break  # key found
+                            else:
+                                trg = variadic_path_to_specific_path(
+                                    f"{variadic_prefix}", identifier)
+                                template[f"{trg}/IDENTIFIER[identifier]/identifier"] = user_dict["orcid"]
+                                template[f"{trg}/IDENTIFIER[identifier]/service"] = "orcid"
+                                template[f"{trg}/IDENTIFIER[identifier]/is_persistent"] = False
                         user_id += 1
         return template
 
     def report(self, template: dict) -> dict:
         """Copy data from self into template the appdef instance."""
-        self.parse_reference_frames(template)
-        # self.parse_user(template)
+        self.parse_entry(template)
+        self.parse_sample(template)
+        self.parse_user(template)
         return template

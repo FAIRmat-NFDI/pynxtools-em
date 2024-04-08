@@ -15,18 +15,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Parser NOMAD Oasis local-system-specific configuration serialized as oasis.yaml."""
+"""Parser NOMAD-Oasis-specific configuration serialized as oasis.yaml to NeXus NXem."""
+
+# mapping instructions as a dictionary
+#   prefix is the (variadic prefix to be add to every path on the target side)
+#   different modifiers are used
+#       "use": list of pair of trg, src endpoint, take the value in src copy into trg
+#       "load_from": list of single value or pair (trg, src)
+#           if single value this means that the endpoint of trg and src is the same
+#           e.g. in the example below "name" means
+#           ("/ENTRY[entry*]/USER[user*]/name, "load_from", "name")
+#           if pair load the value pointed to by src and copy into trg
 
 import flatdict as fd
 import yaml
 
 
-from pynxtools_em.config.em_oasis_cfg_to_nx_map import (
-    EM_OASIS_TO_NEXUS_CFG,
-)
-from pynxtools_em.shared.mapping_functors import (
-    variadic_path_to_specific_path,
-)
+from pynxtools_em.config.em_oasis_cfg_to_nx_map import EM_EXAMPLE_CSYS_TO_NEXUS
+from pynxtools_em.shared.mapping_functors import variadic_path_to_specific_path
 
 
 class NxEmNomadOasisConfigurationParser:
@@ -37,8 +43,8 @@ class NxEmNomadOasisConfigurationParser:
             f"Extracting data from deployment-specific configuration file: {file_path}"
         )
         if (
-            file_path.rsplit("/", 1)[-1].endswith(".Oasis.specific.yaml")
-            or file_path.endswith(".Oasis.specific.yml")
+            file_path.rsplit("/", 1)[-1].endswith(".oasis.specific.yaml")
+            or file_path.endswith(".oasis.specific.yml")
         ) and entry_id > 0:
             self.entry_id = entry_id
             self.file_path = file_path
@@ -52,18 +58,37 @@ class NxEmNomadOasisConfigurationParser:
             self.file_path = ""
             self.yml = {}
 
+    def parse_reference_frames(self, template: dict) -> dict:
+        """Copy details about frames of reference into template."""
+        src = "coordinate_system_set"
+        if src in self.yml:
+            if isinstance(self.yml[src], list):
+                if all(isinstance(entry, dict) for entry in self.yml[src]):
+                    csys_id = 1
+                    # custom schema delivers a list of dictionaries...
+                    for csys_dict in self.yml[src]:
+                        if csys_dict == {}:
+                            continue
+                        identifier = [self.entry_id, csys_id]
+                        variadic_prefix = EM_EXAMPLE_CSYS_TO_NEXUS["prefix"]
+                        for key in csys_dict:
+                            for entry in EM_EXAMPLE_CSYS_TO_NEXUS["load_from"]:
+                                if isinstance(entry, str):
+                                    if key == entry:
+                                        trg = variadic_path_to_specific_path(
+                                            f"{variadic_prefix}/{entry}", identifier)
+                                        template[trg] = csys_dict[entry]
+                                        break
+                                if isinstance(entry, tuple) and len(entry) == 2:
+                                    if key == entry[1]:
+                                       trg = variadic_path_to_specific_path(
+                                           f"{variadic_prefix}/{entry[0]}", identifier)
+                                       template[trg] = csys_dict[entry[1]]
+                                       break
+                        csys_id += 1
+        return template
+
     def report(self, template: dict) -> dict:
         """Copy data from configuration applying mapping functors."""
-        identifier = [self.entry_id]
-        for tpl in EM_OASIS_TO_NEXUS_CFG:
-            if isinstance(tpl, tuple) and len(tpl) >= 2:
-                if tpl[1] != "ignore":
-                    trg = variadic_path_to_specific_path(tpl[0], identifier)
-                    if len(tpl) == 2:
-                        # nxpath, value to use directly
-                        template[trg] = tpl[1]
-                    if len(tpl) == 3:
-                        # nxpath, modifier, value, modifier (function) evaluates value to use
-                        if (tpl[1] == "load_from") and (tpl[2] in self.yml):
-                            template[trg] = self.yml[tpl[2]]
+        self.parse_reference_frames(template)
         return template

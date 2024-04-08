@@ -1,5 +1,5 @@
-coordinate_system:
-  alias: Following the idea of McStas that the z-axis points along the beam
+coordinate_system_set:
+- alias: Following the idea of McStas that the z-axis points along the beam
   type: cartesian
   handedness: right_handed
   xaxis_direction: Direction 1 that is perpendicular to the z_direction for a right_handed cartesian

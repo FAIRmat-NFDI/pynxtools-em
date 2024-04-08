@@ -21,6 +21,7 @@
 
 from time import perf_counter_ns
 from typing import Tuple, Any
+import numpy as np
 
 from pynxtools.dataconverter.readers.base.reader import BaseReader
 from pynxtools_em.utils.em_define_io_cases import (
@@ -94,20 +95,28 @@ class EMReader(BaseReader):
         if len(case.cfg) == 1:
             nx_em_cfg = NxEmNomadOasisConfigurationParser(case.cfg[0], entry_id)
             nx_em_cfg.report(template)
+            # print("--------------------------------------->")
+            # for keyword in template.keys():
+            #     print(keyword)
+            #     print(template[keyword])
         # having or using a deployment-specific configuration is optional
 
-        print("arse (meta)data coming from an ELN...")
+        print("Parse (meta)data coming from an ELN...")
         if len(case.eln) == 1:
             nx_em_eln = NxEmNomadOasisElnSchemaParser(case.eln[0], entry_id)
             nx_em_eln.report(template)
+            # print("--------------------------------------->")
+            # for keyword in template.keys():
+            #     print(keyword)
+            #     print(template[keyword])
 
-        input_fpaths = []
-        for file_path in file_paths:
-            if file_path != "":
-                input_fpaths.append(file_path)
         print("Parse NeXus appdef-specific content...")
         nxs = NxEmAppDef()
-        nxs.parse(template, entry_id, input_fpaths)
+        nxs.parse(template, entry_id, file_paths)
+        # print("--------------------------------------->")
+        # for keyword in template.keys():
+        #     print(keyword)
+        #     print(template[keyword])
 
         # print("Parse conventions of reference frames...")
         # conventions = NxEmConventionMapper(entry_id)
@@ -171,8 +180,8 @@ class EMReader(BaseReader):
         #     if resolved_path != "":
         #         nxs_plt.annotate_default_plot(template, resolved_path)
 
-        debugging = False
-        if debugging is True:
+        debugging = True
+        if debugging:
             print("Reporting state of template before passing to HDF5 writing...")
             for keyword in template.keys():
                 print(keyword)
@@ -180,7 +189,7 @@ class EMReader(BaseReader):
 
         print("Forward instantiated template to the NXS writer...")
         toc = perf_counter_ns()
-        trg = f"/entry{entry_id}/profiling"
+        trg = f"/ENTRY[entry{entry_id}]/profiling"
         # TODO remove # template[f"{trg}/@NX_class"] = "NXcs_profiling"
         template[f"{trg}/template_filling_elapsed_time"] \
             = np.float64((toc - tic) / 1.0e9)
