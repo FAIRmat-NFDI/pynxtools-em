@@ -373,7 +373,7 @@ requests==2.31.0
     # via
     #   hyperspy
     #   pooch
-rosettasciio==0.3
+rosettasciio==0.4
     # via pynxtools-em (pyproject.toml)
 ruff==0.3.5
     # via pynxtools-em (pyproject.toml)
