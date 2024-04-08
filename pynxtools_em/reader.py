@@ -95,36 +95,24 @@ class EMReader(BaseReader):
 
         print("Parse (meta)data coming from a configuration of an RDM...")
         if len(case.cfg) == 1:
+            # having or using a deployment-specific configuration is optional
             nx_em_cfg = NxEmNomadOasisConfigurationParser(case.cfg[0], entry_id)
             nx_em_cfg.report(template)
-            # print("--------------------------------------->")
-            # for keyword in template.keys():
-            #     print(keyword)
-            #     print(template[keyword])
-        # having or using a deployment-specific configuration is optional
 
         print("Parse (meta)data coming from an ELN...")
         if len(case.eln) == 1:
             nx_em_eln = NxEmNomadOasisElnSchemaParser(case.eln[0], entry_id)
             nx_em_eln.report(template)
-            # print("--------------------------------------->")
-            # for keyword in template.keys():
-            #     print(keyword)
-            #     print(template[keyword])
 
         print("Parse NeXus appdef-specific content...")
         nxs = NxEmAppDef()
         nxs.parse(template, entry_id, file_paths)
-        # print("--------------------------------------->")
-        # for keyword in template.keys():
-        #     print(keyword)
-        #     print(template[keyword])
 
         # print("Parse conventions of reference frames...")
         # conventions = NxEmConventionMapper(entry_id)
         # conventions.parse(template)
 
-        # print("Parse and map pieces of information within files from tech partners...")
+        print("Parse and map pieces of information within files from tech partners...")
         # sub_parser = "nxs_mtex"
         # subparser = NxEmNxsMTexSubParser(entry_id, file_paths[0])
         # subparser.parse(template)
@@ -147,9 +135,8 @@ class EMReader(BaseReader):
         # subparser.parse(template, verbose=True)
         # TODO::check correct loop through!
 
-        # sub_parser = "velox_emd"
-        # subparser = RsciioVeloxSubParser(entry_id, file_paths[0], verbose=False)
-        # subparser.parse(template)
+        velox = RsciioVeloxSubParser(entry_id, case.dat[0], verbose=False)
+        velox.parse(template)
 
         # for dat_instance in case.dat_parser_type:
         #     print(f"Process pieces of information in {dat_instance} tech partner file...")
@@ -186,8 +173,7 @@ class EMReader(BaseReader):
         if debugging:
             print("Reporting state of template before passing to HDF5 writing...")
             for keyword in template.keys():
-                print(keyword)
-                print(template[keyword])
+                print(f"{keyword}: {template[keyword]}")
 
         print("Forward instantiated template to the NXS writer...")
         toc = perf_counter_ns()
