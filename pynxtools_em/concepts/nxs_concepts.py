@@ -47,7 +47,8 @@ class NxEmAppDef:
         pass
 
     def parse(
-        self, template: dict, entry_id: int = 1, cmd_line_args: tuple = ()) -> dict:
+        self, template: dict, entry_id: int = 1, cmd_line_args: tuple = ()
+    ) -> dict:
         """Parse application definition."""
         variadic_prefix = EM_APPDEF["prefix"]
         for entry in EM_APPDEF["use"]:
