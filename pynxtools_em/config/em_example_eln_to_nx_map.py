@@ -34,7 +34,7 @@ EM_EXAMPLE_ENTRY_TO_NEXUS = {
 
 
 EM_EXAMPLE_SAMPLE_TO_NEXUS = {
-    "prefix": "/ENTRY[entry*]",
+    "prefix": "/ENTRY[entry*]/sample",
     "load_from": ["method", "atom_types", "preparation_date"],
 }
 
