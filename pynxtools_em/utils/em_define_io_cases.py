@@ -25,7 +25,8 @@ from pynxtools_em.shared.mapping_functors import variadic_path_to_specific_path
 from pynxtools_em.shared.shared_utils import get_sha256_of_file_content
 
 VALID_FILE_NAME_SUFFIX_CONFIG = [".yaml", ".yml"]
-VALID_FILE_NAME_SUFFIX_DATA = [".hdf5", ".h5", ".dream3d", ".mtex"]
+VALID_FILE_NAME_SUFFIX_DATA = [".emd"]
+# ".png", ".tiff", ".dm3", ".dm4", ".hdf5", ".h5", ".dream3d", ".mtex", ".nion"]
 
 
 class EmUseCaseSelector:
