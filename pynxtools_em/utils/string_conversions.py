@@ -34,6 +34,7 @@ def string_to_number(arg: str):
     else:
         raise TypeError(f"Input argument arg needs to be a string!")
 
+
 # str_val = "-0.4899999"
 # str_val = "-2."
 # str_val = "-2.000000001"

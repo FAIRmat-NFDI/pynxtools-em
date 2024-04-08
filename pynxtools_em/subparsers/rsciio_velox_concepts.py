@@ -76,42 +76,52 @@ VELOX_EXEMPLAR_SELECTION_TO_NX_EM = [
     ("", "ignore", "Optics/ProjectorMode"),
     ("", "ignore", "Optics/SpotIndex"),
     ("", "ignore", "Optics/StemFocus"),
-    ("", "ignore", "Sample")]
+    ("", "ignore", "Sample"),
+]
 
 
 VELOX_ENTRY_TO_NX_EM = {
     "prefix": "/ENTRY[entry*]/measurement/em_lab/control_program",
-    "use": [("program", "Not reported in original_metadata parsed from Velox EMD using rosettasciio")],
-    "load_from": [("program/@version", "Instrument/ControlSoftwareVersion")]
+    "use": [
+        (
+            "program",
+            "Not reported in original_metadata parsed from Velox EMD using rosettasciio",
+        )
+    ],
+    "load_from": [("program/@version", "Instrument/ControlSoftwareVersion")],
 }
 
 
 VELOX_EBEAM_STATIC_TO_NX_EM = {
     "prefix": "/ENTRY[entry*]/measurement/em_lab/EBEAM_COLUMN[ebeam_column]/electron_source",
     "use": [("probe", "electron")],
-    "load_from": [("emitter_type", "Acquisition/SourceType")]
+    "load_from": [("emitter_type", "Acquisition/SourceType")],
 }
 
 
 VELOX_FABRICATION_TO_NX_EM = {
     "prefix": "/ENTRY[entry*]/measurement/em_lab/FABRICATION[fabrication]",
-    "load_from": [("identifier", "Instrument/InstrumentId"),
-                  ("model", "Instrument/InstrumentModel"),
-                  ("vendor", "Instrument/Manufacturer")]
+    "load_from": [
+        ("identifier", "Instrument/InstrumentId"),
+        ("model", "Instrument/InstrumentModel"),
+        ("vendor", "Instrument/Manufacturer"),
+    ],
 }
 
 
 VELOX_SCAN_TO_NX_EM = {
     "prefix": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/SCANBOX_EM[scanbox_em]",
-    "map_to_real": [("dwell_time", "Scan/DwellTime")]
+    "map_to_real": [("dwell_time", "Scan/DwellTime")],
 }
 
 
 VELOX_OPTICS_TO_NX_EM = {
     "prefix": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]",
-    "map_to_real": [("magnification", "Optics/NominalMagnification"),
-                    ("camera_length", "Optics/CameraLength"),
-                    ("defocus", "Optics/Defocus")]
+    "map_to_real": [
+        ("magnification", "Optics/NominalMagnification"),
+        ("camera_length", "Optics/CameraLength"),
+        ("defocus", "Optics/Defocus"),
+    ],
 }
 
 
@@ -121,18 +131,23 @@ VELOX_STAGE_TO_NX_EM = {
     "map_to_real": [
         ("tilt1", "Stage/AlphaTilt"),
         ("tilt2", "Stage/BetaTilt"),
-        ("position", ["Stage/Position/x", "Stage/Position/y", "Stage/Position/z"])]
+        ("position", ["Stage/Position/x", "Stage/Position/y", "Stage/Position/z"]),
+    ],
 }
 
 
 VELOX_DYNAMIC_TO_NX_EM = {
     "prefix": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
-    "unix_to_iso8601": [("start_time", "Acquisition/AcquisitionStartDatetime/DateTime")]
+    "unix_to_iso8601": [
+        ("start_time", "Acquisition/AcquisitionStartDatetime/DateTime")
+    ],
 }
 
 
 VELOX_EBEAM_DYNAMIC_TO_NX_EM = {
     "prefix": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/EBEAM_COLUMN[ebeam_column]",
-    "concatenate": [("operation_mode", ["Optics/OperatingMode", "Optics/TemOperatingSubMode"])],
-    "map_to_real": [("electron_source/voltage", "Optics/AccelerationVoltage")]
+    "concatenate": [
+        ("operation_mode", ["Optics/OperatingMode", "Optics/TemOperatingSubMode"])
+    ],
+    "map_to_real": [("electron_source/voltage", "Optics/AccelerationVoltage")],
 }
