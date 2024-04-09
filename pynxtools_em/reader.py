@@ -19,6 +19,7 @@
 
 # pylint: disable=no-member,fixme
 
+from os import getcwd
 from time import perf_counter_ns
 from typing import Tuple, Any
 import numpy as np
@@ -179,7 +180,7 @@ class EMReader(BaseReader):
         print("Forward instantiated template to the NXS writer...")
         toc = perf_counter_ns()
         trg = f"/ENTRY[entry{entry_id}]/profiling"
-        # TODO remove # template[f"{trg}/@NX_class"] = "NXcs_profiling"
+        template[f"{trg}/current_working_directory"] = getcwd()
         template[f"{trg}/template_filling_elapsed_time"] = np.float64(
             (toc - tic) / 1.0e9
         )
