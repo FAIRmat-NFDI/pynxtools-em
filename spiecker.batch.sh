@@ -7,7 +7,8 @@ trg="debug"
 
 examples="1340_Camera_Ceta_440_kx.emd"
 examples="1403_STEM_HAADF-DF-I-DF-O-BF_3.80_Mx.emd"
-#examples="2102_SI_HAADF.emd"
+examples="2102_SI_HAADF.emd"
+examples="20240305_Spectrum_EDS_90000_x.emd"
 
 for example in $examples; do
 	echo $example
