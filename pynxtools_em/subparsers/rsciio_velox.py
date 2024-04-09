@@ -680,11 +680,19 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         template[f"{trg}/PROCESS[process]/detector_identifier"] = (
             f"Check carefully how rsciio/hyperspy knows this {meta['General/title']}!"
         )
+        # TODO::the examples from E. Spiecker's group clearly show that indeed rosettasciio
+        # does a good job in reporting which elements where shown with EDX
+        # BUT: this is seems to be just copied into the title already by rosettasciio
+        # if reliant one could use this to auto-populate the
+        # /ENTRY[entry*]/sample/atom_types like what we do in atom probe
+        # BUT: in atom probe "pollutes" almost every NXentry with atoms that are typical
+        # in almost every atom probe dataset like carbon and hydrogen but this, in effect
+        # the filter effectiveness in a search will be poor as all entries will be showing
+        # up, is this what scientists want ?
         trg = (
             f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
             f"EVENT_DATA_EM[event_data_em{self.id_mgn['event']}]/"
-            f"SPECTRUM_SET[spectrum_set{self.id_mgn['event_spc']}]"
-            f"DATA[spectrum_zerod]"
+            f"SPECTRUM_SET[spectrum_set{self.id_mgn['event_spc']}]/spectrum_zerod"
         )
         template[f"{trg}/@signal"] = "intensity"
         if n_dims == 1:

@@ -6,6 +6,7 @@ esrc="examples"
 trg="debug"
 
 examples="1340_Camera_Ceta_440_kx.emd"
+examples="2102_SI_HAADF.emd"
 
 for example in $examples; do
 	echo $example
