@@ -66,7 +66,7 @@ def all_req_keywords_in_dict(dct: dict, keywords: list) -> bool:
 class RsciioVeloxSubParser(RsciioBaseParser):
     """Read Velox EMD File Format emd."""
 
-    def __init__(self, entry_id: int = 1, file_path: str = "", verbose=False):
+    def __init__(self, entry_id: int = 1, file_path: str = "", verbose: bool = False):
         super().__init__(file_path)
         if entry_id > 0:
             self.entry_id = entry_id
