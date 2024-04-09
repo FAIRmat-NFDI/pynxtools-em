@@ -90,7 +90,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
             "Core/MetadataSchemaVersion": None,
         }
         self.obj_idx_supported: List = []
-        self.supported = True
+        self.supported = False
         self.verbose = verbose
         self.check_if_supported()
 
@@ -136,7 +136,9 @@ class RsciioVeloxSubParser(RsciioBaseParser):
             ):  # there is at least some supported content
                 self.supported = True
             else:
-                print(f"WARNING {self.file_path} has not supported content !")
+                print(
+                    f"Parser {__class__.__name__} finds no content in {self.file_path} that it supports"
+                )
         except IOError:
             print(f"Loading {self.file_path} using {self.__name__} is not supported !")
 

@@ -17,115 +17,90 @@
 #
 """Configuration of the image_png_protochips subparser."""
 
-PNG_PROTOCHIPS_TO_NEXUS_CFG = [
-    (
-        "/ENTRY[entry*]/measurement/em_lab/STAGE_LAB[stage_lab]/alias",
-        "load_from",
-        "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.Name",
-    ),
-    ("/ENTRY[entry*]/measurement/em_lab/STAGE_LAB[stage_lab]/design", "heating_chip"),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]/tilt_1",
-        "load_from",
-        "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.A",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]/tilt_2",
-        "load_from",
-        "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.B",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]/position",
-        "load_from_concatenate",
-        [
-            "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.X",
-            "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.Y",
-            "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.Z",
-        ],
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/HEATER[heater]/current",
-        "load_from",
-        "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].HeatingCurrent",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/HEATER[heater]/current/@units",
-        "A",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/HEATER[heater]/power",
-        "load_from",
-        "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].HeatingPower",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/HEATER[heater]/power/@units",
-        "W",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/HEATER[heater]/voltage",
-        "load_from",
-        "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].HeatingVoltage",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/HEATER[heater]/voltage/@units",
-        "V",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]/SENSOR[sensor2]/value",
-        "load_from",
-        "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].HolderPressure",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]/SENSOR[sensor2]/value/@units",
-        "torr",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]/SENSOR[sensor2]/measurement",
-        "pressure",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]/SENSOR[sensor1]/value",
-        "load_from",
-        "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].HolderTemperature",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]/SENSOR[sensor1]/value/@units",
-        "°C",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]/SENSOR[sensor1]/measurement",
-        "temperature",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage",
-        "load_from",
-        "MicroscopeControlImageMetadata.MicroscopeSettings.AcceleratingVoltage",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/EBEAM_COLUMN[ebeam_column]/DEFLECTOR[beam_blanker1]/state",
-        "load_from",
-        "MicroscopeControlImageMetadata.MicroscopeSettings.BeamBlankerState",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/camera_length",
-        "load_from",
-        "MicroscopeControlImageMetadata.MicroscopeSettings.CameraLengthValue",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/magnification",
-        "load_from",
-        "MicroscopeControlImageMetadata.MicroscopeSettings.MagnificationValue",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/event_type",
-        "As tested with AXON 10.4.4.21, 2021-04-26T22:51:28.4539893-05:00 not included in Protochips PNG metadata",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/DETECTOR[detector*]/mode",
-        "As tested with AXON 10.4.4.21, 2021-04-26T22:51:28.4539893-05:00 not included in Protochips PNG metadata",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/em_lab/DETECTOR[detector*]/local_name",
-        "As tested with AXON 10.4.4.21, 2021-04-26T22:51:28.4539893-05:00 not included in Protochips PNG metadata",
-    ),
-]
+from typing import Dict
+
+
+AXON_STAGE_STATIC_TO_NX_EM = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/STAGE_LAB[stage_lab]",
+    "prefix_src": "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.",
+    "use": [("design", "heating_chip")],
+    "load_from": [("alias", "Name")],
+}
+
+
+AXON_DETECTOR_STATIC_TO_NX_EM = {
+    "prefix": "/ENTRY[entry*]/measurement/em_lab/DETECTOR[detector*]",
+    "use": [
+        (
+            "local_name",
+            "As tested with AXON 10.4.4.21, 2021-04-26T22:51:28.4539893-05:00 not included in Protochips PNG metadata",
+        )
+    ],
+}
+
+
+AXON_CHIP_DYNAMIC_TO_NX_EM = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/HEATER[heater]",
+    "prefix_src": "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].",
+    "use": [("current/@units", "A"), ("power/@units", "W"), ("voltage/@units", "V")],
+    "load_from": [
+        ("current", "HeatingCurrent"),
+        ("power", "HeatingPower"),
+        ("voltage", "HeatingVoltage"),
+    ],
+}
+
+
+AXON_AUX_DYNAMIC_TO_NX_EM = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
+    "prefix_src": "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].",
+    "use": [
+        ("SENSOR[sensor2]/value/@units", "torr"),
+        ("SENSOR[sensor2]/measurement", "pressure"),
+        ("SENSOR[sensor1]/value/@units", "°C"),
+        ("SENSOR[sensor1]/measurement", "temperature"),
+    ],
+    "load_from": [
+        ("SENSOR[sensor2]/value", "HolderPressure"),
+        ("SENSOR[sensor1]/value", "HolderTemperature"),
+    ],
+}
+
+
+AXON_VARIOUS_DYNAMIC_TO_NX_EM = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]",
+    "prefix_src": "MicroscopeControlImageMetadata.MicroscopeSettings.",
+    "use": [
+        ("em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage/@units", "V"),
+        (
+            "event_type",
+            "As tested with AXON 10.4.4.21, 2021-04-26T22:51:28.4539893-05:00 not included in Protochips PNG metadata",
+        ),
+        (
+            "em_lab/DETECTOR[detector*]/mode",
+            "As tested with AXON 10.4.4.21, 2021-04-26T22:51:28.4539893-05:00 not included in Protochips PNG metadata",
+        ),
+        ("em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/camera_length", "m"),
+    ],
+    "load_from": [
+        (
+            "em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage",
+            "AcceleratingVoltage",
+        ),
+        (
+            "em_lab/EBEAM_COLUMN[ebeam_column]/DEFLECTOR[beam_blanker1]/state",
+            "BeamBlankerState",
+        ),
+        (
+            "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/camera_length",
+            "CameraLengthValue",
+        ),
+        (
+            "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/magnification",
+            "MagnificationValue",
+        ),
+    ],
+}
+
+
+PNG_PROTOCHIPS_TO_NEXUS_CFG: Dict = {}

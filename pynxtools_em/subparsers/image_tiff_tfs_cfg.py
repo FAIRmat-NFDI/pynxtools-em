@@ -17,133 +17,76 @@
 #
 """Configuration of the image_tiff_tfs subparser."""
 
-TfsToNexusConceptMapping = {"System/Source/FEG": "cold_field_cathode_emitter"}
+from typing import Dict
+
+TFS_DETECTOR_STATIC_TO_NX_EM = {
+    "prefix": "/ENTRY[entry*]/measurement/em_lab/DETECTOR[detector*]",
+    "load_from": [
+        ("local_name", "Detectors/Name"),
+    ],
+}
 
 
-# "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/start_time"
-TIFF_TFS_TO_NEXUS_CFG = [
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/DETECTOR[detector*]/mode",
-        "load_from",
-        "Detectors/Mode",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/em_lab/DETECTOR[detector*]/local_name",
-        "load_from",
-        "Detectors/Name",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/em_lab/EBEAM_COLUMN[ebeam_column]/APERTURE_EM[aperture_em*]/description",
-        "load_from",
-        "EBeam/Aperture",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/em_lab/EBEAM_COLUMN[ebeam_column]/APERTURE_EM[aperture_em*]/value",
-        "load_from",
-        "EBeam/ApertureDiameter",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/em_lab/EBEAM_COLUMN[ebeam_column]/APERTURE_EM[aperture_em*]/value/@units",
-        "m",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/beam_current",
-        "load_from",
-        "EBeam/BeamCurrent",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/beam_current/@units",
-        "A",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage",
-        "load_from",
-        "EBeam/HV",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage/@units",
-        "V",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]/tilt_1",
-        "load_from_rad_to_deg",
-        "EBeam/StageTa",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]/tilt_1/@units",
-        "deg",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]/tilt_2",
-        "load_from_rad_to_deg",
-        "EBeam/StageTb",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]/tilt_2/@units",
-        "deg",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/EBEAM_COLUMN[ebeam_column]/operation_mode",
-        "load_from",
-        "EBeam/UseCase",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/working_distance",
-        "load_from",
-        "EBeam/WD",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/working_distance/@units",
-        "m",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/event_type",
-        "load_from_lower_case",
-        "ETD/Signal",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/SCANBOX_EM[scanbox_em]/dwell_time",
-        "load_from",
-        "Scan/Dwelltime",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/SCANBOX_EM[scanbox_em]/dwell_time/@units",
-        "s",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/em_lab/FABRICATION[fabrication]/identifier",
-        "load_from",
-        "System/BuildNr",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/SCANBOX_EM[scanbox_em]/scan_schema",
-        "load_from",
-        "System/Scan",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/emitter_type",
-        "load_from",
-        "System/Source",
-    ),
-    ("/ENTRY[entry*]/measurement/em_lab/FABRICATION[fabrication]/vendor", "FEI"),
-    (
-        "/ENTRY[entry*]/measurement/em_lab/FABRICATION[fabrication]/model",
-        "load_from",
-        "System/SystemType",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/event_type",
-        "load_from_lower_case",
-        "T1/Signal",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/event_type",
-        "load_from_lower_case",
-        "T2/Signal",
-    ),
-    (
-        "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/event_type",
-        "load_from_lower_case",
-        "T3/Signal",
-    ),
-]
+TFS_APERTURE_STATIC_TO_NX_EM = {
+    "prefix": "/ENTRY[entry*]/measurement/em_lab/EBEAM_COLUMN[ebeam_column]/APERTURE_EM[aperture_em*]",
+    "use": [("value/@units", "m")],
+    "load_from": [
+        ("description", "Beam/Aperture"),
+        ("value", "EBeam/ApertureDiameter"),
+    ],
+}
+
+
+TFS_VARIOUS_STATIC_TO_NX_EM = {
+    "prefix": "/ENTRY[entry*]/measurement/em_lab",
+    "use": [("FABRICATION[fabrication]/vendor", "FEI")],
+    "load_from": [
+        ("FABRICATION[fabrication]/model", "System/SystemType"),
+        ("FABRICATION[fabrication]/identifier", "System/BuildNr"),
+        ("EBEAM_COLUMN[ebeam_column]/electron_source/emitter_type", "System/Source"),
+    ],
+}
+
+
+TFS_OPTICS_DYNAMIC_TO_NX_EM = {
+    "prefix": "/ENTRY[entry*]/measurement/em_lab/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]",
+    "use": [("beam_current/@units", "A"), ("working_distance/@units", "m")],
+    "load_from": [
+        ("beam_current", "EBeam/BeamCurrent"),
+        ("working_distance", "EBeam/WD"),
+    ],
+}
+
+
+TFS_STAGE_DYNAMIC_TO_NX_EM = {
+    "prefix": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
+    "use": [("tilt1/@units", "deg"), ("tilt2/@units", "deg")],
+    "load_from_rad_to_deg": [("tilt1", "EBeam/StageTa"), ("tilt2", "EBeam/StageTb")],
+}
+
+
+TFS_SCAN_DYNAMIC_TO_NX_EM = {
+    "prefix": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/SCANBOX_EM[scanbox_em]",
+    "use": [
+        ("dwell_time/@units", "s"),
+    ],
+    "load_from": [("dwell_time", "Scan/Dwelltime"), ("scan_schema", "System/Scan")],
+}
+
+
+TFS_VARIOUS_DYNAMIC_TO_NX_EM = {
+    "prefix": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]",
+    "use": [("em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage/@units", "V")],
+    "load_from": [
+        ("em_lab/DETECTOR[detector*]/mode", "Detectors/Mode"),
+        ("em_lab/EBEAM_COLUMN[ebeam_column]/operation_mode", "EBeam/UseCase"),
+        ("em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage", "EBeam/HV"),
+        ("event_type", "T1/Signal"),
+        ("event_type", "T2/Signal"),
+        ("event_type", "T3/Signal"),
+        ("event_type", "ETD/Signal"),
+    ],
+}
+
+
+TIFF_TFS_TO_NEXUS_CFG: Dict = {}
