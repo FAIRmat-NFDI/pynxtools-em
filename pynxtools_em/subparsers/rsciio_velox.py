@@ -32,7 +32,8 @@ from pynxtools_em.utils.rsciio_hyperspy_utils import (
     get_axes_units,
 )
 from pynxtools_em.shared.shared_utils import (
-    get_sha256_of_file_content, DEFAULT_CHECKSUM_ALGORITHM
+    get_sha256_of_file_content,
+    DEFAULT_CHECKSUM_ALGORITHM,
 )
 from pynxtools_em.subparsers.rsciio_velox_concepts import (
     VELOX_EXEMPLAR_SELECTION_TO_NX_EM,
@@ -269,14 +270,18 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         if "use" in concept_mapping:
             for entry in concept_mapping["use"]:
                 if isinstance(entry, tuple):
-                    trg = variadic_path_to_specific_path(f"{variadic_prefix}/{entry[0]}", identifier)
+                    trg = variadic_path_to_specific_path(
+                        f"{variadic_prefix}/{entry[0]}", identifier
+                    )
                     template[f"{trg}"] = entry[1]
         if "load_from" in concept_mapping:
             for entry in concept_mapping["load_from"]:
                 if isinstance(entry, tuple):
                     if not entry[1] in orgmeta:
                         continue
-                    trg = variadic_path_to_specific_path(f"{variadic_prefix}/{entry[0]}", identifier)
+                    trg = variadic_path_to_specific_path(
+                        f"{variadic_prefix}/{entry[0]}", identifier
+                    )
                     template[f"{trg}"] = orgmeta[entry[1]]
         if "map_to_real" in concept_mapping:
             for entry in concept_mapping["map_to_real"]:
@@ -284,16 +289,23 @@ class RsciioVeloxSubParser(RsciioBaseParser):
                     if isinstance(entry[1], str):
                         if not entry[1] in orgmeta:
                             continue
-                        trg = variadic_path_to_specific_path(f"{variadic_prefix}/{entry[0]}", identifier)
+                        trg = variadic_path_to_specific_path(
+                            f"{variadic_prefix}/{entry[0]}", identifier
+                        )
                         # rosettasciio stores most Velox original metadata as string
                         # but this is incorrect for numerical values if stored as string
                         # here that would at the latest throw in the dataconverter
                         # validation
                         template[f"{trg}"] = string_to_number(orgmeta[entry[1]])
                     elif isinstance(entry[1], list):
-                        if not all((isinstance(value, str) and value in orgmeta) for value in entry[1]):
+                        if not all(
+                            (isinstance(value, str) and value in orgmeta)
+                            for value in entry[1]
+                        ):
                             continue
-                        trg = variadic_path_to_specific_path(f"{variadic_prefix}/{entry[0]}", identifier)
+                        trg = variadic_path_to_specific_path(
+                            f"{variadic_prefix}/{entry[0]}", identifier
+                        )
                         res = []
                         for value in entry[1]:
                             res.append(string_to_number(orgmeta[value]))
@@ -304,17 +316,25 @@ class RsciioVeloxSubParser(RsciioBaseParser):
                     if isinstance(entry[1], str) and isinstance(entry[2], float):
                         if not entry[1] in orgmeta:
                             continue
-                        trg = variadic_path_to_specific_path(f"{variadic_prefix}/{entry[0]}", identifier)
+                        trg = variadic_path_to_specific_path(
+                            f"{variadic_prefix}/{entry[0]}", identifier
+                        )
                         # Velox stores BeamConvergence but is this the full angle or the half i.e. semi angle?
                         # if entry[2] == 1. we assume BeamConvergence is the semi_convergence_angle
-                        template[f"{trg}"] = entry[2] * string_to_number(orgmeta[entry[1]])
+                        template[f"{trg}"] = entry[2] * string_to_number(
+                            orgmeta[entry[1]]
+                        )
         if "unix_to_iso8601" in concept_mapping:
             for entry in concept_mapping["unix_to_iso8601"]:
-                trg = variadic_path_to_specific_path(f"{variadic_prefix}/{entry[0]}", identifier)
+                trg = variadic_path_to_specific_path(
+                    f"{variadic_prefix}/{entry[0]}", identifier
+                )
                 if isinstance(entry[1], str):
                     if not entry[1] in orgmeta:
                         continue
-                    template[f"{trg}"] = datetime.fromtimestamp(int(orgmeta[entry[1]]), tz=pytz.timezone("UTC")).isoformat()
+                    template[f"{trg}"] = datetime.fromtimestamp(
+                        int(orgmeta[entry[1]]), tz=pytz.timezone("UTC")
+                    ).isoformat()
                     # TODO::is this really a UNIX timestamp, what about the timezone?
                     # no E. Spiecker's example shows clearly these remain tz-naive timestamps
                     # e.g. 1340_Camera_Ceta_440_kx.emd was collect 2024/04/05 in Erlangen
@@ -325,9 +345,14 @@ class RsciioVeloxSubParser(RsciioBaseParser):
                     # needs clarification from scientists !
         if "join_str" in concept_mapping:
             for entry in concept_mapping["join_str"]:
-                trg = variadic_path_to_specific_path(f"{variadic_prefix}/{entry[0]}", identifier)
+                trg = variadic_path_to_specific_path(
+                    f"{variadic_prefix}/{entry[0]}", identifier
+                )
                 if isinstance(entry[1], list):
-                    if not all((isinstance(value, str) and value in orgmeta) for value in entry[1]):
+                    if not all(
+                        (isinstance(value, str) and value in orgmeta)
+                        for value in entry[1]
+                    ):
                         continue
                     res = []
                     for value in entry[1]:
@@ -422,7 +447,9 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         for lens_name in lens_names:
             toggle = False
             if f"Optics/{lens_name}LensIntensity" in orgmeta:
-                template[f"{trg}/LENS_EM[lens_em{lens_idx}]/value"] = string_to_number(orgmeta[f"Optics/{lens_name}LensIntensity"])
+                template[f"{trg}/LENS_EM[lens_em{lens_idx}]/value"] = string_to_number(
+                    orgmeta[f"Optics/{lens_name}LensIntensity"]
+                )
                 # TODO::unit?
                 toggle = True
             if f"Optics/{lens_name}LensMode" in orgmeta:
@@ -469,7 +496,9 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         template[f"{trg}/PROCESS[process]/source/type"] = "file"
         template[f"{trg}/PROCESS[process]/source/path"] = self.file_path
         template[f"{trg}/PROCESS[process]/source/checksum"] = self.file_path_sha256
-        template[f"{trg}/PROCESS[process]/source/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
+        template[f"{trg}/PROCESS[process]/source/algorithm"] = (
+            DEFAULT_CHECKSUM_ALGORITHM
+        )
         template[f"{trg}/PROCESS[process]/detector_identifier"] = meta["General/title"]
         template[f"{trg}/image_twod/@signal"] = "intensity"
         template[f"{trg}/image_twod/@axes"] = []
@@ -518,7 +547,9 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         template[f"{trg}/PROCESS[process]/source/type"] = "file"
         template[f"{trg}/PROCESS[process]/source/path"] = self.file_path
         template[f"{trg}/PROCESS[process]/source/checksum"] = self.file_path_sha256
-        template[f"{trg}/PROCESS[process]/source/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
+        template[f"{trg}/PROCESS[process]/source/algorithm"] = (
+            DEFAULT_CHECKSUM_ALGORITHM
+        )
         template[f"{trg}/PROCESS[process]/detector_identifier"] = meta["General/title"]
         template[f"{trg}/image_twod/@signal"] = "intensity"
         template[f"{trg}/image_twod/@axes"] = []
@@ -584,7 +615,9 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         template[f"{trg}/PROCESS[process]/source/type"] = "file"
         template[f"{trg}/PROCESS[process]/source/path"] = self.file_path
         template[f"{trg}/PROCESS[process]/source/checksum"] = self.file_path_sha256
-        template[f"{trg}/PROCESS[process]/source/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
+        template[f"{trg}/PROCESS[process]/source/algorithm"] = (
+            DEFAULT_CHECKSUM_ALGORITHM
+        )
         template[f"{trg}/PROCESS[process]/detector_identifier"] = (
             f"Check carefully how rsciio/hyperspy knows this {meta['General/title']}!"
         )
@@ -641,7 +674,9 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         template[f"{trg}/PROCESS[process]/source/type"] = "file"
         template[f"{trg}/PROCESS[process]/source/path"] = self.file_path
         template[f"{trg}/PROCESS[process]/source/checksum"] = self.file_path_sha256
-        template[f"{trg}/PROCESS[process]/source/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
+        template[f"{trg}/PROCESS[process]/source/algorithm"] = (
+            DEFAULT_CHECKSUM_ALGORITHM
+        )
         template[f"{trg}/PROCESS[process]/detector_identifier"] = (
             f"Check carefully how rsciio/hyperspy knows this {meta['General/title']}!"
         )
@@ -709,7 +744,9 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         template[f"{trg}/PROCESS[process]/source/type"] = "file"
         template[f"{trg}/PROCESS[process]/source/path"] = self.file_path
         template[f"{trg}/PROCESS[process]/source/checksum"] = self.file_path_sha256
-        template[f"{trg}/PROCESS[process]/source/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
+        template[f"{trg}/PROCESS[process]/source/algorithm"] = (
+            DEFAULT_CHECKSUM_ALGORITHM
+        )
         template[f"{trg}/PROCESS[process]/detector_identifier"] = (
             f"Check carefully how rsciio/hyperspy knows this {meta['General/title']}!"
         )
