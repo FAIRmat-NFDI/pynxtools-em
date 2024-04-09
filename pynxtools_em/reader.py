@@ -31,7 +31,8 @@ from pynxtools_em.utils.em_define_io_cases import (
 # from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
 ## from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
 
-# from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
+from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
+
 # from pynxtools_em.subparsers.nxs_nion import NxEmZippedNionProjectSubParser
 from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
 ## from pynxtools_em.utils.default_plots import NxEmDefaultPlotResolver
@@ -127,10 +128,8 @@ class EMReader(BaseReader):
             # subparser.parse(template)
             # TODO::check correct loop through!
 
-            # sub_parser = "image_tiff"
-            # subparser = NxEmImagesSubParser(entry_id, file_paths[0])
-            # subparser.parse(template)
-            # TODO::check correct loop through!
+            images = NxEmImagesSubParser(entry_id, case.dat[0], verbose=False)
+            images.parse(template)
 
             # sub_parser = "zipped_nion_project"
             # subparser = NxEmZippedNionProjectSubParser(entry_id, file_paths[0])

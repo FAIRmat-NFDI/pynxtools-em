@@ -19,7 +19,6 @@
 
 import numpy as np
 
-# from typing import Dict, Any, List
 from PIL import Image
 
 from pynxtools_em.subparsers.image_tiff_tfs import TfsTiffSubParser
@@ -30,7 +29,9 @@ from pynxtools_em.utils.hfive_web_utils import hfive_web_decorate_nxdata
 class NxEmImagesSubParser:
     """Map content from different type of image files on an instance of NXem."""
 
-    def __init__(self, entry_id: int = 1, input_file_name: str = ""):
+    def __init__(
+        self, entry_id: int = 1, input_file_name: str = "", verbose: bool = False
+    ):
         """Overwrite constructor of the generic reader."""
         if entry_id > 0:
             self.entry_id = entry_id
@@ -38,6 +39,7 @@ class NxEmImagesSubParser:
             self.entry_id = 1
         self.file_path = input_file_name
         self.cache = {"is_filled": False}
+        self.verbose = verbose
 
     def identify_image_type(self):
         """Identify if image matches known mime type and has content for which subparser exists."""
