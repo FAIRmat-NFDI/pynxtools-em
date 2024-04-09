@@ -63,14 +63,13 @@ class NxEmNomadOasisElnSchemaParser:
                 for key in self.yml[src]:
                     variadic_prefix = EM_EXAMPLE_ENTRY_TO_NEXUS["prefix"]
                     for entry in EM_EXAMPLE_ENTRY_TO_NEXUS["load_from"]:
-                        if isinstance(entry, str):
-                            if key == entry:
-                                trg = variadic_path_to_specific_path(
-                                    f"{variadic_prefix}/{entry}", identifier
-                                )
-                                template[trg] = self.yml[src][entry]
-                                break
-                        if isinstance(entry, tuple) and len(entry) == 2:
+                        if isinstance(entry, str) and key == entry:
+                            trg = variadic_path_to_specific_path(
+                                f"{variadic_prefix}/{entry}", identifier
+                            )
+                            template[trg] = self.yml[src][entry]
+                            break
+                        elif isinstance(entry, tuple) and len(entry) == 2:
                             if key == entry[1]:
                                 trg = variadic_path_to_specific_path(
                                     f"{variadic_prefix}/{entry[0]}", identifier
@@ -88,14 +87,13 @@ class NxEmNomadOasisElnSchemaParser:
                 for key in self.yml[src]:
                     variadic_prefix = EM_EXAMPLE_SAMPLE_TO_NEXUS["prefix"]
                     for entry in EM_EXAMPLE_SAMPLE_TO_NEXUS["load_from"]:
-                        if isinstance(entry, str):
-                            if key == entry:
-                                trg = variadic_path_to_specific_path(
-                                    f"{variadic_prefix}/{entry}", identifier
-                                )
-                                template[trg] = self.yml[src][entry]
-                                break
-                        if isinstance(entry, tuple) and len(entry) == 2:
+                        if isinstance(entry, str) and key == entry:
+                            trg = variadic_path_to_specific_path(
+                                f"{variadic_prefix}/{entry}", identifier
+                            )
+                            template[trg] = self.yml[src][entry]
+                            break
+                        elif isinstance(entry, tuple) and len(entry) == 2:
                             if key == entry[1]:
                                 trg = variadic_path_to_specific_path(
                                     f"{variadic_prefix}/{entry[0]}", identifier
@@ -120,14 +118,13 @@ class NxEmNomadOasisElnSchemaParser:
                         for key in user_dict:
                             if key != "orcid":
                                 for entry in EM_EXAMPLE_USER_TO_NEXUS["load_from"]:
-                                    if isinstance(entry, str):
-                                        if key == entry:
-                                            trg = variadic_path_to_specific_path(
-                                                f"{variadic_prefix}/{entry}", identifier
-                                            )
-                                            template[trg] = user_dict[entry]
-                                            break
-                                    if isinstance(entry, tuple) and len(entry) == 2:
+                                    if isinstance(entry, str) and key == entry:
+                                        trg = variadic_path_to_specific_path(
+                                            f"{variadic_prefix}/{entry}", identifier
+                                        )
+                                        template[trg] = user_dict[entry]
+                                        break
+                                    elif isinstance(entry, tuple) and len(entry) == 2:
                                         if key == entry[1]:
                                             trg = variadic_path_to_specific_path(
                                                 f"{variadic_prefix}/{entry[0]}",
