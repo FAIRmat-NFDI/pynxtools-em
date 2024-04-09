@@ -35,7 +35,7 @@ from pynxtools_em.shared.shared_utils import (
     get_sha256_of_file_content,
     DEFAULT_CHECKSUM_ALGORITHM,
 )
-from pynxtools_em.subparsers.rsciio_velox_concepts import (
+from pynxtools_em.subparsers.rsciio_velox_cfg import (
     VELOX_ENTRY_TO_NX_EM,
     VELOX_EBEAM_STATIC_TO_NX_EM,
     VELOX_FABRICATION_TO_NX_EM,
