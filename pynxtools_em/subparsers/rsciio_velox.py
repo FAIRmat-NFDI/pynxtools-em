@@ -19,7 +19,7 @@
 
 import flatdict as fd
 import numpy as np
-
+import pytz
 from typing import Dict, List
 from datetime import datetime
 from rsciio import emd
@@ -32,7 +32,7 @@ from pynxtools_em.utils.rsciio_hyperspy_utils import (
     get_axes_units,
 )
 from pynxtools_em.shared.shared_utils import (
-    get_sha256_of_file_content,
+    get_sha256_of_file_content, DEFAULT_CHECKSUM_ALGORITHM
 )
 from pynxtools_em.subparsers.rsciio_velox_concepts import (
     VELOX_EXEMPLAR_SELECTION_TO_NX_EM,
@@ -45,7 +45,7 @@ from pynxtools_em.subparsers.rsciio_velox_concepts import (
     VELOX_DYNAMIC_TO_NX_EM,
     VELOX_EBEAM_DYNAMIC_TO_NX_EM,
 )
-
+from pynxtools_em.utils.string_conversions import string_to_number
 from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
 
 REAL_SPACE = 0
@@ -257,73 +257,6 @@ class RsciioVeloxSubParser(RsciioBaseParser):
 
         return "n/a"
 
-    def add_various_event_metadata(
-        self, orgmeta: fd.FlatDict, identifier: list, template: dict
-    ) -> dict:
-        """Map various Velox/FEI-specific metadata on NeXus in event_data_em."""
-        if (len(identifier) != 3) or (not all(isinstance(x, int) for x in identifier)):
-            raise ValueError(
-                f"Argument identifier {identifier} needs three int values!"
-            )
-        for tpl in VELOX_EXEMPLAR_SELECTION_TO_NX_EM:
-            if not isinstance(tpl, tuple):
-                continue
-            if len(tpl) != 3:
-                continue
-            if tpl[1] == "ignore":
-                continue
-
-            trg = variadic_path_to_specific_path(tpl[0], identifier)
-            if tpl[1] == "is":
-                if self.verbose:
-                    print(f">>>> is >>>> tpl: {tpl}, trg: {trg}")
-                template[f"{trg}"] = tpl[2]
-            elif tpl[1] == "load_from":
-                if isinstance(tpl[2], str):
-                    if self.verbose:
-                        print(f">>>> load_from, str >>>> tpl: {tpl}, trg: {trg}")
-                    if tpl[2] in orgmeta:
-                        template[f"{trg}"] = orgmeta[tpl[2]]
-                elif isinstance(tpl[2], list) and all(
-                    isinstance(x, str) for x in tpl[2]
-                ):
-                    res = []
-                    for entry in tpl[2]:
-                        if entry in orgmeta:
-                            res.append(orgmeta[entry])
-                    if len(res) != len(tpl[2]):
-                        raise ValueError(
-                            ">>>> load_from, list >>>> not all values found!"
-                        )
-                    template[f"{trg}"] = np.asarray(res, np.float64)
-                    # TODO::add position information
-                else:
-                    raise ValueError(f">>>> load_from >>>> tpl[2] not a str {tpl[2]} !")
-            elif tpl[1] == "unix_to_iso8601":
-                if isinstance(tpl[2], str):
-                    if self.verbose:
-                        print(f">>>> unix_to_iso8601, str >>>> tpl: {tpl}, trg: {trg}")
-                    if tpl[2] in orgmeta:
-                        template[f"{trg}"] = datetime.fromtimestamp(
-                            int(orgmeta[tpl[2]])
-                        ).isoformat()
-                        # TODO::is this really a UNIX timestamp, what about the timezone?
-            elif tpl[1] == "concatenate":
-                if isinstance(tpl[2], list) and all(isinstance(x, str) for x in tpl[2]):
-                    print("concatenate needs a fix!")
-                    # res = f""
-                    # for idx in np.arange(0, len(tpl[2])):
-                    #     if tpl[2][idx] in orgmeta:
-                    #         res += f"{tpl[2][idx]}: {orgmeta[tpl[2][idx]]}, "
-                    #     else:
-                    #         continue
-                    template[f"{trg}"] = f"concatenate needs a fix!!!"
-                    # f"{res[0:len(res) - 2]}"
-            else:
-                # if self.verbose == True:
-                print(f"Found modifier {tpl[1]}")
-        return template
-
     def add_specific_metadata(
         self,
         concept_mapping: dict,
@@ -336,23 +269,70 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         if "use" in concept_mapping:
             for entry in concept_mapping["use"]:
                 if isinstance(entry, tuple):
-                    if entry[1] in orgmeta:
-                        trg = variadic_path_to_specific_path(
-                            f"{variadic_prefix}/{entry[0]}", identifier
-                        )
-                        template[f"{trg}/{entry[0]}"] = entry[1]
+                    trg = variadic_path_to_specific_path(f"{variadic_prefix}/{entry[0]}", identifier)
+                    template[f"{trg}"] = entry[1]
         if "load_from" in concept_mapping:
             for entry in concept_mapping["load_from"]:
                 if isinstance(entry, tuple):
-                    if entry[1] in orgmeta:
-                        trg = variadic_path_to_specific_path(
-                            f"{variadic_prefix}/{entry[0]}", identifier
-                        )
-                        template[f"{trg}/{entry[0]}"] = orgmeta[entry[1]]
+                    if not entry[1] in orgmeta:
+                        continue
+                    trg = variadic_path_to_specific_path(f"{variadic_prefix}/{entry[0]}", identifier)
+                    template[f"{trg}"] = orgmeta[entry[1]]
         if "map_to_real" in concept_mapping:
             for entry in concept_mapping["map_to_real"]:
                 if isinstance(entry, tuple):
-                    print("IMPLEMENT MAP TO REAL!!!")
+                    if isinstance(entry[1], str):
+                        if not entry[1] in orgmeta:
+                            continue
+                        trg = variadic_path_to_specific_path(f"{variadic_prefix}/{entry[0]}", identifier)
+                        # rosettasciio stores most Velox original metadata as string
+                        # but this is incorrect for numerical values if stored as string
+                        # here that would at the latest throw in the dataconverter
+                        # validation
+                        template[f"{trg}"] = string_to_number(orgmeta[entry[1]])
+                    elif isinstance(entry[1], list):
+                        if not all((isinstance(value, str) and value in orgmeta) for value in entry[1]):
+                            continue
+                        trg = variadic_path_to_specific_path(f"{variadic_prefix}/{entry[0]}", identifier)
+                        res = []
+                        for value in entry[1]:
+                            res.append(string_to_number(orgmeta[value]))
+                        template[f"{trg}"] = np.asarray(res, np.float64)
+        if "map_to_real_and_multiply" in concept_mapping:
+            for entry in concept_mapping["map_to_real_and_multiply"]:
+                if isinstance(entry, tuple) and len(entry) == 3:
+                    if isinstance(entry[1], str) and isinstance(entry[2], float):
+                        if not entry[1] in orgmeta:
+                            continue
+                        trg = variadic_path_to_specific_path(f"{variadic_prefix}/{entry[0]}", identifier)
+                        # Velox stores BeamConvergence but is this the full angle or the half i.e. semi angle?
+                        # if entry[2] == 1. we assume BeamConvergence is the semi_convergence_angle
+                        template[f"{trg}"] = entry[2] * string_to_number(orgmeta[entry[1]])
+        if "unix_to_iso8601" in concept_mapping:
+            for entry in concept_mapping["unix_to_iso8601"]:
+                trg = variadic_path_to_specific_path(f"{variadic_prefix}/{entry[0]}", identifier)
+                if isinstance(entry[1], str):
+                    if not entry[1] in orgmeta:
+                        continue
+                    template[f"{trg}"] = datetime.fromtimestamp(int(orgmeta[entry[1]]), tz=pytz.timezone("UTC")).isoformat()
+                    # TODO::is this really a UNIX timestamp, what about the timezone?
+                    # no E. Spiecker's example shows clearly these remain tz-naive timestamps
+                    # e.g. 1340_Camera_Ceta_440_kx.emd was collect 2024/04/05 in Erlangen
+                    # but shows GMT time zone which is incorrect, problem only unix timestamp
+                    # reported by Velox
+                    # but for the hyperspy relevant metadata rosettasciio identifies
+                    # General/date: 2024-04-05, General/time: 13:40:20, General/time_zone: CEST
+                    # needs clarification from scientists !
+        if "join_str" in concept_mapping:
+            for entry in concept_mapping["join_str"]:
+                trg = variadic_path_to_specific_path(f"{variadic_prefix}/{entry[0]}", identifier)
+                if isinstance(entry[1], list):
+                    if not all((isinstance(value, str) and value in orgmeta) for value in entry[1]):
+                        continue
+                    res = []
+                    for value in entry[1]:
+                        res.append(orgmeta[value])
+                    template[f"{trg}"] = " ".join(res)
         return template
 
     def add_entry_header(
@@ -442,9 +422,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         for lens_name in lens_names:
             toggle = False
             if f"Optics/{lens_name}LensIntensity" in orgmeta:
-                template[f"{trg}/LENS_EM[lens_em{lens_idx}]/value"] = orgmeta[
-                    f"Optics/{lens_name}LensIntensity"
-                ]
+                template[f"{trg}/LENS_EM[lens_em{lens_idx}]/value"] = string_to_number(orgmeta[f"Optics/{lens_name}LensIntensity"])
                 # TODO::unit?
                 toggle = True
             if f"Optics/{lens_name}LensMode" in orgmeta:
@@ -473,7 +451,6 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         self.add_stage(orgmeta, identifier, template)
         self.add_various_dynamic(orgmeta, identifier, template)
         self.add_ebeam_dynamic(orgmeta, identifier, template)
-        # self.add_various_event_metadata(orgmeta, identifier, template)
         self.add_lens_event_data(orgmeta, identifier, template)
         return template
 
@@ -492,9 +469,8 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         template[f"{trg}/PROCESS[process]/source/type"] = "file"
         template[f"{trg}/PROCESS[process]/source/path"] = self.file_path
         template[f"{trg}/PROCESS[process]/source/checksum"] = self.file_path_sha256
-        template[f"{trg}/PROCESS[process]/source/algorithm"] = "SHA256"
+        template[f"{trg}/PROCESS[process]/source/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
         template[f"{trg}/PROCESS[process]/detector_identifier"] = meta["General/title"]
-        template[f"{trg}/image_twod/@NX_class"] = "NXdata"  # TODO::writer should do!
         template[f"{trg}/image_twod/@signal"] = "intensity"
         template[f"{trg}/image_twod/@axes"] = []
         for dim in dims:
@@ -542,9 +518,8 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         template[f"{trg}/PROCESS[process]/source/type"] = "file"
         template[f"{trg}/PROCESS[process]/source/path"] = self.file_path
         template[f"{trg}/PROCESS[process]/source/checksum"] = self.file_path_sha256
-        template[f"{trg}/PROCESS[process]/source/algorithm"] = "SHA256"
+        template[f"{trg}/PROCESS[process]/source/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
         template[f"{trg}/PROCESS[process]/detector_identifier"] = meta["General/title"]
-        template[f"{trg}/image_twod/@NX_class"] = "NXdata"  # TODO::writer should do!
         template[f"{trg}/image_twod/@signal"] = "intensity"
         template[f"{trg}/image_twod/@axes"] = []
         for dim in dims:
@@ -567,12 +542,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
             "strength": 1,
         }
         # template[f"{trg}/image_twod/intensity/@units"]
-        self.add_various_event_metadata(
-            orgmeta,
-            [self.entry_id, self.id_mgn["event"], self.id_mgn["event_img"]],
-            template,
-        )
-        self.add_lens_event_data(
+        self.add_metadata(
             orgmeta,
             [self.entry_id, self.id_mgn["event"], self.id_mgn["event_img"]],
             template,
@@ -614,9 +584,10 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         template[f"{trg}/PROCESS[process]/source/type"] = "file"
         template[f"{trg}/PROCESS[process]/source/path"] = self.file_path
         template[f"{trg}/PROCESS[process]/source/checksum"] = self.file_path_sha256
-        template[f"{trg}/PROCESS[process]/source/algorithm"] = "SHA256"
-        template[f"{trg}/PROCESS[process]/detector_identifier"] = meta["General/title"]
-        template[f"{trg}/image_twod/@NX_class"] = "NXdata"  # TODO::writer should do!
+        template[f"{trg}/PROCESS[process]/source/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
+        template[f"{trg}/PROCESS[process]/detector_identifier"] = (
+            f"Check carefully how rsciio/hyperspy knows this {meta['General/title']}!"
+        )
         template[f"{trg}/image_twod/@signal"] = "magnitude"
         template[f"{trg}/image_twod/@axes"] = []
         for dim in dims:
@@ -639,12 +610,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
             "strength": 1,
         }
         # template[f"{trg}/image_twod/magnitude/@units"]
-        self.add_various_event_metadata(
-            orgmeta,
-            [self.entry_id, self.id_mgn["event"], self.id_mgn["event_img"]],
-            template,
-        )
-        self.add_lens_event_data(
+        self.add_metadata(
             orgmeta,
             [self.entry_id, self.id_mgn["event"], self.id_mgn["event_img"]],
             template,
@@ -675,7 +641,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         template[f"{trg}/PROCESS[process]/source/type"] = "file"
         template[f"{trg}/PROCESS[process]/source/path"] = self.file_path
         template[f"{trg}/PROCESS[process]/source/checksum"] = self.file_path_sha256
-        template[f"{trg}/PROCESS[process]/source/algorithm"] = "SHA256"
+        template[f"{trg}/PROCESS[process]/source/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
         template[f"{trg}/PROCESS[process]/detector_identifier"] = (
             f"Check carefully how rsciio/hyperspy knows this {meta['General/title']}!"
         )
@@ -685,7 +651,6 @@ class RsciioVeloxSubParser(RsciioBaseParser):
             f"SPECTRUM_SET[spectrum_set{self.id_mgn['event_spc']}]"
             f"DATA[spectrum_zerod]"
         )
-        template[f"{trg}/@NX_class"] = "NXdata"  # TODO::should be autodecorated
         template[f"{trg}/@signal"] = "intensity"
         if n_dims == 1:
             template[f"{trg}/@axes"] = ["axis_energy"]
@@ -720,12 +685,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
             "strength": 1,
         }
         # template[f"{trg}/intensity/@long_name"] = ""
-        self.add_various_event_metadata(
-            orgmeta,
-            [self.entry_id, self.id_mgn["event"], self.id_mgn["event_spc"]],
-            template,
-        )
-        self.add_lens_event_data(
+        self.add_metadata(
             orgmeta,
             [self.entry_id, self.id_mgn["event"], self.id_mgn["event_spc"]],
             template,
@@ -749,7 +709,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         template[f"{trg}/PROCESS[process]/source/type"] = "file"
         template[f"{trg}/PROCESS[process]/source/path"] = self.file_path
         template[f"{trg}/PROCESS[process]/source/checksum"] = self.file_path_sha256
-        template[f"{trg}/PROCESS[process]/source/algorithm"] = "SHA256"
+        template[f"{trg}/PROCESS[process]/source/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
         template[f"{trg}/PROCESS[process]/detector_identifier"] = (
             f"Check carefully how rsciio/hyperspy knows this {meta['General/title']}!"
         )
@@ -757,9 +717,6 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         # template[f"{trg}/energy_range"] = (0., 0.)
         # template[f"{trg}/energy_range/@units"] = "keV"
         # template[f"{trg}/iupac_line_candidates"] = ""
-        template[f"{trg}/image_twod/@NX_class"] = (
-            "NXdata"  # TODO::should be autodecorated
-        )
         template[f"{trg}/image_twod/@signal"] = "intensity"
         template[f"{trg}/image_twod/@axes"] = []
         for dim in dims:

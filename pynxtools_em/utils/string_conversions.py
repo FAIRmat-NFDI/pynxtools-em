@@ -19,7 +19,7 @@
 
 
 def string_to_number(arg: str):
-    """Convert input string to int, float, string, or None."""
+    """Convert input string to int, float, or leave string."""
     if isinstance(arg, str):
         try:
             float(arg)

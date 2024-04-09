@@ -20,12 +20,12 @@
 from pynxtools_em.shared.mapping_functors import variadic_path_to_specific_path
 
 
-PYNXTOOLS_EM_VERSION = "n/a"
-PYNXTOOLS_EM_URL = "https://www.github.com/FAIRmat-NFDI/pynxtools-em"
+PYNXTOOLS_EM_VERSION = "Redundant, see metadata in NXroot header"
+PYNXTOOLS_EM_URL = "Redundant, see metadata in NXroot header"
 
 NXEM_NAME = "NXem"
-NXEM_VERSION = "n/a"
-NXEM_URL = "https://www.github.com/FAIRmat-NFDI/nexus_definitions"
+NXEM_VERSION = "Redundant, see metadata in NXroot header"
+NXEM_URL = "Redundant, see metadata in NXroot header"
 
 EM_APPDEF = {
     "prefix": "/ENTRY[entry*]",
@@ -59,7 +59,6 @@ class NxEmAppDef:
                 template[trg] = entry[1]
 
         if cmd_line_args != [] and all(isinstance(item, str) for item in cmd_line_args):
-            # template["f/ENTRY[entry{entry_id}]/profiling/@NX_class"] = "NXcs_profiling"
             template[f"/ENTRY[entry{entry_id}]/profiling/command_line_call"] = (
                 cmd_line_args
             )
