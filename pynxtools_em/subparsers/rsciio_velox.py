@@ -277,7 +277,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         if "load_from" in concept_mapping:
             for entry in concept_mapping["load_from"]:
                 if isinstance(entry, tuple):
-                    if not entry[1] in orgmeta:
+                    if entry[1] not in orgmeta:
                         continue
                     trg = variadic_path_to_specific_path(
                         f"{variadic_prefix}/{entry[0]}", identifier
@@ -287,7 +287,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
             for entry in concept_mapping["map_to_real"]:
                 if isinstance(entry, tuple):
                     if isinstance(entry[1], str):
-                        if not entry[1] in orgmeta:
+                        if entry[1] not in orgmeta:
                             continue
                         trg = variadic_path_to_specific_path(
                             f"{variadic_prefix}/{entry[0]}", identifier
@@ -314,7 +314,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
             for entry in concept_mapping["map_to_real_and_multiply"]:
                 if isinstance(entry, tuple) and len(entry) == 3:
                     if isinstance(entry[1], str) and isinstance(entry[2], float):
-                        if not entry[1] in orgmeta:
+                        if entry[1] not in orgmeta:
                             continue
                         trg = variadic_path_to_specific_path(
                             f"{variadic_prefix}/{entry[0]}", identifier
@@ -330,7 +330,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
                     f"{variadic_prefix}/{entry[0]}", identifier
                 )
                 if isinstance(entry[1], str):
-                    if not entry[1] in orgmeta:
+                    if entry[1] not in orgmeta:
                         continue
                     template[f"{trg}"] = datetime.fromtimestamp(
                         int(orgmeta[entry[1]]), tz=pytz.timezone("UTC")
