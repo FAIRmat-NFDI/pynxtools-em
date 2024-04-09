@@ -26,10 +26,14 @@ from typing import Dict, List
 from PIL import Image
 from zipfile import ZipFile
 
-from pynxtools_em.subparsers.image_png_protochips_concepts import (
-    get_protochips_variadic_concept,
+from pynxtools_em.subparsers.image_png_protochips_cfg import (
+    AXON_DETECTOR_STATIC_TO_NX_EM,
+    AXON_STAGE_STATIC_TO_NX_EM,
+    AXON_CHIP_DYNAMIC_TO_NX_EM,
+    AXON_AUX_DYNAMIC_TO_NX_EM,
+    AXON_VARIOUS_DYNAMIC_TO_NX_EM,
+    PNG_PROTOCHIPS_TO_NEXUS_CFG,
 )
-from pynxtools_em.subparsers.image_png_protochips_cfg import PNG_PROTOCHIPS_TO_NEXUS_CFG
 from pynxtools_em.shared.mapping_functors import (
     variadic_path_to_specific_path,
 )
@@ -38,12 +42,13 @@ from pynxtools_em.subparsers.image_base import ImgsBaseParser
 from pynxtools_em.utils.xml_utils import flatten_xml_to_dict
 from pynxtools_em.shared.shared_utils import (
     get_sha256_of_file_content,
+    DEFAULT_CHECKSUM_ALGORITHM,
 )
 from pynxtools_em.utils.sorting import sort_ascendingly_by_second_argument_iso8601
 
 
 class ProtochipsPngSetSubParser(ImgsBaseParser):
-    def __init__(self, file_path: str = "", entry_id: int = 1):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
         super().__init__(file_path)
         self.entry_id = entry_id
         self.event_id = 1
@@ -54,7 +59,12 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
         self.png_info: Dict = {}
         self.supported = False
         self.event_sequence: List = []
+        self.verbose = verbose
         self.check_if_zipped_png_protochips()
+        if not self.supported:
+            print(
+                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+            )
 
     def check_if_zipped_png_protochips(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file."""
@@ -134,7 +144,6 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
                     grpnm_lookup = {}
                     for concept, value in meta.items():
                         # not every key is allowed to define a concept
-                        # print(f"{concept}: {value}")
                         idxs = re.finditer(r".\[[0-9]+\].", concept)
                         if sum(1 for _ in idxs) > 0:  # is_variadic
                             markers = [".Name", ".PositionerName"]

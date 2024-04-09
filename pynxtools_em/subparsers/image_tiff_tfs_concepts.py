@@ -288,11 +288,6 @@ TIFF_TFS_ALL_CONCEPTS = [
 def get_fei_parent_concepts() -> List:
     """Get list of unique FEI parent concepts."""
     return TIFF_TFS_PARENT_CONCEPTS
-    # parent_concepts = set()
-    # for entry in TiffTfsConcepts:
-    #     if isinstance(entry, str) and entry.count("/") == 1:
-    #         parent_concepts.add(entry.split("/")[0])
-    # return list(parent_concepts)
 
 
 def get_fei_childs(parent_concept: str) -> List:

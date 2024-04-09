@@ -17,8 +17,6 @@
 #
 """Utilities for working with TFS/FEI-specific concepts."""
 
-# pylint: disable=no-member
-
 from numpy import pi
 
 
@@ -33,11 +31,6 @@ def get_nexus_value(modifier, qnt_name, metadata: dict):
         elif modifier == "load_from_lower_case":
             if isinstance(metadata[qnt_name], str):
                 return metadata[qnt_name].lower()
-            # print(f"WARNING modifier {modifier}, qnt_name {qnt_name} metadata['qnt_name'] not string !")
             return None
     else:
-        # print(f"WARNING modifier {modifier}, qnt_name {qnt_name} not found !")
         return None
-    # if f"{modifier['terms']}/{metadata[modifier['terms']]}" in TfsToNexusConceptMapping.keys():
-    # return TfsToNexusConceptMapping[f"{modifier['terms']}/{metadata[modifier['terms']]}"]
-    # elif set(["link"]) == set(modifier.keys()), with the jsonmap reader Sherjeel conceptualized "link"

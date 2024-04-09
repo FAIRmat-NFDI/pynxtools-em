@@ -17,13 +17,8 @@
 #
 """Parser mapping content of specific image files on NeXus."""
 
-import numpy as np
-
-from PIL import Image
-
 from pynxtools_em.subparsers.image_tiff_tfs import TfsTiffSubParser
 from pynxtools_em.subparsers.image_png_protochips import ProtochipsPngSetSubParser
-from pynxtools_em.utils.hfive_web_utils import hfive_web_decorate_nxdata
 
 
 class NxEmImagesSubParser:
@@ -44,10 +39,10 @@ class NxEmImagesSubParser:
     def identify_image_type(self):
         """Identify if image matches known mime type and has content for which subparser exists."""
         # tech partner formats used for measurement
-        # img = TfsTiffSubParser(f"{self.file_path}")
-        # if img.supported is True:
-        #     return "single_tiff_tfs"
-        img = ProtochipsPngSetSubParser(f"{self.file_path}")
+        img = TfsTiffSubParser(self.file_path)
+        if img.supported is True:
+            return "single_tiff_tfs"
+        img = ProtochipsPngSetSubParser(self.file_path)
         if img.supported is True:
             return "set_of_zipped_png_protochips"
         return None
@@ -55,12 +50,13 @@ class NxEmImagesSubParser:
     def parse(self, template: dict) -> dict:
         image_parser_type = self.identify_image_type()
         if image_parser_type is None:
-            print(f"{self.file_path} does not match any of the supported image formats")
+            print(
+                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+            )
             return template
         print(f"Parsing via {image_parser_type}...")
         # see also comments for respective nxs_pyxem parser
         # and its interaction with tech-partner-specific hfive_* subparsers
-
         if image_parser_type == "single_tiff_tfs":
             tiff = TfsTiffSubParser(self.file_path, self.entry_id)
             tiff.parse_and_normalize()
@@ -69,7 +65,6 @@ class NxEmImagesSubParser:
             pngs = ProtochipsPngSetSubParser(self.file_path, self.entry_id)
             pngs.parse_and_normalize()
             pngs.process_into_template(template)
-        # else:
-        # TODO::add here specific content parsers for other tech partner
-        # or other custom parsing of images
+        # add here further specific content (sub-)parsers for formats from other
+        # tech partner or other custom parsing of images
         return template
