@@ -24,6 +24,7 @@ from subprocess import CalledProcessError, run
 
 DEFAULT_CHECKSUM_ALGORITHM = "sha256"
 
+
 def rchop(s, suffix):
     if suffix and s.endswith(suffix):
         return s[: -len(suffix)]

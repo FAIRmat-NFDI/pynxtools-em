@@ -35,7 +35,6 @@
 # ("/ENTRY[entry*]/", "load_from", "Optics/C2LensIntensity")
 # this can not work but has to be made explicit with an own function that is Velox MetadataSchema-version and NeXus NXem-schema-version-dependent for the lenses
 
-
 VELOX_ENTRY_TO_NX_EM = {
     "prefix": "/ENTRY[entry*]/measurement/em_lab/control_program",
     "use": [
@@ -64,7 +63,7 @@ VELOX_FABRICATION_TO_NX_EM = {
     ],
     "join_str": [
         ("model", ["Instrument/InstrumentClass", "Instrument/InstrumentModel"])
-    ]
+    ],
 }
 
 
@@ -88,7 +87,7 @@ VELOX_OPTICS_TO_NX_EM = {
         ("defocus", "Optics/Defocus"),
     ],
     "map_to_real_and_multiply": [
-        ("semi_convergence_angle", "Optics/BeamConvergence", 1.),
+        ("semi_convergence_angle", "Optics/BeamConvergence", 1.0),
     ],
 }
 # assume BeamConvergence is the semi_convergence_angle, needs clarification from vendors and colleagues
