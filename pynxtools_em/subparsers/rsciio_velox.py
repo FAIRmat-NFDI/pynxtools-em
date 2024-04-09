@@ -36,7 +36,6 @@ from pynxtools_em.shared.shared_utils import (
     DEFAULT_CHECKSUM_ALGORITHM,
 )
 from pynxtools_em.subparsers.rsciio_velox_concepts import (
-    VELOX_EXEMPLAR_SELECTION_TO_NX_EM,
     VELOX_ENTRY_TO_NX_EM,
     VELOX_EBEAM_STATIC_TO_NX_EM,
     VELOX_FABRICATION_TO_NX_EM,
