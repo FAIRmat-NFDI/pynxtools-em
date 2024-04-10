@@ -15,12 +15,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Configuration of the image_png_protochips subparser."""
+"""Get a digital fingerprint (hash) of a file."""
 
-from typing import List
-from pynxtools_em.subparsers.image_png_protochips_cfg import PNG_PROTOCHIPS_TO_NEXUS_CFG
+import hashlib
 
 
-def get_protochips_variadic_concept(png_metadata_tag) -> str:
-    """Get variadic protochips concept name to identify target NeXus concept name target."""
-    return None
+DEFAULT_CHECKSUM_ALGORITHM = "sha256"
+
+
+def get_sha256_of_file_content(file_hdl) -> str:
+    """Compute a hashvalue of given file, here SHA256."""
+    file_hdl.seek(0)
+    # Read and update hash string value in blocks of 4K
+    sha256_hash = hashlib.sha256()
+    for byte_block in iter(lambda: file_hdl.read(4096), b""):
+        sha256_hash.update(byte_block)
+    return str(sha256_hash.hexdigest())

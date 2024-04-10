@@ -18,7 +18,6 @@
 """Derived image class to derive every tech-partner-specific TIFF subparser from."""
 
 import mmap
-import numpy as np
 from typing import Dict
 from PIL import Image
 from PIL.TiffTags import TAGS
@@ -43,31 +42,29 @@ class TiffSubParser(ImgsBaseParser):
         """Check if resource behind self.file_path is a TaggedImageFormat file."""
         self.supported = 0  # voting-based
         # different tech partners may all generate tiff files but internally
-        # report completely different pieces of information
-        # the situation is the same as for HDF5 files
-        # for this reason specific parsers for specific tech partner content is required
-        # checking just on the file ending is in most cases never sufficient !
-        # checking the magic number is useful as it at least narrows down that one
-        # has a tiff container but like with every container you can pack into it
-        # almost whatever you want and unfortunately this is how tiff is used
-        # currently in the field of electron microscopy
-
-        # it is common practice to export single images from a microscope session
-        # using common image formats like png, jpg, tiff often with a scale bar
-        # hard-coded into the image
-        # although this is usual practice we argue this is not best practice at all
-        # better is to use tech partner file formats and at conferences and meetings
+        # report completely different pieces of information the situation is the same
+        # as for HDF5 files. Therefore, specific parsers for specific tech partner content
+        # is required, checking just on the file ending is in most cases never sufficient !
+        # Checking the magic number is useful as it can help with narrowing down that one
+        # has a specific type of container format. However, like it is the case with a
+        # container you can pack almost whatever into it. Unfortunately, this is how tiff
+        # is currently being used and the research field of electron microscopy makes
+        # no exception here. Indeed, it is a common practice to export single images
+        # from a microscope session using common image formats like png, jpg, tiff
+        # often with a scale bar hard-coded into the image.
+        # Although this is usual practice, we argue this is not best practice at all.
+        # Instead, use and develop tech-partner file formats and at conferences and meetings
         # speak up to convince the tech partners to offer documentation of the
-        # content of these file formats (ideally using semantic web technology)
-        # the more this happens and the more users articulate this one write software
-        # to support scientists with reading directly and more completely from the
-        # tech partner files. In effect, there is then less and less of a reason
+        # content of their file formats (ideally using semantic web technology).
+        # The more this happens and the more users articulate this need, one can
+        # write software to support scientists with reading directly and more completely
+        # from these tech partner files. In effect, there is then less and less of a reason
         # to manually export files and share them ad hoc like single tiff images.
         # Rather try to think about a mindset change and ask yourself:
         # Can I not just show this content to my colleagues in the research
         # data management system directly instead of copying over files that in the
         # process of manually exporting them get cut off from their contextualization
-        # unless one is super careful and spents time on writing super rich metadata !
+        # and unless I am then super careful and spent time with writing rich metadata?
         # Most tech partners by now have file formats with indeed very rich metadata.
         # Our conviction is that these should be used and explored more frequently.
         # Exactly for this reason we provided an example for the differences
@@ -82,16 +79,16 @@ class TiffSubParser(ImgsBaseParser):
             else:
                 self.supported = False
 
-    def get_tags(self):
+    def get_tags(self, verbose: bool = False):
         """Extract tags if present."""
         print("Reporting the tags found in this TIFF file...")
         # for an overview of tags
         # https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
-        pass
-        # with Image.open(self.file_path, mode="r") as fp:
-        #     self.tags = {TAGS[key] : fp.tag[key] for key in fp.tag_v2}
-        #     for key, val in self.tags.items():
-        #         print(f"{key}, {val}")
+        if verbose:
+            with Image.open(self.file_path, mode="r") as fp:
+                self.tags = {TAGS[key]: fp.tag[key] for key in fp.tag_v2}
+                for key, val in self.tags.items():
+                    print(f"{key}, {val}")
 
     def parse_and_normalize(self):
         """Perform actual parsing filling cache self.tmp."""

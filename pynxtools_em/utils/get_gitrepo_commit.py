@@ -15,22 +15,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Utilities for working with TFS/FEI-specific concepts."""
+"""Get (last) commit of the git repository."""
 
-from numpy import pi
+import os
+from subprocess import CalledProcessError, run
 
 
-def get_nexus_value(modifier, qnt_name, metadata: dict):
-    """Interpret a functional mapping and modifier on qnt_name loaded from metadata."""
-    if qnt_name in metadata.keys():
-        if modifier == "load_from":
-            return metadata[qnt_name]
-        elif modifier == "load_from_rad_to_deg":
-            if qnt_name in metadata.keys():
-                return metadata[qnt_name] / pi * 180.0
-        elif modifier == "load_from_lower_case":
-            if isinstance(metadata[qnt_name], str):
-                return metadata[qnt_name].lower()
-            return None
-    else:
+def get_repo_last_commit() -> str:
+    """Identify the last commit to the repository."""
+    try:
+        return (
+            run(
+                ["git", "describe", "--always"],
+                cwd=os.getcwd(),
+                check=True,
+                capture_output=True,
+            )
+            .stdout.decode("utf-8")
+            .strip()
+        )
+    except (FileNotFoundError, CalledProcessError):
         return None

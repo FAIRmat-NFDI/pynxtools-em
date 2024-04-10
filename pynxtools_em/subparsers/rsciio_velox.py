@@ -26,17 +26,16 @@ from rsciio import emd
 from ase.data import chemical_symbols
 
 from pynxtools_em.subparsers.rsciio_base import RsciioBaseParser
-from pynxtools_em.utils.rsciio_hyperspy_utils import (
+from pynxtools_em.utils.rsciio_hspy_utils import (
     get_named_axis,
     get_axes_dims,
     get_axes_units,
 )
-from pynxtools_em.shared.shared_utils import (
+from pynxtools_em.utils.get_file_checksum import (
     get_sha256_of_file_content,
     DEFAULT_CHECKSUM_ALGORITHM,
 )
-from pynxtools_em.subparsers.rsciio_velox_concepts import (
-    VELOX_EXEMPLAR_SELECTION_TO_NX_EM,
+from pynxtools_em.config.rsciio_velox_cfg import (
     VELOX_ENTRY_TO_NX_EM,
     VELOX_EBEAM_STATIC_TO_NX_EM,
     VELOX_FABRICATION_TO_NX_EM,
@@ -47,7 +46,10 @@ from pynxtools_em.subparsers.rsciio_velox_concepts import (
     VELOX_EBEAM_DYNAMIC_TO_NX_EM,
 )
 from pynxtools_em.utils.string_conversions import string_to_number
-from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
+from pynxtools_em.concepts.concept_mapper import (
+    variadic_path_to_specific_path,
+    add_specific_metadata,
+)
 
 REAL_SPACE = 0
 COMPLEX_SPACE = 1
@@ -66,7 +68,7 @@ def all_req_keywords_in_dict(dct: dict, keywords: list) -> bool:
 class RsciioVeloxSubParser(RsciioBaseParser):
     """Read Velox EMD File Format emd."""
 
-    def __init__(self, entry_id: int = 1, file_path: str = "", verbose=False):
+    def __init__(self, entry_id: int = 1, file_path: str = "", verbose: bool = False):
         super().__init__(file_path)
         if entry_id > 0:
             self.entry_id = entry_id
@@ -90,7 +92,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
             "Core/MetadataSchemaVersion": None,
         }
         self.obj_idx_supported: List = []
-        self.supported = True
+        self.supported = False
         self.verbose = verbose
         self.check_if_supported()
 
@@ -136,7 +138,9 @@ class RsciioVeloxSubParser(RsciioBaseParser):
             ):  # there is at least some supported content
                 self.supported = True
             else:
-                print(f"WARNING {self.file_path} has not supported content !")
+                print(
+                    f"Parser {__class__.__name__} finds no content in {self.file_path} that it supports"
+                )
         except IOError:
             print(f"Loading {self.file_path} using {self.__name__} is not supported !")
 
@@ -258,120 +262,18 @@ class RsciioVeloxSubParser(RsciioBaseParser):
 
         return "n/a"
 
-    def add_specific_metadata(
-        self,
-        concept_mapping: dict,
-        orgmeta: fd.FlatDict,
-        identifier: list,
-        template: dict,
-    ) -> dict:
-        """Map specific concept instance data from Velox to NeXus NXem."""
-        variadic_prefix = concept_mapping["prefix"]
-        if "use" in concept_mapping:
-            for entry in concept_mapping["use"]:
-                if isinstance(entry, tuple):
-                    trg = variadic_path_to_specific_path(
-                        f"{variadic_prefix}/{entry[0]}", identifier
-                    )
-                    template[f"{trg}"] = entry[1]
-        if "load_from" in concept_mapping:
-            for entry in concept_mapping["load_from"]:
-                if isinstance(entry, tuple):
-                    if entry[1] not in orgmeta:
-                        continue
-                    trg = variadic_path_to_specific_path(
-                        f"{variadic_prefix}/{entry[0]}", identifier
-                    )
-                    template[f"{trg}"] = orgmeta[entry[1]]
-        if "map_to_real" in concept_mapping:
-            for entry in concept_mapping["map_to_real"]:
-                if isinstance(entry, tuple):
-                    if isinstance(entry[1], str):
-                        if entry[1] not in orgmeta:
-                            continue
-                        trg = variadic_path_to_specific_path(
-                            f"{variadic_prefix}/{entry[0]}", identifier
-                        )
-                        # rosettasciio stores most Velox original metadata as string
-                        # but this is incorrect for numerical values if stored as string
-                        # here that would at the latest throw in the dataconverter
-                        # validation
-                        template[f"{trg}"] = string_to_number(orgmeta[entry[1]])
-                    elif isinstance(entry[1], list):
-                        if not all(
-                            (isinstance(value, str) and value in orgmeta)
-                            for value in entry[1]
-                        ):
-                            continue
-                        trg = variadic_path_to_specific_path(
-                            f"{variadic_prefix}/{entry[0]}", identifier
-                        )
-                        res = []
-                        for value in entry[1]:
-                            res.append(string_to_number(orgmeta[value]))
-                        template[f"{trg}"] = np.asarray(res, np.float64)
-        if "map_to_real_and_multiply" in concept_mapping:
-            for entry in concept_mapping["map_to_real_and_multiply"]:
-                if isinstance(entry, tuple) and len(entry) == 3:
-                    if isinstance(entry[1], str) and isinstance(entry[2], float):
-                        if entry[1] not in orgmeta:
-                            continue
-                        trg = variadic_path_to_specific_path(
-                            f"{variadic_prefix}/{entry[0]}", identifier
-                        )
-                        # Velox stores BeamConvergence but is this the full angle or the half i.e. semi angle?
-                        # if entry[2] == 1. we assume BeamConvergence is the semi_convergence_angle
-                        template[f"{trg}"] = entry[2] * string_to_number(
-                            orgmeta[entry[1]]
-                        )
-        if "unix_to_iso8601" in concept_mapping:
-            for entry in concept_mapping["unix_to_iso8601"]:
-                trg = variadic_path_to_specific_path(
-                    f"{variadic_prefix}/{entry[0]}", identifier
-                )
-                if isinstance(entry[1], str):
-                    if entry[1] not in orgmeta:
-                        continue
-                    template[f"{trg}"] = datetime.fromtimestamp(
-                        int(orgmeta[entry[1]]), tz=pytz.timezone("UTC")
-                    ).isoformat()
-                    # TODO::is this really a UNIX timestamp, what about the timezone?
-                    # no E. Spiecker's example shows clearly these remain tz-naive timestamps
-                    # e.g. 1340_Camera_Ceta_440_kx.emd was collect 2024/04/05 in Erlangen
-                    # but shows GMT time zone which is incorrect, problem only unix timestamp
-                    # reported by Velox
-                    # but for the hyperspy relevant metadata rosettasciio identifies
-                    # General/date: 2024-04-05, General/time: 13:40:20, General/time_zone: CEST
-                    # needs clarification from scientists !
-        if "join_str" in concept_mapping:
-            for entry in concept_mapping["join_str"]:
-                trg = variadic_path_to_specific_path(
-                    f"{variadic_prefix}/{entry[0]}", identifier
-                )
-                if isinstance(entry[1], list):
-                    if not all(
-                        (isinstance(value, str) and value in orgmeta)
-                        for value in entry[1]
-                    ):
-                        continue
-                    res = []
-                    for value in entry[1]:
-                        res.append(orgmeta[value])
-                    template[f"{trg}"] = " ".join(res)
-        return template
-
     def add_entry_header(
         self, orgmeta: fd.FlatDict, identifier: list, template: dict
     ) -> dict:
         """Map entry-specific metadata on NXem instance."""
-        self.add_specific_metadata(VELOX_ENTRY_TO_NX_EM, orgmeta, identifier, template)
+        add_specific_metadata(VELOX_ENTRY_TO_NX_EM, orgmeta, identifier, template)
         return template
 
     def add_ebeam_static(
         self, orgmeta: fd.FlatDict, identifier: list, template: dict
     ) -> dict:
         """Map em_lab ebeam."""
-        self.add_specific_metadata(
+        add_specific_metadata(
             VELOX_EBEAM_STATIC_TO_NX_EM, orgmeta, identifier, template
         )
         return template
@@ -380,42 +282,38 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         self, orgmeta: fd.FlatDict, identifier: list, template: dict
     ) -> dict:
         """Map fabrication-specific metadata on NXem instance"""
-        self.add_specific_metadata(
-            VELOX_FABRICATION_TO_NX_EM, orgmeta, identifier, template
-        )
+        add_specific_metadata(VELOX_FABRICATION_TO_NX_EM, orgmeta, identifier, template)
         return template
 
     def add_scan(self, orgmeta: fd.FlatDict, identifier: list, template: dict) -> dict:
         """Map scan-specific metadata on NXem instance."""
-        self.add_specific_metadata(VELOX_SCAN_TO_NX_EM, orgmeta, identifier, template)
+        add_specific_metadata(VELOX_SCAN_TO_NX_EM, orgmeta, identifier, template)
         return template
 
     def add_optics(
         self, orgmeta: fd.FlatDict, identifier: list, template: dict
     ) -> dict:
         """Map optics-specific metadata on NXem instance."""
-        self.add_specific_metadata(VELOX_OPTICS_TO_NX_EM, orgmeta, identifier, template)
+        add_specific_metadata(VELOX_OPTICS_TO_NX_EM, orgmeta, identifier, template)
         return template
 
     def add_stage(self, orgmeta: fd.FlatDict, identifier: list, template: dict) -> dict:
         """Map optics-specific metadata on NXem instance."""
-        self.add_specific_metadata(VELOX_STAGE_TO_NX_EM, orgmeta, identifier, template)
+        add_specific_metadata(VELOX_STAGE_TO_NX_EM, orgmeta, identifier, template)
         return template
 
     def add_various_dynamic(
         self, orgmeta: fd.FlatDict, identifier: list, template: dict
     ) -> dict:
         """Map optics-specific metadata on NXem instance."""
-        self.add_specific_metadata(
-            VELOX_DYNAMIC_TO_NX_EM, orgmeta, identifier, template
-        )
+        add_specific_metadata(VELOX_DYNAMIC_TO_NX_EM, orgmeta, identifier, template)
         return template
 
     def add_ebeam_dynamic(
         self, orgmeta: fd.FlatDict, identifier: list, template: dict
     ) -> dict:
         """Map optics-specific metadata on NXem instance."""
-        self.add_specific_metadata(
+        add_specific_metadata(
             VELOX_EBEAM_DYNAMIC_TO_NX_EM, orgmeta, identifier, template
         )
         return template
