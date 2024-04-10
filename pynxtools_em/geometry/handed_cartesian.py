@@ -17,8 +17,6 @@
 #
 """Definitions for right- or left-handed Cartesian coordinate systems."""
 
-# pylint: disable=no-member
-
 # a coordinate system can be defined using an instance of a custom schema
 # with a set of sets of RadioEditButtons, each set can be used to define the
 # unique orientation of a right-handed Cartesian coordinate system's base vectors when

@@ -26,7 +26,7 @@ from typing import Dict, List
 from PIL import Image
 from zipfile import ZipFile
 
-from pynxtools_em.subparsers.image_png_protochips_cfg import (
+from pynxtools_em.config.image_png_protochips_cfg import (
     AXON_DETECTOR_STATIC_TO_NX_EM,
     AXON_STAGE_STATIC_TO_NX_EM,
     AXON_CHIP_DYNAMIC_TO_NX_EM,
@@ -34,13 +34,11 @@ from pynxtools_em.subparsers.image_png_protochips_cfg import (
     AXON_VARIOUS_DYNAMIC_TO_NX_EM,
     PNG_PROTOCHIPS_TO_NEXUS_CFG,
 )
-from pynxtools_em.shared.mapping_functors import (
-    variadic_path_to_specific_path,
-)
+from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
 from pynxtools_em.subparsers.image_png_protochips_modifier import get_nexus_value
 from pynxtools_em.subparsers.image_base import ImgsBaseParser
 from pynxtools_em.utils.xml_utils import flatten_xml_to_dict
-from pynxtools_em.shared.shared_utils import (
+from pynxtools_em.utils.get_file_checksum import (
     get_sha256_of_file_content,
     DEFAULT_CHECKSUM_ALGORITHM,
 )
