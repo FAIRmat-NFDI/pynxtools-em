@@ -21,12 +21,12 @@ import flatdict as fd
 import yaml
 
 
-from pynxtools_em.config.em_example_eln_to_nx_map import (
+from pynxtools_em.config.eln_cfg import (
     EM_EXAMPLE_ENTRY_TO_NEXUS,
     EM_EXAMPLE_SAMPLE_TO_NEXUS,
     EM_EXAMPLE_USER_TO_NEXUS,
 )
-from pynxtools_em.shared.mapping_functors import variadic_path_to_specific_path
+from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
 
 
 class NxEmNomadOasisElnSchemaParser:
@@ -59,7 +59,7 @@ class NxEmNomadOasisElnSchemaParser:
         src = "entry"
         identifier = [self.entry_id]
         if src in self.yml:
-            if isinstance(self.yml[src], dict):
+            if isinstance(self.yml[src], fd.FlatDict):
                 for key in self.yml[src]:
                     variadic_prefix = EM_EXAMPLE_ENTRY_TO_NEXUS["prefix"]
                     for entry in EM_EXAMPLE_ENTRY_TO_NEXUS["load_from"]:
@@ -69,7 +69,7 @@ class NxEmNomadOasisElnSchemaParser:
                             )
                             template[trg] = self.yml[src][entry]
                             break
-                        if isinstance(entry, tuple) and len(entry) == 2:
+                        elif isinstance(entry, tuple) and len(entry) == 2:
                             if key == entry[1]:
                                 trg = variadic_path_to_specific_path(
                                     f"{variadic_prefix}/{entry[0]}", identifier
@@ -83,7 +83,7 @@ class NxEmNomadOasisElnSchemaParser:
         src = "sample"
         identifier = [self.entry_id]
         if src in self.yml:
-            if isinstance(self.yml[src], dict):
+            if isinstance(self.yml[src], fd.FlatDict):
                 for key in self.yml[src]:
                     variadic_prefix = EM_EXAMPLE_SAMPLE_TO_NEXUS["prefix"]
                     for entry in EM_EXAMPLE_SAMPLE_TO_NEXUS["load_from"]:
@@ -93,7 +93,7 @@ class NxEmNomadOasisElnSchemaParser:
                             )
                             template[trg] = self.yml[src][entry]
                             break
-                        if isinstance(entry, tuple) and len(entry) == 2:
+                        elif isinstance(entry, tuple) and len(entry) == 2:
                             if key == entry[1]:
                                 trg = variadic_path_to_specific_path(
                                     f"{variadic_prefix}/{entry[0]}", identifier
@@ -118,15 +118,20 @@ class NxEmNomadOasisElnSchemaParser:
                         for key in user_dict:
                             if key != "orcid":
                                 for entry in EM_EXAMPLE_USER_TO_NEXUS["load_from"]:
-                                    if isinstance(entry, tuple) and len(entry) == 2:
+                                    if isinstance(entry, str) and key == entry:
+                                        trg = variadic_path_to_specific_path(
+                                            f"{variadic_prefix}/{entry}", identifier
+                                        )
+                                        template[trg] = user_dict[entry]
+                                        break
+                                    elif isinstance(entry, tuple) and len(entry) == 2:
                                         if key == entry[1]:
                                             trg = variadic_path_to_specific_path(
                                                 f"{variadic_prefix}/{entry[0]}",
                                                 identifier,
                                             )
-                                            # res = apply_modifier(modifier, user_dict)
                                             template[trg] = user_dict[entry[1]]
-                                            break  # key found
+                                            break
                             else:
                                 trg = variadic_path_to_specific_path(
                                     f"{variadic_prefix}", identifier

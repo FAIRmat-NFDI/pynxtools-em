@@ -17,8 +17,6 @@
 #
 """Utilities for defining NXcoordinate_system(_set) and NXtransformation instances."""
 
-# pylint: disable=no-member
-
 NxEmConventions = {
     "/ENTRY[entry*]/EM_CONVENTIONS[em_conventions]/OBJECT[rotation_conventions]/axis_angle_convention": "undefined",
     "/ENTRY[entry*]/EM_CONVENTIONS[em_conventions]/OBJECT[rotation_conventions]/euler_angle_convention": "undefined",

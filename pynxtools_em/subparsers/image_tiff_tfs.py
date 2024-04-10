@@ -28,14 +28,21 @@ from pynxtools_em.subparsers.image_tiff_tfs_concepts import (
     get_fei_parent_concepts,
     get_fei_childs,
 )
-from pynxtools_em.subparsers.image_tiff_tfs_cfg import TIFF_TFS_TO_NEXUS_CFG
+from pynxtools_em.config.image_tiff_tfs_cfg import (
+    TFS_APERTURE_STATIC_TO_NX_EM,
+    TFS_DETECTOR_STATIC_TO_NX_EM,
+    TFS_VARIOUS_STATIC_TO_NX_EM,
+    TFS_OPTICS_DYNAMIC_TO_NX_EM,
+    TFS_STAGE_DYNAMIC_TO_NX_EM,
+    TFS_SCAN_DYNAMIC_TO_NX_EM,
+    TFS_VARIOUS_DYNAMIC_TO_NX_EM,
+    TIFF_TFS_TO_NEXUS_CFG,
+)
 from pynxtools_em.utils.image_utils import (
     sort_ascendingly_by_second_argument,
     if_str_represents_float,
 )
-from pynxtools_em.shared.mapping_functors import (
-    variadic_path_to_specific_path,
-)
+from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
 from pynxtools_em.subparsers.image_tiff_tfs_modifier import get_nexus_value
 
 
@@ -70,7 +77,9 @@ class TfsTiffSubParser(TiffSubParser):
         if self.supported == 2:
             self.supported = True
         else:
-            self.supported = False
+            print(
+                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+            )
 
     def get_metadata(self):
         """Extract metadata in TFS specific tags if present."""

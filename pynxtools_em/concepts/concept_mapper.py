@@ -17,11 +17,12 @@
 #
 """Utilities for working with NeXus concepts encoded as Python dicts in the concepts dir."""
 
-# pylint: disable=no-member
-
-import pytz
-
 from datetime import datetime
+import pytz
+import flatdict as fd
+import numpy as np
+
+from pynxtools_em.utils.string_conversions import string_to_number
 
 
 def load_from_modifier(terms, fd_dct):
@@ -83,25 +84,14 @@ def apply_modifier(modifier, dct: dict):
                 return load_from_modifier(modifier["terms"], dct)
             if modifier["fun"] == "convert_iso8601":
                 return convert_iso8601_modifier(modifier["terms"], dct)
-        elif set(["link"]) == set(modifier.keys()):
-            # CURRENTLY NOT IMPLEMENTED
-            # with the jsonmap reader Sherjeel conceptualized "link"
-            return None
         else:
+            print(f"WARNING::Modifier {modifier} is currently not implemented !")
+            # elif set(["link"]) == set(modifier.keys())
+            # with the jsonmap reader Sherjeel conceptualized "link"
             return None
     if isinstance(modifier, str):
         return modifier
     return None
-
-
-# examples/tests how to use modifiers
-# modd = "µs"
-# modd = {"link": "some_link_to_somewhere"}
-# modd = {"fun": "load_from", "terms": "metadata/scan/scan_device_properties/mag_boards/MagBoard 1 DAC 11"}
-# modd = {"fun": "load_from", "terms": ["metadata/scan/scan_device_properties/mag_boards/MagBoard 1 DAC 11",
-#     "metadata/scan/scan_device_properties/mag_boards/MagBoard 1 Relay"]}
-# modd = {"fun": "convert_iso8601", "terms": ["data_modified", "timezone"]}
-# print(apply_modifier(modd, yml))
 
 
 def variadic_path_to_specific_path(path: str, instance_identifier: list):
@@ -120,3 +110,105 @@ def variadic_path_to_specific_path(path: str, instance_identifier: list):
                 nx_specific_path += f"{tmp[-1]}"
                 return nx_specific_path
     return None
+
+
+def add_specific_metadata(
+    concept_mapping: dict, orgmeta: fd.FlatDict, identifier: list, template: dict
+) -> dict:
+    """Map specific concept src on specific NeXus concept trg.
+
+    concept_mapping: translation dict how trg and src are to be mapped
+    orgmeta: instance data of src concepts
+    identifier: list of identifier to resolve variadic paths
+    template: instance data resulting from a resolved src to trg concept mapping
+    """
+    variadic_prefix = concept_mapping["prefix"]
+    if "use" in concept_mapping:
+        for entry in concept_mapping["use"]:
+            if isinstance(entry, tuple):
+                trg = variadic_path_to_specific_path(
+                    f"{variadic_prefix}/{entry[0]}", identifier
+                )
+                template[f"{trg}"] = entry[1]
+    if "load_from" in concept_mapping:
+        for entry in concept_mapping["load_from"]:
+            if isinstance(entry, tuple):
+                if entry[1] not in orgmeta:
+                    continue
+                trg = variadic_path_to_specific_path(
+                    f"{variadic_prefix}/{entry[0]}", identifier
+                )
+                template[f"{trg}"] = orgmeta[entry[1]]
+    if "map_to_real" in concept_mapping:
+        for entry in concept_mapping["map_to_real"]:
+            if isinstance(entry, tuple):
+                if isinstance(entry[1], str):
+                    if entry[1] not in orgmeta:
+                        continue
+                    trg = variadic_path_to_specific_path(
+                        f"{variadic_prefix}/{entry[0]}", identifier
+                    )
+                    # rosettasciio stores most Velox original metadata as string
+                    # but this is incorrect for numerical values if stored as string
+                    # here that would at the latest throw in the dataconverter
+                    # validation
+                    template[f"{trg}"] = string_to_number(orgmeta[entry[1]])
+                elif isinstance(entry[1], list):
+                    if not all(
+                        (isinstance(value, str) and value in orgmeta)
+                        for value in entry[1]
+                    ):
+                        continue
+                    trg = variadic_path_to_specific_path(
+                        f"{variadic_prefix}/{entry[0]}", identifier
+                    )
+                    res = []
+                    for value in entry[1]:
+                        res.append(string_to_number(orgmeta[value]))
+                    template[f"{trg}"] = np.asarray(res, np.float64)
+    if "map_to_real_and_multiply" in concept_mapping:
+        for entry in concept_mapping["map_to_real_and_multiply"]:
+            if isinstance(entry, tuple) and len(entry) == 3:
+                if isinstance(entry[1], str) and isinstance(entry[2], float):
+                    if entry[1] not in orgmeta:
+                        continue
+                    trg = variadic_path_to_specific_path(
+                        f"{variadic_prefix}/{entry[0]}", identifier
+                    )
+                    # Velox stores BeamConvergence but is this the full angle or the half i.e. semi angle?
+                    # if entry[2] == 1. we assume BeamConvergence is the semi_convergence_angle
+                    template[f"{trg}"] = entry[2] * string_to_number(orgmeta[entry[1]])
+    if "unix_to_iso8601" in concept_mapping:
+        for entry in concept_mapping["unix_to_iso8601"]:
+            trg = variadic_path_to_specific_path(
+                f"{variadic_prefix}/{entry[0]}", identifier
+            )
+            if isinstance(entry[1], str):
+                if entry[1] not in orgmeta:
+                    continue
+                template[f"{trg}"] = datetime.fromtimestamp(
+                    int(orgmeta[entry[1]]), tz=pytz.timezone("UTC")
+                ).isoformat()
+                # TODO::is this really a UNIX timestamp, what about the timezone?
+                # no E. Spiecker's example shows clearly these remain tz-naive timestamps
+                # e.g. 1340_Camera_Ceta_440_kx.emd was collect 2024/04/05 in Erlangen
+                # but shows GMT time zone which is incorrect, problem only unix timestamp
+                # reported by Velox
+                # but for the hyperspy relevant metadata rosettasciio identifies
+                # General/date: 2024-04-05, General/time: 13:40:20, General/time_zone: CEST
+                # needs clarification from scientists !
+    if "join_str" in concept_mapping:
+        for entry in concept_mapping["join_str"]:
+            trg = variadic_path_to_specific_path(
+                f"{variadic_prefix}/{entry[0]}", identifier
+            )
+            if isinstance(entry[1], list):
+                if not all(
+                    (isinstance(value, str) and value in orgmeta) for value in entry[1]
+                ):
+                    continue
+                res = []
+                for value in entry[1]:
+                    res.append(orgmeta[value])
+                template[f"{trg}"] = " ".join(res)
+    return template

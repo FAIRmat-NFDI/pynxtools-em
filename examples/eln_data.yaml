@@ -3,7 +3,7 @@ entry:
   start_time: 2024-04-08T11:11:11.000Z
 sample:
   method: experiment
-  atom_types: "Xe, Yb, Zn"
+  atom_types: Xe, Yb, Zn
   preparation_date: 2024-04-08T11:11:11.000Z
 user:
 - name: MarkusK

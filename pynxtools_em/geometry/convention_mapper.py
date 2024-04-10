@@ -17,10 +17,6 @@
 #
 """Parse conventions from an ELN schema instance."""
 
-# pylint: disable=no-member
-
-# ,duplicate-code
-
 from pynxtools_em.geometry.handed_cartesian import (
     REFERENCE_FRAMES,
     AXIS_DIRECTIONS,

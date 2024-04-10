@@ -31,8 +31,8 @@ import flatdict as fd
 import yaml
 
 
-from pynxtools_em.config.em_oasis_cfg_to_nx_map import EM_EXAMPLE_CSYS_TO_NEXUS
-from pynxtools_em.shared.mapping_functors import variadic_path_to_specific_path
+from pynxtools_em.config.oasis_cfg import EM_EXAMPLE_CSYS_TO_NEXUS
+from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
 
 
 class NxEmNomadOasisConfigurationParser:

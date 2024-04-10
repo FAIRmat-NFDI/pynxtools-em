@@ -19,20 +19,22 @@
 
 # pylint: disable=no-member,fixme
 
+from os import getcwd
 from time import perf_counter_ns
 from typing import Tuple, Any
 import numpy as np
 
 from pynxtools.dataconverter.readers.base.reader import BaseReader
-from pynxtools_em.utils.em_define_io_cases import (
+from pynxtools_em.utils.io_case_logic import (
     EmUseCaseSelector,
 )
 # from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
 ## from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
 
-# from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
+from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
+
 # from pynxtools_em.subparsers.nxs_nion import NxEmZippedNionProjectSubParser
-## from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
+from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
 ## from pynxtools_em.utils.default_plots import NxEmDefaultPlotResolver
 # from pynxtools_em.geometry.convention_mapper import NxEmConventionMapper
 
@@ -53,7 +55,7 @@ from pynxtools_em.utils.em_define_io_cases import (
 from pynxtools_em.subparsers.oasis_config_reader import (
     NxEmNomadOasisConfigurationParser,
 )
-from pynxtools_em.subparsers.eln_reader import NxEmNomadOasisElnSchemaParser
+from pynxtools_em.subparsers.oasis_eln_reader import NxEmNomadOasisElnSchemaParser
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 
 
@@ -95,80 +97,66 @@ class EMReader(BaseReader):
 
         print("Parse (meta)data coming from a configuration of an RDM...")
         if len(case.cfg) == 1:
+            # having or using a deployment-specific configuration is optional
             nx_em_cfg = NxEmNomadOasisConfigurationParser(case.cfg[0], entry_id)
             nx_em_cfg.report(template)
-            # print("--------------------------------------->")
-            # for keyword in template.keys():
-            #     print(keyword)
-            #     print(template[keyword])
-        # having or using a deployment-specific configuration is optional
 
         print("Parse (meta)data coming from an ELN...")
         if len(case.eln) == 1:
             nx_em_eln = NxEmNomadOasisElnSchemaParser(case.eln[0], entry_id)
             nx_em_eln.report(template)
-            # print("--------------------------------------->")
-            # for keyword in template.keys():
-            #     print(keyword)
-            #     print(template[keyword])
 
         print("Parse NeXus appdef-specific content...")
         nxs = NxEmAppDef()
         nxs.parse(template, entry_id, file_paths)
-        # print("--------------------------------------->")
-        # for keyword in template.keys():
-        #     print(keyword)
-        #     print(template[keyword])
 
         # print("Parse conventions of reference frames...")
         # conventions = NxEmConventionMapper(entry_id)
         # conventions.parse(template)
 
-        # print("Parse and map pieces of information within files from tech partners...")
-        # sub_parser = "nxs_mtex"
-        # subparser = NxEmNxsMTexSubParser(entry_id, file_paths[0])
-        # subparser.parse(template)
-        # TODO::check correct loop through!
+        print("Parse and map pieces of information within files from tech partners...")
+        if len(case.dat) == 1:
+            # sub_parser = "nxs_mtex"
+            # subparser = NxEmNxsMTexSubParser(entry_id, file_paths[0])
+            # subparser.parse(template)
+            # TODO::check correct loop through!
 
-        # add further with resolving cases
-        # if file_path is an HDF5 will use hfive parser
-        # sub_parser = "nxs_pyxem"
-        # subparser = NxEmNxsPyxemSubParser(entry_id, file_paths[0])
-        # subparser.parse(template)
-        # TODO::check correct loop through!
+            # add further with resolving cases
+            # if file_path is an HDF5 will use hfive parser
+            # sub_parser = "nxs_pyxem"
+            # subparser = NxEmNxsPyxemSubParser(entry_id, file_paths[0])
+            # subparser.parse(template)
+            # TODO::check correct loop through!
 
-        # sub_parser = "image_tiff"
-        # subparser = NxEmImagesSubParser(entry_id, file_paths[0])
-        # subparser.parse(template)
-        # TODO::check correct loop through!
+            images = NxEmImagesSubParser(entry_id, case.dat[0], verbose=False)
+            images.parse(template)
 
-        # sub_parser = "zipped_nion_project"
-        # subparser = NxEmZippedNionProjectSubParser(entry_id, file_paths[0])
-        # subparser.parse(template, verbose=True)
-        # TODO::check correct loop through!
+            # sub_parser = "zipped_nion_project"
+            # subparser = NxEmZippedNionProjectSubParser(entry_id, file_paths[0])
+            # subparser.parse(template, verbose=True)
+            # TODO::check correct loop through!
 
-        # sub_parser = "velox_emd"
-        # subparser = RsciioVeloxSubParser(entry_id, file_paths[0], verbose=False)
-        # subparser.parse(template)
+            velox = RsciioVeloxSubParser(entry_id, case.dat[0], verbose=False)
+            velox.parse(template)
 
-        # for dat_instance in case.dat_parser_type:
-        #     print(f"Process pieces of information in {dat_instance} tech partner file...")
-        #    continue
-        #    # elif case.dat_parser_type == "zip":
-        #    #     zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id)
-        #    #     zip_parser.parse(template)
-        #    # elif case.dat_parser_type == "dream3d":
-        #    #     dream_parser = NxEmOmDreamThreedEbsdParser(case.dat[0], entry_id)
-        #    #     dream_parser.parse(template)
-        #    # elif case.dat_parser_type == "kikuchipy":
-        #    # elif case.dat_parser_type == "pyxem":
-        #    # elif case.dat_parser_type == "score":
-        #    # elif case.dat_parser_type == "qube":
-        #    # elif case.dat_parser_type == "paradis":
-        #    # elif case.dat_parser_type == "brinckmann":
-        # at this point the data for the default plots should already exist
-        # we only need to decorate the template to point to the mandatory ROI overview
-        # print("Create NeXus default plottable data...")
+            # for dat_instance in case.dat_parser_type:
+            #     print(f"Process pieces of information in {dat_instance} tech partner file...")
+            #    continue
+            #    # elif case.dat_parser_type == "zip":
+            #    #     zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id)
+            #    #     zip_parser.parse(template)
+            #    # elif case.dat_parser_type == "dream3d":
+            #    #     dream_parser = NxEmOmDreamThreedEbsdParser(case.dat[0], entry_id)
+            #    #     dream_parser.parse(template)
+            #    # elif case.dat_parser_type == "kikuchipy":
+            #    # elif case.dat_parser_type == "pyxem":
+            #    # elif case.dat_parser_type == "score":
+            #    # elif case.dat_parser_type == "qube":
+            #    # elif case.dat_parser_type == "paradis":
+            #    # elif case.dat_parser_type == "brinckmann":
+            # at this point the data for the default plots should already exist
+            # we only need to decorate the template to point to the mandatory ROI overview
+            # print("Create NeXus default plottable data...")
         # em_default_plot_generator(template, 1)
 
         # run_block = False
@@ -186,13 +174,12 @@ class EMReader(BaseReader):
         if debugging:
             print("Reporting state of template before passing to HDF5 writing...")
             for keyword in template.keys():
-                print(keyword)
-                print(template[keyword])
+                print(f"{keyword}: {template[keyword]}")
 
         print("Forward instantiated template to the NXS writer...")
         toc = perf_counter_ns()
         trg = f"/ENTRY[entry{entry_id}]/profiling"
-        # TODO remove # template[f"{trg}/@NX_class"] = "NXcs_profiling"
+        template[f"{trg}/current_working_directory"] = getcwd()
         template[f"{trg}/template_filling_elapsed_time"] = np.float64(
             (toc - tic) / 1.0e9
         )
