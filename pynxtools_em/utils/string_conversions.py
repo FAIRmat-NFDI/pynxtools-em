@@ -40,3 +40,9 @@ def string_to_number(arg: str):
 # str_val = "-2.000000001"
 # str_val = "test"
 # print(f"{string_to_number(str_val)}, {type(string_to_number(str_val))}")
+
+
+def rchop(s, suffix):
+    if suffix and s.endswith(suffix):
+        return s[: -len(suffix)]
+    return s

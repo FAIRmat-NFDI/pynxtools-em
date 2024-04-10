@@ -17,7 +17,7 @@
 #
 """Implement NeXus-specific groups and fields to document software and versions used."""
 
-from pynxtools_em.shared.mapping_functors import variadic_path_to_specific_path
+from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
 
 
 PYNXTOOLS_EM_VERSION = "Redundant, see metadata in NXroot header"
