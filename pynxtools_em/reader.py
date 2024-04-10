@@ -25,7 +25,7 @@ from typing import Tuple, Any
 import numpy as np
 
 from pynxtools.dataconverter.readers.base.reader import BaseReader
-from pynxtools_em.utils.em_define_io_cases import (
+from pynxtools_em.utils.io_case_logic import (
     EmUseCaseSelector,
 )
 # from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
@@ -55,7 +55,7 @@ from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
 from pynxtools_em.subparsers.oasis_config_reader import (
     NxEmNomadOasisConfigurationParser,
 )
-from pynxtools_em.subparsers.eln_reader import NxEmNomadOasisElnSchemaParser
+from pynxtools_em.subparsers.oasis_eln_reader import NxEmNomadOasisElnSchemaParser
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 
 

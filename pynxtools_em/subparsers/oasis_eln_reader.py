@@ -21,12 +21,12 @@ import flatdict as fd
 import yaml
 
 
-from pynxtools_em.config.em_example_eln_to_nx_map import (
+from pynxtools_em.config.eln_cfg import (
     EM_EXAMPLE_ENTRY_TO_NEXUS,
     EM_EXAMPLE_SAMPLE_TO_NEXUS,
     EM_EXAMPLE_USER_TO_NEXUS,
 )
-from pynxtools_em.shared.mapping_functors import variadic_path_to_specific_path
+from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
 
 
 class NxEmNomadOasisElnSchemaParser:

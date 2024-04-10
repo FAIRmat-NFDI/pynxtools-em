@@ -17,8 +17,6 @@
 #
 """Definitions for different conventions associated with Euler angles."""
 
-# pylint: disable=no-member
-
 # Euler angles are a parameterization for orientations which use three
 # consecutively rotations (3D) rotations to rotate a configuration
 # described by an attached Cartesian CS na(False, "", ""),         "", ""),med A into configuration

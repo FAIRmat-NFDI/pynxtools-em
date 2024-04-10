@@ -28,7 +28,7 @@ from pynxtools_em.subparsers.image_tiff_tfs_concepts import (
     get_fei_parent_concepts,
     get_fei_childs,
 )
-from pynxtools_em.subparsers.image_tiff_tfs_cfg import (
+from pynxtools_em.config.image_tiff_tfs_cfg import (
     TFS_APERTURE_STATIC_TO_NX_EM,
     TFS_DETECTOR_STATIC_TO_NX_EM,
     TFS_VARIOUS_STATIC_TO_NX_EM,
@@ -42,9 +42,7 @@ from pynxtools_em.utils.image_utils import (
     sort_ascendingly_by_second_argument,
     if_str_represents_float,
 )
-from pynxtools_em.shared.mapping_functors import (
-    variadic_path_to_specific_path,
-)
+from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
 from pynxtools_em.subparsers.image_tiff_tfs_modifier import get_nexus_value
 
 

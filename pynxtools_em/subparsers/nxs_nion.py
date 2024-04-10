@@ -36,12 +36,13 @@ from pynxtools_em.utils.nion_utils import uuid_to_file_name
 #     import get_list_of_dimension_scale_axes
 # from pynxtools_em.utils.swift_display_items_to_nx \
 #     import nexus_concept_dict, identify_nexus_concept_key
-# from pynxtools_em.shared.mapping_functors \
+# from pynxtools_em.concepts.concept_mapper \
 #    import apply_modifier, variadic_path_to_specific_path
 # from pynxtools_em.swift_to_nx_image_real_space \
 #    import NxImageRealSpaceDict
-from pynxtools_em.shared.shared_utils import (
+from pynxtools_em.utils.get_file_checksum import (
     get_sha256_of_file_content,
+    DEFAULT_CHECKSUM_ALGORITHM,
 )
 
 
