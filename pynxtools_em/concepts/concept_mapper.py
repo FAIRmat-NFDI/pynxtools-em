@@ -135,8 +135,8 @@ def add_specific_metadata(
                     f"{variadic_prefix_trg}/{entry[0]}", identifier
                 )
                 template[f"{trg}"] = entry[1]
-    if "load_from" in concept_mapping:
-        for entry in concept_mapping["load_from"]:
+    if "load" in concept_mapping:
+        for entry in concept_mapping["load"]:
             if isinstance(entry, tuple):
                 if entry[1] not in orgmeta:
                     continue

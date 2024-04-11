@@ -62,7 +62,7 @@ class NxEmNomadOasisElnSchemaParser:
             if isinstance(self.yml[src], fd.FlatDict):
                 for key in self.yml[src]:
                     variadic_prefix = EM_EXAMPLE_ENTRY_TO_NEXUS["prefix"]
-                    for entry in EM_EXAMPLE_ENTRY_TO_NEXUS["load_from"]:
+                    for entry in EM_EXAMPLE_ENTRY_TO_NEXUS["load"]:
                         if isinstance(entry, str) and key == entry:
                             trg = variadic_path_to_specific_path(
                                 f"{variadic_prefix}/{entry}", identifier
@@ -86,7 +86,7 @@ class NxEmNomadOasisElnSchemaParser:
             if isinstance(self.yml[src], fd.FlatDict):
                 for key in self.yml[src]:
                     variadic_prefix = EM_EXAMPLE_SAMPLE_TO_NEXUS["prefix"]
-                    for entry in EM_EXAMPLE_SAMPLE_TO_NEXUS["load_from"]:
+                    for entry in EM_EXAMPLE_SAMPLE_TO_NEXUS["load"]:
                         if isinstance(entry, str) and key == entry:
                             trg = variadic_path_to_specific_path(
                                 f"{variadic_prefix}/{entry}", identifier
@@ -117,7 +117,7 @@ class NxEmNomadOasisElnSchemaParser:
                         variadic_prefix = EM_EXAMPLE_USER_TO_NEXUS["prefix"]
                         for key in user_dict:
                             if key != "orcid":
-                                for entry in EM_EXAMPLE_USER_TO_NEXUS["load_from"]:
+                                for entry in EM_EXAMPLE_USER_TO_NEXUS["load"]:
                                     if isinstance(entry, str) and key == entry:
                                         trg = variadic_path_to_specific_path(
                                             f"{variadic_prefix}/{entry}", identifier

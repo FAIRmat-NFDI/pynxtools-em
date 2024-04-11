@@ -21,10 +21,10 @@
 #   prefix is the (variadic prefix to be add to every path on the target side)
 #   different modifiers are used
 #       "use": list of pair of trg, src endpoint, take the value in src copy into trg
-#       "load_from": list of single value or pair (trg, src)
+#       "load": list of single value or pair (trg, src)
 #           if single value this means that the endpoint of trg and src is the same
 #           e.g. in the example below "name" means
-#           ("/ENTRY[entry*]/USER[user*]/name, "load_from", "name")
+#           ("/ENTRY[entry*]/USER[user*]/name, "load", "name")
 #           if pair load the value pointed to by src and copy into trg
 
 import flatdict as fd
@@ -72,7 +72,7 @@ class NxEmNomadOasisConfigurationParser:
                         identifier = [self.entry_id, csys_id]
                         variadic_prefix = EM_EXAMPLE_CSYS_TO_NEXUS["prefix"]
                         for key in csys_dict:
-                            for entry in EM_EXAMPLE_CSYS_TO_NEXUS["load_from"]:
+                            for entry in EM_EXAMPLE_CSYS_TO_NEXUS["load"]:
                                 if isinstance(entry, str):
                                     if key == entry:
                                         trg = variadic_path_to_specific_path(

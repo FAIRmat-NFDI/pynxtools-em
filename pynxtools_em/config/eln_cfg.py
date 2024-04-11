@@ -21,21 +21,24 @@
 #   prefix is the (variadic prefix to be add to every path on the target side)
 #   different modifiers are used
 #       "use": list of pair of trg, src endpoint, take the value in src copy into trg
-#       "load_from": list of single value or pair (trg, src)
+#       "load": list of single value or pair (trg, src)
 #           if single value this means that the endpoint of trg and src is the same
 #           e.g. in the example below "name" means
-#           ("/ENTRY[entry*]/USER[user*]/name, "load_from", "name")
+#           ("/ENTRY[entry*]/USER[user*]/name, "load", "name")
 #           if pair load the value pointed to by src and copy into trg
+#       difference between load and map_to is that load assumes no e.g. string to real
+#       conversion is required while map_does not assume this
+#       and instead does the conversion also
 
 EM_EXAMPLE_ENTRY_TO_NEXUS = {
     "prefix": "/ENTRY[entry*]",
-    "load_from": ["experiment_alias", "start_time"],
+    "load": ["experiment_alias", "start_time"],
 }
 
 
 EM_EXAMPLE_SAMPLE_TO_NEXUS = {
     "prefix": "/ENTRY[entry*]/sample",
-    "load_from": ["method", "atom_types", "preparation_date"],
+    "load": ["method", "atom_types", "preparation_date"],
 }
 
 
@@ -46,7 +49,7 @@ EM_EXAMPLE_USER_TO_NEXUS = {
         ("IDENTIFIER[identifier]/service", "orcid"),
         ("IDENTIFIER[identifier]/is_persistent", False),
     ],
-    "load_from": [
+    "load": [
         "name",
         "affiliation",
         "address",
