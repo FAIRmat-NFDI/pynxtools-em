@@ -31,8 +31,8 @@
 # of the same concept Projector*Lens<term> in NeXus this would become lens_em1(NXlens_em) name: projector, and field named <term>
 
 # ("/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/LENS_EM[lens_em*]/name", "is", "C1"),
-# ("/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/LENS_EM[lens_em*]/value", "load_from", "Optics/C1LensIntensity"),
-# ("/ENTRY[entry*]/", "load_from", "Optics/C2LensIntensity")
+# ("/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/LENS_EM[lens_em*]/value", "load", "Optics/C1LensIntensity"),
+# ("/ENTRY[entry*]/", "load", "Optics/C2LensIntensity")
 # this can not work but has to be made explicit with an own function that is Velox MetadataSchema-version and NeXus NXem-schema-version-dependent for the lenses
 
 VELOX_ENTRY_TO_NX_EM = {
@@ -43,20 +43,20 @@ VELOX_ENTRY_TO_NX_EM = {
             "Not reported in original_metadata parsed from Velox EMD using rosettasciio",
         )
     ],
-    "load_from": [("program/@version", "Instrument/ControlSoftwareVersion")],
+    "load": [("program/@version", "Instrument/ControlSoftwareVersion")],
 }
 
 
 VELOX_EBEAM_STATIC_TO_NX_EM = {
     "prefix": "/ENTRY[entry*]/measurement/em_lab/EBEAM_COLUMN[ebeam_column]/electron_source",
     "use": [("probe", "electron")],
-    "load_from": [("emitter_type", "Acquisition/SourceType")],
+    "load": [("emitter_type", "Acquisition/SourceType")],
 }
 
 
 VELOX_FABRICATION_TO_NX_EM = {
     "prefix": "/ENTRY[entry*]/measurement/em_lab/FABRICATION[fabrication]",
-    "load_from": [
+    "load": [
         ("identifier", "Instrument/InstrumentId"),
         ("model", "Instrument/InstrumentModel"),
         ("vendor", "Instrument/Manufacturer"),

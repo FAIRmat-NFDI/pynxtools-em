@@ -24,7 +24,7 @@
 
 EM_EXAMPLE_CSYS_TO_NEXUS = {
     "prefix": "/ENTRY[entry*]/coordinate_system_set/COORDINATE_SYSTEM[coordinate_system*]",
-    "load_from": [
+    "load": [
         "alias",
         "type",
         "handedness",

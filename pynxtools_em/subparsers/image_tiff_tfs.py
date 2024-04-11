@@ -37,14 +37,12 @@ from pynxtools_em.config.image_tiff_tfs_cfg import (
     TFS_STAGE_DYNAMIC_TO_NX_EM,
     TFS_SCAN_DYNAMIC_TO_NX_EM,
     TFS_VARIOUS_DYNAMIC_TO_NX_EM,
-    TIFF_TFS_TO_NEXUS_CFG,
 )
 from pynxtools_em.utils.image_utils import (
     sort_ascendingly_by_second_argument,
     if_str_represents_float,
 )
-from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path, add_specific_metadata
-from pynxtools_em.subparsers.image_tiff_tfs_modifier import get_nexus_value
+from pynxtools_em.concepts.concept_mapper import add_specific_metadata
 
 
 class TfsTiffSubParser(TiffSubParser):
@@ -257,37 +255,51 @@ class TfsTiffSubParser(TiffSubParser):
 
     def add_aperture_static_metadata(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(TFS_APERTURE_STATIC_TO_NX_EM, self.tmp["meta"], identifier, template)
+        add_specific_metadata(
+            TFS_APERTURE_STATIC_TO_NX_EM, self.tmp["meta"], identifier, template
+        )
         return template
 
     def add_detector_static_metadata(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(TFS_DETECTOR_STATIC_TO_NX_EM, self.tmp["meta"], identifier, template)
+        add_specific_metadata(
+            TFS_DETECTOR_STATIC_TO_NX_EM, self.tmp["meta"], identifier, template
+        )
         return template
 
     def add_various_static_metadata(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(TFS_VARIOUS_STATIC_TO_NX_EM, self.tmp["meta"], identifier, template)
+        add_specific_metadata(
+            TFS_VARIOUS_STATIC_TO_NX_EM, self.tmp["meta"], identifier, template
+        )
         return template
 
     def add_optics_dynamic_metadata(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(TFS_OPTICS_DYNAMIC_TO_NX_EM, self.tmp["meta"], identifier, template)
+        add_specific_metadata(
+            TFS_OPTICS_DYNAMIC_TO_NX_EM, self.tmp["meta"], identifier, template
+        )
         return template
 
     def add_stage_dynamic_metadata(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(TFS_STAGE_DYNAMIC_TO_NX_EM, self.tmp["meta"], identifier, template)
+        add_specific_metadata(
+            TFS_STAGE_DYNAMIC_TO_NX_EM, self.tmp["meta"], identifier, template
+        )
         return template
 
     def add_scan_dynamic_metadata(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(TFS_SCAN_DYNAMIC_TO_NX_EM, self.tmp["meta"], identifier, template)
+        add_specific_metadata(
+            TFS_SCAN_DYNAMIC_TO_NX_EM, self.tmp["meta"], identifier, template
+        )
         return template
 
     def add_various_dynamic_metadata(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(TFS_VARIOUS_DYNAMIC_TO_NX_EM, self.tmp["meta"], identifier, template)
+        add_specific_metadata(
+            TFS_VARIOUS_DYNAMIC_TO_NX_EM, self.tmp["meta"], identifier, template
+        )
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:
