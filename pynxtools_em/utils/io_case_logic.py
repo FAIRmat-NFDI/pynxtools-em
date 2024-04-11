@@ -22,8 +22,8 @@
 from typing import Tuple, Dict, List
 
 VALID_FILE_NAME_SUFFIX_CONFIG = [".yaml", ".yml"]
-VALID_FILE_NAME_SUFFIX_DATA = [".emd"]
-# ".png", ".tiff", ".dm3", ".dm4", ".hdf5", ".h5", ".dream3d", ".mtex", ".nion"]
+VALID_FILE_NAME_SUFFIX_DATA = [".emd", ".tiff", ".tif", ".png"]
+# ".dm3", ".dm4", ".hdf5", ".h5", ".dream3d", ".mtex", ".nion"]
 
 
 class EmUseCaseSelector:

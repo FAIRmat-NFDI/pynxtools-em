@@ -139,10 +139,10 @@ class RsciioVeloxSubParser(RsciioBaseParser):
                 self.supported = True
             else:
                 print(
-                    f"Parser {__class__.__name__} finds no content in {self.file_path} that it supports"
+                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
                 )
         except IOError:
-            print(f"Loading {self.file_path} using {self.__name__} is not supported !")
+            print(f"Loading {self.file_path} using {self.__class__.__name__} is not supported !")
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache self.tmp."""

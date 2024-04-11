@@ -19,6 +19,7 @@
 
 import mmap
 import numpy as np
+import flatdict as fd
 from typing import Dict
 from PIL import Image
 from PIL.TiffTags import TAGS
@@ -42,7 +43,7 @@ from pynxtools_em.utils.image_utils import (
     sort_ascendingly_by_second_argument,
     if_str_represents_float,
 )
-from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
+from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path, add_specific_metadata
 from pynxtools_em.subparsers.image_tiff_tfs_modifier import get_nexus_value
 
 
@@ -57,7 +58,7 @@ class TfsTiffSubParser(TiffSubParser):
         self.version: Dict = {}
         self.tags: Dict = {}
         self.supported = False
-        self.check_if_tiff()
+        self.check_if_tiff_tfs()
 
     def check_if_tiff_tfs(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file."""
@@ -68,7 +69,7 @@ class TfsTiffSubParser(TiffSubParser):
             if magic == b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                 self.supported += 1
 
-        with Image.open(self.fiele_path, mode="r") as fp:
+        with Image.open(self.file_path, mode="r") as fp:
             tfs_keys = [34682]
             for tfs_key in tfs_keys:
                 if tfs_key in fp.tag_v2:
@@ -154,7 +155,8 @@ class TfsTiffSubParser(TiffSubParser):
                                 f"Detected an unexpected case {parent}/{term}, type: {type(value)} !"
                             )
                     else:
-                        pass
+                        break
+            self.tmp["meta"] = fd.FlatDict(self.tmp["meta"])
 
     def parse_and_normalize(self):
         """Perform actual parsing filling cache self.tmp."""
@@ -194,13 +196,10 @@ class TfsTiffSubParser(TiffSubParser):
             trg = (
                 f"/ENTRY[entry{self.entry_id}]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/"
                 f"EVENT_DATA_EM[event_data_em{self.event_id}]/"
-                f"IMAGE_R_SET[image_r_set{image_identifier}]/DATA[image]"
+                f"IMAGE_R_SET[image_r_set{image_identifier}]/image_twod"
             )
             # TODO::writer should decorate automatically!
             template[f"{trg}/title"] = f"Image"
-            template[f"{trg}/@NX_class"] = (
-                f"NXdata"  # TODO::writer should decorate automatically!
-            )
             template[f"{trg}/@signal"] = "intensity"
             dims = ["x", "y"]
             idx = 0
@@ -256,19 +255,50 @@ class TfsTiffSubParser(TiffSubParser):
                 template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit[dim]}"
         return template
 
+    def add_aperture_static_metadata(self, template: dict) -> dict:
+        identifier = [self.entry_id, self.event_id, 1]
+        add_specific_metadata(TFS_APERTURE_STATIC_TO_NX_EM, self.tmp["meta"], identifier, template)
+        return template
+
+    def add_detector_static_metadata(self, template: dict) -> dict:
+        identifier = [self.entry_id, self.event_id, 1]
+        add_specific_metadata(TFS_DETECTOR_STATIC_TO_NX_EM, self.tmp["meta"], identifier, template)
+        return template
+
+    def add_various_static_metadata(self, template: dict) -> dict:
+        identifier = [self.entry_id, self.event_id, 1]
+        add_specific_metadata(TFS_VARIOUS_STATIC_TO_NX_EM, self.tmp["meta"], identifier, template)
+        return template
+
+    def add_optics_dynamic_metadata(self, template: dict) -> dict:
+        identifier = [self.entry_id, self.event_id, 1]
+        add_specific_metadata(TFS_OPTICS_DYNAMIC_TO_NX_EM, self.tmp["meta"], identifier, template)
+        return template
+
+    def add_stage_dynamic_metadata(self, template: dict) -> dict:
+        identifier = [self.entry_id, self.event_id, 1]
+        add_specific_metadata(TFS_STAGE_DYNAMIC_TO_NX_EM, self.tmp["meta"], identifier, template)
+        return template
+
+    def add_scan_dynamic_metadata(self, template: dict) -> dict:
+        identifier = [self.entry_id, self.event_id, 1]
+        add_specific_metadata(TFS_SCAN_DYNAMIC_TO_NX_EM, self.tmp["meta"], identifier, template)
+        return template
+
+    def add_various_dynamic_metadata(self, template: dict) -> dict:
+        identifier = [self.entry_id, self.event_id, 1]
+        add_specific_metadata(TFS_VARIOUS_DYNAMIC_TO_NX_EM, self.tmp["meta"], identifier, template)
+        return template
+
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
         print(f"Mapping some of the TFS/FEI metadata concepts onto NeXus concepts")
-        identifier = [self.entry_id, self.event_id, 1]
-        for tpl in TIFF_TFS_TO_NEXUS_CFG:
-            if isinstance(tpl, tuple):
-                trg = variadic_path_to_specific_path(tpl[0], identifier)
-                if len(tpl) == 2:
-                    template[trg] = tpl[1]
-                if len(tpl) == 3:
-                    # nxpath, modifier, value to load from and eventually to be modified
-                    retval = get_nexus_value(tpl[1], tpl[2], self.tmp["meta"])
-                    if retval is not None:
-                        template[trg] = retval
+        self.add_aperture_static_metadata(template)
+        self.add_detector_static_metadata(template)
+        self.add_various_static_metadata(template)
+        self.add_optics_dynamic_metadata(template)
+        self.add_stage_dynamic_metadata(template)
+        self.add_scan_dynamic_metadata(template)
+        self.add_various_dynamic_metadata(template)
         return template
