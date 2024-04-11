@@ -18,6 +18,10 @@
 """Configuration of the image_tiff_tfs subparser."""
 
 from typing import Dict
+from numpy import pi
+
+RAD2DEG = 180. / pi
+
 
 TFS_DETECTOR_STATIC_TO_NX_EM = {
     "prefix": "/ENTRY[entry*]/measurement/em_lab/DETECTOR[detector*]",
@@ -49,7 +53,7 @@ TFS_VARIOUS_STATIC_TO_NX_EM = {
 
 
 TFS_OPTICS_DYNAMIC_TO_NX_EM = {
-    "prefix": "/ENTRY[entry*]/measurement/em_lab/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]",
+    "prefix": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]",
     "use": [("beam_current/@units", "A"), ("working_distance/@units", "m")],
     "load_from": [
         ("beam_current", "EBeam/BeamCurrent"),
@@ -61,7 +65,8 @@ TFS_OPTICS_DYNAMIC_TO_NX_EM = {
 TFS_STAGE_DYNAMIC_TO_NX_EM = {
     "prefix": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
     "use": [("tilt1/@units", "deg"), ("tilt2/@units", "deg")],
-    "load_from_rad_to_deg": [("tilt1", "EBeam/StageTa"), ("tilt2", "EBeam/StageTb")],
+    "load_and_multiply": [("tilt1", "EBeam/StageTa", RAD2DEG),
+                          ("tilt2", "EBeam/StageTb", RAD2DEG)],
 }
 
 

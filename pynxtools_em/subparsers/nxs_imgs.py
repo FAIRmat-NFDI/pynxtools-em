@@ -24,15 +24,13 @@ from pynxtools_em.subparsers.image_png_protochips import ProtochipsPngSetSubPars
 class NxEmImagesSubParser:
     """Map content from different type of image files on an instance of NXem."""
 
-    def __init__(
-        self, entry_id: int = 1, input_file_name: str = "", verbose: bool = False
-    ):
+    def __init__(self, entry_id: int = 1, file_path: str = "", verbose: bool = False):
         """Overwrite constructor of the generic reader."""
         if entry_id > 0:
             self.entry_id = entry_id
         else:
             self.entry_id = 1
-        self.file_path = input_file_name
+        self.file_path = file_path
         self.cache = {"is_filled": False}
         self.verbose = verbose
 
@@ -40,21 +38,21 @@ class NxEmImagesSubParser:
         """Identify if image matches known mime type and has content for which subparser exists."""
         # tech partner formats used for measurement
         img = TfsTiffSubParser(self.file_path)
-        if img.supported is True:
+        if img.supported:
             return "single_tiff_tfs"
         img = ProtochipsPngSetSubParser(self.file_path)
-        if img.supported is True:
+        if img.supported:
             return "set_of_zipped_png_protochips"
         return None
 
     def parse(self, template: dict) -> dict:
         image_parser_type = self.identify_image_type()
+        print(f"{self.__class__.__name__} identified content as {image_parser_type}")
         if image_parser_type is None:
             print(
                 f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
             )
             return template
-        print(f"Parsing via {image_parser_type}...")
         # see also comments for respective nxs_pyxem parser
         # and its interaction with tech-partner-specific hfive_* subparsers
         if image_parser_type == "single_tiff_tfs":

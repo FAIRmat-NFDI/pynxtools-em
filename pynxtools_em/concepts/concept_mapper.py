@@ -122,12 +122,17 @@ def add_specific_metadata(
     identifier: list of identifier to resolve variadic paths
     template: instance data resulting from a resolved src to trg concept mapping
     """
-    variadic_prefix = concept_mapping["prefix"]
+    if "prefix_trg" in concept_mapping:
+        variadic_prefix_trg = concept_mapping["prefix_trg"]
+    elif "prefix" in concept_mapping:
+        variadic_prefix_trg = concept_mapping["prefix"]
+    else:
+        raise KeyError(f"Neither prefix nor prefix_trg found in concept_mapping!")
     if "use" in concept_mapping:
         for entry in concept_mapping["use"]:
             if isinstance(entry, tuple):
                 trg = variadic_path_to_specific_path(
-                    f"{variadic_prefix}/{entry[0]}", identifier
+                    f"{variadic_prefix_trg}/{entry[0]}", identifier
                 )
                 template[f"{trg}"] = entry[1]
     if "load_from" in concept_mapping:
@@ -136,9 +141,21 @@ def add_specific_metadata(
                 if entry[1] not in orgmeta:
                     continue
                 trg = variadic_path_to_specific_path(
-                    f"{variadic_prefix}/{entry[0]}", identifier
+                    f"{variadic_prefix_trg}/{entry[0]}", identifier
                 )
                 template[f"{trg}"] = orgmeta[entry[1]]
+    if "load_and_multiply" in concept_mapping:
+        for entry in concept_mapping["load_and_multiply"]:
+            if isinstance(entry, tuple) and len(entry) == 3:
+                if isinstance(entry[1], str) and isinstance(entry[2], float):
+                    if entry[1] not in orgmeta:
+                        continue
+                    trg = variadic_path_to_specific_path(
+                        f"{variadic_prefix_trg}/{entry[0]}", identifier
+                    )
+                    # Velox stores BeamConvergence but is this the full angle or the half i.e. semi angle?
+                    # if entry[2] == 1. we assume BeamConvergence is the semi_convergence_angle
+                    template[f"{trg}"] = entry[2] * orgmeta[entry[1]]
     if "map_to_real" in concept_mapping:
         for entry in concept_mapping["map_to_real"]:
             if isinstance(entry, tuple):
@@ -146,7 +163,7 @@ def add_specific_metadata(
                     if entry[1] not in orgmeta:
                         continue
                     trg = variadic_path_to_specific_path(
-                        f"{variadic_prefix}/{entry[0]}", identifier
+                        f"{variadic_prefix_trg}/{entry[0]}", identifier
                     )
                     # rosettasciio stores most Velox original metadata as string
                     # but this is incorrect for numerical values if stored as string
@@ -160,7 +177,7 @@ def add_specific_metadata(
                     ):
                         continue
                     trg = variadic_path_to_specific_path(
-                        f"{variadic_prefix}/{entry[0]}", identifier
+                        f"{variadic_prefix_trg}/{entry[0]}", identifier
                     )
                     res = []
                     for value in entry[1]:
@@ -173,7 +190,7 @@ def add_specific_metadata(
                     if entry[1] not in orgmeta:
                         continue
                     trg = variadic_path_to_specific_path(
-                        f"{variadic_prefix}/{entry[0]}", identifier
+                        f"{variadic_prefix_trg}/{entry[0]}", identifier
                     )
                     # Velox stores BeamConvergence but is this the full angle or the half i.e. semi angle?
                     # if entry[2] == 1. we assume BeamConvergence is the semi_convergence_angle
@@ -181,7 +198,7 @@ def add_specific_metadata(
     if "unix_to_iso8601" in concept_mapping:
         for entry in concept_mapping["unix_to_iso8601"]:
             trg = variadic_path_to_specific_path(
-                f"{variadic_prefix}/{entry[0]}", identifier
+                f"{variadic_prefix_trg}/{entry[0]}", identifier
             )
             if isinstance(entry[1], str):
                 if entry[1] not in orgmeta:
@@ -200,7 +217,7 @@ def add_specific_metadata(
     if "join_str" in concept_mapping:
         for entry in concept_mapping["join_str"]:
             trg = variadic_path_to_specific_path(
-                f"{variadic_prefix}/{entry[0]}", identifier
+                f"{variadic_prefix_trg}/{entry[0]}", identifier
             )
             if isinstance(entry[1], list):
                 if not all(
