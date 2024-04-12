@@ -12,7 +12,8 @@ trg="debug"
 # Laehnemann, PDI
 examples="InGaN_nanowires_spectra.edaxh5"
 # Bergmann, Kernke, Brückner, IKZ
-examples="AlGaO.nxs GeSi.nxs GeSi_13.h5 GeSn_13.nxs VInP_108_L2.h5"
+examples="AlGaO.nxs GeSi.nxs GeSn_13.nxs VInP_108_L2.h5"
+examples="GeSi.nxs"
 # Pauly, Uni Saarland
 # examples="207_2081.edaxh5"
 

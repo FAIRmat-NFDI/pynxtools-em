@@ -30,6 +30,7 @@ VALID_FILE_NAME_SUFFIX_DATA = [
     ".edaxh5",
     ".h5",
     ".hdf5",
+    ".nxs",
     ".dream3d",
 ]
 # ".dm3", ".dm4", ".mtex", ".nion"]
