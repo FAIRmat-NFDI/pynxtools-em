@@ -94,7 +94,7 @@ def get_ipfdir_legend(ipf_key):
         pad_inches=0.1,
         metadata=None,
     )
-    plt.close('all')
+    plt.close("all")
     img = np.asarray(
         thumbnail(pil.open("temporary.png", "r", ["png"]), size=HFIVE_WEB_MAXIMUM_RGB),
         np.uint8,
@@ -861,7 +861,9 @@ class NxEmNxsPyxemSubParser:
                     ]
                     template[f"{trg}/image_twod/@signal"] = "intensity"
                     template[f"{trg}/image_twod/@axes"] = ["axis_y", "axis_x"]
-                    template[f"{trg}/image_twod/title"] = f"EDS map {img.tmp['description']}"
+                    template[f"{trg}/image_twod/title"] = (
+                        f"EDS map {img.tmp['description']}"
+                    )
                     template[f"{trg}/image_twod/intensity"] = {
                         "compress": img.tmp["image_twod/intensity"].value,
                         "strength": 1,
@@ -869,16 +871,16 @@ class NxEmNxsPyxemSubParser:
                     template[f"{trg}/image_twod/intensity/@long_name"] = f"Signal"
                     dims = [("x", 0), ("y", 1)]
                     for dim in dims:
-                        template[f"{trg}/image_twod/@AXISNAME_indices[axis_{dim[0]}_indices]"] = (
-                            np.uint32(dim[1])
-                        )
+                        template[
+                            f"{trg}/image_twod/@AXISNAME_indices[axis_{dim[0]}_indices]"
+                        ] = np.uint32(dim[1])
                         template[f"{trg}/image_twod/AXISNAME[axis_{dim[0]}]"] = {
                             "compress": img.tmp[f"image_twod/axis_{dim[0]}"].value,
                             "strength": 1,
                         }
-                        template[f"{trg}/image_twod/AXISNAME[axis_{dim[0]}]/@long_name"] = img.tmp[
-                            f"image_twod/axis_{dim[0]}@long_name"
-                        ].value
+                        template[
+                            f"{trg}/image_twod/AXISNAME[axis_{dim[0]}]/@long_name"
+                        ] = img.tmp[f"image_twod/axis_{dim[0]}@long_name"].value
                     self.id_mgn["eds_img"] += 1
                 self.id_mgn["roi"] += 1
 
