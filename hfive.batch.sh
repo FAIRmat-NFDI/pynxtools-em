@@ -2,7 +2,7 @@
 
 # call from within the top-level directory of pynxtools_em
 dsrc="../../../../paper_paper_paper/scidat_nomad_ebsd/bb_analysis/data/development_spctrscpy/pdi"
-# dsrc="../../../../paper_paper_paper/scidat_nomad_ebsd/bb_analysis/data/development_spctrscpy/ikz"
+dsrc="../../../../paper_paper_paper/scidat_nomad_ebsd/bb_analysis/data/development_spctrscpy/ikz"
 # dsrc="../../../../paper_paper_paper/scidat_nomad_ebsd/bb_analysis/data/production_ebsd_pyxem"
 
 esrc="examples"
@@ -12,7 +12,7 @@ trg="debug"
 # Laehnemann, PDI
 examples="InGaN_nanowires_spectra.edaxh5"
 # Bergmann, Kernke, Brückner, IKZ
-# examples="AlGaO.nxs GeSi.nxs GeSi_13.h5 GeSn_13.nxs VInP_108_L2.h5"
+examples="AlGaO.nxs GeSi.nxs GeSi_13.h5 GeSn_13.nxs VInP_108_L2.h5"
 # Pauly, Uni Saarland
 # examples="207_2081.edaxh5"
 

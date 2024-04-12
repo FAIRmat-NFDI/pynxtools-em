@@ -110,28 +110,22 @@ class EMReader(BaseReader):
 
         print("Parse and map pieces of information within files from tech partners...")
         if len(case.dat) == 1:
-            # sub_parser = "nxs_mtex"
-            # subparser = NxEmNxsMTexSubParser(entry_id, file_paths[0])
-            # subparser.parse(template)
-            # TODO::check correct loop through!
-
-            # add further with resolving cases
-            # if file_path is an HDF5 will use hfive parser
-            # sub_parser = "nxs_pyxem"
-            # subparser = NxEmNxsPyxemSubParser(entry_id, file_paths[0])
-            # subparser.parse(template)
-            # TODO::check correct loop through!
-
             images = NxEmImagesSubParser(entry_id, case.dat[0], verbose=False)
             images.parse(template)
 
-            # sub_parser = "zipped_nion_project"
-            # subparser = NxEmZippedNionProjectSubParser(entry_id, file_paths[0])
-            # subparser.parse(template, verbose=True)
-            # TODO::check correct loop through!
-
             velox = RsciioVeloxSubParser(entry_id, case.dat[0], verbose=False)
             velox.parse(template)
+
+            # nxs_mtex = NxEmNxsMTexSubParser(entry_id, case.dat[0], verbose=False)
+            # nxs_mtex.parse(template)
+            # TODO::check correct loop through!
+
+            nxs_pyxem = NxEmNxsPyxemSubParser(entry_id, case.dat[0], verbose=False)
+            nxs_pyxem.parse(template)
+
+            # nxs_nion = NxEmZippedNionProjectSubParser(entry_id, case.dat[0], verbose=False)
+            # nxs_nion.parse(template)
+            # TODO::check correct loop through!
 
             # for dat_instance in case.dat_parser_type:
             #     print(f"Process pieces of information in {dat_instance} tech partner file...")

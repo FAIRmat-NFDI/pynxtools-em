@@ -107,13 +107,13 @@ def get_ipfdir_legend(ipf_key):
 class NxEmNxsPyxemSubParser:
     """Map content from different type of *.h5 files on an instance of NXem."""
 
-    def __init__(self, entry_id: int = 1, input_file_name: str = ""):
+    def __init__(self, entry_id: int = 1, file_path: str = "", verbose: bool = False):
         """Overwrite constructor of the generic reader."""
         if entry_id > 0:
             self.entry_id = entry_id
         else:
             self.entry_id = 1
-        self.file_path = input_file_name
+        self.file_path = file_path
         self.id_mgn = {
             "event": 1,
             "event_img": 1,
@@ -122,13 +122,16 @@ class NxEmNxsPyxemSubParser:
             "eds_img": 1,
         }
         self.cache = {"is_filled": False}
+        self.verbose = verbose
 
     def parse(self, template: dict) -> dict:
         hfive_parser_type = self.identify_hfive_type()
         if hfive_parser_type is None:
             print(f"{self.file_path} does not match any of the supported HDF5 formats")
             return template
-        print(f"Parsing via {hfive_parser_type}...")
+        print(
+            f"Parsing via {self.__class__.__name__} content type {hfive_parser_type}..."
+        )
 
         # ##MK::current implementation pulls all entries into the template
         # before writing them out, this might not fit into main memory
@@ -197,26 +200,26 @@ class NxEmNxsPyxemSubParser:
     def identify_hfive_type(self):
         """Identify if HDF5 file matches a known format for which a subparser exists."""
         # tech partner formats used for measurement
-        hdf = HdfFiveOxfordReader(f"{self.file_path}")
+        hdf = HdfFiveOxfordReader(self.file_path)
         if hdf.supported is True:
             return "oxford"
-        hdf = HdfFiveEdaxOimAnalysisReader(f"{self.file_path}")
+        hdf = HdfFiveEdaxOimAnalysisReader(self.file_path)
         if hdf.supported is True:
             return "edax"
-        hdf = HdfFiveEdaxApexReader(f"{self.file_path}")
+        hdf = HdfFiveEdaxApexReader(self.file_path)
         if hdf.supported is True:
             return "apex"
-        hdf = HdfFiveBrukerEspritReader(f"{self.file_path}")
+        hdf = HdfFiveBrukerEspritReader(self.file_path)
         if hdf.supported is True:
             return "bruker"
-        hdf = HdfFiveCommunityReader(f"{self.file_path}")
+        hdf = HdfFiveCommunityReader(self.file_path)
         if hdf.supported is True:
             return "hebsd"
         # computer simulation tools
-        hdf = HdfFiveEmSoftReader(f"{self.file_path}")
+        hdf = HdfFiveEmSoftReader(self.file_path)
         if hdf.supported is True:
             return "emsoft"
-        hdf = HdfFiveDreamThreedReader(f"{self.file_path}")
+        hdf = HdfFiveDreamThreedReader(self.file_path)
         if hdf.supported is True:
             return "dreamthreed"
         return None

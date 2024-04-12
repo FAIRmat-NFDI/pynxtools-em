@@ -142,9 +142,8 @@ class RsciioVeloxSubParser(RsciioBaseParser):
                     f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
                 )
         except IOError:
-            print(
-                f"Loading {self.file_path} using {self.__class__.__name__} is not supported !"
-            )
+            return
+            # print(f"Loading {self.file_path} using {self.__class__.__name__} is not supported !")
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache self.tmp."""
@@ -152,8 +151,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
             self.tech_partner_to_nexus_normalization(template)
         else:
             print(
-                f"{self.file_path} is not a Velox-specific "
-                f"EMD file that this parser can process !"
+                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
             )
         return template
 
