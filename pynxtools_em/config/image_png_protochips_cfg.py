@@ -17,7 +17,24 @@
 #
 """Configuration of the image_png_protochips subparser."""
 
+import re
 from typing import Dict
+
+
+def specific_to_variadic(token):
+    # "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[0].DataValues.AuxiliaryDataValue.[20].HeatingPower"
+    # to "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].HeatingPower"
+    if isinstance(token, str) and token != "":
+        concept = token.strip()
+        idxs = re.finditer(r".\[[0-9]+\].", concept)
+        if sum(1 for _ in idxs) > 0:
+            variadic = concept
+            for idx in re.finditer(r".\[[0-9]+\].", concept):
+                variadic = variadic.replace(concept[idx.start(0) : idx.end(0)], ".[*].")
+            return variadic
+        else:
+            return concept
+    return None
 
 
 AXON_STAGE_STATIC_TO_NX_EM = {
@@ -39,11 +56,18 @@ AXON_DETECTOR_STATIC_TO_NX_EM = {
 }
 
 
+AXON_STAGE_DYNAMIC_TO_NX_EM = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
+    "prefix_src": "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.",
+    "map_to_real_and_join": [("position", ["X", "Y", "Z"])],
+}  # "use": [("position/@units", "m")], values are much to large to be m
+
+
 AXON_CHIP_DYNAMIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/HEATER[heater]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/heater",
     "prefix_src": "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].",
     "use": [("current/@units", "A"), ("power/@units", "W"), ("voltage/@units", "V")],
-    "load": [
+    "map_to_real": [
         ("current", "HeatingCurrent"),
         ("power", "HeatingPower"),
         ("voltage", "HeatingVoltage"),
@@ -60,7 +84,7 @@ AXON_AUX_DYNAMIC_TO_NX_EM = {
         ("SENSOR[sensor1]/value/@units", "°C"),
         ("SENSOR[sensor1]/measurement", "temperature"),
     ],
-    "load": [
+    "map_to_real": [
         ("SENSOR[sensor2]/value", "HolderPressure"),
         ("SENSOR[sensor1]/value", "HolderTemperature"),
     ],
@@ -84,12 +108,14 @@ AXON_VARIOUS_DYNAMIC_TO_NX_EM = {
     ],
     "load": [
         (
-            "em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage",
-            "AcceleratingVoltage",
-        ),
-        (
             "em_lab/EBEAM_COLUMN[ebeam_column]/DEFLECTOR[beam_blanker1]/state",
             "BeamBlankerState",
+        ),
+    ],
+    "map_to_real": [
+        (
+            "em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage",
+            "AcceleratingVoltage",
         ),
         (
             "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/camera_length",
@@ -101,6 +127,3 @@ AXON_VARIOUS_DYNAMIC_TO_NX_EM = {
         ),
     ],
 }
-
-
-PNG_PROTOCHIPS_TO_NEXUS_CFG: Dict = {}

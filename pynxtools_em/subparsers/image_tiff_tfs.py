@@ -66,7 +66,9 @@ class TfsTiffSubParser(TiffSubParser):
             magic = s.read(4)
             if magic == b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                 self.supported += 1
-
+            else:
+                self.supported = False
+                return
         with Image.open(self.file_path, mode="r") as fp:
             tfs_keys = [34682]
             for tfs_key in tfs_keys:

@@ -22,20 +22,24 @@ import re
 import numpy as np
 import xmltodict
 import datetime
+import flatdict as fd
 from typing import Dict, List
 from PIL import Image
 from zipfile import ZipFile
 
 from pynxtools_em.config.image_png_protochips_cfg import (
+    specific_to_variadic,
     AXON_DETECTOR_STATIC_TO_NX_EM,
     AXON_STAGE_STATIC_TO_NX_EM,
+    AXON_STAGE_DYNAMIC_TO_NX_EM,
     AXON_CHIP_DYNAMIC_TO_NX_EM,
     AXON_AUX_DYNAMIC_TO_NX_EM,
     AXON_VARIOUS_DYNAMIC_TO_NX_EM,
-    PNG_PROTOCHIPS_TO_NEXUS_CFG,
 )
-from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
-from pynxtools_em.subparsers.image_png_protochips_modifier import get_nexus_value
+from pynxtools_em.concepts.concept_mapper import (
+    variadic_path_to_specific_path,
+    add_specific_metadata,
+)
 from pynxtools_em.subparsers.image_base import ImgsBaseParser
 from pynxtools_em.utils.xml_utils import flatten_xml_to_dict
 from pynxtools_em.utils.get_file_checksum import (
@@ -117,7 +121,7 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
             return
         # test 4: check that all PNGs have the same dimensions, TODO::could check for other things here
         target_dims = None
-        for file_name, tpl in self.png_info.items():
+        for tpl in self.png_info.values():
             if target_dims is not None:
                 if tpl == target_dims:
                     continue
@@ -169,16 +173,38 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
                                         "PositionerSettings" in k
                                         and k.endswith(".PositionerName") is False
                                     ):
-                                        self.tmp["meta"][file][
+                                        key = specific_to_variadic(
                                             f"{grpnms[0]}.{grpnms[1]}.{k[k.rfind('.') + 1:]}"
-                                        ] = v
+                                        )
+                                        if key not in self.tmp["meta"][file]:
+                                            self.tmp["meta"][file][key] = v
+                                        else:
+                                            raise KeyError(
+                                                "Trying to register a duplicated key {key}"
+                                            )
                                     if k.endswith(".Value"):
-                                        self.tmp["meta"][file][
+                                        key = specific_to_variadic(
                                             f"{grpnms[0]}.{grpnms[1]}"
-                                        ] = v
+                                        )
+                                        if key not in self.tmp["meta"][file]:
+                                            self.tmp["meta"][file][key] = v
+                                        else:
+                                            raise KeyError(
+                                                "Trying to register a duplicated key {key}"
+                                            )
                         else:
-                            self.tmp["meta"][file][f"{k}"] = v
+                            key = f"{k}"
+                            if key not in self.tmp["meta"][file]:
+                                self.tmp["meta"][file][key] = v
+                            else:
+                                raise KeyError(
+                                    "Trying to register a duplicated key {key}"
+                                )
                         # TODO::simplify and check that metadata end up correctly in self.tmp["meta"][file]
+                    self.tmp["meta"][file] = fd.FlatDict(self.tmp["meta"][file])
+                    # debug
+                    # for key, value in self.tmp["meta"][file].items():
+                    #     print(f"{type(key)}: {key}\t\t{type(value)}:{value}")
         except ValueError:
             print(f"Flattening XML metadata content {self.file_path}:{file} failed !")
 
@@ -242,6 +268,63 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
         )
         return events_sorted
 
+    def add_detector_static_metadata(self, file_name: str, template: dict) -> dict:
+        identifier = [self.entry_id, self.event_id, 1]
+        add_specific_metadata(
+            AXON_DETECTOR_STATIC_TO_NX_EM,
+            self.tmp["meta"][file_name],
+            identifier,
+            template,
+        )
+        return template
+
+    def add_stage_static_metadata(self, file_name: str, template: dict) -> dict:
+        identifier = [self.entry_id, self.event_id, 1]
+        add_specific_metadata(
+            AXON_STAGE_STATIC_TO_NX_EM,
+            self.tmp["meta"][file_name],
+            identifier,
+            template,
+        )
+        return template
+
+    def add_stage_dynamic_metadata(self, file_name: str, template: dict) -> dict:
+        identifier = [self.entry_id, self.event_id, 1]
+        add_specific_metadata(
+            AXON_STAGE_DYNAMIC_TO_NX_EM,
+            self.tmp["meta"][file_name],
+            identifier,
+            template,
+        )
+        return template
+
+    def add_chip_dynamic_metadata(self, file_name: str, template: dict) -> dict:
+        identifier = [self.entry_id, self.event_id, 1]
+        add_specific_metadata(
+            AXON_CHIP_DYNAMIC_TO_NX_EM,
+            self.tmp["meta"][file_name],
+            identifier,
+            template,
+        )
+        return template
+
+    def add_aux_dynamic_metadata(self, file_name: str, template: dict) -> dict:
+        identifier = [self.entry_id, self.event_id, 1]
+        add_specific_metadata(
+            AXON_AUX_DYNAMIC_TO_NX_EM, self.tmp["meta"][file_name], identifier, template
+        )
+        return template
+
+    def add_various_dynamic_metadata(self, file_name: str, template: dict) -> dict:
+        identifier = [self.entry_id, self.event_id, 1]
+        add_specific_metadata(
+            AXON_VARIOUS_DYNAMIC_TO_NX_EM,
+            self.tmp["meta"][file_name],
+            identifier,
+            template,
+        )
+        return template
+
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
@@ -256,27 +339,20 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
         event_id = self.event_id
         for file_name, iso8601 in self.event_sequence:
             identifier = [self.entry_id, event_id, 1]
-            for tpl in PNG_PROTOCHIPS_TO_NEXUS_CFG:
-                if isinstance(tpl, tuple):
-                    trg = variadic_path_to_specific_path(tpl[0], identifier)
-                    # print(f"Target {trg} after variadic name resolution identifier {identifier}")
-                    if len(tpl) == 2:
-                        template[trg] = tpl[1]
-                    if len(tpl) == 3:
-                        # nxpath, modifier, value to load from and eventually to be modified
-                        # print(f"Loading {tpl[2]} from tmp.meta.filename modifier {tpl[1]}...")
-                        retval = get_nexus_value(
-                            tpl[1], tpl[2], self.tmp["meta"][file_name]
-                        )
-                        if retval is not None:
-                            template[trg] = retval
-                    trg = variadic_path_to_specific_path(
-                        f"/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET"
-                        f"[event_data_em_set]/EVENT_DATA_EM[event_data_em*]"
-                        f"/start_time",
-                        identifier,
-                    )
-                    template[trg] = f"{iso8601}"
+            trg = variadic_path_to_specific_path(
+                f"/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET"
+                f"[event_data_em_set]/EVENT_DATA_EM[event_data_em*]"
+                f"/start_time",
+                identifier,
+            )
+            template[trg] = f"{iso8601}".replace(" ", "T")
+            # AXON reports "yyyy-mm-dd hh-mm-ss*" but NeXus requires yyyy-mm-ddThh-mm-ss*"
+            self.add_detector_static_metadata(file_name, template)
+            self.add_stage_static_metadata(file_name, template)
+            # self.add_stage_dynamic_metadata(file_name, template)  # TODO::unit for stage positions unclear
+            self.add_chip_dynamic_metadata(file_name, template)
+            self.add_aux_dynamic_metadata(file_name, template)
+            self.add_various_dynamic_metadata(file_name, template)
             event_id += 1
         return template
 
@@ -298,13 +374,10 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
                         trg = (
                             f"/ENTRY[entry{self.entry_id}]/measurement/EVENT_DATA_EM_SET"
                             f"[event_data_em_set]/EVENT_DATA_EM[event_data_em{event_id}]"
-                            f"/IMAGE_R_SET[image_r_set{image_identifier}]/DATA[image]"
+                            f"/IMAGE_R_SET[image_r_set{image_identifier}]/image_twod"
                         )
                         # TODO::writer should decorate automatically!
                         template[f"{trg}/title"] = f"Image"
-                        template[f"{trg}/@NX_class"] = (
-                            f"NXdata"  # TODO::writer should decorate automatically!
-                        )
                         template[f"{trg}/@signal"] = "intensity"
                         dims = ["x", "y"]
                         idx = 0
