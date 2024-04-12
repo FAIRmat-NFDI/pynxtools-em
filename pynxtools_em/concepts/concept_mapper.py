@@ -128,6 +128,16 @@ def add_specific_metadata(
         variadic_prefix_trg = concept_mapping["prefix"]
     else:
         raise KeyError(f"Neither prefix nor prefix_trg found in concept_mapping!")
+
+    if "prefix_src" in concept_mapping:
+        prefix_src = concept_mapping["prefix_src"]
+    else:
+        prefix_src = ""
+
+    # process all mapping functors
+    # (in graphical programming these are also referred to as filters or nodes), i.e.
+    # an agent that gets some input does some (maybe abstract mapping) and returns an output
+    # as the mapping can be abstract we call it functor
     if "use" in concept_mapping:
         for entry in concept_mapping["use"]:
             if isinstance(entry, tuple):
@@ -138,29 +148,29 @@ def add_specific_metadata(
     if "load" in concept_mapping:
         for entry in concept_mapping["load"]:
             if isinstance(entry, tuple):
-                if entry[1] not in orgmeta:
+                if f"{prefix_src}{entry[1]}" not in orgmeta:
                     continue
                 trg = variadic_path_to_specific_path(
                     f"{variadic_prefix_trg}/{entry[0]}", identifier
                 )
-                template[f"{trg}"] = orgmeta[entry[1]]
+                template[f"{trg}"] = orgmeta[f"{prefix_src}{entry[1]}"]
     if "load_and_multiply" in concept_mapping:
         for entry in concept_mapping["load_and_multiply"]:
             if isinstance(entry, tuple) and len(entry) == 3:
                 if isinstance(entry[1], str) and isinstance(entry[2], float):
-                    if entry[1] not in orgmeta:
+                    if f"{prefix_src}{entry[1]}" not in orgmeta:
                         continue
                     trg = variadic_path_to_specific_path(
                         f"{variadic_prefix_trg}/{entry[0]}", identifier
                     )
                     # Velox stores BeamConvergence but is this the full angle or the half i.e. semi angle?
                     # if entry[2] == 1. we assume BeamConvergence is the semi_convergence_angle
-                    template[f"{trg}"] = entry[2] * orgmeta[entry[1]]
+                    template[f"{trg}"] = entry[2] * orgmeta[f"{prefix_src}{entry[1]}"]
     if "map_to_real" in concept_mapping:
         for entry in concept_mapping["map_to_real"]:
             if isinstance(entry, tuple):
                 if isinstance(entry[1], str):
-                    if entry[1] not in orgmeta:
+                    if f"{prefix_src}{entry[1]}" not in orgmeta:
                         continue
                     trg = variadic_path_to_specific_path(
                         f"{variadic_prefix_trg}/{entry[0]}", identifier
@@ -169,10 +179,12 @@ def add_specific_metadata(
                     # but this is incorrect for numerical values if stored as string
                     # here that would at the latest throw in the dataconverter
                     # validation
-                    template[f"{trg}"] = string_to_number(orgmeta[entry[1]])
+                    template[f"{trg}"] = string_to_number(
+                        orgmeta[f"{prefix_src}{entry[1]}"]
+                    )
                 elif isinstance(entry[1], list):
                     if not all(
-                        (isinstance(value, str) and value in orgmeta)
+                        (isinstance(value, str) and f"{prefix_src}{value}" in orgmeta)
                         for value in entry[1]
                     ):
                         continue
@@ -181,30 +193,48 @@ def add_specific_metadata(
                     )
                     res = []
                     for value in entry[1]:
-                        res.append(string_to_number(orgmeta[value]))
+                        res.append(string_to_number(orgmeta[f"{prefix_src}{value}"]))
                     template[f"{trg}"] = np.asarray(res, np.float64)
     if "map_to_real_and_multiply" in concept_mapping:
         for entry in concept_mapping["map_to_real_and_multiply"]:
             if isinstance(entry, tuple) and len(entry) == 3:
                 if isinstance(entry[1], str) and isinstance(entry[2], float):
-                    if entry[1] not in orgmeta:
+                    if f"{prefix_src}{entry[1]}" not in orgmeta:
                         continue
                     trg = variadic_path_to_specific_path(
                         f"{variadic_prefix_trg}/{entry[0]}", identifier
                     )
                     # Velox stores BeamConvergence but is this the full angle or the half i.e. semi angle?
                     # if entry[2] == 1. we assume BeamConvergence is the semi_convergence_angle
-                    template[f"{trg}"] = entry[2] * string_to_number(orgmeta[entry[1]])
+                    template[f"{trg}"] = entry[2] * string_to_number(
+                        orgmeta[f"{prefix_src}{entry[1]}"]
+                    )
+    if "map_to_real_and_join" in concept_mapping:
+        for entry in concept_mapping["map_to_real_and_join"]:
+            trg = variadic_path_to_specific_path(
+                f"{variadic_prefix_trg}/{entry[0]}", identifier
+            )
+            if isinstance(entry[1], list):
+                if not all(
+                    (isinstance(value, str) and f"{prefix_src}{value}" in orgmeta)
+                    for value in entry[1]
+                ):
+                    continue
+                res = []
+                for value in entry[1]:
+                    res.append(string_to_number(orgmeta[f"{prefix_src}{value}"]))
+                template[f"{trg}"] = np.asarray(res)
+            # we may need to be more specific with the return datatype here
     if "unix_to_iso8601" in concept_mapping:
         for entry in concept_mapping["unix_to_iso8601"]:
             trg = variadic_path_to_specific_path(
                 f"{variadic_prefix_trg}/{entry[0]}", identifier
             )
             if isinstance(entry[1], str):
-                if entry[1] not in orgmeta:
+                if f"{prefix_src}{entry[1]}" not in orgmeta:
                     continue
                 template[f"{trg}"] = datetime.fromtimestamp(
-                    int(orgmeta[entry[1]]), tz=pytz.timezone("UTC")
+                    int(orgmeta[f"{prefix_src}{entry[1]}"]), tz=pytz.timezone("UTC")
                 ).isoformat()
                 # TODO::is this really a UNIX timestamp, what about the timezone?
                 # no E. Spiecker's example shows clearly these remain tz-naive timestamps
@@ -221,11 +251,12 @@ def add_specific_metadata(
             )
             if isinstance(entry[1], list):
                 if not all(
-                    (isinstance(value, str) and value in orgmeta) for value in entry[1]
+                    (isinstance(value, str) and f"{prefix_src}{value}" in orgmeta)
+                    for value in entry[1]
                 ):
                     continue
                 res = []
                 for value in entry[1]:
-                    res.append(orgmeta[value])
+                    res.append(orgmeta[f"{prefix_src}{value}"])
                 template[f"{trg}"] = " ".join(res)
     return template

@@ -2,7 +2,7 @@
 
 # call from within the top-level directory of pynxtools_em
 dsrc="../../../../paper_paper_paper/scidat_nomad_ebsd/bb_analysis/data/development_imgs/ikz_robert"
-# dsrc="../../../../paper_paper_paper/scidat_nomad_ebsd/bb_analysis/data/development_axon/axon"
+dsrc="../../../../paper_paper_paper/scidat_nomad_ebsd/bb_analysis/data/development_axon/axon"
 esrc="examples"
 trg="debug"
 
@@ -18,7 +18,9 @@ trg="debug"
 examples="0c8nA_3deg_003_AplusB_test.tif ALN_baoh_021.tif T3_image.tif ETD_image.tif NavCam_normal_vis_light_ccd.tif"
 
 #examples="axon/20210426T224437.049Raw0.png"
-#examples="ReductionOfFeOx.zip"
+examples="ReductionOfFeOxSmall.zip.axon"
+#examples="ReductionOfFeOx.zip.axon"
+
 
 for example in $examples; do
 	echo $example
