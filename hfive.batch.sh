@@ -8,13 +8,6 @@ dsrc="../../../../paper_paper_paper/scidat_nomad_ebsd/bb_analysis/data/developme
 esrc="examples"
 trg="debug"
 
-
-# bruker bcf
-# pynx/46_ES-LP_L1_brg.bcf
-# pynx/EELS_map_2_ROI_1_location_4.dm3
-# oxford instruments h5oina
-# pynx/H5OINA_examples_Specimen_1_Map_EDS_+_EBSD_Map_Data_2.h5oina"
-
 # apex
 # Laehnemann, PDI
 examples="InGaN_nanowires_spectra.edaxh5"
