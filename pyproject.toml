@@ -22,7 +22,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pynxtools @ git+https://github.com/FAIRmat-NFDI/pynxtools@sprint19-em-tracking-01",
+    "pynxtools @ git+https://github.com/FAIRmat-NFDI/pynxtools@fix-nexus-parsing",
     "rosettasciio>=0.4",
     "kikuchipy==0.9.0",
     "pyxem==0.16.0",
@@ -36,7 +36,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "mypy",
-    "ruff",
+    "ruff==0.3.4",
     "pytest",
     "types-pyyaml",
     "pip-tools",

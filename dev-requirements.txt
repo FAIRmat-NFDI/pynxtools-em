@@ -331,7 +331,7 @@ pyfai==2024.2.0
     # via pyxem
 pygments==2.17.2
     # via ipython
-pynxtools @ git+https://github.com/FAIRmat-NFDI/pynxtools@sprint19-em-tracking-01
+pynxtools @ git+https://github.com/FAIRmat-NFDI/pynxtools@fix-nexus-parsing
     # via pynxtools-em (pyproject.toml)
 pyparsing==3.1.2
     # via matplotlib
@@ -375,7 +375,7 @@ requests==2.31.0
     #   pooch
 rosettasciio==0.4
     # via pynxtools-em (pyproject.toml)
-ruff==0.3.5
+ruff==0.3.4
     # via pynxtools-em (pyproject.toml)
 scikit-image==0.22.0
     # via

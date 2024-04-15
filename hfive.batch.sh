@@ -6,7 +6,7 @@ dsrc="../../../../paper_paper_paper/scidat_nomad_ebsd/bb_analysis/data/developme
 # dsrc="../../../../paper_paper_paper/scidat_nomad_ebsd/bb_analysis/data/production_ebsd_pyxem"
 
 esrc="examples"
-trg="debug"
+trg="../temporary/debug"
 
 # apex
 # Laehnemann, PDI
@@ -19,5 +19,5 @@ examples="GeSi.nxs"
 
 for example in $examples; do
 	echo $example
-	dataconverter convert $esrc/em.oasis.specific.yaml $esrc/eln_data.yaml $dsrc/$example --reader em --nxdl NXem --output=$trg/debug.$example.nxs --skip-verify  # 1>$trg/stdout.$example.nxs.txt 2>$trg/stderr.$example.nxs.txt
+	dataconverter convert $esrc/em.oasis.specific.yaml $esrc/eln_data.yaml $dsrc/$example --reader em --nxdl NXem --output=$trg/debug.$example.nxs --skip-verify 1>$trg/stdout.$example.nxs.txt 2>$trg/stderr.$example.nxs.txt
 done
