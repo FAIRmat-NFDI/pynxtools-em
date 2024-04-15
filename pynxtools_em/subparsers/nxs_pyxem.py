@@ -445,7 +445,7 @@ class NxEmNxsPyxemSubParser:
         template[f"{prfx}/number_of_scan_points"] = np.uint32(n_pts)
         template[f"{prfx}/indexing_rate"] = np.float64(100.0 * n_pts_indexed / n_pts)
         template[f"{prfx}/indexing_rate/@units"] = f"%"
-        grp_name = f"{prfx}/CRYSTAL_STRUCTURE[phase{nxem_phase_id}]"
+        grp_name = f"{prfx}/phaseID[phase{nxem_phase_id}]"
         template[f"{grp_name}/number_of_scan_points"] = np.uint32(
             np.sum(inp["phase_id"] == 0)
         )
@@ -459,7 +459,7 @@ class NxEmNxsPyxemSubParser:
             print(f"inp[phases].keys(): {inp['phases'].keys()}")
             if nxem_phase_id not in inp["phases"].keys():
                 raise ValueError(f"{nxem_phase_id} is not a key in inp['phases'] !")
-            trg = f"{prfx}/CRYSTAL_STRUCTURE[phase{nxem_phase_id}]"
+            trg = f"{prfx}/phaseID[phase{nxem_phase_id}]"
             template[f"{trg}/number_of_scan_points"] = np.uint32(
                 np.sum(inp["phase_id"] == nxem_phase_id)
             )
@@ -538,7 +538,7 @@ class NxEmNxsPyxemSubParser:
 
             trg = (
                 f"/ENTRY[entry{self.entry_id}]/ROI[roi{roi_id}]/ebsd/indexing"
-                f"/CRYSTAL_STRUCTURE[phase{nxem_phase_id}]/MS_IPF[ipf{idx + 1}]"
+                f"/phaseID[phase{nxem_phase_id}]/ipfID[ipf{idx + 1}]"
             )
             template[f"{trg}/projection_direction"] = np.asarray(
                 PROJECTION_VECTORS[idx].data.flatten(), np.float32
@@ -634,7 +634,7 @@ class NxEmNxsPyxemSubParser:
         template[f"{prfx}/number_of_scan_points"] = np.uint32(n_pts)
         template[f"{prfx}/indexing_rate"] = np.float64(100.0 * n_pts_indexed / n_pts)
         template[f"{prfx}/indexing_rate/@units"] = f"%"
-        grp_name = f"{prfx}/CRYSTAL_STRUCTURE[phase{nxem_phase_id}]"
+        grp_name = f"{prfx}/phaseID[phase{nxem_phase_id}]"
         template[f"{grp_name}/number_of_scan_points"] = np.uint32(
             np.sum(inp["phase_id"] == 0)
         )
@@ -646,7 +646,7 @@ class NxEmNxsPyxemSubParser:
             print(f"inp[phases].keys(): {inp['phases'].keys()}")
             if nxem_phase_id not in inp["phases"].keys():
                 raise ValueError(f"{nxem_phase_id} is not a key in inp['phases'] !")
-            trg = f"{prfx}/CRYSTAL_STRUCTURE[phase{nxem_phase_id}]"
+            trg = f"{prfx}/phaseID[phase{nxem_phase_id}]"
             template[f"{trg}/number_of_scan_points"] = np.uint32(
                 np.sum(inp["phase_id"] == nxem_phase_id)
             )
@@ -724,7 +724,7 @@ class NxEmNxsPyxemSubParser:
 
             trg = (
                 f"/ENTRY[entry{self.entry_id}]/ROI[roi{roi_id}]/ebsd/indexing"
-                f"/CRYSTAL_STRUCTURE[phase{nxem_phase_id}]/MS_IPF[ipf{idx + 1}]"
+                f"/phaseID[phase{nxem_phase_id}]/ipfID[ipf{idx + 1}]"
             )
             template[f"{trg}/projection_direction"] = np.asarray(
                 PROJECTION_VECTORS[idx].data.flatten(), np.float32

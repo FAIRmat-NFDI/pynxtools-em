@@ -6,14 +6,14 @@ dsrc="../../../../paper_paper_paper/scidat_nomad_ebsd/bb_analysis/data/developme
 # dsrc="../../../../paper_paper_paper/scidat_nomad_ebsd/bb_analysis/data/production_ebsd_pyxem"
 
 esrc="examples"
-trg="../temporary/debug"
+trg="debug"
 
 # apex
 # Laehnemann, PDI
 examples="InGaN_nanowires_spectra.edaxh5"
 # Bergmann, Kernke, Brückner, IKZ
 examples="AlGaO.nxs GeSi.nxs GeSn_13.nxs VInP_108_L2.h5"
-examples="GeSi.nxs"
+# examples="GeSi.nxs"
 # Pauly, Uni Saarland
 # examples="207_2081.edaxh5"
 
