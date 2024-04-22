@@ -61,6 +61,8 @@ local_scheme = "node-and-date"
 
 [tool.ruff]
 include = ["pynxtools_em/*.py", "tests/*.py"]
+line-length = 88
+indent-width = 4
 
 [tool.ruff.lint]
 select = [
@@ -84,6 +86,12 @@ ignore = [
     "PLR5501", # else-if-used
 ]
 fixable = ["ALL"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 
 [tool.mypy]
 strict = false
