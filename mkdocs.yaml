@@ -1,0 +1,55 @@
+site_name: pynxtools-em
+site_description: |
+  The documentation for the pynxtools-em plugin
+site_author: The FAIRmat authors
+nav:
+  - Home: index.md
+  - Tutorials:
+    - tutorial/standalone.md
+    # - tutorial/nexusio.md
+    # - tutorial/oasis.md
+  - How-tos:
+    - how-tos/howto.md
+    - how-tos/pyxem.md
+    - how-tos/mtex.md
+  - Learn:
+    - explanation/implementation.md
+  - Reference:
+    - reference/contextualization.md
+    - reference/tiff.md
+    - reference/png.md
+    - reference/vemd.md
+    - reference/apex.md
+    - reference/nion.md
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - content.code.annotate
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - toc:
+      permalink: True
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.emoji
+  - pymdownx.extra
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+use_directory_urls: false
+plugins:
+    - search
+    - macros:
+        module_name: docs/macros
+extra_css:
+  - stylesheets/extra.css
