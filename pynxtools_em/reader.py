@@ -17,8 +17,6 @@
 #
 """Parser for loading generic orientation microscopy data based on ."""
 
-# pylint: disable=no-member,fixme
-
 from os import getcwd
 from time import perf_counter_ns
 from typing import Tuple, Any
@@ -28,9 +26,9 @@ from pynxtools.dataconverter.readers.base.reader import BaseReader
 from pynxtools_em.utils.io_case_logic import (
     EmUseCaseSelector,
 )
-# from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
-## from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
 
+# from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
+from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
 from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
 
 # from pynxtools_em.subparsers.nxs_nion import NxEmZippedNionProjectSubParser
@@ -39,16 +37,12 @@ from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
 # from pynxtools_em.geometry.convention_mapper import NxEmConventionMapper
 
 # remaining subparsers to be implemented and merged into this one
-# from pynxtools.dataconverter.readers.em_om.utils.generic_eln_io \
-#     import NxEmOmGenericElnSchemaParser
 # from pynxtools.dataconverter.readers.em_om.utils.orix_ebsd_parser \
 #     import NxEmOmOrixEbsdParser
 # from pynxtools.dataconverter.readers.em_om.utils.mtex_ebsd_parser \
 #     import NxEmOmMtexEbsdParser
 # from pynxtools.dataconverter.readers.em_om.utils.zip_ebsd_parser \
 #     import NxEmOmZipEbsdParser
-# from pynxtools.dataconverter.readers.em_om.utils.dream3d_ebsd_parser \
-#     import NxEmOmDreamThreedEbsdParser
 # from pynxtools.dataconverter.readers.em_om.utils.em_nexus_plots \
 #     import em_om_default_plot_generator
 
@@ -116,28 +110,22 @@ class EMReader(BaseReader):
 
         print("Parse and map pieces of information within files from tech partners...")
         if len(case.dat) == 1:
-            # sub_parser = "nxs_mtex"
-            # subparser = NxEmNxsMTexSubParser(entry_id, file_paths[0])
-            # subparser.parse(template)
-            # TODO::check correct loop through!
-
-            # add further with resolving cases
-            # if file_path is an HDF5 will use hfive parser
-            # sub_parser = "nxs_pyxem"
-            # subparser = NxEmNxsPyxemSubParser(entry_id, file_paths[0])
-            # subparser.parse(template)
-            # TODO::check correct loop through!
-
             images = NxEmImagesSubParser(entry_id, case.dat[0], verbose=False)
             images.parse(template)
 
-            # sub_parser = "zipped_nion_project"
-            # subparser = NxEmZippedNionProjectSubParser(entry_id, file_paths[0])
-            # subparser.parse(template, verbose=True)
-            # TODO::check correct loop through!
-
             velox = RsciioVeloxSubParser(entry_id, case.dat[0], verbose=False)
             velox.parse(template)
+
+            # nxs_mtex = NxEmNxsMTexSubParser(entry_id, case.dat[0], verbose=False)
+            # nxs_mtex.parse(template)
+            # TODO::check correct loop through!
+
+            nxs_pyxem = NxEmNxsPyxemSubParser(entry_id, case.dat[0], verbose=False)
+            nxs_pyxem.parse(template)
+
+            # nxs_nion = NxEmZippedNionProjectSubParser(entry_id, case.dat[0], verbose=False)
+            # nxs_nion.parse(template)
+            # TODO::check correct loop through!
 
             # for dat_instance in case.dat_parser_type:
             #     print(f"Process pieces of information in {dat_instance} tech partner file...")
@@ -145,18 +133,6 @@ class EMReader(BaseReader):
             #    # elif case.dat_parser_type == "zip":
             #    #     zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id)
             #    #     zip_parser.parse(template)
-            #    # elif case.dat_parser_type == "dream3d":
-            #    #     dream_parser = NxEmOmDreamThreedEbsdParser(case.dat[0], entry_id)
-            #    #     dream_parser.parse(template)
-            #    # elif case.dat_parser_type == "kikuchipy":
-            #    # elif case.dat_parser_type == "pyxem":
-            #    # elif case.dat_parser_type == "score":
-            #    # elif case.dat_parser_type == "qube":
-            #    # elif case.dat_parser_type == "paradis":
-            #    # elif case.dat_parser_type == "brinckmann":
-            # at this point the data for the default plots should already exist
-            # we only need to decorate the template to point to the mandatory ROI overview
-            # print("Create NeXus default plottable data...")
         # em_default_plot_generator(template, 1)
 
         # run_block = False
@@ -170,7 +146,7 @@ class EMReader(BaseReader):
         #     if resolved_path != "":
         #         nxs_plt.annotate_default_plot(template, resolved_path)
 
-        debugging = True
+        debugging = True  # print(template)
         if debugging:
             print("Reporting state of template before passing to HDF5 writing...")
             for keyword in template.keys():

@@ -76,6 +76,12 @@ class NxEmNomadOasisElnSchemaParser:
                                 )
                                 template[trg] = self.yml[src][entry[1]]
                                 break
+                    for entry in EM_EXAMPLE_ENTRY_TO_NEXUS["iso8601"]:
+                        if isinstance(entry, str) and key == entry:
+                            trg = variadic_path_to_specific_path(
+                                f"{variadic_prefix}/{entry}", identifier
+                            )
+                            template[trg] = self.yml[src][entry].isoformat()
         return template
 
     def parse_sample(self, template: dict) -> dict:
@@ -100,6 +106,13 @@ class NxEmNomadOasisElnSchemaParser:
                                 )
                                 template[trg] = self.yml[src][entry[1]]
                                 break
+                    for entry in EM_EXAMPLE_SAMPLE_TO_NEXUS["iso8601"]:
+                        if isinstance(entry, str) and key == entry:
+                            trg = variadic_path_to_specific_path(
+                                f"{variadic_prefix}/{entry}", identifier
+                            )
+                            template[trg] = self.yml[src][entry].isoformat()
+                            break
         return template
 
     def parse_user(self, template: dict) -> dict:

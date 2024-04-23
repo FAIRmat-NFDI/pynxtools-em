@@ -12,6 +12,8 @@ asteval==0.9.32
     # via lmfit
 asttokens==2.4.1
     # via stack-data
+babel==2.14.0
+    # via mkdocs-material
 build==1.2.1
     # via pip-tools
 certifi==2024.2.2
@@ -22,12 +24,15 @@ click==8.1.7
     # via
     #   click-default-group
     #   dask
+    #   mkdocs
     #   pip-tools
     #   pynxtools
 click-default-group==1.2.4
     # via pynxtools
 cloudpickle==3.0.0
     # via dask
+colorama==0.4.6
+    # via mkdocs-material
 comm==0.2.2
     # via ipykernel
 contourpy==1.2.0
@@ -78,6 +83,8 @@ fsspec==2024.3.1
     #   hyperspy
 future==1.0.0
     # via uncertainties
+ghp-import==2.1.0
+    # via mkdocs
 greenlet==3.0.3
     # via sqlalchemy
 h5py==3.10.0
@@ -127,7 +134,11 @@ ipython==8.23.0
 jedi==0.19.1
     # via ipython
 jinja2==3.1.3
-    # via hyperspy
+    # via
+    #   hyperspy
+    #   mkdocs
+    #   mkdocs-macros-plugin
+    #   mkdocs-material
 joblib==1.3.2
     # via scikit-learn
 jupyter-client==8.6.1
@@ -154,8 +165,15 @@ lxml==5.2.1
     # via
     #   fabio
     #   pynxtools
+markdown==3.6
+    # via
+    #   mkdocs
+    #   mkdocs-material
+    #   pymdown-extensions
 markupsafe==2.1.5
-    # via jinja2
+    # via
+    #   jinja2
+    #   mkdocs
 matplotlib==3.8.3
     # via
     #   ase
@@ -173,7 +191,23 @@ matplotlib-inline==0.1.6
 matplotlib-scalebar==0.8.1
     # via orix
 mergedeep==1.3.4
-    # via pynxtools
+    # via
+    #   mkdocs
+    #   mkdocs-get-deps
+    #   pynxtools
+mkdocs==1.5.3
+    # via
+    #   mkdocs-macros-plugin
+    #   mkdocs-material
+    #   pynxtools-em (pyproject.toml)
+mkdocs-macros-plugin==1.0.5
+    # via pynxtools-em (pyproject.toml)
+mkdocs-material==9.5.18
+    # via pynxtools-em (pyproject.toml)
+mkdocs-material-extensions==1.3.1
+    # via
+    #   mkdocs-material
+    #   pynxtools-em (pyproject.toml)
 mpmath==1.3.0
     # via sympy
 mypy==1.9.0
@@ -268,12 +302,15 @@ packaging==24.0
     #   hyperspy
     #   ipykernel
     #   matplotlib
+    #   mkdocs
     #   pooch
     #   pytest
     #   scikit-image
     #   silx
     #   xarray
     #   xraydb
+paginate==0.5.6
+    # via mkdocs-material
 pandas==2.2.1
     # via
     #   pynxtools
@@ -282,6 +319,8 @@ parso==0.8.3
     # via jedi
 partd==1.4.1
     # via dask
+pathspec==0.12.1
+    # via mkdocs
 pexpect==4.9.0
     # via ipython
 pillow==10.0.1
@@ -301,6 +340,8 @@ pip-tools==7.4.1
 platformdirs==4.2.0
     # via
     #   jupyter-core
+    #   mkdocs
+    #   mkdocs-get-deps
     #   pooch
     #   xraydb
 pluggy==1.4.0
@@ -330,8 +371,12 @@ pycifrw==4.4.6
 pyfai==2024.2.0
     # via pyxem
 pygments==2.17.2
-    # via ipython
-pynxtools @ git+https://github.com/FAIRmat-NFDI/pynxtools@sprint19-em-tracking-01
+    # via
+    #   ipython
+    #   mkdocs-material
+pymdown-extensions==10.8
+    # via mkdocs-material
+pynxtools @ git+https://github.com/FAIRmat-NFDI/pynxtools
     # via pynxtools-em (pyproject.toml)
 pyparsing==3.1.2
     # via matplotlib
@@ -345,10 +390,12 @@ python-box==6.1.0
     # via rosettasciio
 python-dateutil==2.9.0.post0
     # via
+    #   ghp-import
     #   hyperspy
     #   ipyparallel
     #   jupyter-client
     #   matplotlib
+    #   mkdocs-macros-plugin
     #   pandas
     #   rosettasciio
 pytz==2024.1
@@ -362,20 +409,30 @@ pyyaml==6.0.1
     #   dask
     #   hyperspy
     #   kikuchipy
+    #   mkdocs
+    #   mkdocs-get-deps
+    #   mkdocs-macros-plugin
+    #   pymdown-extensions
     #   pynxtools
+    #   pyyaml-env-tag
     #   rosettasciio
+pyyaml-env-tag==0.1
+    # via mkdocs
 pyzmq==25.1.2
     # via
     #   ipykernel
     #   ipyparallel
     #   jupyter-client
+regex==2024.4.16
+    # via mkdocs-material
 requests==2.31.0
     # via
     #   hyperspy
+    #   mkdocs-material
     #   pooch
 rosettasciio==0.4
     # via pynxtools-em (pyproject.toml)
-ruff==0.3.5
+ruff==0.3.4
     # via pynxtools-em (pyproject.toml)
 scikit-image==0.22.0
     # via
@@ -417,6 +474,8 @@ stack-data==0.6.3
     # via ipython
 sympy==1.12
     # via hyperspy
+termcolor==2.4.0
+    # via mkdocs-macros-plugin
 threadpoolctl==3.4.0
     # via scikit-learn
 tifffile==2024.2.12
@@ -476,6 +535,8 @@ uncertainties==3.1.7
     # via lmfit
 urllib3==2.2.1
     # via requests
+watchdog==4.0.0
+    # via mkdocs
 wcwidth==0.2.13
     # via
     #   prettytable

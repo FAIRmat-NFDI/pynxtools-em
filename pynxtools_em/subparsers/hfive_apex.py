@@ -544,7 +544,7 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
                     f"Required attribute named {req} not found in {src}/SPD !"
                 )
 
-        ckey = self.init_named_cache(f"eds_spc{self.cache_id}")
+        ckey = self.init_named_cache(f"eds_spd{self.cache_id}")
         self.tmp[ckey] = NxSpectrumSet()
         self.tmp[ckey].tmp["source"] = f"{src}/SPD"
         nyxe = {

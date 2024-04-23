@@ -79,7 +79,7 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
             if (
                 magic != b"PK\x03\x04\x14\x00\x08\x00"
             ):  # https://en.wikipedia.org/wiki/List_of_file_signatures
-                print(f"Test 1 failed, {self.file_path} is not a ZIP archive !")
+                # print(f"Test 1 failed, {self.file_path} is not a ZIP archive !")
                 return
         # test 2: check if there are at all PNG files with iTXt metadata from Protochips in this zip file
         # collect all those PNGs to work with and write a tuple of their image dimensions

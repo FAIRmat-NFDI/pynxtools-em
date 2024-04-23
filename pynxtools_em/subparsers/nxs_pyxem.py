@@ -35,9 +35,9 @@
 import os
 import numpy as np
 
-# from typing import Dict, Any, List
 from PIL import Image as pil
 from orix import plot
+import matplotlib.pyplot as plt  # in the hope that this closes figures with orix plot
 from orix.quaternion import Rotation
 from orix.quaternion.symmetry import get_point_group
 from orix.vector import Vector3d
@@ -94,6 +94,7 @@ def get_ipfdir_legend(ipf_key):
         pad_inches=0.1,
         metadata=None,
     )
+    plt.close("all")
     img = np.asarray(
         thumbnail(pil.open("temporary.png", "r", ["png"]), size=HFIVE_WEB_MAXIMUM_RGB),
         np.uint8,
@@ -107,13 +108,13 @@ def get_ipfdir_legend(ipf_key):
 class NxEmNxsPyxemSubParser:
     """Map content from different type of *.h5 files on an instance of NXem."""
 
-    def __init__(self, entry_id: int = 1, input_file_name: str = ""):
+    def __init__(self, entry_id: int = 1, file_path: str = "", verbose: bool = False):
         """Overwrite constructor of the generic reader."""
         if entry_id > 0:
             self.entry_id = entry_id
         else:
             self.entry_id = 1
-        self.file_path = input_file_name
+        self.file_path = file_path
         self.id_mgn = {
             "event": 1,
             "event_img": 1,
@@ -122,13 +123,16 @@ class NxEmNxsPyxemSubParser:
             "eds_img": 1,
         }
         self.cache = {"is_filled": False}
+        self.verbose = verbose
 
     def parse(self, template: dict) -> dict:
         hfive_parser_type = self.identify_hfive_type()
         if hfive_parser_type is None:
             print(f"{self.file_path} does not match any of the supported HDF5 formats")
             return template
-        print(f"Parsing via {hfive_parser_type}...")
+        print(
+            f"Parsing via {self.__class__.__name__} content type {hfive_parser_type}..."
+        )
 
         # ##MK::current implementation pulls all entries into the template
         # before writing them out, this might not fit into main memory
@@ -197,26 +201,26 @@ class NxEmNxsPyxemSubParser:
     def identify_hfive_type(self):
         """Identify if HDF5 file matches a known format for which a subparser exists."""
         # tech partner formats used for measurement
-        hdf = HdfFiveOxfordReader(f"{self.file_path}")
+        hdf = HdfFiveOxfordReader(self.file_path)
         if hdf.supported is True:
             return "oxford"
-        hdf = HdfFiveEdaxOimAnalysisReader(f"{self.file_path}")
+        hdf = HdfFiveEdaxOimAnalysisReader(self.file_path)
         if hdf.supported is True:
             return "edax"
-        hdf = HdfFiveEdaxApexReader(f"{self.file_path}")
+        hdf = HdfFiveEdaxApexReader(self.file_path)
         if hdf.supported is True:
             return "apex"
-        hdf = HdfFiveBrukerEspritReader(f"{self.file_path}")
+        hdf = HdfFiveBrukerEspritReader(self.file_path)
         if hdf.supported is True:
             return "bruker"
-        hdf = HdfFiveCommunityReader(f"{self.file_path}")
+        hdf = HdfFiveCommunityReader(self.file_path)
         if hdf.supported is True:
             return "hebsd"
         # computer simulation tools
-        hdf = HdfFiveEmSoftReader(f"{self.file_path}")
+        hdf = HdfFiveEmSoftReader(self.file_path)
         if hdf.supported is True:
             return "emsoft"
-        hdf = HdfFiveDreamThreedReader(f"{self.file_path}")
+        hdf = HdfFiveDreamThreedReader(self.file_path)
         if hdf.supported is True:
             return "dreamthreed"
         return None
@@ -304,17 +308,8 @@ class NxEmNxsPyxemSubParser:
             )
             return template
 
-        template[f"/ENTRY[entry{self.entry_id}]/ROI[roi{roi_id}]/@NX_class"] = "NXroi"
-        # TODO::writer should decorate automatically!
-        template[
-            f"/ENTRY[entry{self.entry_id}]/ROI[roi{roi_id}]/ebsd/indexing/@NX_class"
-        ] = "NXprocess"
-        # TODO::writer should decorate automatically!
-        trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi{roi_id}]/ebsd/indexing/DATA[roi]"
+        trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi{roi_id}]/ebsd/indexing/roi"
         template[f"{trg}/title"] = f"Region-of-interest overview image"
-        template[f"{trg}/@NX_class"] = (
-            f"NXdata"  # TODO::writer should decorate automatically!
-        )
         template[f"{trg}/@signal"] = "data"
         dims = ["x", "y"]
         if trg_grid["dimensionality"] == 3:
@@ -388,9 +383,8 @@ class NxEmNxsPyxemSubParser:
         trg = (
             f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
             f"EVENT_DATA_EM[event_data_em{self.id_mgn['event']}]/"
-            f"IMAGE_R_SET[image_r_set{self.id_mgn['event_img']}]/DATA[image_twod]"
+            f"IMAGE_R_SET[image_r_set{self.id_mgn['event_img']}]/image_twod"
         )
-        template[f"{trg}/@NX_class"] = "NXdata"  # TODO::should be autodecorated
         template[f"{trg}/description"] = inp.tmp["source"]
         template[f"{trg}/title"] = f"Region-of-interest overview image"
         template[f"{trg}/@signal"] = "intensity"
@@ -451,7 +445,7 @@ class NxEmNxsPyxemSubParser:
         template[f"{prfx}/number_of_scan_points"] = np.uint32(n_pts)
         template[f"{prfx}/indexing_rate"] = np.float64(100.0 * n_pts_indexed / n_pts)
         template[f"{prfx}/indexing_rate/@units"] = f"%"
-        grp_name = f"{prfx}/EM_EBSD_CRYSTAL_STRUCTURE_MODEL[phase{nxem_phase_id}]"
+        grp_name = f"{prfx}/phaseID[phase{nxem_phase_id}]"
         template[f"{grp_name}/number_of_scan_points"] = np.uint32(
             np.sum(inp["phase_id"] == 0)
         )
@@ -465,7 +459,7 @@ class NxEmNxsPyxemSubParser:
             print(f"inp[phases].keys(): {inp['phases'].keys()}")
             if nxem_phase_id not in inp["phases"].keys():
                 raise ValueError(f"{nxem_phase_id} is not a key in inp['phases'] !")
-            trg = f"{prfx}/EM_EBSD_CRYSTAL_STRUCTURE_MODEL[phase{nxem_phase_id}]"
+            trg = f"{prfx}/phaseID[phase{nxem_phase_id}]"
             template[f"{trg}/number_of_scan_points"] = np.uint32(
                 np.sum(inp["phase_id"] == nxem_phase_id)
             )
@@ -544,20 +538,16 @@ class NxEmNxsPyxemSubParser:
 
             trg = (
                 f"/ENTRY[entry{self.entry_id}]/ROI[roi{roi_id}]/ebsd/indexing"
-                f"/EM_EBSD_CRYSTAL_STRUCTURE_MODEL[phase{nxem_phase_id}]"
-                f"/MS_IPF[ipf{idx + 1}]"
+                f"/phaseID[phase{nxem_phase_id}]/ipfID[ipf{idx + 1}]"
             )
             template[f"{trg}/projection_direction"] = np.asarray(
                 PROJECTION_VECTORS[idx].data.flatten(), np.float32
             )
 
             # add the IPF color map
-            mpp = f"{trg}/DATA[map]"
+            mpp = f"{trg}/map"
             template[f"{mpp}/title"] = (
                 f"Inverse pole figure {PROJECTION_DIRECTIONS[idx][0]} {phase_name}"
-            )
-            template[f"{mpp}/@NX_class"] = (
-                f"NXdata"  # TODO::writer should decorate automatically!
             )
             template[f"{mpp}/@signal"] = "data"
             dims = ["x", "y"]
@@ -589,14 +579,11 @@ class NxEmNxsPyxemSubParser:
                 template[f"{mpp}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit}"
 
             # add the IPF color map legend/key
-            lgd = f"{trg}/DATA[legend]"
+            lgd = f"{trg}/legend"
             template[f"{lgd}/title"] = (
                 f"Inverse pole figure {PROJECTION_DIRECTIONS[idx][0]} {phase_name}"
             )
             # template[f"{trg}/title"] = f"Inverse pole figure color key with SST"
-            template[f"{lgd}/@NX_class"] = (
-                f"NXdata"  # TODO::writer should decorate automatically!
-            )
             template[f"{lgd}/@signal"] = "data"
             template[f"{lgd}/@axes"] = []
             dims = ["x", "y"]
@@ -647,7 +634,7 @@ class NxEmNxsPyxemSubParser:
         template[f"{prfx}/number_of_scan_points"] = np.uint32(n_pts)
         template[f"{prfx}/indexing_rate"] = np.float64(100.0 * n_pts_indexed / n_pts)
         template[f"{prfx}/indexing_rate/@units"] = f"%"
-        grp_name = f"{prfx}/EM_EBSD_CRYSTAL_STRUCTURE_MODEL[phase{nxem_phase_id}]"
+        grp_name = f"{prfx}/phaseID[phase{nxem_phase_id}]"
         template[f"{grp_name}/number_of_scan_points"] = np.uint32(
             np.sum(inp["phase_id"] == 0)
         )
@@ -659,7 +646,7 @@ class NxEmNxsPyxemSubParser:
             print(f"inp[phases].keys(): {inp['phases'].keys()}")
             if nxem_phase_id not in inp["phases"].keys():
                 raise ValueError(f"{nxem_phase_id} is not a key in inp['phases'] !")
-            trg = f"{prfx}/EM_EBSD_CRYSTAL_STRUCTURE_MODEL[phase{nxem_phase_id}]"
+            trg = f"{prfx}/phaseID[phase{nxem_phase_id}]"
             template[f"{trg}/number_of_scan_points"] = np.uint32(
                 np.sum(inp["phase_id"] == nxem_phase_id)
             )
@@ -737,20 +724,16 @@ class NxEmNxsPyxemSubParser:
 
             trg = (
                 f"/ENTRY[entry{self.entry_id}]/ROI[roi{roi_id}]/ebsd/indexing"
-                f"/EM_EBSD_CRYSTAL_STRUCTURE_MODEL[phase{nxem_phase_id}]"
-                f"/MS_IPF[ipf{idx + 1}]"
+                f"/phaseID[phase{nxem_phase_id}]/ipfID[ipf{idx + 1}]"
             )
             template[f"{trg}/projection_direction"] = np.asarray(
                 PROJECTION_VECTORS[idx].data.flatten(), np.float32
             )
 
             # add the IPF color map
-            mpp = f"{trg}/DATA[map]"
+            mpp = f"{trg}/map"
             template[f"{mpp}/title"] = (
                 f"Inverse pole figure {PROJECTION_DIRECTIONS[idx][0]} {phase_name}"
-            )
-            template[f"{mpp}/@NX_class"] = (
-                f"NXdata"  # TODO::writer should decorate automatically!
             )
             template[f"{mpp}/@signal"] = "data"
             dims = ["x", "y", "z"]
@@ -782,14 +765,11 @@ class NxEmNxsPyxemSubParser:
                 template[f"{mpp}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit}"
 
             # add the IPF color map legend/key
-            lgd = f"{trg}/DATA[legend]"
+            lgd = f"{trg}/legend"
             template[f"{lgd}/title"] = (
                 f"Inverse pole figure {PROJECTION_DIRECTIONS[idx][0]} {phase_name}"
             )
             # template[f"{trg}/title"] = f"Inverse pole figure color key with SST"
-            template[f"{lgd}/@NX_class"] = (
-                f"NXdata"  # TODO::writer should decorate automatically!
-            )
             template[f"{lgd}/@signal"] = "data"
             template[f"{lgd}/@axes"] = []
             dims = ["x", "y"]
@@ -829,12 +809,9 @@ class NxEmNxsPyxemSubParser:
             if ckey.startswith("eds_spc") and inp[ckey] != {}:
                 trg = (
                     f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
-                    f"EVENT_DATA_EM[event_data_em{self.id_mgn['event']}]/"
-                    f"SPECTRUM_SET[spectrum_set{self.id_mgn['event_spc']}]/"
-                    f"DATA[spectrum_zerod]"
+                    f"EVENT_DATA_EM[event_data_em{self.id_mgn['event']}]/SPECTRUM_SET"
+                    f"[spectrum_set{self.id_mgn['event_spc']}]/spectrum_zerod"
                 )
-                # TODO::check if its a spectrum_zerod !!!
-                template[f"{trg}/@NX_class"] = "NXdata"  # TODO::should be autodecorated
                 template[f"{trg}/description"] = inp[ckey].tmp["source"]
                 template[f"{trg}/title"] = f"Region-of-interest overview image"
                 template[f"{trg}/@signal"] = "intensity"
@@ -882,29 +859,28 @@ class NxEmNxsPyxemSubParser:
                     template[f"{trg}/iupac_line_candidates"] = img.tmp[
                         "iupac_line_candidates"
                     ]
-                    template[f"{trg}/@NX_class"] = (
-                        "NXdata"  # TODO::should be autodecorated
+                    template[f"{trg}/image_twod/@signal"] = "intensity"
+                    template[f"{trg}/image_twod/@axes"] = ["axis_y", "axis_x"]
+                    template[f"{trg}/image_twod/title"] = (
+                        f"EDS map {img.tmp['description']}"
                     )
-                    template[f"{trg}/@signal"] = "intensity"
-                    template[f"{trg}/@axes"] = ["axis_y", "axis_x"]
-                    template[f"{trg}/title"] = f"EDS map {img.tmp['description']}"
-                    template[f"{trg}/intensity"] = {
+                    template[f"{trg}/image_twod/intensity"] = {
                         "compress": img.tmp["image_twod/intensity"].value,
                         "strength": 1,
                     }
-                    template[f"{trg}/intensity/@long_name"] = f"Signal"
+                    template[f"{trg}/image_twod/intensity/@long_name"] = f"Signal"
                     dims = [("x", 0), ("y", 1)]
                     for dim in dims:
-                        template[f"{trg}/@AXISNAME_indices[axis_{dim[0]}_indices]"] = (
-                            np.uint32(dim[1])
-                        )
-                        template[f"{trg}/AXISNAME[axis_{dim[0]}]"] = {
+                        template[
+                            f"{trg}/image_twod/@AXISNAME_indices[axis_{dim[0]}_indices]"
+                        ] = np.uint32(dim[1])
+                        template[f"{trg}/image_twod/AXISNAME[axis_{dim[0]}]"] = {
                             "compress": img.tmp[f"image_twod/axis_{dim[0]}"].value,
                             "strength": 1,
                         }
-                        template[f"{trg}/AXISNAME[axis_{dim[0]}]/@long_name"] = img.tmp[
-                            f"image_twod/axis_{dim[0]}@long_name"
-                        ].value
+                        template[
+                            f"{trg}/image_twod/AXISNAME[axis_{dim[0]}]/@long_name"
+                        ] = img.tmp[f"image_twod/axis_{dim[0]}@long_name"].value
                     self.id_mgn["eds_img"] += 1
                 self.id_mgn["roi"] += 1
 

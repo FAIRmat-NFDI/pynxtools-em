@@ -47,12 +47,12 @@ class NxEmImagesSubParser:
 
     def parse(self, template: dict) -> dict:
         image_parser_type = self.identify_image_type()
-        print(f"{self.__class__.__name__} identified content as {image_parser_type}")
         if image_parser_type is None:
             print(
                 f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
             )
             return template
+        print(f"{self.__class__.__name__} identified content as {image_parser_type}")
         # see also comments for respective nxs_pyxem parser
         # and its interaction with tech-partner-specific hfive_* subparsers
         if image_parser_type == "single_tiff_tfs":

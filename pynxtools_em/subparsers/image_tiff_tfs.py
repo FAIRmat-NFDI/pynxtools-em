@@ -67,6 +67,9 @@ class TfsTiffSubParser(TiffSubParser):
             if magic == b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                 self.supported += 1
             else:
+                print(
+                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+                )
                 self.supported = False
                 return
         with Image.open(self.file_path, mode="r") as fp:

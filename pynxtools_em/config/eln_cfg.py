@@ -32,13 +32,15 @@
 
 EM_EXAMPLE_ENTRY_TO_NEXUS = {
     "prefix": "/ENTRY[entry*]",
-    "load": ["experiment_alias", "start_time"],
+    "load": ["experiment_alias"],
+    "iso8601": ["start_time"],
 }
 
 
 EM_EXAMPLE_SAMPLE_TO_NEXUS = {
     "prefix": "/ENTRY[entry*]/sample",
-    "load": ["method", "atom_types", "preparation_date"],
+    "load": ["method", "atom_types"],
+    "iso8601": ["preparation_date"],
 }
 
 
