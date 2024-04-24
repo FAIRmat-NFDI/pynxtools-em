@@ -1,3 +1,3 @@
 # Context
 
-Utility code used by eventual multiple (sub)parsers of the em parser.
+Utility code used by components of pynxtools-em such as its (sub)parsers.

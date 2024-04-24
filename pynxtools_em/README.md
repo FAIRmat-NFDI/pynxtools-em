@@ -1,4 +1,6 @@
-# em reader
+<!---# em reader
+
+TODO:: refactor to place in mkdocs
 
 ## Purpose
 Tool for parsing electron microscopy research data from different representations
@@ -48,10 +50,7 @@ The following table shows which use cases and associated technology partner file
 | 3 | SEM/TEM generic imaging | ThermoFisher TIFF | n/a |
 | 4 | Energy-dispersive X-ray spectroscopy (EDS) via SEM/TEM | Bruker \*.bcf, ThermoFisher Velox \*.emd, Gatan Digital Micrograph \*.dm3, EDAX APEX \*.edaxh5 | em_spctrscpy |
 | 5 | Electron energy loss spectroscopy (EELS) | DM3, zip-compressed nionswift project directory | em_spctrscpy |
-| 6 | In-situ microscopy with Protochips AXONStudio | zip-compressed AXON Studio project | n/a |
+| 6 | In-situ microscopy with Protochips AXONStudio | zip-compressed AXON Studio project | n/a |-->
 
-## Manual
-Please inspect the 
-
-## Contact person for this reader
+## Contact person in FAIRmat for this reader
 Markus Kühbach
