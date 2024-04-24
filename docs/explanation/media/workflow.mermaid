@@ -1,0 +1,6 @@
+flowchart TD
+    ELN(eln_data.yaml) -->|Metadata entered via an ELN| EM(pynxtools-em)
+    CFG(em.specific.config.yaml) --> | Configuration inputted via given RDM| EM
+    DAT(... technology partner files ...) -->|Technology or community file formats| EM
+    EM --> |Interface to the dataconverter| DCONV(pynxtools)
+    DCONV --> |Verification of content against NXem, file I/O thereafter| NXS(NeXus/HDF5 NXem-compliant)

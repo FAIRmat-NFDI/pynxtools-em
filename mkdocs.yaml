@@ -9,10 +9,10 @@ nav:
     # - tutorial/nexusio.md
     # - tutorial/oasis.md
   - How-tos:
-    - how-tos/howto.md
-    - how-tos/pyxem.md
-    - how-tos/mtex.md
+    # - how-tos/howto.md
+    - how-tos/kikuchi.md
   - Learn:
+    - explanation/learn.md
     - explanation/implementation.md
   - Reference:
     - reference/contextualization.md

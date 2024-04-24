@@ -30,8 +30,7 @@ This is the place where to add documentation of [diátaxis](https://diataxis.fr)
 
 This is the place where to add documentation of [diátaxis](https://diataxis.fr) content type how-to guides.
 
-- [Kikuchi diffraction via pyxem](how-tos/pyxem.md)
-- [Kikuchi diffraction via MTex](how-tos/mtex.md)
+- [Kikuchi diffraction](how-tos/kikuchi.md)
 
 </div>
 
