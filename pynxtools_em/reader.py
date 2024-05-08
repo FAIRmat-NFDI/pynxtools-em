@@ -19,23 +19,19 @@
 
 from os import getcwd
 from time import perf_counter_ns
-from typing import Tuple, Any
-import numpy as np
+from typing import Any, Tuple
 
+import numpy as np
 from pynxtools.dataconverter.readers.base.reader import BaseReader
-from pynxtools_em.utils.io_case_logic import (
-    EmUseCaseSelector,
-)
+
+from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
+from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
 
 # from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
 from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
-from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
 
-# from pynxtools_em.subparsers.nxs_nion import NxEmZippedNionProjectSubParser
-from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
 ## from pynxtools_em.utils.default_plots import NxEmDefaultPlotResolver
 # from pynxtools_em.geometry.convention_mapper import NxEmConventionMapper
-
 # remaining subparsers to be implemented and merged into this one
 # from pynxtools.dataconverter.readers.em_om.utils.orix_ebsd_parser \
 #     import NxEmOmOrixEbsdParser
@@ -45,12 +41,16 @@ from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
 #     import NxEmOmZipEbsdParser
 # from pynxtools.dataconverter.readers.em_om.utils.em_nexus_plots \
 #     import em_om_default_plot_generator
-
 from pynxtools_em.subparsers.oasis_config_reader import (
     NxEmNomadOasisConfigurationParser,
 )
 from pynxtools_em.subparsers.oasis_eln_reader import NxEmNomadOasisElnSchemaParser
-from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
+
+# from pynxtools_em.subparsers.nxs_nion import NxEmZippedNionProjectSubParser
+from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
+from pynxtools_em.utils.io_case_logic import (
+    EmUseCaseSelector,
+)
 
 
 class EMReader(BaseReader):
@@ -146,7 +146,7 @@ class EMReader(BaseReader):
         #     if resolved_path != "":
         #         nxs_plt.annotate_default_plot(template, resolved_path)
 
-        debugging = True  # print(template)
+        debugging = False
         if debugging:
             print("Reporting state of template before passing to HDF5 writing...")
             for keyword in template.keys():

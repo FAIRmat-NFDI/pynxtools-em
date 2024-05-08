@@ -32,43 +32,42 @@
 # task for the community and instead focus here on showing a more diverse example
 # towards more interoperability between the different tools in the community
 
+import mmap
 import os
-import numpy as np
 
-from PIL import Image as pil
-from orix import plot
 import matplotlib.pyplot as plt  # in the hope that this closes figures with orix plot
+import numpy as np
+from orix import plot
 from orix.quaternion import Rotation
 from orix.quaternion.symmetry import get_point_group
 from orix.vector import Vector3d
+from PIL import Image as pil
 
-from pynxtools_em.utils.hfive_utils import read_strings_from_dataset
-from pynxtools_em.utils.hfive_web_constants import (
-    HFIVE_WEB_MAXIMUM_ROI,
-    HFIVE_WEB_MAXIMUM_RGB,
+from pynxtools_em.concepts.nxs_image_r_set import NxImageRealSpaceSet
+from pynxtools_em.subparsers.hfive_apex import HdfFiveEdaxApexReader
+from pynxtools_em.subparsers.hfive_bruker import HdfFiveBrukerEspritReader
+from pynxtools_em.subparsers.hfive_dreamthreed import HdfFiveDreamThreedReader
+from pynxtools_em.subparsers.hfive_ebsd import HdfFiveCommunityReader
+from pynxtools_em.subparsers.hfive_edax import HdfFiveEdaxOimAnalysisReader
+from pynxtools_em.subparsers.hfive_emsoft import HdfFiveEmSoftReader
+from pynxtools_em.subparsers.hfive_oxford import HdfFiveOxfordReader
+from pynxtools_em.utils.get_scan_points import (
+    get_scan_point_axis_values,
+    get_scan_point_coords,
+    hexagonal_grid,
+    square_grid,
+    threed,
 )
-from pynxtools_em.utils.hfive_web_utils import hfive_web_decorate_nxdata
-from pynxtools_em.utils.image_processing import thumbnail
 from pynxtools_em.utils.get_sqr_grid import (
     get_scan_points_with_mark_data_discretized_on_sqr_grid,
 )
-from pynxtools_em.utils.get_scan_points import (
-    square_grid,
-    hexagonal_grid,
-    threed,
-    get_scan_point_axis_values,
-    get_scan_point_coords,
+from pynxtools_em.utils.hfive_utils import read_strings_from_dataset
+from pynxtools_em.utils.hfive_web_constants import (
+    HFIVE_WEB_MAXIMUM_RGB,
+    HFIVE_WEB_MAXIMUM_ROI,
 )
-
-from pynxtools_em.subparsers.hfive_oxford import HdfFiveOxfordReader
-from pynxtools_em.subparsers.hfive_bruker import HdfFiveBrukerEspritReader
-from pynxtools_em.subparsers.hfive_edax import HdfFiveEdaxOimAnalysisReader
-from pynxtools_em.subparsers.hfive_apex import HdfFiveEdaxApexReader
-from pynxtools_em.subparsers.hfive_ebsd import HdfFiveCommunityReader
-from pynxtools_em.subparsers.hfive_emsoft import HdfFiveEmSoftReader
-from pynxtools_em.subparsers.hfive_dreamthreed import HdfFiveDreamThreedReader
-from pynxtools_em.concepts.nxs_image_r_set import NxImageRealSpaceSet
-
+from pynxtools_em.utils.hfive_web_utils import hfive_web_decorate_nxdata
+from pynxtools_em.utils.image_processing import thumbnail
 
 PROJECTION_VECTORS = [Vector3d.xvector(), Vector3d.yvector(), Vector3d.zvector()]
 PROJECTION_DIRECTIONS = [
@@ -128,7 +127,9 @@ class NxEmNxsPyxemSubParser:
     def parse(self, template: dict) -> dict:
         hfive_parser_type = self.identify_hfive_type()
         if hfive_parser_type is None:
-            print(f"{self.file_path} does not match any of the supported HDF5 formats")
+            print(
+                f"Parser PyXem/NeXus/HDF5 finds that {self.file_path} does not match any of the supported HDF5 formats"
+            )
             return template
         print(
             f"Parsing via {self.__class__.__name__} content type {hfive_parser_type}..."
@@ -200,6 +201,11 @@ class NxEmNxsPyxemSubParser:
 
     def identify_hfive_type(self):
         """Identify if HDF5 file matches a known format for which a subparser exists."""
+        with open(self.file_path, "rb", 0) as file:
+            s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
+            magic = s.read(4)
+            if magic != rb"\89HDF":
+                return None
         # tech partner formats used for measurement
         hdf = HdfFiveOxfordReader(self.file_path)
         if hdf.supported is True:
