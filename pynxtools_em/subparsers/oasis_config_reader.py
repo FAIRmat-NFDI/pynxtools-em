@@ -30,9 +30,8 @@
 import flatdict as fd
 import yaml
 
-
-from pynxtools_em.config.oasis_cfg import EM_EXAMPLE_CSYS_TO_NEXUS
 from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
+from pynxtools_em.config.oasis_cfg import EM_EXAMPLE_CSYS_TO_NEXUS
 
 
 class NxEmNomadOasisConfigurationParser:
@@ -40,7 +39,7 @@ class NxEmNomadOasisConfigurationParser:
 
     def __init__(self, file_path: str, entry_id: int, verbose: bool = False):
         print(
-            f"Extracting data from deployment-specific configuration file: {file_path}"
+            f"Extracting data from deployment-specific configuration file {file_path} ..."
         )
         if (
             file_path.rsplit("/", 1)[-1].endswith(".oasis.specific.yaml")

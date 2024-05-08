@@ -18,31 +18,32 @@
 """Subparser for harmonizing ThermoFisher-specific content in TIFF files."""
 
 import mmap
-import numpy as np
-import flatdict as fd
 from typing import Dict
+
+import flatdict as fd
+import numpy as np
 from PIL import Image
 from PIL.TiffTags import TAGS
 
-from pynxtools_em.subparsers.image_tiff import TiffSubParser
-from pynxtools_em.subparsers.image_tiff_tfs_concepts import (
-    get_fei_parent_concepts,
-    get_fei_childs,
-)
+from pynxtools_em.concepts.concept_mapper import add_specific_metadata
 from pynxtools_em.config.image_tiff_tfs_cfg import (
     TFS_APERTURE_STATIC_TO_NX_EM,
     TFS_DETECTOR_STATIC_TO_NX_EM,
-    TFS_VARIOUS_STATIC_TO_NX_EM,
     TFS_OPTICS_DYNAMIC_TO_NX_EM,
-    TFS_STAGE_DYNAMIC_TO_NX_EM,
     TFS_SCAN_DYNAMIC_TO_NX_EM,
+    TFS_STAGE_DYNAMIC_TO_NX_EM,
     TFS_VARIOUS_DYNAMIC_TO_NX_EM,
+    TFS_VARIOUS_STATIC_TO_NX_EM,
+)
+from pynxtools_em.subparsers.image_tiff import TiffSubParser
+from pynxtools_em.subparsers.image_tiff_tfs_concepts import (
+    get_fei_childs,
+    get_fei_parent_concepts,
 )
 from pynxtools_em.utils.image_utils import (
-    sort_ascendingly_by_second_argument,
     if_str_represents_float,
+    sort_ascendingly_by_second_argument,
 )
-from pynxtools_em.concepts.concept_mapper import add_specific_metadata
 
 
 class TfsTiffSubParser(TiffSubParser):
@@ -87,7 +88,7 @@ class TfsTiffSubParser(TiffSubParser):
 
     def get_metadata(self):
         """Extract metadata in TFS specific tags if present."""
-        print("Reporting the tags found in this TIFF file...")
+        print("Parsing TIFF tags...")
         # for an overview of tags
         # https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
         # with Image.open(self.file_path, mode="r") as fp:
@@ -104,9 +105,10 @@ class TfsTiffSubParser(TiffSubParser):
                 pos = s.find(bytes(f"[{concept}]", "utf8"))  # != -1
                 if pos != -1:
                     tfs_parent_concepts_byte_offset[concept] = pos
-                else:
-                    print(f"Instance of concept [{concept}] was not found !")
-            print(tfs_parent_concepts_byte_offset)
+                # else:
+                #     print(f"Instance of concept [{concept}] was not found !")
+            if self.verbose:
+                print(tfs_parent_concepts_byte_offset)
 
             sequence = []  # decide I/O order in which metadata for childs of parent concepts will be read
             for key, value in tfs_parent_concepts_byte_offset.items():
@@ -114,7 +116,8 @@ class TfsTiffSubParser(TiffSubParser):
                     sequence.append((key, value))
                     # tuple of parent_concept name and byte offset
             sequence = sort_ascendingly_by_second_argument(sequence)
-            print(sequence)
+            if self.verbose:
+                print(sequence)
 
             idx = 0
             for parent, byte_offset in sequence:
@@ -183,7 +186,9 @@ class TfsTiffSubParser(TiffSubParser):
     def process_event_data_em_data(self, template: dict) -> dict:
         """Add respective heavy data."""
         # default display of the image(s) representing the data collected in this event
-        print(f"Writing TFS/FEI TIFF image as a onto the respective NeXus concept")
+        print(
+            f"Writing TFS/FEI TIFF image data to the respective NeXus concept instances..."
+        )
         # read image in-place
         with Image.open(self.file_path, mode="r") as fp:
             nparr = np.array(fp)
@@ -310,7 +315,7 @@ class TfsTiffSubParser(TiffSubParser):
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
-        print(f"Mapping some of the TFS/FEI metadata concepts onto NeXus concepts")
+        print(f"Mapping some of the TFS/FEI metadata on respective NeXus concepts...")
         self.add_aperture_static_metadata(template)
         self.add_detector_static_metadata(template)
         self.add_various_static_metadata(template)

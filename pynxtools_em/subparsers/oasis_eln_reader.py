@@ -20,13 +20,12 @@
 import flatdict as fd
 import yaml
 
-
+from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
 from pynxtools_em.config.eln_cfg import (
     EM_EXAMPLE_ENTRY_TO_NEXUS,
     EM_EXAMPLE_SAMPLE_TO_NEXUS,
     EM_EXAMPLE_USER_TO_NEXUS,
 )
-from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
 
 
 class NxEmNomadOasisElnSchemaParser:
@@ -37,7 +36,7 @@ class NxEmNomadOasisElnSchemaParser:
     """
 
     def __init__(self, file_path: str, entry_id: int, verbose: bool = False):
-        print(f"Extracting data from ELN file: {file_path}")
+        print(f"Extracting data from ELN file {file_path} ...")
         if (
             file_path.rsplit("/", 1)[-1].startswith("eln_data")
             or file_path.startswith("eln_data")

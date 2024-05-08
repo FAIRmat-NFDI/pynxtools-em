@@ -17,12 +17,13 @@
 #
 """Parent class for all tech partner-specific image parsers for mapping on NXem."""
 
-import numpy as np
 from typing import Dict, List
+
+import numpy as np
 
 
 class ImgsBaseParser:
-    def __init__(self, file_path: str = ""):
+    def __init__(self, file_path: str = "", verbose=False):
         # self.supported_version = VERSION_MANAGEMENT
         # self.version = VERSION_MANAGEMENT
         # tech_partner the company which designed this format
@@ -31,6 +32,7 @@ class ImgsBaseParser:
         # writer_name the specific name of the tech_partner's (typically proprietary) software
         self.prfx = None
         self.tmp: Dict = {}
+        self.verbose = verbose
         if file_path is not None and file_path != "":
             self.file_path = file_path
         else:

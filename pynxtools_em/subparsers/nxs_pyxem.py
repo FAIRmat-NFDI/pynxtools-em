@@ -204,7 +204,7 @@ class NxEmNxsPyxemSubParser:
         with open(self.file_path, "rb", 0) as file:
             s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
             magic = s.read(4)
-            if magic != rb"\89HDF":
+            if magic != b"\x89HDF":
                 return None
         # tech partner formats used for measurement
         hdf = HdfFiveOxfordReader(self.file_path)
