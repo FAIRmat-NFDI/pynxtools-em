@@ -17,7 +17,8 @@
 #
 """Logics and functionality to identify and annotate a default plot NXem."""
 
-import h5py
+from typing import Dict
+
 import numpy as np
 
 
@@ -27,29 +28,70 @@ class NxEmDefaultPlotResolver:
     def __init__(self):
         pass
 
-    def annotate_default_plot(self, template: dict, plot_nxpath: str = "") -> dict:
-        """Write path to the default plot from root to plot_nxpath."""
-        if plot_nxpath != "":
-            print(plot_nxpath)
-            tmp = plot_nxpath.split("/")
-            print(tmp)
-            for idx in np.arange(0, len(tmp)):
-                if tmp[idx] != "":
-                    if idx != 0:
-                        template[f'{"/".join(tmp[0:idx])}/@default'] = tmp[idx]
+    def decorate_path_to_default_plot(self, template: dict, nxpath: str) -> dict:
+        """Write @default attribute to point to the default plot."""
+        # an example for nxpath
+        # "/ENTRY[entry1]/atom_probe/ranging/mass_to_charge_distribution/mass_spectrum"
+        if nxpath.count("/") == 0:
+            return template
+        path = nxpath.split("/")
+        trg = "/"
+        for idx in np.arange(0, len(path) - 1):
+            symbol_s = path[idx + 1].find("[")
+            symbol_e = path[idx + 1].find("]")
+            if 0 <= symbol_s < symbol_e:
+                template[f"{trg}@default"] = f"{path[idx + 1][symbol_s + 1:symbol_e]}"
+                trg += f"{path[idx + 1][symbol_s + 1:symbol_e]}/"
+            else:
+                template[f"{trg}@default"] = f"{path[idx + 1]}"
+                trg += f"{path[idx + 1]}/"
         return template
 
-    def nxs_mtex_get_nxpath_to_default_plot(
-        self, entry_id: int = 1, nxs_mtex_file_name: str = ""
-    ) -> str:
-        """Find a path to a default plot (i.e. NXdata instance) if any."""
-        h5r = h5py.File(nxs_mtex_file_name, "r")
-        if f"/entry{entry_id}/roi1/ebsd/indexing/roi" in h5r:
-            h5r.close()
-            return f"/entry{entry_id}/roi1/ebsd/indexing/roi"
-        h5r.close()
-        return ""
+    def priority_select(self, template: dict, entry_id: int = 1) -> dict:
+        """Inspects all NXdata instances that could serve as default plots and picks one."""
+        # find candidates
+        candidates: Dict = {}
+        for votes in [1, 2, 3]:
+            candidates[votes] = []
 
-    def parse(self, template: dict, entry_id: int = 1) -> dict:
-        """Pass because for *.nxs.mtex all data are already in the copy of the output."""
+        dtyp_vote = [
+            ("IMAGE_R_SET", "image", 1),
+            ("IMAGE_C_SET", "image", 2),
+            ("SPECTRUM_SET", "spectrum", 3),
+        ]
+        for tpl in dtyp_vote:
+            for key in template.keys():
+                for dimensionality in ["zerod", "oned", "twod", "threed"]:
+                    head = f"{tpl[0]}["
+                    idx_head = key.find(head)
+                    tail = f"]/{tpl[1]}_{dimensionality}"
+                    idx_tail = key.find(tail)
+                    # TODO: better use a regex
+                    if idx_head is None or idx_tail is None:
+                        continue
+                    if 0 < idx_head < idx_tail:
+                        keyword = f"{key[0:idx_tail + len(tail)]}"
+                        if keyword not in candidates[tpl[2]]:
+                            candidates[tpl[2]].append(keyword)
+                        break
+
+        for votes in [1, 2, 3]:
+            print(f"NXdata instances with priority {votes}:")
+            for entry in candidates[votes]:
+                print(entry)
+
+        # maybe we want to sort
+
+        has_default_plot = False
+        for votes in [3, 2, 1]:
+            if len(candidates[votes]) > 0:
+                self.decorate_path_to_default_plot(template, candidates[votes][0])
+                print(
+                    f"Decorating {candidates[votes][0]} as the default plot for H5Web ..."
+                )
+                has_default_plot = True
+                break
+
+        if not has_default_plot:
+            print("WARNING::No default plot!")
         return template

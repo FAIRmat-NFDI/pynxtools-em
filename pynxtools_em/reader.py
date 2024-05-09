@@ -30,6 +30,14 @@ from pynxtools_em.subparsers.nxs_nion import ZipNionProjectSubParser
 
 # from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
 from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
+from pynxtools_em.subparsers.oasis_config_reader import (
+    NxEmNomadOasisConfigurationParser,
+)
+from pynxtools_em.subparsers.oasis_eln_reader import NxEmNomadOasisElnSchemaParser
+from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
+from pynxtools_em.utils.io_case_logic import (
+    EmUseCaseSelector,
+)
 
 ## from pynxtools_em.utils.default_plots import NxEmDefaultPlotResolver
 # from pynxtools_em.geometry.convention_mapper import NxEmConventionMapper
@@ -40,16 +48,7 @@ from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
 #     import NxEmOmMtexEbsdParser
 # from pynxtools.dataconverter.readers.em_om.utils.zip_ebsd_parser \
 #     import NxEmOmZipEbsdParser
-# from pynxtools.dataconverter.readers.em_om.utils.em_nexus_plots \
-#     import em_om_default_plot_generator
-from pynxtools_em.subparsers.oasis_config_reader import (
-    NxEmNomadOasisConfigurationParser,
-)
-from pynxtools_em.subparsers.oasis_eln_reader import NxEmNomadOasisElnSchemaParser
-from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
-from pynxtools_em.utils.io_case_logic import (
-    EmUseCaseSelector,
-)
+from pynxtools_em.utils.nx_default_plots import NxEmDefaultPlotResolver
 
 
 class EMReader(BaseReader):
@@ -131,7 +130,9 @@ class EMReader(BaseReader):
             #    # elif case.dat_parser_type == "zip":
             #    #     zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id)
             #    #     zip_parser.parse(template)
-        # em_default_plot_generator(template, 1)
+
+        nxplt = NxEmDefaultPlotResolver()
+        nxplt.priority_select(template)
 
         # run_block = False
         # if run_block is True:
