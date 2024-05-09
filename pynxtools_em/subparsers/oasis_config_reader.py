@@ -27,11 +27,13 @@
 #           ("/ENTRY[entry*]/USER[user*]/name, "load", "name")
 #           if pair load the value pointed to by src and copy into trg
 
+import pathlib
+
 import flatdict as fd
 import yaml
 
-from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
-from pynxtools_em.config.oasis_cfg import EM_EXAMPLE_CSYS_TO_NEXUS
+from pynxtools_em.concepts.mapping_functors import add_specific_metadata
+from pynxtools_em.config.oasis_cfg import EM_CSYS_TO_NEXUS
 
 
 class NxEmNomadOasisConfigurationParser:
@@ -42,14 +44,14 @@ class NxEmNomadOasisConfigurationParser:
             f"Extracting data from deployment-specific configuration file {file_path} ..."
         )
         if (
-            file_path.rsplit("/", 1)[-1].endswith(".oasis.specific.yaml")
-            or file_path.endswith(".oasis.specific.yml")
+            pathlib.Path(file_path).name.endswith(".oasis.specific.yaml")
+            or pathlib.Path(file_path).name.endswith(".oasis.specific.yml")
         ) and entry_id > 0:
             self.entry_id = entry_id
             self.file_path = file_path
             with open(self.file_path, "r", encoding="utf-8") as stream:
                 self.yml = fd.FlatDict(yaml.safe_load(stream), delimiter="/")
-                if verbose is True:
+                if verbose:
                     for key, val in self.yml.items():
                         print(f"key: {key}, val: {val}")
         else:
@@ -69,23 +71,12 @@ class NxEmNomadOasisConfigurationParser:
                         if csys_dict == {}:
                             continue
                         identifier = [self.entry_id, csys_id]
-                        variadic_prefix = EM_EXAMPLE_CSYS_TO_NEXUS["prefix"]
-                        for key in csys_dict:
-                            for entry in EM_EXAMPLE_CSYS_TO_NEXUS["load"]:
-                                if isinstance(entry, str):
-                                    if key == entry:
-                                        trg = variadic_path_to_specific_path(
-                                            f"{variadic_prefix}/{entry}", identifier
-                                        )
-                                        template[trg] = csys_dict[entry]
-                                        break
-                                if isinstance(entry, tuple) and len(entry) == 2:
-                                    if key == entry[1]:
-                                        trg = variadic_path_to_specific_path(
-                                            f"{variadic_prefix}/{entry[0]}", identifier
-                                        )
-                                        template[trg] = csys_dict[entry[1]]
-                                        break
+                        add_specific_metadata(
+                            EM_CSYS_TO_NEXUS,
+                            fd.FlatDict(csys_dict),
+                            identifier,
+                            template,
+                        )
                         csys_id += 1
         return template
 

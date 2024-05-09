@@ -17,10 +17,14 @@
 #
 """Utilities for working with NeXus concepts encoded as Python dicts in the concepts dir."""
 
+# these mapping functions are considered deprecated and
+# should be replaced with those from mapping_functors !!
+
 from datetime import datetime
-import pytz
+
 import flatdict as fd
 import numpy as np
+import pytz
 
 from pynxtools_em.utils.string_conversions import string_to_number
 

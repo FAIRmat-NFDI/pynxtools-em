@@ -109,8 +109,8 @@ VELOX_STAGE_TO_NX_EM = {
 }
 # we do not know whether the angle is radiant or degree, in all examples
 # the instance values are very small so can be both :( needs clarification
-# we also cannot document this into the NeXus file like @units = "Check this"
-# because then the dataconverter (rightly so complains) that the string "Check this"
+# we also cannot document this into the NeXus file like @units = "check this"
+# because then the dataconverter (rightly so complains) that the string "check this"
 # is not a proper unit for an instance of NX_VOLTAGE
 
 

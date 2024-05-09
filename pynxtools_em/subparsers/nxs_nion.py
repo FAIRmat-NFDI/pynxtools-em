@@ -20,17 +20,16 @@
 
 # pylint: disable=no-member
 
-import mmap
-import yaml
 import json
+import mmap
+from typing import Dict, List
+from zipfile import ZipFile
+
 import flatdict as fd
-import numpy as np
 import h5py
 import nion.swift.model.NDataHandler as nsnd
-from zipfile import ZipFile
-from typing import Dict, List
-
-from pynxtools_em.utils.nion_utils import uuid_to_file_name
+import numpy as np
+import yaml
 
 # from pynxtools_em.utils.swift_generate_dimscale_axes \
 #     import get_list_of_dimension_scale_axes
@@ -41,20 +40,24 @@ from pynxtools_em.utils.nion_utils import uuid_to_file_name
 # from pynxtools_em.swift_to_nx_image_real_space \
 #    import NxImageRealSpaceDict
 from pynxtools_em.utils.get_file_checksum import (
-    get_sha256_of_file_content,
     DEFAULT_CHECKSUM_ALGORITHM,
+    get_sha256_of_file_content,
 )
+from pynxtools_em.utils.nion_utils import uuid_to_file_name
 
 
-class NxEmZippedNionProjectSubParser:
+class ZipNionProjectSubParser:
     """Parse zip-compressed archive of a nionswift project with its content."""
 
-    def __init__(self, entry_id: int = 1, input_file_path: str = ""):
+    def __init__(
+        self, entry_id: int = 1, input_file_path: str = "", verbose: bool = False
+    ):
         """Class wrapping swift parser."""
         if input_file_path is not None and input_file_path != "":
             self.file_path = input_file_path
-        else:
-            raise ValueError(f"{__name__} needs proper instantiation !")
+        if not self.file_path.endswith(".zip.nion"):
+            self.supported = False
+            return
         if entry_id > 0:
             self.entry_id = entry_id
         else:
@@ -72,6 +75,7 @@ class NxEmZippedNionProjectSubParser:
         # just get the *.h5 files irrespective whether parsed later or not
         self.configure()
         self.supported = False
+        self.verbose = verbose
 
     def configure(self):
         self.tmp["cfg"]: Dict = {}
@@ -83,6 +87,12 @@ class NxEmZippedNionProjectSubParser:
 
     def check_if_zipped_nionswift_project_file(self, verbose=False):
         """Inspect the content of the compressed project file to check if supported."""
+        if self.supported is False:
+            print(
+                f"Parser ZipNionProject finds no content in {self.file_path} that it supports"
+            )
+            return False
+
         with open(self.file_path, "rb", 0) as fp:
             s = mmap.mmap(fp.fileno(), 0, access=mmap.ACCESS_READ)
             magic = s.read(8)
@@ -245,12 +255,13 @@ class NxEmZippedNionProjectSubParser:
         # this should be done more elegantly by just writing the
         # data directly into the template and not creating another copy
         # TODO::only during inspection
-        return template
-
+        """
         self.map_to_nexus(flat_metadata_dict, data_arr, nx_concept_name, template)
         del flat_metadata_dict
         del data_arr
         del nx_concept_name
+        return template
+        """
         return template
 
     def process_hfive(self, file_hdl, full_path, template: dict, verbose=False):
@@ -369,11 +380,9 @@ class NxEmZippedNionProjectSubParser:
 
     def parse(self, template: dict, verbose=False) -> dict:
         """Parse NOMAD OASIS relevant data and metadata from swift project."""
-        print(
-            "Parsing in-place from zip-compressed nionswift project (nsproj + directory)..."
-        )
-        if self.check_if_zipped_nionswift_project_file(verbose) is False:
-            return template
-
-        self.parse_project_file(template, verbose)
+        if self.check_if_zipped_nionswift_project_file(verbose):
+            print(
+                "Parsing in-place from zip-compressed nionswift project (nsproj + directory)..."
+            )
+            self.parse_project_file(template, verbose)
         return template

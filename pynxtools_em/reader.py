@@ -26,6 +26,7 @@ from pynxtools.dataconverter.readers.base.reader import BaseReader
 
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
+from pynxtools_em.subparsers.nxs_nion import ZipNionProjectSubParser
 
 # from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
 from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
@@ -45,8 +46,6 @@ from pynxtools_em.subparsers.oasis_config_reader import (
     NxEmNomadOasisConfigurationParser,
 )
 from pynxtools_em.subparsers.oasis_eln_reader import NxEmNomadOasisElnSchemaParser
-
-# from pynxtools_em.subparsers.nxs_nion import NxEmZippedNionProjectSubParser
 from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
 from pynxtools_em.utils.io_case_logic import (
     EmUseCaseSelector,
@@ -123,9 +122,8 @@ class EMReader(BaseReader):
             nxs_pyxem = NxEmNxsPyxemSubParser(entry_id, case.dat[0], verbose=False)
             nxs_pyxem.parse(template)
 
-            # nxs_nion = NxEmZippedNionProjectSubParser(entry_id, case.dat[0], verbose=False)
-            # nxs_nion.parse(template)
-            # TODO::check correct loop through!
+            nxs_nion = ZipNionProjectSubParser(entry_id, case.dat[0], verbose=False)
+            nxs_nion.parse(template)
 
             # for dat_instance in case.dat_parser_type:
             #     print(f"Process pieces of information in {dat_instance} tech partner file...")
