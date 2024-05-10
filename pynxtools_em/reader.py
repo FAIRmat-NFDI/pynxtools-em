@@ -134,17 +134,6 @@ class EMReader(BaseReader):
         nxplt = NxEmDefaultPlotResolver()
         nxplt.priority_select(template)
 
-        # run_block = False
-        # if run_block is True:
-        #     nxs_plt = NxEmDefaultPlotResolver()
-        #     # if nxs_mtex is the sub-parser
-        #     resolved_path = nxs_plt.nxs_mtex_get_nxpath_to_default_plot(
-        #         entry_id, file_paths[0]
-        #     )
-        #     # print(f"DEFAULT PLOT IS {resolved_path}")
-        #     if resolved_path != "":
-        #         nxs_plt.annotate_default_plot(template, resolved_path)
-
         debugging = False
         if debugging:
             print("Reporting state of template before passing to HDF5 writing...")

@@ -17,11 +17,9 @@
 #
 """NXobject (element of a labelled property graph) to store instance data."""
 
-# pylint: disable=no-member,too-few-public-methods
+from typing import Dict
 
 import numpy as np
-
-from typing import Dict
 
 
 class NxObject:

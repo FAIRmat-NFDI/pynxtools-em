@@ -17,8 +17,6 @@
 #
 """Utility class to analyze which vendor/community files are passed to apm reader."""
 
-# pylint: disable=no-member,duplicate-code,too-many-branches
-
 from typing import Dict, List, Tuple
 
 VALID_FILE_NAME_SUFFIX_CONFIG = [".yaml", ".yml"]

@@ -17,8 +17,6 @@
 #
 """Utility function for mapping nionswift identifier to suffix used for identifying files in project."""
 
-# pylint: disable=no-member
-
 import uuid
 
 # see https://github.com/nion-software/nionswift/blob/e95839c5602d009006ea88a648e5f78dc77c1ea4/

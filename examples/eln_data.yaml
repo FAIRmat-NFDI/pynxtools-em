@@ -1,10 +1,16 @@
 entry:
-  experiment_alias: Testing experiment_alias
-  start_time: 2024-04-08T11:11:11.000Z
+  experiment_alias: test
+  start_time: "2024-05-08T12:56:00+00:00"
+  end_time: "2024-05-08T12:56:00+00:00"
+  experiment_description: "<p>Normal</p>\n<p><strong>Bold</strong></p>\n<p><em>Italics</em></p>"
 sample:
   method: experiment
-  atom_types: Xe, Yb, Zn
-  preparation_date: 2024-04-08T11:11:11.000Z
+  name: test
+  atom_types: Yb, Gd
+  preparation_date: "2024-05-08T13:06:00+00:00"
+  thickness:
+    value: 100.0
+    unit: m
 user:
 - name: MarkusK
   orcid: "0000"

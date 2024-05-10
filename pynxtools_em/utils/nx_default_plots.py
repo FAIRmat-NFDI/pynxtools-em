@@ -51,8 +51,11 @@ class NxEmDefaultPlotResolver:
         """Inspects all NXdata instances that could serve as default plots and picks one."""
         # find candidates for interesting default plots with some priority
         # priority ipf map > roi overview > spectra > complex image > real image
+        # TODO: some of the here used idx_head, idx_tail string mangling could be
+        # made likely better with using a regex
         candidates: Dict = {}
-        for votes in [1, 2, 3, 4, 5]:
+        priorities = [1, 2, 3, 4, 5]
+        for votes in priorities:
             candidates[votes] = []
 
         dtyp_vote = [
@@ -67,7 +70,6 @@ class NxEmDefaultPlotResolver:
                     idx_head = key.find(head)
                     tail = f"]/{tpl[1]}_{dimensionality}"
                     idx_tail = key.find(tail)
-                    # TODO: better use a regex
                     if idx_head is not None and idx_tail is not None:
                         if 0 < idx_head < idx_tail:
                             keyword = f"{key[0:idx_tail + len(tail)]}"
@@ -94,16 +96,16 @@ class NxEmDefaultPlotResolver:
                     if keyword not in candidates[4]:
                         candidates[4].append(keyword)
 
-        # one could think about more fine-grained priority voting, e.g. based on
+        # TODO:one could think about more fine-grained priority voting, e.g. based on
         # image descriptors or shape of the data behind a key in template
+        # but this will likely escalate into a discussion about personal preferences
+        # and particularity details
 
-        for votes in [1, 2, 3, 4, 5]:
-            print(f"NXdata instances with priority {votes}:")
-            for entry in candidates[votes]:
-                print(entry)
+        for votes in priorities:
+            print(f"{len(candidates[votes])} NXdata instances with priority {votes}")
 
         has_default_plot = False
-        for votes in [5, 4, 3, 2, 1]:
+        for votes in priorities[::-1]:
             if len(candidates[votes]) > 0:
                 self.decorate_path_to_default_plot(template, candidates[votes][0])
                 print(

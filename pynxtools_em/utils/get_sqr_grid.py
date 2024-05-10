@@ -17,8 +17,6 @@
 #
 """Discretize point cloud in R^d (d=2, 3) with mark data to square/cube voxel grid."""
 
-# pylint: disable=no-member
-
 import numpy as np
 from scipy.spatial import KDTree
 

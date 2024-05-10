@@ -18,8 +18,6 @@
 
 """Parse Nion-specific content in a file containing a zip-compressed nionswift project."""
 
-# pylint: disable=no-member
-
 import json
 import mmap
 from typing import Dict, List
