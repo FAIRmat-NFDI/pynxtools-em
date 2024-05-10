@@ -17,15 +17,13 @@
 #
 """Identify likely scan_point_positions for specific EBSD grid types."""
 
-# pylint: disable=no-member
-
 import numpy as np
 
 from pynxtools_em.examples.ebsd_database import (
-    HEXAGONAL_GRID,
-    SQUARE_GRID,
-    REGULAR_TILING,
     FLIGHT_PLAN,
+    HEXAGONAL_GRID,
+    REGULAR_TILING,
+    SQUARE_GRID,
 )
 
 

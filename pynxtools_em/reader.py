@@ -19,23 +19,28 @@
 
 from os import getcwd
 from time import perf_counter_ns
-from typing import Tuple, Any
-import numpy as np
+from typing import Any, Tuple
 
+import numpy as np
 from pynxtools.dataconverter.readers.base.reader import BaseReader
+
+from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
+from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
+from pynxtools_em.subparsers.nxs_nion import ZipNionProjectSubParser
+
+# from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
+from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
+from pynxtools_em.subparsers.oasis_config_reader import (
+    NxEmNomadOasisConfigurationParser,
+)
+from pynxtools_em.subparsers.oasis_eln_reader import NxEmNomadOasisElnSchemaParser
+from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
 from pynxtools_em.utils.io_case_logic import (
     EmUseCaseSelector,
 )
 
-# from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
-from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
-from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
-
-# from pynxtools_em.subparsers.nxs_nion import NxEmZippedNionProjectSubParser
-from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
 ## from pynxtools_em.utils.default_plots import NxEmDefaultPlotResolver
 # from pynxtools_em.geometry.convention_mapper import NxEmConventionMapper
-
 # remaining subparsers to be implemented and merged into this one
 # from pynxtools.dataconverter.readers.em_om.utils.orix_ebsd_parser \
 #     import NxEmOmOrixEbsdParser
@@ -43,14 +48,7 @@ from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
 #     import NxEmOmMtexEbsdParser
 # from pynxtools.dataconverter.readers.em_om.utils.zip_ebsd_parser \
 #     import NxEmOmZipEbsdParser
-# from pynxtools.dataconverter.readers.em_om.utils.em_nexus_plots \
-#     import em_om_default_plot_generator
-
-from pynxtools_em.subparsers.oasis_config_reader import (
-    NxEmNomadOasisConfigurationParser,
-)
-from pynxtools_em.subparsers.oasis_eln_reader import NxEmNomadOasisElnSchemaParser
-from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
+from pynxtools_em.utils.nx_default_plots import NxEmDefaultPlotResolver
 
 
 class EMReader(BaseReader):
@@ -123,9 +121,8 @@ class EMReader(BaseReader):
             nxs_pyxem = NxEmNxsPyxemSubParser(entry_id, case.dat[0], verbose=False)
             nxs_pyxem.parse(template)
 
-            # nxs_nion = NxEmZippedNionProjectSubParser(entry_id, case.dat[0], verbose=False)
-            # nxs_nion.parse(template)
-            # TODO::check correct loop through!
+            nxs_nion = ZipNionProjectSubParser(entry_id, case.dat[0], verbose=False)
+            nxs_nion.parse(template)
 
             # for dat_instance in case.dat_parser_type:
             #     print(f"Process pieces of information in {dat_instance} tech partner file...")
@@ -133,20 +130,11 @@ class EMReader(BaseReader):
             #    # elif case.dat_parser_type == "zip":
             #    #     zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id)
             #    #     zip_parser.parse(template)
-        # em_default_plot_generator(template, 1)
 
-        # run_block = False
-        # if run_block is True:
-        #     nxs_plt = NxEmDefaultPlotResolver()
-        #     # if nxs_mtex is the sub-parser
-        #     resolved_path = nxs_plt.nxs_mtex_get_nxpath_to_default_plot(
-        #         entry_id, file_paths[0]
-        #     )
-        #     # print(f"DEFAULT PLOT IS {resolved_path}")
-        #     if resolved_path != "":
-        #         nxs_plt.annotate_default_plot(template, resolved_path)
+        nxplt = NxEmDefaultPlotResolver()
+        nxplt.priority_select(template)
 
-        debugging = True  # print(template)
+        debugging = False
         if debugging:
             print("Reporting state of template before passing to HDF5 writing...")
             for keyword in template.keys():

@@ -17,21 +17,22 @@
 #
 """(Sub-)parser mapping concepts and content from Oxford Instruments *.h5oina files on NXem."""
 
-import numpy as np
-import h5py
 from typing import Dict
+
+import h5py
+import numpy as np
 from diffpy.structure import Lattice, Structure
 
+from pynxtools_em.examples.ebsd_database import (
+    FLIGHT_PLAN,
+    REGULAR_TILING,
+    SQUARE_GRID,
+)
 from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.hfive_utils import (
-    read_strings_from_dataset,
     format_euler_parameterization,
+    read_strings_from_dataset,
 )
-from pynxtools_em.examples.ebsd_database import (
-    SQUARE_GRID,
-    REGULAR_TILING,
-    FLIGHT_PLAN,
-)  # HEXAGONAL_GRID
 
 
 class HdfFiveOxfordReader(HdfFiveBaseParser):

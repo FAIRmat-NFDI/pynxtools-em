@@ -17,9 +17,7 @@
 #
 """Utility class to analyze which vendor/community files are passed to apm reader."""
 
-# pylint: disable=no-member,duplicate-code,too-many-branches
-
-from typing import Tuple, Dict, List
+from typing import Dict, List, Tuple
 
 VALID_FILE_NAME_SUFFIX_CONFIG = [".yaml", ".yml"]
 VALID_FILE_NAME_SUFFIX_DATA = [
@@ -27,13 +25,14 @@ VALID_FILE_NAME_SUFFIX_DATA = [
     ".tiff",
     ".tif",
     ".zip.axon",
+    ".zip.nion",
     ".edaxh5",
     ".h5",
     ".hdf5",
     ".nxs",
     ".dream3d",
 ]
-# ".dm3", ".dm4", ".mtex", ".nion"]
+# ".dm3", ".dm4", ".mtex"]
 
 
 class EmUseCaseSelector:

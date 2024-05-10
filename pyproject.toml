@@ -50,6 +50,9 @@ dev = [
     "pytest",
     "types-pyyaml",
     "pip-tools",
+    "jupyter",
+    "jupyterlab",
+    "jupyterlab-h5web"
 ]
 
 [project.entry-points."pynxtools.reader"]

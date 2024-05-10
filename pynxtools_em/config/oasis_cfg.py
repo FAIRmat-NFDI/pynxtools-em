@@ -22,9 +22,9 @@
 # import datetime as dt
 # f"{dt.datetime.now(dt.timezone.utc).isoformat().replace('+00:00', 'Z')}",
 
-EM_EXAMPLE_CSYS_TO_NEXUS = {
-    "prefix": "/ENTRY[entry*]/coordinate_system_set/COORDINATE_SYSTEM[coordinate_system*]",
-    "load": [
+EM_CSYS_TO_NEXUS = {
+    "prefix_trg": "/ENTRY[entry*]/coordinate_system_set/COORDINATE_SYSTEM[coordinate_system*]",
+    "map": [
         "alias",
         "type",
         "handedness",

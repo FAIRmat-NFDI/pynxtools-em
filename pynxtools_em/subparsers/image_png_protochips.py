@@ -17,36 +17,37 @@
 #
 """Subparser for exemplar reading of raw PNG files collected on a TEM with Protochip heating_chip."""
 
+import datetime
 import mmap
 import re
-import numpy as np
-import xmltodict
-import datetime
-import flatdict as fd
 from typing import Dict, List
-from PIL import Image
 from zipfile import ZipFile
 
-from pynxtools_em.config.image_png_protochips_cfg import (
-    specific_to_variadic,
-    AXON_DETECTOR_STATIC_TO_NX_EM,
-    AXON_STAGE_STATIC_TO_NX_EM,
-    AXON_STAGE_DYNAMIC_TO_NX_EM,
-    AXON_CHIP_DYNAMIC_TO_NX_EM,
-    AXON_AUX_DYNAMIC_TO_NX_EM,
-    AXON_VARIOUS_DYNAMIC_TO_NX_EM,
-)
+import flatdict as fd
+import numpy as np
+import xmltodict
+from PIL import Image
+
 from pynxtools_em.concepts.concept_mapper import (
-    variadic_path_to_specific_path,
     add_specific_metadata,
+    variadic_path_to_specific_path,
+)
+from pynxtools_em.config.image_png_protochips_cfg import (
+    AXON_AUX_DYNAMIC_TO_NX_EM,
+    AXON_CHIP_DYNAMIC_TO_NX_EM,
+    AXON_DETECTOR_STATIC_TO_NX_EM,
+    AXON_STAGE_DYNAMIC_TO_NX_EM,
+    AXON_STAGE_STATIC_TO_NX_EM,
+    AXON_VARIOUS_DYNAMIC_TO_NX_EM,
+    specific_to_variadic,
 )
 from pynxtools_em.subparsers.image_base import ImgsBaseParser
-from pynxtools_em.utils.xml_utils import flatten_xml_to_dict
 from pynxtools_em.utils.get_file_checksum import (
-    get_sha256_of_file_content,
     DEFAULT_CHECKSUM_ALGORITHM,
+    get_sha256_of_file_content,
 )
 from pynxtools_em.utils.sorting import sort_ascendingly_by_second_argument_iso8601
+from pynxtools_em.utils.xml_utils import flatten_xml_to_dict
 
 
 class ProtochipsPngSetSubParser(ImgsBaseParser):
@@ -329,7 +330,7 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
         print(
-            f"Mapping some of the Protochips-specific metadata on respective NeXus concept instance"
+            f"Mapping some of the Protochips metadata on respective NeXus concepts..."
         )
         # individual PNGs in self.file_path may include time/date information in the file name
         # surplus eventually AXON-specific identifier it seems useful though to sort these

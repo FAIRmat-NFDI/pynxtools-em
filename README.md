@@ -48,7 +48,7 @@ git clone https://github.com/FAIRmat-NFDI/pynxtools-em.git --branch main --recur
 cd pynxtools_em
 python -m pip install --upgrade pip
 python -m pip install -e .
-python -m pip install -e ".[dev]"
+python -m pip install -e ".[dev,docs]"
 ```
 
 <!---There is also a [pre-commit hook](https://pre-commit.com/#intro) available

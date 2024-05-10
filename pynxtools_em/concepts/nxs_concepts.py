@@ -17,25 +17,38 @@
 #
 """Implement NeXus-specific groups and fields to document software and versions used."""
 
-from pynxtools_em.concepts.concept_mapper import variadic_path_to_specific_path
+from pynxtools_em.concepts.mapping_functors import (
+    add_specific_metadata,
+    variadic_path_to_specific_path,
+)
+from pynxtools_em.utils.versioning import (
+    NX_EM_ADEF_NAME,
+    NX_EM_EXEC_NAME,
+    NX_EM_EXEC_VERSION,
+)
 
-
-PYNXTOOLS_EM_VERSION = "Redundant, see metadata in NXroot header"
-PYNXTOOLS_EM_URL = "Redundant, see metadata in NXroot header"
-
-NXEM_NAME = "NXem"
-NXEM_VERSION = "Redundant, see metadata in NXroot header"
-NXEM_URL = "Redundant, see metadata in NXroot header"
-
-EM_APPDEF = {
-    "prefix": "/ENTRY[entry*]",
+EM_APPDEF_TO_NEXUS = {
+    "prefix_trg": "/ENTRY[entry*]",
     "use": [
-        ("PROGRAM[program1]/program", "pynxtools/dataconverter/readers/em"),
-        ("PROGRAM[program1]/program/@version", PYNXTOOLS_EM_VERSION),
-        ("PROGRAM[program1]/program/@url", PYNXTOOLS_EM_URL),
-        ("definition", NXEM_NAME),
-        ("definition/@version", NXEM_VERSION),
-        ("definition/@url", NXEM_URL),
+        ("definition", NX_EM_ADEF_NAME),
+        (
+            "definition/@version",
+            "Redundant, see metadata in NXroot header, the specific version of pynxtools has only one specific set of definitions with its version.",
+        ),
+    ],
+}
+
+
+EM_PYNX_TO_NEXUS = {
+    "prefix_trg": "/ENTRY[entry*]/profiling",
+    "use": [
+        ("PROGRAM[program1]/program", NX_EM_EXEC_NAME),
+        ("PROGRAM[program1]/program/@version", NX_EM_EXEC_VERSION),
+        # ("definition", NX_EM_ADEF_NAME),
+        # (
+        # "definition/@version",
+        # "Redundant, see metadata in NXroot header, the specific version of pynxtools has only one specific set of definitions with its version.",
+        # ),
     ],
 }
 
@@ -50,15 +63,11 @@ class NxEmAppDef:
         self, template: dict, entry_id: int = 1, cmd_line_args: tuple = ()
     ) -> dict:
         """Parse application definition."""
-        variadic_prefix = EM_APPDEF["prefix"]
-        for entry in EM_APPDEF["use"]:
-            if isinstance(entry, tuple) and len(entry) == 2:
-                trg = variadic_path_to_specific_path(
-                    f"{variadic_prefix}/{entry[0]}", [entry_id]
-                )
-                template[trg] = entry[1]
+        identifier = [entry_id]
+        add_specific_metadata(EM_APPDEF_TO_NEXUS, {}, identifier, template)
+        add_specific_metadata(EM_PYNX_TO_NEXUS, {}, identifier, template)
 
-        if cmd_line_args != [] and all(isinstance(item, str) for item in cmd_line_args):
+        if cmd_line_args != () and all(isinstance(item, str) for item in cmd_line_args):
             template[f"/ENTRY[entry{entry_id}]/profiling/command_line_call"] = (
                 cmd_line_args
             )

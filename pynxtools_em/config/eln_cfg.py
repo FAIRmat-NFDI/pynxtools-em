@@ -30,33 +30,50 @@
 #       conversion is required while map_does not assume this
 #       and instead does the conversion also
 
-EM_EXAMPLE_ENTRY_TO_NEXUS = {
-    "prefix": "/ENTRY[entry*]",
-    "load": ["experiment_alias"],
-    "iso8601": ["start_time"],
-}
-
-
-EM_EXAMPLE_SAMPLE_TO_NEXUS = {
-    "prefix": "/ENTRY[entry*]/sample",
-    "load": ["method", "atom_types"],
-    "iso8601": ["preparation_date"],
-}
-
-
-EM_EXAMPLE_USER_TO_NEXUS = {
-    "prefix": "/ENTRY[entry*]/USER[user*]",
-    "use": [
-        ("IDENTIFIER[identifier]/identifier", "orcid"),
-        ("IDENTIFIER[identifier]/service", "orcid"),
-        ("IDENTIFIER[identifier]/is_persistent", False),
+EM_ENTRY_TO_NEXUS = {
+    "prefix_trg": "/ENTRY[entry*]",
+    "prefix_src": "entry/",
+    "map_to_str": [
+        "experiment_alias",
+        "start_time",
+        "end_time",
+        "experiment_description",
     ],
-    "load": [
+}
+
+
+EM_SAMPLE_TO_NEXUS = {
+    "prefix_trg": "/ENTRY[entry*]/sample",
+    "prefix_src": "sample/",
+    "map_to_str": [("thickness/@units", "thickness/unit")],
+    "map": [
+        "method",
+        "name",
+        "atom_types",
+        "preparation_date",
+        ("thickness", "thickness/value"),
+    ],
+}
+
+
+EM_USER_TO_NEXUS = {
+    "prefix_trg": "/ENTRY[entry*]/USER[user*]",
+    "map": [
         "name",
         "affiliation",
         "address",
         "email",
         "telephone_number",
         "role",
+    ],
+}
+
+
+EM_USER_IDENTIFIER_TO_NEXUS = {
+    "prefix_trg": "/ENTRY[entry*]/USER[user*]",
+    "use": [
+        ("IDENTIFIER[identifier]/identifier", "orcid"),
+        ("IDENTIFIER[identifier]/service", "orcid"),
+        ("IDENTIFIER[identifier]/is_persistent", True),
     ],
 }
