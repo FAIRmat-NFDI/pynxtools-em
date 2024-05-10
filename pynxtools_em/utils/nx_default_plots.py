@@ -49,9 +49,10 @@ class NxEmDefaultPlotResolver:
 
     def priority_select(self, template: dict, entry_id: int = 1) -> dict:
         """Inspects all NXdata instances that could serve as default plots and picks one."""
-        # find candidates
+        # find candidates for interesting default plots with some priority
+        # priority ipf map > roi overview > spectra > complex image > real image
         candidates: Dict = {}
-        for votes in [1, 2, 3]:
+        for votes in [1, 2, 3, 4, 5]:
             candidates[votes] = []
 
         dtyp_vote = [
@@ -59,31 +60,50 @@ class NxEmDefaultPlotResolver:
             ("IMAGE_C_SET", "image", 2),
             ("SPECTRUM_SET", "spectrum", 3),
         ]
-        for tpl in dtyp_vote:
-            for key in template.keys():
+        for key in template.keys():
+            for tpl in dtyp_vote:
                 for dimensionality in ["zerod", "oned", "twod", "threed"]:
                     head = f"{tpl[0]}["
                     idx_head = key.find(head)
                     tail = f"]/{tpl[1]}_{dimensionality}"
                     idx_tail = key.find(tail)
                     # TODO: better use a regex
-                    if idx_head is None or idx_tail is None:
-                        continue
-                    if 0 < idx_head < idx_tail:
-                        keyword = f"{key[0:idx_tail + len(tail)]}"
-                        if keyword not in candidates[tpl[2]]:
-                            candidates[tpl[2]].append(keyword)
-                        break
+                    if idx_head is not None and idx_tail is not None:
+                        if 0 < idx_head < idx_tail:
+                            keyword = f"{key[0:idx_tail + len(tail)]}"
+                            if keyword not in candidates[tpl[2]]:
+                                candidates[tpl[2]].append(keyword)
+                            break
 
-        for votes in [1, 2, 3]:
+            # find ebsd ipf map
+            idx_head = key.find("/ROI[")
+            tail = "/ebsd/indexing/phaseID[phase1]/ipfID[ipf1]/map"
+            idx_tail = key.find(tail)
+            if idx_head is not None and idx_tail is not None:
+                if 0 < idx_head < idx_tail:
+                    keyword = key[0 : idx_tail + len(tail)]
+                    if keyword not in candidates[5]:
+                        candidates[5].append(keyword)
+                    continue
+            # find ebsd roi map
+            tail = "/ebsd/indexing/roi"
+            idx_tail = key.find(tail)
+            if idx_head is not None and idx_tail is not None:
+                if 0 < idx_head < idx_tail:
+                    keyword = key[0 : idx_tail + len(tail)]
+                    if keyword not in candidates[4]:
+                        candidates[4].append(keyword)
+
+        # one could think about more fine-grained priority voting, e.g. based on
+        # image descriptors or shape of the data behind a key in template
+
+        for votes in [1, 2, 3, 4, 5]:
             print(f"NXdata instances with priority {votes}:")
             for entry in candidates[votes]:
                 print(entry)
 
-        # maybe we want to sort
-
         has_default_plot = False
-        for votes in [3, 2, 1]:
+        for votes in [5, 4, 3, 2, 1]:
             if len(candidates[votes]) > 0:
                 self.decorate_path_to_default_plot(template, candidates[votes][0])
                 print(

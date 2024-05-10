@@ -23,13 +23,13 @@ import numpy as np
 from scipy.spatial import KDTree
 
 from pynxtools_em.examples.ebsd_database import SQUARE_GRID
-from pynxtools_em.utils.get_scan_points import threed, square_grid, hexagonal_grid
+from pynxtools_em.utils.get_scan_points import hexagonal_grid, square_grid, threed
 
 
 def get_scan_points_with_mark_data_discretized_on_sqr_grid(
     src_grid: dict, max_edge_length: int
 ) -> dict:
-    """Inspect grid_type, dimensionality, point locations, and mark src_grida, map then."""
+    """Inspect grid_type, dimensionality, point locations, and mark src_grid, map then."""
     is_threed = threed(src_grid)
     req_keys = ["grid_type", "tiling", "flight_plan"]
     dims = ["x", "y"]
@@ -113,7 +113,7 @@ def get_scan_points_with_mark_data_discretized_on_sqr_grid(
         )
         # TODO:: if scan_point_{dim} are calibrated this approach
         # here would shift the origin to 0, 0 implicitly which may not be desired
-        print(f"trg_xy {trg_xy}, shape {np.shape(trg_xy)}")
+        print(f"trg_xy np.shape {np.shape(trg_xy)}")
         tree = KDTree(
             np.column_stack((src_grid["scan_point_x"], src_grid["scan_point_y"]))
         )
@@ -123,7 +123,7 @@ def get_scan_points_with_mark_data_discretized_on_sqr_grid(
         del d
         del tree
 
-        # rebuild src_grid container with only the relevant src_grida selected from src_grid
+        # rebuild src_grid container with only the relevant src_grid selected from src_grid
         for key in src_grid.keys():
             if key == "euler":
                 trg_grid[key] = np.empty((np.shape(trg_xy)[0], 3), np.float32)
@@ -170,10 +170,10 @@ def get_scan_points_with_mark_data_discretized_on_sqr_grid(
                 trg_grid[key] = src_grid[key]
             #     print(f"WARNING:: src_grid[{key}] is mapped as is on trg_grid[{key}] !")
             #     print(f"final np.shape(trg_grid[{key}]) {np.shape(trg_grid[key])}")
-            else:
-                print(
-                    f"WARNING:: src_grid[{key}] is not yet mapped on trg_grid[{key}] !"
-                )
+            # else:
+            #     print(
+            #         f"WARNING:: src_grid[{key}] is not yet mapped on trg_grid[{key}] !"
+            #     )
             trg_grid["n_x"] = trg_nxy[0]
             trg_grid["n_y"] = trg_nxy[1]
             trg_grid["s_x"] = trg_sxy
@@ -185,5 +185,5 @@ def get_scan_points_with_mark_data_discretized_on_sqr_grid(
     else:
         raise ValueError(
             f"The 3D discretization is currently not implemented because "
-            f"we do not know of any large enough dataset the test it !"
+            f"we do not know of any large enough dataset to test it !"
         )

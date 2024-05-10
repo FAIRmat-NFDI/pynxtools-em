@@ -50,14 +50,11 @@ class ZipNionProjectSubParser:
     """Parse zip-compressed archive of a nionswift project with its content."""
 
     def __init__(
-        self, entry_id: int = 1, input_file_path: str = "", verbose: bool = False
+        self, entry_id: int = 1, input_file_path: str = "", verbose: bool = True
     ):
         """Class wrapping swift parser."""
         if input_file_path is not None and input_file_path != "":
             self.file_path = input_file_path
-        if not self.file_path.endswith(".zip.nion"):
-            self.supported = False
-            return
         if entry_id > 0:
             self.entry_id = entry_id
         else:
@@ -76,6 +73,7 @@ class ZipNionProjectSubParser:
         self.configure()
         self.supported = False
         self.verbose = verbose
+        self.check_if_zipped_nionswift_project_file()
 
     def configure(self):
         self.tmp["cfg"]: Dict = {}
@@ -85,18 +83,18 @@ class ZipNionProjectSubParser:
         self.tmp["cfg"]["spectrum_id"] = 1
         self.tmp["meta"]: Dict = {}
 
-    def check_if_zipped_nionswift_project_file(self, verbose=False):
+    def check_if_zipped_nionswift_project_file(self):
         """Inspect the content of the compressed project file to check if supported."""
-        if self.supported is False:
+        if not self.file_path.endswith(".zip.nion"):
             print(
                 f"Parser ZipNionProject finds no content in {self.file_path} that it supports"
             )
-            return False
+            return
 
         with open(self.file_path, "rb", 0) as fp:
             s = mmap.mmap(fp.fileno(), 0, access=mmap.ACCESS_READ)
             magic = s.read(8)
-            if verbose is True:
+            if self.verbose:
                 fp.seek(0, 2)
                 eof_byte_offset = fp.tell()
                 print(
@@ -117,7 +115,7 @@ class ZipNionProjectSubParser:
                 ):
                     with zip_file_hdl.open(file) as fp:
                         magic = fp.read(8)
-                        if verbose is True:
+                        if self.verbose:
                             fp.seek(0, 2)
                             eof_byte_offset = fp.tell()
                             print(
@@ -129,7 +127,7 @@ class ZipNionProjectSubParser:
                 elif file.endswith(".ndata"):
                     with zip_file_hdl.open(file) as fp:
                         magic = fp.read(8)
-                        if verbose is True:
+                        if self.verbose:
                             fp.seek(0, 2)
                             eof_byte_offset = fp.tell()
                             print(
@@ -141,7 +139,7 @@ class ZipNionProjectSubParser:
                 elif file.endswith(".nsproj"):
                     with zip_file_hdl.open(file) as fp:
                         magic = fp.read(8)
-                        if verbose is True:
+                        if self.verbose:
                             fp.seek(0, 2)
                             eof_byte_offset = fp.tell()
                             print(
@@ -156,24 +154,23 @@ class ZipNionProjectSubParser:
             print(
                 "Test 2 failed, UUID keys of *.ndata and *.h5 files in project are not disjoint!"
             )
-            return False
+            return
         if len(self.proj_file_dict.keys()) != 1:
             print(
                 "Test 3 failed, he project contains either no or more than one nsproj file!"
             )
-            return False
+            return
         print(
             f"Content in zip-compressed nionswift project {self.file_path} passed all tests"
         )
         self.supported = True
-        if verbose is True:
+        if self.verbose:
             for key, val in self.proj_file_dict.items():
                 print(f"nsprj: ___{key}___{val}___")
             for key, val in self.ndata_file_dict.items():
                 print(f"ndata: ___{key}___{val}___")
             for key, val in self.hfive_file_dict.items():
                 print(f"hfive: ___{key}___{val}___")
-        return True
 
     def update_event_identifier(self):
         """Advance and reset bookkeeping of event data em and data instances."""
@@ -193,7 +190,7 @@ class ZipNionProjectSubParser:
         # TODO::
         return template
 
-    def process_ndata(self, file_hdl, full_path, template, verbose=False):
+    def process_ndata(self, file_hdl, full_path, template):
         """Handle reading and processing of opened *.ndata inside the ZIP file."""
         # assure that we start reading that file_hdl/pointer from the beginning...
         file_hdl.seek(0)
@@ -225,7 +222,7 @@ class ZipNionProjectSubParser:
                 """
 
                 flat_metadata_dict = fd.FlatDict(metadata_dict, delimiter="/")
-                if verbose is True:
+                if self.verbose:
                     print(f"Flattened content of this metadata.json")
                     for key, value in flat_metadata_dict.items():
                         print(f"ndata, metadata.json, flat: ___{key}___{value}___")
@@ -264,7 +261,7 @@ class ZipNionProjectSubParser:
         """
         return template
 
-    def process_hfive(self, file_hdl, full_path, template: dict, verbose=False):
+    def process_hfive(self, file_hdl, full_path, template: dict):
         """Handle reading and processing of opened *.h5 inside the ZIP file."""
         flat_metadata_dict = {}
         """
@@ -286,7 +283,7 @@ class ZipNionProjectSubParser:
             """
 
             flat_metadata_dict = fd.FlatDict(metadata_dict, delimiter="/")
-            if verbose is True:
+            if self.verbose:
                 print(f"Flattened content of this metadata.json")
                 for key, value in flat_metadata_dict.items():
                     print(f"hfive, data, flat: ___{key}___{value}___")
@@ -314,7 +311,7 @@ class ZipNionProjectSubParser:
             """
         return template
 
-    def parse_project_file(self, template: dict, verbose=False) -> dict:
+    def parse_project_file(self, template: dict) -> dict:
         """Parse lazily from compressed NionSwift project (nsproj + directory)."""
         nionswift_proj_mdata = {}
         with ZipFile(self.file_path) as zip_file_hdl:
@@ -324,7 +321,7 @@ class ZipNionProjectSubParser:
                         yaml.safe_load(file_hdl), delimiter="/"
                     )
                     # TODO::inspection phase, maybe with yaml to file?
-                    if verbose is True:
+                    if self.verbose:
                         print(f"Flattened content of {proj_file_name}")
                         for (
                             key,
@@ -357,7 +354,6 @@ class ZipNionProjectSubParser:
                                         file_hdl,
                                         self.ndata_file_dict[key],
                                         template,
-                                        verbose,
                                     )
                         elif key in self.hfive_file_dict.keys():
                             print(
@@ -372,17 +368,16 @@ class ZipNionProjectSubParser:
                                         file_hdl,
                                         self.hfive_file_dict[key],
                                         template,
-                                        verbose,
                                     )
                         else:
                             print(f"Key {key} has no corresponding data file")
         return template
 
-    def parse(self, template: dict, verbose=False) -> dict:
+    def parse(self, template: dict) -> dict:
         """Parse NOMAD OASIS relevant data and metadata from swift project."""
-        if self.check_if_zipped_nionswift_project_file(verbose):
+        if self.supported:
             print(
                 "Parsing in-place from zip-compressed nionswift project (nsproj + directory)..."
             )
-            self.parse_project_file(template, verbose)
+            self.parse_project_file(template)
         return template
