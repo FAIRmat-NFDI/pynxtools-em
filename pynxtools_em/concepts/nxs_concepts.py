@@ -17,38 +17,14 @@
 #
 """Implement NeXus-specific groups and fields to document software and versions used."""
 
-from pynxtools_em.concepts.mapping_functors import (
-    add_specific_metadata,
-    variadic_path_to_specific_path,
-)
-from pynxtools_em.utils.versioning import (
-    NX_EM_ADEF_NAME,
-    NX_EM_EXEC_NAME,
-    NX_EM_EXEC_VERSION,
-)
-
-EM_APPDEF_TO_NEXUS = {
-    "prefix_trg": "/ENTRY[entry*]",
-    "use": [
-        ("definition", NX_EM_ADEF_NAME),
-        (
-            "definition/@version",
-            "Redundant, see metadata in NXroot header, the specific version of pynxtools has only one specific set of definitions with its version.",
-        ),
-    ],
-}
-
+from pynxtools_em.concepts.mapping_functors import add_specific_metadata
+from pynxtools_em.utils.versioning import NX_EM_EXEC_NAME, NX_EM_EXEC_VERSION
 
 EM_PYNX_TO_NEXUS = {
     "prefix_trg": "/ENTRY[entry*]/profiling",
     "use": [
         ("PROGRAM[program1]/program", NX_EM_EXEC_NAME),
         ("PROGRAM[program1]/program/@version", NX_EM_EXEC_VERSION),
-        # ("definition", NX_EM_ADEF_NAME),
-        # (
-        # "definition/@version",
-        # "Redundant, see metadata in NXroot header, the specific version of pynxtools has only one specific set of definitions with its version.",
-        # ),
     ],
 }
 
@@ -64,11 +40,10 @@ class NxEmAppDef:
     ) -> dict:
         """Parse application definition."""
         identifier = [entry_id]
-        add_specific_metadata(EM_APPDEF_TO_NEXUS, {}, identifier, template)
         add_specific_metadata(EM_PYNX_TO_NEXUS, {}, identifier, template)
 
         if cmd_line_args != () and all(isinstance(item, str) for item in cmd_line_args):
-            template[f"/ENTRY[entry{entry_id}]/profiling/command_line_call"] = (
+            template[f"/ENTRY[entry{entry_id}]/profiling/command_line_call"] = " ".join(
                 cmd_line_args
             )
         return template
