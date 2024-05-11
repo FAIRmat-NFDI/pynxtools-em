@@ -396,10 +396,8 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
                         template[f"{trg}/intensity/@long_name"] = f"Signal"
 
                         sxy = {"x": 1.0, "y": 1.0}
-                        scan_unit = {
-                            "x": "px",
-                            "y": "px",
-                        }  # TODO::get AXON image calibration
+                        scan_unit = {"x": "px", "y": "px"}
+                        # TODO::get AXON image calibration
                         # "ImagerSettings.ImagePhysicalSize.X" / "ImagerSettings.ImagePixels.X"
                         # "ImagerSettings.ImagePhysicalSize.Y" / "ImagerSettings.ImagePixels.Y"
                         nxy = {"x": np.shape(nparr)[1], "y": np.shape(nparr)[0]}

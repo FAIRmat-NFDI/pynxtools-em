@@ -618,9 +618,8 @@ class NxEmNxsPyxemSubParser:
                     "strength": 1,
                 }
                 template[f"{lgd}/AXISNAME[axis_{dim}]/@long_name"] = (
-                    f"Pixel along {dim[0]}-axis"
+                    f"Pixel coordinate along {dim[0]}-axis"
                 )
-                template[f"{lgd}/AXISNAME[axis_{dim}]/@units"] = "px"
         return template
 
     def onthefly_process_roi_ipfs_phases_threed(
