@@ -25,7 +25,7 @@ import numpy as np
 from PIL import Image
 from PIL.TiffTags import TAGS
 
-from pynxtools_em.concepts.concept_mapper import add_specific_metadata
+from pynxtools_em.concepts.concept_mapper import add_specific_metadata_deprecate
 from pynxtools_em.config.image_tiff_tfs_cfg import (
     TFS_APERTURE_STATIC_TO_NX_EM,
     TFS_DETECTOR_STATIC_TO_NX_EM,
@@ -233,7 +233,8 @@ class TfsTiffSubParser(TiffSubParser):
                     "x": self.tmp["meta"]["EScan/PixelWidth"],
                     "y": self.tmp["meta"]["EScan/PixelHeight"],
                 }
-                scan_unit = {"x": "px", "y": "px"}
+            else:
+                print("WARNING: Assuming pixel width and height unit is meter!")
             nxy = {"x": np.shape(np.array(fp))[1], "y": np.shape(np.array(fp))[0]}
             # TODO::be careful we assume here a very specific coordinate system
             # however the TIFF file gives no clue, TIFF just documents in which order
@@ -265,49 +266,49 @@ class TfsTiffSubParser(TiffSubParser):
 
     def add_aperture_static_metadata(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
+        add_specific_metadata_deprecate(
             TFS_APERTURE_STATIC_TO_NX_EM, self.tmp["meta"], identifier, template
         )
         return template
 
     def add_detector_static_metadata(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
+        add_specific_metadata_deprecate(
             TFS_DETECTOR_STATIC_TO_NX_EM, self.tmp["meta"], identifier, template
         )
         return template
 
     def add_various_static_metadata(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
+        add_specific_metadata_deprecate(
             TFS_VARIOUS_STATIC_TO_NX_EM, self.tmp["meta"], identifier, template
         )
         return template
 
     def add_optics_dynamic_metadata(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
+        add_specific_metadata_deprecate(
             TFS_OPTICS_DYNAMIC_TO_NX_EM, self.tmp["meta"], identifier, template
         )
         return template
 
     def add_stage_dynamic_metadata(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
+        add_specific_metadata_deprecate(
             TFS_STAGE_DYNAMIC_TO_NX_EM, self.tmp["meta"], identifier, template
         )
         return template
 
     def add_scan_dynamic_metadata(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
+        add_specific_metadata_deprecate(
             TFS_SCAN_DYNAMIC_TO_NX_EM, self.tmp["meta"], identifier, template
         )
         return template
 
     def add_various_dynamic_metadata(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
+        add_specific_metadata_deprecate(
             TFS_VARIOUS_DYNAMIC_TO_NX_EM, self.tmp["meta"], identifier, template
         )
         return template
