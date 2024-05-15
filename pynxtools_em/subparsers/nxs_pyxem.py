@@ -449,8 +449,7 @@ class NxEmNxsPyxemSubParser:
         n_pts_indexed = np.sum(inp["phase_id"] != 0)
         print(f"n_pts {n_pts}, n_pts_indexed {n_pts_indexed}")
         template[f"{prfx}/number_of_scan_points"] = np.uint32(n_pts)
-        template[f"{prfx}/indexing_rate"] = np.float64(100.0 * n_pts_indexed / n_pts)
-        template[f"{prfx}/indexing_rate/@units"] = f"%"
+        template[f"{prfx}/indexing_rate"] = np.float64(n_pts_indexed / n_pts)
         grp_name = f"{prfx}/phaseID[phase{nxem_phase_id}]"
         template[f"{grp_name}/number_of_scan_points"] = np.uint32(
             np.sum(inp["phase_id"] == 0)
@@ -619,9 +618,8 @@ class NxEmNxsPyxemSubParser:
                     "strength": 1,
                 }
                 template[f"{lgd}/AXISNAME[axis_{dim}]/@long_name"] = (
-                    f"Pixel along {dim[0]}-axis"
+                    f"Pixel coordinate along {dim[0]}-axis"
                 )
-                template[f"{lgd}/AXISNAME[axis_{dim}]/@units"] = "px"
         return template
 
     def onthefly_process_roi_ipfs_phases_threed(
@@ -638,8 +636,7 @@ class NxEmNxsPyxemSubParser:
         n_pts_indexed = np.sum(inp["phase_id"] != 0)
         print(f"n_pts {n_pts}, n_pts_indexed {n_pts_indexed}")
         template[f"{prfx}/number_of_scan_points"] = np.uint32(n_pts)
-        template[f"{prfx}/indexing_rate"] = np.float64(100.0 * n_pts_indexed / n_pts)
-        template[f"{prfx}/indexing_rate/@units"] = f"%"
+        template[f"{prfx}/indexing_rate"] = np.float64(n_pts_indexed / n_pts)
         grp_name = f"{prfx}/phaseID[phase{nxem_phase_id}]"
         template[f"{grp_name}/number_of_scan_points"] = np.uint32(
             np.sum(inp["phase_id"] == 0)

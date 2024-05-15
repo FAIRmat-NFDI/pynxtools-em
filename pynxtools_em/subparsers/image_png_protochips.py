@@ -28,10 +28,8 @@ import numpy as np
 import xmltodict
 from PIL import Image
 
-from pynxtools_em.concepts.concept_mapper import (
-    add_specific_metadata,
-    variadic_path_to_specific_path,
-)
+from pynxtools_em.concepts.concept_mapper import add_specific_metadata_deprecate
+from pynxtools_em.concepts.mapping_functors import variadic_path_to_specific_path
 from pynxtools_em.config.image_png_protochips_cfg import (
     AXON_AUX_DYNAMIC_TO_NX_EM,
     AXON_CHIP_DYNAMIC_TO_NX_EM,
@@ -271,7 +269,7 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
 
     def add_detector_static_metadata(self, file_name: str, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
+        add_specific_metadata_deprecate(
             AXON_DETECTOR_STATIC_TO_NX_EM,
             self.tmp["meta"][file_name],
             identifier,
@@ -281,7 +279,7 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
 
     def add_stage_static_metadata(self, file_name: str, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
+        add_specific_metadata_deprecate(
             AXON_STAGE_STATIC_TO_NX_EM,
             self.tmp["meta"][file_name],
             identifier,
@@ -291,7 +289,7 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
 
     def add_stage_dynamic_metadata(self, file_name: str, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
+        add_specific_metadata_deprecate(
             AXON_STAGE_DYNAMIC_TO_NX_EM,
             self.tmp["meta"][file_name],
             identifier,
@@ -301,7 +299,7 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
 
     def add_chip_dynamic_metadata(self, file_name: str, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
+        add_specific_metadata_deprecate(
             AXON_CHIP_DYNAMIC_TO_NX_EM,
             self.tmp["meta"][file_name],
             identifier,
@@ -311,14 +309,14 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
 
     def add_aux_dynamic_metadata(self, file_name: str, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
+        add_specific_metadata_deprecate(
             AXON_AUX_DYNAMIC_TO_NX_EM, self.tmp["meta"][file_name], identifier, template
         )
         return template
 
     def add_various_dynamic_metadata(self, file_name: str, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
+        add_specific_metadata_deprecate(
             AXON_VARIOUS_DYNAMIC_TO_NX_EM,
             self.tmp["meta"][file_name],
             identifier,
@@ -398,10 +396,10 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
                         template[f"{trg}/intensity/@long_name"] = f"Signal"
 
                         sxy = {"x": 1.0, "y": 1.0}
-                        scan_unit = {
-                            "x": "px",
-                            "y": "px",
-                        }  # TODO::get AXON image calibration
+                        scan_unit = {"x": "px", "y": "px"}
+                        # TODO::get AXON image calibration
+                        # "ImagerSettings.ImagePhysicalSize.X" / "ImagerSettings.ImagePixels.X"
+                        # "ImagerSettings.ImagePhysicalSize.Y" / "ImagerSettings.ImagePixels.Y"
                         nxy = {"x": np.shape(nparr)[1], "y": np.shape(nparr)[0]}
                         del nparr
                         # TODO::we assume here a very specific coordinate system
