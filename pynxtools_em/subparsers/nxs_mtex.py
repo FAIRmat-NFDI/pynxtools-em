@@ -25,11 +25,6 @@
 import re
 import h5py
 import mmap
-from ase.data import chemical_symbols
-from pynxtools_em.examples.ebsd_database import (
-    PHASE_NAME_TO_CONCEPT,
-    CONCEPT_TO_ATOM_TYPES,
-)
 
 
 class NxEmNxsMTexSubParser:
@@ -66,7 +61,6 @@ class NxEmNxsMTexSubParser:
         self.parse_various(template)
         self.parse_roi_default_plot(template)
         self.parse_phases(template)
-        self.parse_atom_types(template)
         self.parse_conventions(template)
         return template
 
@@ -84,7 +78,7 @@ class NxEmNxsMTexSubParser:
         print("Parse various...")
         with h5py.File(self.file_path, "r") as h5r:
             src = "/entry1/roi1/ebsd/indexing1"
-            trg = f"/ENTRY[entry{self.entry_id}]/ebsd/indexing/roi1"
+            trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing"
             if f"{src}" not in h5r:
                 return template
             grp = h5r[f"{src}"]
@@ -108,7 +102,7 @@ class NxEmNxsMTexSubParser:
             # but template uses NeXus template path names
             # and HDF5 src has HDF5 instance names
             src = "/entry1/roi1/ebsd/indexing1/roi"
-            trg = f"/ENTRY[entry{self.entry_id}]/ebsd/indexing/roi1"
+            trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing"
             if f"{src}" not in h5r:
                 return template
             grp = h5r[f"{src}"]
@@ -142,7 +136,7 @@ class NxEmNxsMTexSubParser:
         print("Parse phases...")
         with h5py.File(self.file_path, "r") as h5r:
             src = "/entry1/roi1/ebsd/indexing1"
-            trg = f"/ENTRY[entry{self.entry_id}]/ebsd/indexing/phaseID"
+            trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/phaseID"
             if f"{src}" not in h5r:
                 return template
             for grp_name in h5r[f"{src}"]:
@@ -172,105 +166,48 @@ class NxEmNxsMTexSubParser:
                             f"{src}/{grp_name}/{dst_name}"
                         ]
 
-                # self.parse_phase_ipf(h5r, grp_name, template)
+                self.parse_phase_ipf(h5r, grp_name, template)
         return template
 
     def parse_phase_ipf(self, h5r, phase: str, template: dict) -> dict:
         for ipfid in [1, 2, 3]:  # by default MTex reports three IPFs
             src = f"/entry1/roi1/ebsd/indexing1/{phase}"
-            trg = f"/ENTRY[entry{self.entry_id}]/ebsd/indexing/phaseID[{phase}]/ipfID[ipf{ipfid}]"
+            trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/phaseID[{phase}]/ipfID[ipf{ipfid}]"
             if f"{src}/projection_direction" in h5r:
                 template[f"{trg}/projection_direction"] = h5r[
                     f"{src}/projection_direction"
                 ]
-
-            if f"{src}/legend" in h5r:
-                grp = h5r[f"{src}/legend"]
-                attrs = [
-                    "NX_class",
-                    "axes",
-                    "axis_x_indices",
-                    "axis_y_indices",
-                    "signal",
-                ]
-                for attr_name in attrs:
-                    if attr_name in grp.attrs:
-                        template[f"{trg}/@{attr_name}"] = grp.attrs[attr_name]
-                for dst_name in ["axis_x", "axis_y", "data"]:
-                    if f"{src}/legend/{dst_name}" in h5r:
-                        dst = h5r[f"{src}/legend/{dst_name}"]
-                        template[f"{trg}/legend/{dst_name}"] = dst
-                        attrs = [
-                            "CLASS",
-                            "IMAGE_VERSION",
-                            "SUBCLASS_VERSION",
-                            "long_name",
-                            "units",
-                        ]
-                        for attr_name in attrs:
-                            if attr_name in dst.attrs:
-                                template[f"{trg}/legend/{dst_name}/@{attr_name}"] = (
-                                    dst.attrs[attr_name]
-                                )
-                if f"{src}/legend/title" in h5r:
-                    template[f"{trg}/legend/title"] = h5r[f"{src}/legend/title"]
-
-            if f"{src}/map" in h5r:
-                grp = h5r[f"{src}/map"]
-                attrs = [
-                    "NX_class",
-                    "axes",
-                    "axis_x_indices",
-                    "axis_y_indices",
-                    "signal",
-                ]
-                for attr_name in attrs:
-                    if attr_name in grp.attrs:
-                        template[f"{trg}/@{attr_name}"] = grp.attrs[attr_name]
-                for dst_name in ["axis_x", "axis_y", "data"]:
-                    if f"{src}/map/{dst_name}" in h5r:
-                        dst = h5r[f"{src}/map/{dst_name}"]
-                        template[f"{trg}/map/{dst_name}"] = dst
-                        attrs = [
-                            "CLASS",
-                            "IMAGE_VERSION",
-                            "SUBCLASS_VERSION",
-                            "long_name",
-                            "units",
-                        ]
-                        for attr_name in attrs:
-                            if attr_name in dst.attrs:
-                                template[f"{trg}/map/{dst_name}/@{attr_name}"] = (
-                                    dst.attrs[attr_name]
-                                )
-                if f"{src}/map/title" in h5r:
-                    template[f"{trg}/map/title"] = h5r[f"{src}/map/title"]
-        return template
-
-    def parse_atom_types(self, template: dict) -> dict:
-        """Add phase name surplus other data to the copy of the *.nxs.mtex instance."""
-        atom_types = set()
-        with h5py.File(self.file_path, "r") as h5r:
-            src = f"/entry1/roi1/ebsd/indexing1"
-            if src in h5r:
-                for node_name in h5r[src]:
-                    if re.match("phase[0-9]+", node_name) is None:
-                        continue
-                    if f"{src}/{node_name}/phase_name" in h5r:
-                        free_text = (
-                            h5r[f"{src}/{node_name}/phase_name"][()]
-                            .decode("utf-8")
-                            .strip()
-                        )
-                        if free_text in PHASE_NAME_TO_CONCEPT:
-                            concept = PHASE_NAME_TO_CONCEPT[free_text]
-                            if concept in CONCEPT_TO_ATOM_TYPES:
-                                symbols = CONCEPT_TO_ATOM_TYPES[concept].split(";")
-                                for symbol in symbols:
-                                    if symbol in chemical_symbols[1::]:
-                                        atom_types.add(symbol)
-        trg = f"/ENTRY[entry{self.entry_id}]/sample/atom_types"
-        template[trg] = ", ".join(list(atom_types)) if len(atom_types) > 0 else ""
+            for nxdata in ["legend", "map"]:
+                if f"{src}/{nxdata}" in h5r:
+                    grp = h5r[f"{src}/{nxdata}"]
+                    attrs = [
+                        "NX_class",
+                        "axes",
+                        "axis_x_indices",
+                        "axis_y_indices",
+                        "signal",
+                    ]
+                    for attr_name in attrs:
+                        if attr_name in grp.attrs:
+                            template[f"{trg}/@{attr_name}"] = grp.attrs[attr_name]
+                    for dst_name in ["axis_x", "axis_y", "data"]:
+                        if f"{src}/{nxdata}/{dst_name}" in h5r:
+                            dst = h5r[f"{src}/{nxdata}/{dst_name}"]
+                            template[f"{trg}/{nxdata}/{dst_name}"] = dst
+                            attrs = [
+                                "CLASS",
+                                "IMAGE_VERSION",
+                                "SUBCLASS_VERSION",
+                                "long_name",
+                                "units",
+                            ]
+                            for attr_name in attrs:
+                                if attr_name in dst.attrs:
+                                    template[
+                                        f"{trg}/{nxdata}/{dst_name}/@{attr_name}"
+                                    ] = dst.attrs[attr_name]
+                    if f"{src}/{nxdata}/title" in h5r:
+                        template[f"{trg}/{nxdata}/title"] = h5r[f"{src}/{nxdata}/title"]
         return template
 
     def parse_conventions(self, template: dict) -> dict:

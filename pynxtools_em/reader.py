@@ -34,20 +34,12 @@ from pynxtools_em.subparsers.oasis_config_reader import (
 )
 from pynxtools_em.subparsers.oasis_eln_reader import NxEmNomadOasisElnSchemaParser
 from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
-from pynxtools_em.utils.io_case_logic import (
-    EmUseCaseSelector,
-)
+from pynxtools_em.utils.io_case_logic import EmUseCaseSelector
 
-## from pynxtools_em.utils.default_plots import NxEmDefaultPlotResolver
 # from pynxtools_em.geometry.convention_mapper import NxEmConventionMapper
-# remaining subparsers to be implemented and merged into this one
-# from pynxtools.dataconverter.readers.em_om.utils.orix_ebsd_parser \
-#     import NxEmOmOrixEbsdParser
-# from pynxtools.dataconverter.readers.em_om.utils.mtex_ebsd_parser \
-#     import NxEmOmMtexEbsdParser
-# from pynxtools.dataconverter.readers.em_om.utils.zip_ebsd_parser \
-#     import NxEmOmZipEbsdParser
+# from pynxtools_em.subparsers.zip_ebsd_parser import NxEmOmZipEbsdParser
 from pynxtools_em.utils.nx_default_plots import NxEmDefaultPlotResolver
+from pynxtools_em.utils.nx_atom_types import NxEmAtomTypesResolver
 
 
 class EMReader(BaseReader):
@@ -122,15 +114,14 @@ class EMReader(BaseReader):
             nxs_nion = ZipNionProjectSubParser(entry_id, case.dat[0], verbose=False)
             nxs_nion.parse(template)
 
-            # for dat_instance in case.dat_parser_type:
-            #     print(f"Process pieces of information in {dat_instance} tech partner file...")
-            #    continue
-            #    # elif case.dat_parser_type == "zip":
-            #    #     zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id)
-            #    #     zip_parser.parse(template)
+            # zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id)
+            # zip_parser.parse(template)
 
         nxplt = NxEmDefaultPlotResolver()
         nxplt.priority_select(template)
+
+        smpl = NxEmAtomTypesResolver(entry_id)
+        smpl.identify_atomtypes(template)
 
         debugging = False
         if debugging:
