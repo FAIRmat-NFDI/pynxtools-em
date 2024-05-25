@@ -67,10 +67,72 @@ class NxEmNxsMTexSubParser:
     def parse_mtex_config(self, template: dict) -> dict:
         """Parse MTex content."""
         print("Parse MTex content...")
-        # with h5py.File(self.file_name, "r") as h5r:
-        #     src = "/entry1/roi1/ebsd/indexing1/mtex"
-        #     trg = f"/ENTRY[entry{self.entry_id}]/ebsd/indexing/roi1/mtex"
-        # machine off a dictionary
+        with h5py.File(self.file_path, "r") as h5r:
+            src = "/entry1/roi1/ebsd/indexing1/mtex"
+            trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/mtex"
+            for dst_name in [
+                "a_axis_direction",
+                "b_axis_direction",
+                "euler_angle",
+                "x_axis_direction",
+                "y_axis_direction",
+            ]:
+                grp = "conventions"
+                if f"{src}/{grp}/{dst_name}" in h5r:
+                    template[f"{trg}/{grp}/{dst_name}"] = h5r[f"{src}/{grp}/{dst_name}"]
+                # template[f"{trg}/{grp}/@NX_class"] = "NXcollection"
+            for dst_name in ["stop_on_symmetry_mismatch", "voronoi_method"]:
+                # "inside_poly", "methods_advise", "mosek", "text_interpreter"
+                if f"{src}/miscellanous/{dst_name}" in h5r:
+                    template[f"{trg}/miscellanous/{dst_name}"] = h5r[
+                        f"{src}/miscellanous/{dst_name}"
+                    ]
+                # template[f"{trg}/miscellanous/@NX_class"] = "NXcollection"
+            for dst_name in [
+                "eps",
+                "fft_accuracy",
+                "max_sone_bandwidth",
+                "max_stwo_bandwidth",
+                "max_sothree_bandwidth",
+            ]:
+                grp = "numerics"
+                if f"{src}/{grp}/{dst_name}" in h5r:
+                    template[f"{trg}/{grp}/{dst_name}"] = h5r[f"{src}/{grp}/{dst_name}"]
+                # template[f"{trg}/{grp}/@NX_class"] = "NXcollection"
+            for dst_name in [
+                "figure_size",
+                "font_size",
+                "inner_plot_spacing",
+                "marker",
+                "marker_edge_color",
+                "marker_face_color",
+                "marker_size",
+                "outer_plot_spacing",
+            ]:
+                # hit_test, arrow_character, color_map, color_palette, default_map,
+                # degree_character, pf_anno_fun_hdl, show_coordinates, show_micron_bar
+                grp = "plotting"
+                if f"{src}/{grp}/{dst_name}" in h5r:
+                    template[f"{trg}/{grp}/{dst_name}"] = h5r[f"{src}/{grp}/{dst_name}"]
+                # template[f"{trg}/{grp}/@NX_class"] = "NXcollection"
+            # for dst_name in ["memory",
+            #                  "open_gl_bug",
+            #                  "save_to_file"]:
+            #     grp = "system"
+            #     if f"{src}/{grp}/{dst_name}" in h5r:
+            #         template[f"{trg}/{grp}/{dst_name}"] = h5r[f"{src}/{grp}/{dst_name}"]
+            #     # template[f"{trg}/{grp}/@NX_class"] = "NXcollection"
+            for idx in [1, 2]:
+                if f"{src}/program{idx}/program" in h5r:
+                    # grp = h5r[f"{src}/program{idx}"]
+                    # if "NX_class" in grp.attrs:
+                    #     template[f"{trg}/PROGRAM[program{idx}]/@NX_class"] = grp.attrs["NX_class"]
+                    dst = h5r[f"{src}/program{idx}/program"]
+                    template[f"{trg}/PROGRAM[program{idx}]/program"] = dst
+                    if "version" in dst.attrs:
+                        template[f"{trg}/PROGRAM[program{idx}]/program/@version"] = (
+                            dst.attrs["version"]
+                        )
         return template
 
     def parse_various(self, template: dict) -> dict:
@@ -172,7 +234,10 @@ class NxEmNxsMTexSubParser:
     def parse_phase_ipf(self, h5r, phase: str, template: dict) -> dict:
         for ipfid in [1, 2, 3]:  # by default MTex reports three IPFs
             src = f"/entry1/roi1/ebsd/indexing1/{phase}"
-            trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/phaseID[{phase}]/ipfID[ipf{ipfid}]"
+            trg = (
+                f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/"
+                f"phaseID[{phase}]/ipfID[ipf{ipfid}]"
+            )
             if f"{src}/projection_direction" in h5r:
                 template[f"{trg}/projection_direction"] = h5r[
                     f"{src}/projection_direction"
