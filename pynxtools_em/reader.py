@@ -27,8 +27,7 @@ from pynxtools.dataconverter.readers.base.reader import BaseReader
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
 from pynxtools_em.subparsers.nxs_nion import ZipNionProjectSubParser
-
-# from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
+from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
 from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
 from pynxtools_em.subparsers.oasis_config_reader import (
     NxEmNomadOasisConfigurationParser,
@@ -114,9 +113,8 @@ class EMReader(BaseReader):
             velox = RsciioVeloxSubParser(entry_id, case.dat[0], verbose=False)
             velox.parse(template)
 
-            # nxs_mtex = NxEmNxsMTexSubParser(entry_id, case.dat[0], verbose=False)
-            # nxs_mtex.parse(template)
-            # TODO::check correct loop through!
+            nxs_mtex = NxEmNxsMTexSubParser(entry_id, case.dat[0], verbose=False)
+            nxs_mtex.parse(template)
 
             nxs_pyxem = NxEmNxsPyxemSubParser(entry_id, case.dat[0], verbose=False)
             nxs_pyxem.parse(template)
