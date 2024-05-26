@@ -44,7 +44,9 @@ class NxEmAtomTypesResolver:
                 is None
             ):
                 continue
-            free_text = template[key].strip()
+            print(f">>>>>>> {key} contributes to atom_types {type(template[key])}, {template[key]}")
+            free_text = str(template[key])  # .strip()
+            print(f"{type(free_text)}, ___{free_text}__")
             if free_text in PHASE_NAME_TO_CONCEPT:
                 concept = PHASE_NAME_TO_CONCEPT[free_text]
                 if concept in CONCEPT_TO_ATOM_TYPES:
@@ -52,6 +54,7 @@ class NxEmAtomTypesResolver:
                     for symbol in symbols:
                         if symbol in chemical_symbols[1::]:
                             atom_types.add(symbol)
+            print(atom_types)
         if len(atom_types) > 0:
             trg = f"/ENTRY[entry{self.entry_id}]/sample/atom_types"
             template[trg] = ", ".join(list(atom_types))

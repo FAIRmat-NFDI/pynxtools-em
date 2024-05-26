@@ -33,7 +33,7 @@ import flatdict as fd
 import yaml
 
 from pynxtools_em.concepts.mapping_functors import add_specific_metadata
-from pynxtools_em.config.oasis_cfg import EM_CSYS_TO_NEXUS
+from pynxtools_em.config.oasis_cfg import EM_CSYS_TO_NEXUS, EM_CITATION_TO_NEXUS
 
 
 class NxEmNomadOasisConfigurationParser:
@@ -80,7 +80,29 @@ class NxEmNomadOasisConfigurationParser:
                         csys_id += 1
         return template
 
+    def parse_example(self, template: dict) -> dict:
+        """Copy data from example-specific section into template."""
+        src = "citation"
+        if src in self.yml:
+            if isinstance(self.yml[src], list):
+                if all(isinstance(entry, dict) for entry in self.yml[src]) is True:
+                    cite_id = 1
+                    # custom schema delivers a list of dictionaries...
+                    for cite_dict in self.yml[src]:
+                        if cite_dict == {}:
+                            continue
+                        identifier = [self.entry_id, cite_id]
+                        add_specific_metadata(
+                            EM_CITATION_TO_NEXUS,
+                            fd.FlatDict(cite_dict),
+                            identifier,
+                            template,
+                        )
+                        cite_id += 1
+        return template
+
     def report(self, template: dict) -> dict:
         """Copy data from configuration applying mapping functors."""
         self.parse_reference_frames(template)
+        self.parse_example(template)
         return template

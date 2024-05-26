@@ -37,3 +37,9 @@ EM_CSYS_TO_NEXUS = {
         "origin",
     ],
 }
+
+
+EM_CITATION_TO_NEXUS = {
+    "prefix_trg": "/ENTRY[entry*]/CITE[cite*]",
+    "map_to_str": [("authors"), ("doi"), ("description"), ("url")],
+}
