@@ -33,14 +33,16 @@ def hfive_to_template(payload):
     if payload.shape == ():
         value = payload[()]
         if isinstance(value, bytes):
-            return value.decode('UTF-8')
+            return value.decode("UTF-8")
         return value
     elif payload.shape == (1,):
         return payload[0]
     else:
         if payload.compression is not None and payload.compression_opts is not None:
-            return {"compress": np.asarray(payload[...], dtype=payload.dtype),
-                    "strength": payload.compression_opts}
+            return {
+                "compress": np.asarray(payload[...], dtype=payload.dtype),
+                "strength": payload.compression_opts,
+            }
     return np.asarray(payload[...], dtype=payload.dtype)
 
 
@@ -100,12 +102,16 @@ class NxEmNxsMTexSubParser:
             ]:
                 grp = "conventions"
                 if f"{src}/{grp}/{dst_name}" in h5r:
-                    template[f"{trg}/{grp}/{dst_name}"] = hfive_to_template(h5r[f"{src}/{grp}/{dst_name}"])
+                    template[f"{trg}/{grp}/{dst_name}"] = hfive_to_template(
+                        h5r[f"{src}/{grp}/{dst_name}"]
+                    )
                 # template[f"{trg}/{grp}/@NX_class"] = "NXcollection"
             for dst_name in ["stop_on_symmetry_mismatch", "voronoi_method"]:
                 # "inside_poly", "methods_advise", "mosek", "text_interpreter"
                 if f"{src}/miscellanous/{dst_name}" in h5r:
-                    template[f"{trg}/miscellanous/{dst_name}"] = hfive_to_template(h5r[f"{src}/miscellanous/{dst_name}"])
+                    template[f"{trg}/miscellanous/{dst_name}"] = hfive_to_template(
+                        h5r[f"{src}/miscellanous/{dst_name}"]
+                    )
                 # template[f"{trg}/miscellanous/@NX_class"] = "NXcollection"
             for dst_name in [
                 "eps",
@@ -116,7 +122,9 @@ class NxEmNxsMTexSubParser:
             ]:
                 grp = "numerics"
                 if f"{src}/{grp}/{dst_name}" in h5r:
-                    template[f"{trg}/{grp}/{dst_name}"] = hfive_to_template(h5r[f"{src}/{grp}/{dst_name}"])
+                    template[f"{trg}/{grp}/{dst_name}"] = hfive_to_template(
+                        h5r[f"{src}/{grp}/{dst_name}"]
+                    )
                 # template[f"{trg}/{grp}/@NX_class"] = "NXcollection"
             for dst_name in [
                 "figure_size",
@@ -132,7 +140,9 @@ class NxEmNxsMTexSubParser:
                 # degree_character, pf_anno_fun_hdl, show_coordinates, show_micron_bar
                 grp = "plotting"
                 if f"{src}/{grp}/{dst_name}" in h5r:
-                    template[f"{trg}/{grp}/{dst_name}"] = hfive_to_template(h5r[f"{src}/{grp}/{dst_name}"])
+                    template[f"{trg}/{grp}/{dst_name}"] = hfive_to_template(
+                        h5r[f"{src}/{grp}/{dst_name}"]
+                    )
                 # template[f"{trg}/{grp}/@NX_class"] = "NXcollection"
             # for dst_name in ["memory",
             #                  "open_gl_bug",
@@ -147,7 +157,9 @@ class NxEmNxsMTexSubParser:
                     # if "NX_class" in grp.attrs:
                     #     template[f"{trg}/PROGRAM[program{idx}]/@NX_class"] = grp.attrs["NX_class"]
                     dst = h5r[f"{src}/program{idx}/program"]
-                    template[f"{trg}/PROGRAM[program{idx}]/program"] = hfive_to_template(dst)
+                    template[f"{trg}/PROGRAM[program{idx}]/program"] = (
+                        hfive_to_template(dst)
+                    )
                     if "version" in dst.attrs:
                         template[f"{trg}/PROGRAM[program{idx}]/program/@version"] = (
                             dst.attrs["version"]
@@ -209,7 +221,9 @@ class NxEmNxsMTexSubParser:
                             ]
             for dst_name in ["description", "title"]:
                 if f"{src}/{dst_name}" in h5r:
-                    template[f"{trg}/{dst_name}"] = hfive_to_template(h5r[f"{src}/{dst_name}"])
+                    template[f"{trg}/{dst_name}"] = hfive_to_template(
+                        h5r[f"{src}/{dst_name}"]
+                    )
         return template
 
     def parse_phases(self, template: dict) -> dict:
@@ -235,7 +249,9 @@ class NxEmNxsMTexSubParser:
                 ]:
                     if f"{src}/{grp_name}/{dst_name}" in h5r:
                         dst = h5r[f"{src}/{grp_name}/{dst_name}"]
-                        template[f"{trg}[{grp_name}]/{dst_name}"] = hfive_to_template(dst)
+                        template[f"{trg}[{grp_name}]/{dst_name}"] = hfive_to_template(
+                            dst
+                        )
                         if "units" in dst.attrs:
                             template[f"{trg}[{grp_name}]/{dst_name}/@units"] = (
                                 dst.attrs["units"]
@@ -243,7 +259,9 @@ class NxEmNxsMTexSubParser:
 
                 for dst_name in ["phase_name", "point_group"]:
                     if f"{src}/{grp_name}/{dst_name}" in h5r:
-                        template[f"{trg}[{grp_name}]/{dst_name}"] = hfive_to_template(h5r[f"{src}/{grp_name}/{dst_name}"])
+                        template[f"{trg}[{grp_name}]/{dst_name}"] = hfive_to_template(
+                            h5r[f"{src}/{grp_name}/{dst_name}"]
+                        )
 
                 self.parse_phase_ipf(h5r, grp_name, template)
         return template
@@ -256,7 +274,9 @@ class NxEmNxsMTexSubParser:
                 f"phaseID[{phase}]/ipfID[ipf{ipfid}]"
             )
             if f"{src}/projection_direction" in h5r:
-                template[f"{trg}/projection_direction"] = hfive_to_template(h5r[f"{src}/projection_direction"])
+                template[f"{trg}/projection_direction"] = hfive_to_template(
+                    h5r[f"{src}/projection_direction"]
+                )
             for nxdata in ["legend", "map"]:
                 if f"{src}/{nxdata}" in h5r:
                     grp = h5r[f"{src}/{nxdata}"]
@@ -275,7 +295,9 @@ class NxEmNxsMTexSubParser:
                     for dst_name in ["axis_x", "axis_y", "data"]:
                         if f"{src}/{nxdata}/{dst_name}" in h5r:
                             dst = h5r[f"{src}/{nxdata}/{dst_name}"]
-                            template[f"{trg}/{nxdata}/{dst_name}"] = hfive_to_template(dst)
+                            template[f"{trg}/{nxdata}/{dst_name}"] = hfive_to_template(
+                                dst
+                            )
                             attrs = [
                                 "CLASS",
                                 "IMAGE_VERSION",
@@ -289,7 +311,9 @@ class NxEmNxsMTexSubParser:
                                         f"{trg}/{nxdata}/{dst_name}/@{attr_name}"
                                     ] = dst.attrs[attr_name]
                     if f"{src}/{nxdata}/title" in h5r:
-                        template[f"{trg}/{nxdata}/title"] = hfive_to_template(h5r[f"{src}/{nxdata}/title"])
+                        template[f"{trg}/{nxdata}/title"] = hfive_to_template(
+                            h5r[f"{src}/{nxdata}/title"]
+                        )
         return template
 
     def parse_conventions(self, template: dict) -> dict:
