@@ -83,12 +83,16 @@ class NxEmNxsMTexSubParser:
             ]:
                 grp = "conventions"
                 if f"{src}/{grp}/{dst_name}" in h5r:
-                    template[f"{trg}/{grp}/{dst_name}"] = h5r[f"{src}/{grp}/{dst_name}"][...]
+                    template[f"{trg}/{grp}/{dst_name}"] = h5r[
+                        f"{src}/{grp}/{dst_name}"
+                    ][...]
                 # template[f"{trg}/{grp}/@NX_class"] = "NXcollection"
             for dst_name in ["stop_on_symmetry_mismatch", "voronoi_method"]:
                 # "inside_poly", "methods_advise", "mosek", "text_interpreter"
                 if f"{src}/miscellanous/{dst_name}" in h5r:
-                    template[f"{trg}/miscellanous/{dst_name}"] = h5r[f"{src}/miscellanous/{dst_name}"][...]
+                    template[f"{trg}/miscellanous/{dst_name}"] = h5r[
+                        f"{src}/miscellanous/{dst_name}"
+                    ][...]
                 # template[f"{trg}/miscellanous/@NX_class"] = "NXcollection"
             for dst_name in [
                 "eps",
@@ -99,7 +103,9 @@ class NxEmNxsMTexSubParser:
             ]:
                 grp = "numerics"
                 if f"{src}/{grp}/{dst_name}" in h5r:
-                    template[f"{trg}/{grp}/{dst_name}"] = h5r[f"{src}/{grp}/{dst_name}"][...]
+                    template[f"{trg}/{grp}/{dst_name}"] = h5r[
+                        f"{src}/{grp}/{dst_name}"
+                    ][...]
                 # template[f"{trg}/{grp}/@NX_class"] = "NXcollection"
             for dst_name in [
                 "figure_size",
@@ -115,7 +121,9 @@ class NxEmNxsMTexSubParser:
                 # degree_character, pf_anno_fun_hdl, show_coordinates, show_micron_bar
                 grp = "plotting"
                 if f"{src}/{grp}/{dst_name}" in h5r:
-                    template[f"{trg}/{grp}/{dst_name}"] = h5r[f"{src}/{grp}/{dst_name}"][...]
+                    template[f"{trg}/{grp}/{dst_name}"] = h5r[
+                        f"{src}/{grp}/{dst_name}"
+                    ][...]
                 # template[f"{trg}/{grp}/@NX_class"] = "NXcollection"
             # for dst_name in ["memory",
             #                  "open_gl_bug",
@@ -257,7 +265,9 @@ class NxEmNxsMTexSubParser:
                     ]
                     for attr_name in attrs:
                         if attr_name in grp.attrs:
-                            template[f"{trg}/{nxdata}/@{attr_name}"] = grp.attrs[attr_name]
+                            template[f"{trg}/{nxdata}/@{attr_name}"] = grp.attrs[
+                                attr_name
+                            ]
                     for dst_name in ["axis_x", "axis_y", "data"]:
                         if f"{src}/{nxdata}/{dst_name}" in h5r:
                             dst = h5r[f"{src}/{nxdata}/{dst_name}"]
@@ -275,7 +285,9 @@ class NxEmNxsMTexSubParser:
                                         f"{trg}/{nxdata}/{dst_name}/@{attr_name}"
                                     ] = dst.attrs[attr_name]
                     if f"{src}/{nxdata}/title" in h5r:
-                        template[f"{trg}/{nxdata}/title"] = h5r[f"{src}/{nxdata}/title"][...]
+                        template[f"{trg}/{nxdata}/title"] = h5r[
+                            f"{src}/{nxdata}/title"
+                        ][...]
         return template
 
     def parse_conventions(self, template: dict) -> dict:

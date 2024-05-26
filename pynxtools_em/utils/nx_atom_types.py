@@ -44,7 +44,9 @@ class NxEmAtomTypesResolver:
                 is None
             ):
                 continue
-            print(f">>>>>>> {key} contributes to atom_types {type(template[key])}, {template[key]}")
+            print(
+                f">>>>>>> {key} contributes to atom_types {type(template[key])}, {template[key]}"
+            )
             free_text = str(template[key])  # .strip()
             print(f"{type(free_text)}, ___{free_text}__")
             if free_text in PHASE_NAME_TO_CONCEPT:
