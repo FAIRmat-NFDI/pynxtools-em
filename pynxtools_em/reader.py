@@ -26,8 +26,8 @@ from pynxtools.dataconverter.readers.base.reader import BaseReader
 
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
-from pynxtools_em.subparsers.nxs_nion import ZipNionProjectSubParser
 from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
+from pynxtools_em.subparsers.nxs_nion import ZipNionProjectSubParser
 from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
 from pynxtools_em.subparsers.oasis_config_reader import (
     NxEmNomadOasisConfigurationParser,
@@ -35,11 +35,11 @@ from pynxtools_em.subparsers.oasis_config_reader import (
 from pynxtools_em.subparsers.oasis_eln_reader import NxEmNomadOasisElnSchemaParser
 from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
 from pynxtools_em.utils.io_case_logic import EmUseCaseSelector
+from pynxtools_em.utils.nx_atom_types import NxEmAtomTypesResolver
 
 # from pynxtools_em.geometry.convention_mapper import NxEmConventionMapper
 # from pynxtools_em.subparsers.zip_ebsd_parser import NxEmOmZipEbsdParser
 from pynxtools_em.utils.nx_default_plots import NxEmDefaultPlotResolver
-from pynxtools_em.utils.nx_atom_types import NxEmAtomTypesResolver
 
 
 class EMReader(BaseReader):
@@ -127,12 +127,12 @@ class EMReader(BaseReader):
         if debugging:
             print("Reporting state of template before passing to HDF5 writing...")
             for keyword in template:
-                print(f"{keyword}: {template[keyword]}")
+                print(f"{keyword}")  # : {template[keyword]}")
 
         print("Forward instantiated template to the NXS writer...")
         toc = perf_counter_ns()
         trg = f"/ENTRY[entry{entry_id}]/profiling"
-        template[f"{trg}/current_working_directory"] = getcwd()
+        # template[f"{trg}/current_working_directory"] = getcwd()
         template[f"{trg}/template_filling_elapsed_time"] = np.float64(
             (toc - tic) / 1.0e9
         )

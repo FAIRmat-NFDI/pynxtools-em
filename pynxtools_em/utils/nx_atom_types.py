@@ -18,11 +18,13 @@
 """Try to recover atom_types."""
 
 import re
-from pynxtools_em.examples.ebsd_database import (
-    PHASE_NAME_TO_CONCEPT,
-    CONCEPT_TO_ATOM_TYPES,
-)
+
 from ase.data import chemical_symbols
+
+from pynxtools_em.examples.ebsd_database import (
+    CONCEPT_TO_ATOM_TYPES,
+    FREE_TEXT_TO_CONCEPT,
+)
 
 
 class NxEmAtomTypesResolver:
@@ -44,10 +46,14 @@ class NxEmAtomTypesResolver:
                 is None
             ):
                 continue
-            free_text = str(template[key])  # .strip()
-            if free_text in PHASE_NAME_TO_CONCEPT:
-                concept = PHASE_NAME_TO_CONCEPT[free_text]
-                if concept in CONCEPT_TO_ATOM_TYPES:
+            free_text = template[key]
+            if free_text in chemical_symbols[1::]:
+                atom_types.add(free_text)
+            elif free_text in FREE_TEXT_TO_CONCEPT:
+                concept = FREE_TEXT_TO_CONCEPT[free_text]
+                if concept in chemical_symbols[1::]:
+                    atom_types.add(concept)
+                elif concept in CONCEPT_TO_ATOM_TYPES:
                     symbols = CONCEPT_TO_ATOM_TYPES[concept].split(";")
                     for symbol in symbols:
                         if symbol in chemical_symbols[1::]:

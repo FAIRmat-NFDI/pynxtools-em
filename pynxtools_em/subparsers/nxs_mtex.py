@@ -22,9 +22,10 @@
 # base classes such as NXem_ebsd, NXms_ipf, for details see
 # https://fairmat-nfdi.github.io/nexus_definitions/classes/contributed_definitions/em-structure.html#em-structure
 
-import re
-import h5py
 import mmap
+import re
+
+import h5py
 import numpy as np
 
 
@@ -61,7 +62,7 @@ class NxEmNxsMTexSubParser:
 
     def check_if_mtex_nxs(self):
         """Check if content matches expected content."""
-        if self.file_path is None or not self.file_path.endswith(".mtex.nxs"):
+        if self.file_path is None or not self.file_path.endswith(".mtex.h5"):
             return
         with open(self.file_path, "rb", 0) as file:
             s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
@@ -93,6 +94,11 @@ class NxEmNxsMTexSubParser:
         with h5py.File(self.file_path, "r") as h5r:
             src = "/entry1/roi1/ebsd/indexing1/mtex"
             trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/mtex"
+            template[f"{trg}/@NX_class"] = "NXms_mtex_config"
+            for grp_name in ["conventions", "miscellanous", "numerics", "plotting"]:
+                # "system"
+                template[f"{trg}/{grp_name}/@NX_class"] = "NXcollection"
+
             for dst_name in [
                 "a_axis_direction",
                 "b_axis_direction",
@@ -100,19 +106,18 @@ class NxEmNxsMTexSubParser:
                 "x_axis_direction",
                 "y_axis_direction",
             ]:
-                grp = "conventions"
-                if f"{src}/{grp}/{dst_name}" in h5r:
-                    template[f"{trg}/{grp}/{dst_name}"] = hfive_to_template(
-                        h5r[f"{src}/{grp}/{dst_name}"]
+                if f"{src}/conventions/{dst_name}" in h5r:
+                    template[f"{trg}/conventions/{dst_name}"] = hfive_to_template(
+                        h5r[f"{src}/conventions/{dst_name}"]
                     )
-                # template[f"{trg}/{grp}/@NX_class"] = "NXcollection"
-            for dst_name in ["stop_on_symmetry_mismatch", "voronoi_method"]:
-                # "inside_poly", "methods_advise", "mosek", "text_interpreter"
+            for dst_name in [
+                "stop_on_symmetry_mismatch",
+                "voronoi_method",
+            ]:  # "inside_poly", "methods_advise", "mosek", "text_interpreter"
                 if f"{src}/miscellanous/{dst_name}" in h5r:
                     template[f"{trg}/miscellanous/{dst_name}"] = hfive_to_template(
                         h5r[f"{src}/miscellanous/{dst_name}"]
                     )
-                # template[f"{trg}/miscellanous/@NX_class"] = "NXcollection"
             for dst_name in [
                 "eps",
                 "fft_accuracy",
@@ -120,12 +125,10 @@ class NxEmNxsMTexSubParser:
                 "max_stwo_bandwidth",
                 "max_sothree_bandwidth",
             ]:
-                grp = "numerics"
-                if f"{src}/{grp}/{dst_name}" in h5r:
-                    template[f"{trg}/{grp}/{dst_name}"] = hfive_to_template(
-                        h5r[f"{src}/{grp}/{dst_name}"]
+                if f"{src}/numerics/{dst_name}" in h5r:
+                    template[f"{trg}/numerics/{dst_name}"] = hfive_to_template(
+                        h5r[f"{src}/numerics/{dst_name}"]
                     )
-                # template[f"{trg}/{grp}/@NX_class"] = "NXcollection"
             for dst_name in [
                 "figure_size",
                 "font_size",
@@ -136,26 +139,28 @@ class NxEmNxsMTexSubParser:
                 "marker_size",
                 "outer_plot_spacing",
             ]:
-                # hit_test, arrow_character, color_map, color_palette, default_map,
-                # degree_character, pf_anno_fun_hdl, show_coordinates, show_micron_bar
-                grp = "plotting"
-                if f"{src}/{grp}/{dst_name}" in h5r:
-                    template[f"{trg}/{grp}/{dst_name}"] = hfive_to_template(
-                        h5r[f"{src}/{grp}/{dst_name}"]
+                # "hit_test", "arrow_character", "color_map", "color_palette",
+                # "default_map", "degree_character", "pf_anno_fun_hdl",
+                # "show_coordinates", "show_micron_bar"
+                if f"{src}/plotting/{dst_name}" in h5r:
+                    template[f"{trg}/plotting/{dst_name}"] = hfive_to_template(
+                        h5r[f"{src}/plotting/{dst_name}"]
                     )
-                # template[f"{trg}/{grp}/@NX_class"] = "NXcollection"
-            # for dst_name in ["memory",
-            #                  "open_gl_bug",
-            #                  "save_to_file"]:
+            # for dst_name in [
+            #     "memory",
+            #     "open_gl_bug",
+            #     "save_to_file"
+            # ]:
             #     grp = "system"
             #     if f"{src}/{grp}/{dst_name}" in h5r:
             #         template[f"{trg}/{grp}/{dst_name}"] = hfive_to_template(h5r[f"{src}/{grp}/{dst_name}"])
-            #     # template[f"{trg}/{grp}/@NX_class"] = "NXcollection"
             for idx in [1, 2]:
                 if f"{src}/program{idx}/program" in h5r:
-                    # grp = h5r[f"{src}/program{idx}"]
-                    # if "NX_class" in grp.attrs:
-                    #     template[f"{trg}/PROGRAM[program{idx}]/@NX_class"] = grp.attrs["NX_class"]
+                    grp = h5r[f"{src}/program{idx}"]
+                    if "NX_class" in grp.attrs:
+                        template[f"{trg}/PROGRAM[program{idx}]/@NX_class"] = grp.attrs[
+                            "NX_class"
+                        ]
                     dst = h5r[f"{src}/program{idx}/program"]
                     template[f"{trg}/PROGRAM[program{idx}]/program"] = (
                         hfive_to_template(dst)

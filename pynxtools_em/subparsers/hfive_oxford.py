@@ -66,6 +66,7 @@ class HdfFiveOxfordReader(HdfFiveBaseParser):
             "5.1.7829.1",
             "6.0.8014.1",
             "6.0.8196.1",
+            "6.1.8451.1",
         ]
 
     def check_if_supported(self):

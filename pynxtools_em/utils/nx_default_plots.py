@@ -17,8 +17,9 @@
 #
 """Logics and functionality to identify and annotate a default plot NXem."""
 
-from typing import Dict
 from operator import itemgetter
+from typing import Dict
+
 import numpy as np
 
 
@@ -103,14 +104,18 @@ class NxEmDefaultPlotResolver:
                         if idx_tail is None or idx_tail == -1:
                             continue
                         prfx = f"{key[0:idx_tail + len(f'''/ebsd/indexing/phaseID[phase{phase_id}]''')]}"
-                        if (
-                            0 < idx_head < idx_tail
-                            and f"{prfx}/ipfID[ipf1]/map/data" in template
+                        # print(f"{key}\t{idx_head}\t{idx_tail}\t{prfx}")
+                        if 0 < idx_head < idx_tail and (
+                            f"{prfx}/ipfID[ipf1]/map/data" in template
+                            or f"{prfx}/ipfID[ipf1]/map/DATA[data]" in template
                         ):
                             n_scan_points = 1.0
                             if f"{prfx}/number_of_scan_points" in template:
+                                # n_scan_points = template[
+                                #     f"{key[0:idx_tail + len(f'''/ebsd/indexing/phaseID[phase{phase_id}]''')]}/number_of_scan_points"
+                                # ]
                                 n_scan_points = template[
-                                    f"{key[0:idx_tail + len(f'''/ebsd/indexing/phaseID[phase{phase_id}]''')]}/number_of_scan_points"
+                                    f"{prfx}/number_of_scan_points"
                                 ]
                             vote_ipf_map.append(
                                 (

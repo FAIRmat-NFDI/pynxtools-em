@@ -41,9 +41,8 @@ class NxEmAppDef:
         """Parse application definition."""
         identifier = [entry_id]
         add_specific_metadata(EM_PYNX_TO_NEXUS, {}, identifier, template)
-
-        if cmd_line_args != () and all(isinstance(item, str) for item in cmd_line_args):
-            template[f"/ENTRY[entry{entry_id}]/profiling/command_line_call"] = " ".join(
-                cmd_line_args
-            )
+        # if cmd_line_args != () and all(isinstance(item, str) for item in cmd_line_args):
+        #     template[f"/ENTRY[entry{entry_id}]/profiling/command_line_call"] = " ".join(
+        #        cmd_line_args
+        #     )
         return template
