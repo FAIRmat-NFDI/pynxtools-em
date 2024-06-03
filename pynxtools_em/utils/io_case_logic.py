@@ -29,10 +29,11 @@ VALID_FILE_NAME_SUFFIX_DATA = [
     ".edaxh5",
     ".h5",
     ".hdf5",
-    ".nxs",
+    ".h5oina",
+    ".mtex.h5",
     ".dream3d",
 ]
-# ".dm3", ".dm4", ".mtex"]
+# ".dm3", ".dm4"]
 
 
 class EmUseCaseSelector:
@@ -52,8 +53,7 @@ class EmUseCaseSelector:
         self.supported_file_name_suffixes = (
             VALID_FILE_NAME_SUFFIX_CONFIG + VALID_FILE_NAME_SUFFIX_DATA
         )
-        print(f"self.supported_file_name_suffixes: {self.supported_file_name_suffixes}")
-        print(f"{file_paths}")
+        print(f"Supported file format suffixes: {self.supported_file_name_suffixes}")
         self.sort_files_by_file_name_suffix(file_paths)
         self.check_validity_of_file_combinations()
 

@@ -17,24 +17,25 @@
 #
 """(Sub-)parser mapping concepts and content from EDAX/AMETEK *.oh5/*.h5 (OIM Analysis) files on NXem."""
 
-import numpy as np
-import h5py
 from typing import Dict
+
+import h5py
+import numpy as np
 from diffpy.structure import Lattice, Structure
 
+from pynxtools_em.examples.ebsd_database import (
+    ASSUME_PHASE_NAME_TO_SPACE_GROUP,
+    FLIGHT_PLAN,
+    HEXAGONAL_GRID,
+    REGULAR_TILING,
+    SQUARE_GRID,
+)
 from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.hfive_utils import (
     EULER_SPACE_SYMMETRY,
-    read_strings_from_dataset,
-    read_first_scalar,
     format_euler_parameterization,
-)
-from pynxtools_em.examples.ebsd_database import (
-    ASSUME_PHASE_NAME_TO_SPACE_GROUP,
-    HEXAGONAL_GRID,
-    SQUARE_GRID,
-    REGULAR_TILING,
-    FLIGHT_PLAN,
+    read_first_scalar,
+    read_strings_from_dataset,
 )
 
 
@@ -210,6 +211,10 @@ class HdfFiveEdaxOimAnalysisReader(HdfFiveBaseParser):
                     space_group = None
                     if phase_name in ASSUME_PHASE_NAME_TO_SPACE_GROUP.keys():
                         space_group = ASSUME_PHASE_NAME_TO_SPACE_GROUP[phase_name]
+                    else:
+                        raise KeyError(
+                            f"Unknown space group for phase_name {phase_name}!"
+                        )
                     self.tmp[ckey]["phases"][int(phase_id)]["space_group"] = space_group
 
                     if len(self.tmp[ckey]["space_group"]) > 0:

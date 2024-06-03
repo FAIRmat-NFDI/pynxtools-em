@@ -17,9 +17,15 @@
 #
 """Logics and functionality to identify and annotate a default plot NXem."""
 
+from operator import itemgetter
 from typing import Dict
 
 import numpy as np
+
+
+def sort_list_of_tuples_desc_order(tuples):
+    """Sort the tuples by the second item using the itemgetter function."""
+    return sorted(tuples, key=itemgetter(1), reverse=True)
 
 
 class NxEmDefaultPlotResolver:
@@ -78,21 +84,56 @@ class NxEmDefaultPlotResolver:
                             break
 
             # find ebsd ipf map
-            idx_head = key.find("/ROI[")
-            tail = "/ebsd/indexing/phaseID[phase1]/ipfID[ipf1]/map"
-            idx_tail = key.find(tail)
-            if idx_head is not None and idx_tail is not None:
-                if 0 < idx_head < idx_tail:
-                    keyword = key[0 : idx_tail + len(tail)]
-                    if keyword not in candidates[5]:
-                        candidates[5].append(keyword)
-                    continue
+            idx_head = key.find("/ROI[roi1]")
+            idx_tail = key.find("/ebsd/indexing")
+            if idx_head is None or idx_tail is None:
+                continue
+            if 0 < idx_head < idx_tail:
+                n_scan_points_total = 1.0
+                if (
+                    f"{key[0:idx_tail + len('/ebsd/indexing')]}/number_of_scan_points"
+                    in template
+                ):
+                    n_scan_points_total = template[
+                        f"{key[0:idx_tail + len('/ebsd/indexing')]}/number_of_scan_points"
+                    ]
+                    # in case of ebsd map with phase2, phase3, ... find than phase with the
+                    vote_ipf_map = []
+                    for phase_id in np.arange(1, 20 + 1):
+                        idx_tail = key.find(f"/ebsd/indexing/phaseID[phase{phase_id}]")
+                        if idx_tail is None or idx_tail == -1:
+                            continue
+                        prfx = f"{key[0:idx_tail + len(f'''/ebsd/indexing/phaseID[phase{phase_id}]''')]}"
+                        # print(f"{key}\t{idx_head}\t{idx_tail}\t{prfx}")
+                        if 0 < idx_head < idx_tail and (
+                            f"{prfx}/ipfID[ipf1]/map/data" in template
+                            or f"{prfx}/ipfID[ipf1]/map/DATA[data]" in template
+                        ):
+                            n_scan_points = 1.0
+                            if f"{prfx}/number_of_scan_points" in template:
+                                # n_scan_points = template[
+                                #     f"{key[0:idx_tail + len(f'''/ebsd/indexing/phaseID[phase{phase_id}]''')]}/number_of_scan_points"
+                                # ]
+                                n_scan_points = template[
+                                    f"{prfx}/number_of_scan_points"
+                                ]
+                            vote_ipf_map.append(
+                                (
+                                    f"{prfx}/ipfID[ipf1]/map",
+                                    np.float64(n_scan_points)
+                                    / np.float64(n_scan_points_total),
+                                )
+                            )
+                    vote_ipf_map = sort_list_of_tuples_desc_order(vote_ipf_map)
+                    if len(vote_ipf_map) > 0:
+                        if vote_ipf_map[0][0] not in candidates[5]:
+                            candidates[5].append(vote_ipf_map[0][0])
+
             # find ebsd roi map
-            tail = "/ebsd/indexing/roi"
-            idx_tail = key.find(tail)
+            idx_tail = key.find("/ebsd/indexing/roi")
             if idx_head is not None and idx_tail is not None:
                 if 0 < idx_head < idx_tail:
-                    keyword = key[0 : idx_tail + len(tail)]
+                    keyword = key[0 : idx_tail + len("/ebsd/indexing/roi")]
                     if keyword not in candidates[4]:
                         candidates[4].append(keyword)
 

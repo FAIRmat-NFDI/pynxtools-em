@@ -128,7 +128,7 @@ class NxEmNxsPyxemSubParser:
         hfive_parser_type = self.identify_hfive_type()
         if hfive_parser_type is None:
             print(
-                f"Parser PyXem/NeXus/HDF5 finds that {self.file_path} does not match any of the supported HDF5 formats"
+                f"Parser PyXem/NeXus/HDF5 finds no content in {self.file_path} that it supports"
             )
             return template
         print(

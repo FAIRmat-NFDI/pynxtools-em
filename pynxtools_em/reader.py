@@ -26,28 +26,19 @@ from pynxtools.dataconverter.readers.base.reader import BaseReader
 
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
+from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
 from pynxtools_em.subparsers.nxs_nion import ZipNionProjectSubParser
-
-# from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
 from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
 from pynxtools_em.subparsers.oasis_config_reader import (
     NxEmNomadOasisConfigurationParser,
 )
 from pynxtools_em.subparsers.oasis_eln_reader import NxEmNomadOasisElnSchemaParser
 from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
-from pynxtools_em.utils.io_case_logic import (
-    EmUseCaseSelector,
-)
+from pynxtools_em.utils.io_case_logic import EmUseCaseSelector
+from pynxtools_em.utils.nx_atom_types import NxEmAtomTypesResolver
 
-## from pynxtools_em.utils.default_plots import NxEmDefaultPlotResolver
 # from pynxtools_em.geometry.convention_mapper import NxEmConventionMapper
-# remaining subparsers to be implemented and merged into this one
-# from pynxtools.dataconverter.readers.em_om.utils.orix_ebsd_parser \
-#     import NxEmOmOrixEbsdParser
-# from pynxtools.dataconverter.readers.em_om.utils.mtex_ebsd_parser \
-#     import NxEmOmMtexEbsdParser
-# from pynxtools.dataconverter.readers.em_om.utils.zip_ebsd_parser \
-#     import NxEmOmZipEbsdParser
+# from pynxtools_em.subparsers.zip_ebsd_parser import NxEmOmZipEbsdParser
 from pynxtools_em.utils.nx_default_plots import NxEmDefaultPlotResolver
 
 
@@ -114,9 +105,8 @@ class EMReader(BaseReader):
             velox = RsciioVeloxSubParser(entry_id, case.dat[0], verbose=False)
             velox.parse(template)
 
-            # nxs_mtex = NxEmNxsMTexSubParser(entry_id, case.dat[0], verbose=False)
-            # nxs_mtex.parse(template)
-            # TODO::check correct loop through!
+            nxs_mtex = NxEmNxsMTexSubParser(entry_id, case.dat[0], verbose=False)
+            nxs_mtex.parse(template)
 
             nxs_pyxem = NxEmNxsPyxemSubParser(entry_id, case.dat[0], verbose=False)
             nxs_pyxem.parse(template)
@@ -124,26 +114,25 @@ class EMReader(BaseReader):
             nxs_nion = ZipNionProjectSubParser(entry_id, case.dat[0], verbose=False)
             nxs_nion.parse(template)
 
-            # for dat_instance in case.dat_parser_type:
-            #     print(f"Process pieces of information in {dat_instance} tech partner file...")
-            #    continue
-            #    # elif case.dat_parser_type == "zip":
-            #    #     zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id)
-            #    #     zip_parser.parse(template)
+            # zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id)
+            # zip_parser.parse(template)
 
         nxplt = NxEmDefaultPlotResolver()
         nxplt.priority_select(template)
 
+        smpl = NxEmAtomTypesResolver(entry_id)
+        smpl.identify_atomtypes(template)
+
         debugging = False
         if debugging:
             print("Reporting state of template before passing to HDF5 writing...")
-            for keyword in template.keys():
-                print(f"{keyword}: {template[keyword]}")
+            for keyword in template:
+                print(f"{keyword}")  # : {template[keyword]}")
 
         print("Forward instantiated template to the NXS writer...")
         toc = perf_counter_ns()
         trg = f"/ENTRY[entry{entry_id}]/profiling"
-        template[f"{trg}/current_working_directory"] = getcwd()
+        # template[f"{trg}/current_working_directory"] = getcwd()
         template[f"{trg}/template_filling_elapsed_time"] = np.float64(
             (toc - tic) / 1.0e9
         )
