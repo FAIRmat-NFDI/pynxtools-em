@@ -31,19 +31,20 @@ from pynxtools_em.utils.string_conversions import rchop, string_to_number
 def variadic_path_to_specific_path(path: str, instance_identifier: list):
     """Transforms a variadic path to an actual path with instances."""
     if (path is not None) and (path != ""):
-        narguments = path.count("*")
-        if narguments == 0:  # path is not variadic
+        nvariadic_parts = path.count("*")
+        if nvariadic_parts == 0:  # path is not variadic
             return path
-        if len(instance_identifier) >= narguments:
-            tmp = path.split("*")
-            if len(tmp) == narguments + 1:
+        if len(instance_identifier) >= nvariadic_parts:
+            variadic_part = path.split("*")
+            if len(variadic_part) == nvariadic_parts + 1:
                 nx_specific_path = ""
-                for idx in range(0, narguments):
-                    nx_specific_path += f"{tmp[idx]}{instance_identifier[idx]}"
+                for idx in range(0, nvariadic_parts):
+                    nx_specific_path += (
+                        f"{variadic_part[idx]}{instance_identifier[idx]}"
+                    )
                     idx += 1
-                nx_specific_path += f"{tmp[-1]}"
+                nx_specific_path += f"{variadic_part[-1]}"
                 return nx_specific_path
-    return None
 
 
 def add_specific_metadata(

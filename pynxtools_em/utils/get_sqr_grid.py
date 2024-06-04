@@ -20,7 +20,7 @@
 import numpy as np
 from scipy.spatial import KDTree
 
-from pynxtools_em.examples.ebsd_database import SQUARE_GRID
+from pynxtools_em.examples.ebsd_database import SQUARE_TILING
 from pynxtools_em.utils.get_scan_points import hexagonal_grid, square_grid, threed
 
 

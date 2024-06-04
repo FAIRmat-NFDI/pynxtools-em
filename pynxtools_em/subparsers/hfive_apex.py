@@ -17,27 +17,28 @@
 #
 """(Sub-)parser mapping concepts and content from EDAX/AMETEK *.edaxh5 (APEX) files on NXem."""
 
-import numpy as np
-import h5py
 from typing import Dict
+
+import h5py
+import numpy as np
 from diffpy.structure import Lattice, Structure
 from orix.quaternion import Orientation
 
-from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
-from pynxtools_em.utils.hfive_utils import read_strings_from_dataset
+from pynxtools_em.concepts.nxs_em_eds_indexing import NxEmEdsIndexing
+from pynxtools_em.concepts.nxs_image_r_set import NxImageRealSpaceSet
+from pynxtools_em.concepts.nxs_object import NxObject
+from pynxtools_em.concepts.nxs_spectrum_set import NxSpectrumSet
 from pynxtools_em.examples.ebsd_database import (
     ASSUME_PHASE_NAME_TO_SPACE_GROUP,
-    HEXAGONAL_GRID,
-    SQUARE_GRID,
-    REGULAR_TILING,
     FLIGHT_PLAN,
+    HEXAGONAL_FLAT_TOP_TILING,
+    REGULAR_TILING,
+    SQUARE_TILING,
 )
+from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.get_scan_points import get_scan_point_coords
-from pynxtools_em.concepts.nxs_image_r_set import NxImageRealSpaceSet
-from pynxtools_em.concepts.nxs_spectrum_set import NxSpectrumSet
-from pynxtools_em.concepts.nxs_em_eds_indexing import NxEmEdsIndexing
 from pynxtools_em.utils.get_xrayline_iupac_names import get_xrayline_candidates
-from pynxtools_em.concepts.nxs_object import NxObject
+from pynxtools_em.utils.hfive_utils import read_strings_from_dataset
 
 
 class HdfFiveEdaxApexReader(HdfFiveBaseParser):
@@ -225,9 +226,9 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         self.tmp[ckey]["dimensionality"] = 2
         grid_type = read_strings_from_dataset(fp[f"{self.prfx}/Sample/Grid Type"][()])
         if grid_type == "HexGrid":
-            self.tmp[ckey]["grid_type"] = HEXAGONAL_GRID
+            self.tmp[ckey]["grid_type"] = HEXAGONAL_FLAT_TOP_TILING
         elif grid_type == "SqrGrid":
-            self.tmp[ckey]["grid_type"] = SQUARE_GRID
+            self.tmp[ckey]["grid_type"] = SQUARE_TILING
         else:
             raise ValueError(f"Unable to parse {self.prfx}/Sample/Grid Type !")
         # the next two lines encode the typical assumption that is not reported in tech partner file!
@@ -386,7 +387,7 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         # is usually not needed because scientists assume that the ROI is representative for
         # the material which they typically never scan (time, interest, costs, instrument
         # availability) completely!
-        if self.tmp[ckey]["grid_type"] != SQUARE_GRID:
+        if self.tmp[ckey]["grid_type"] != SQUARE_TILING:
             print(
                 f"WARNING: {self.tmp[ckey]['grid_type']}: check carefully the "
                 f"correct interpretation of scan_point coords!"

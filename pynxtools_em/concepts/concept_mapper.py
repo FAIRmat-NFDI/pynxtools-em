@@ -30,34 +30,26 @@ from pynxtools_em.concepts.mapping_functors import variadic_path_to_specific_pat
 from pynxtools_em.utils.string_conversions import string_to_number
 
 
-def load_from_modifier(terms, fd_dct):
-    """Implement modifier which reads values of different type from fd_dct."""
+def load_from_modifier(terms, flat_dict):
+    """Implement modifier which reads values of different type from flat_dict."""
     if isinstance(terms, str):
-        if terms in fd_dct.keys():
-            return fd_dct[terms]
+        if terms in flat_dict:
+            return flat_dict[terms]
     if all(isinstance(entry, str) for entry in terms) is True:
         if isinstance(terms, list):
             lst = []
             for entry in terms:
-                lst.append(fd_dct[entry])
+                lst.append(flat_dict[entry])
             return lst
-    return None
 
 
 def convert_iso8601_modifier(terms, dct: dict):
     """Implement modifier which transforms nionswift time stamps to proper UTC ISO8601."""
-    if terms is not None:
-        if isinstance(terms, str):
-            if terms in dct.keys():
-                return None
-        elif (
-            (isinstance(terms, list))
-            and (len(terms) == 2)
-            and (all(isinstance(entry, str) for entry in terms) is True)
-        ):
+    if isinstance(terms, list):
+        if len(terms) == 2 and all(isinstance(entry, str) for entry in terms):
             # assume the first argument is a local time
             # assume the second argument is a timezone string
-            if terms[0] in dct.keys() and terms[1] in dct.keys():
+            if terms[0] in dct and terms[1] in dct:
                 # handle the case that these times can be arbitrarily formatted
                 # for now we let ourselves be guided
                 # by how time stamps are returned in Christoph Koch's
@@ -74,16 +66,11 @@ def convert_iso8601_modifier(terms, dct: dict):
                     return utc_time_zone_aware
                 else:
                     raise ValueError("Invalid timezone string!")
-                return None
-        else:
-            return None
-    return None
 
 
 def apply_modifier(modifier, dct: dict):
     """Interpret a functional mapping using data from dct via calling modifiers."""
     if isinstance(modifier, dict):
-        # different commands are available
         if set(["fun", "terms"]) == set(modifier.keys()):
             if modifier["fun"] == "load_from":
                 return load_from_modifier(modifier["terms"], dct)
@@ -96,7 +83,6 @@ def apply_modifier(modifier, dct: dict):
             return None
     if isinstance(modifier, str):
         return modifier
-    return None
 
 
 def add_specific_metadata_deprecate(

@@ -15,23 +15,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Definitions for different conventions associated with Euler angles."""
+"""Definitions for different conventions associated with Euler angles.
 
-# Euler angles are a parameterization for orientations which use three
-# consecutively rotations (3D) rotations to rotate a configuration
-# described by an attached Cartesian CS na(False, "", ""),         "", ""),med A into configuration
-# described by an attached Cartesian CS named B
-# the sequence about which specific axis and new/intermediate axes
-# one rotates enables to distinguish different types of Euler angle
-# so-called Euler-angle conventions, most commonly used in materials
-# science is the convention of H.-J. Bunge aka zxz convention
+Euler angles are a parameterization for orientations which use three consecutive
+3D rotations to rotate a configuration of an attached Cartesian CS named A to align
+it with an attached Cartesian CS named B. The sequence about which specific axes
+and new/intermediate axes one rotates distinguishes different types of
+Euler angle conventions (e.g. Tait, Kocks, Canova, Bunge). In materials science the
+convention of H.-J. Bunge aka zxz convention is used most frequently.
+"""
 
 # "Bunge" https://doi.org/10.1016/C2013-0-11769-2
 # "Rowenhorst" https://doi.org/10.1088/0965-0393/23/8/083501
 # "Morawiec" https://doi.org/10.1007/978-3-662-09156-2
 # "Britton" https://doi.org/10.1016/j.matchar.2016.04.008
 
-which_euler_convention = {
+euler_convention = {
     "xxx": (False, "", ""),
     "xxy": (True, "", ""),
     "xxz": (True, "", ""),

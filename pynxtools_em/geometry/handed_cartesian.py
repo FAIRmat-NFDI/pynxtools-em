@@ -737,7 +737,7 @@ is_cs_lh_unambiguous = {
 }
 
 
-def is_cs_well_defined(handedness, directions):
+def is_cs_well_defined(handedness: str, directions: list) -> bool:
     """Check if the axis directions yield an unambiguous definition right handed"""
     keyword = f"{directions[0]}_{directions[1]}_{directions[2]}"
     if handedness == "right_handed_cartesian":

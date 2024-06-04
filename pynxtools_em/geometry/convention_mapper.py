@@ -17,22 +17,19 @@
 #
 """Parse conventions from an ELN schema instance."""
 
+from pynxtools_em.concepts.concept_mapper import (
+    apply_modifier,
+    variadic_path_to_specific_path,
+)
+from pynxtools_em.geometry.geometry import NxEmConventions
 from pynxtools_em.geometry.handed_cartesian import (
-    REFERENCE_FRAMES,
     AXIS_DIRECTIONS,
+    REFERENCE_FRAMES,
     is_cs_well_defined,
 )
 
-from pynxtools_em.concepts.concept_mapper import (
-    variadic_path_to_specific_path,
-    apply_modifier,
-)
-
-from pynxtools_em.geometry.geometry import NxEmConventions
-
 # example how to check against different types of Euler angle conventions
-# from pynxtools_em.geometry.euler_angle_convention \
-#    import which_euler_convention
+# from pynxtools_em.geometry.euler_angle_convention import euler_convention
 
 # example how to check if set of conventions matches to some suggestion in the literature
 # from pynxtools_em.geometry.msmse_convention \
