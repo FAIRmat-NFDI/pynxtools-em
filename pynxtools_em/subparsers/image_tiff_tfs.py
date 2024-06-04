@@ -52,7 +52,7 @@ class TfsTiffSubParser(TiffSubParser):
         self.entry_id = entry_id
         self.event_id = 1
         self.prfx = None
-        self.tmp: Dict = {"data": None, "meta": {}}
+        self.tmp: Dict = {"data": None, "flat_dict_meta": fd.FlatDict({})}
         self.supported_version: Dict = {}
         self.version: Dict = {}
         self.tags: Dict = {}
@@ -142,35 +142,35 @@ class TfsTiffSubParser(TiffSubParser):
                     if pos < pos_e:  # check if pos_e is None
                         s.seek(pos, 0)
                         value = f"{s.readline().strip().decode('utf8').replace(f'{term}=', '')}"
-                        self.tmp["meta"][f"{parent}/{term}"] = None
+                        self.tmp["flat_dict_meta"][f"{parent}/{term}"] = None
                         if isinstance(value, str):
                             if value != "":
                                 # execution order of the check here matters!
                                 if value.isdigit() is True:
-                                    self.tmp["meta"][f"{parent}/{term}"] = np.int64(
-                                        value
+                                    self.tmp["flat_dict_meta"][f"{parent}/{term}"] = (
+                                        np.int64(value)
                                     )
                                 elif if_str_represents_float(value) is True:
-                                    self.tmp["meta"][f"{parent}/{term}"] = np.float64(
-                                        value
+                                    self.tmp["flat_dict_meta"][f"{parent}/{term}"] = (
+                                        np.float64(value)
                                     )
                                 else:
-                                    self.tmp["meta"][f"{parent}/{term}"] = value
+                                    self.tmp["flat_dict_meta"][f"{parent}/{term}"] = (
+                                        value
+                                    )
                         else:
                             raise ValueError(
                                 f"Detected an unexpected case {parent}/{term}, type: {type(value)} !"
                             )
                     else:
                         break
-            self.tmp["meta"] = fd.FlatDict(self.tmp["meta"])
+            self.tmp["flat_dict_meta"] = fd.FlatDict(self.tmp["flat_dict_meta"])
 
     def parse_and_normalize(self):
         """Perform actual parsing filling cache self.tmp."""
         if self.supported is True:
             print(f"Parsing via ThermoFisher-specific metadata...")
             self.get_metadata()
-            # for key in self.tmp["meta"].keys():
-            #     print(f"{key}")
         else:
             print(
                 f"{self.file_path} is not a ThermoFisher-specific "
@@ -226,12 +226,12 @@ class TfsTiffSubParser(TiffSubParser):
             sxy = {"x": 1.0, "y": 1.0}
             scan_unit = {"x": "m", "y": "m"}  # assuming FEI reports SI units
             # we may face the CCD overview camera for the chamber for which there might not be a calibration!
-            if ("EScan/PixelWidth" in self.tmp["meta"].keys()) and (
-                "EScan/PixelHeight" in self.tmp["meta"].keys()
+            if ("EScan/PixelWidth" in self.tmp["flat_dict_meta"]) and (
+                "EScan/PixelHeight" in self.tmp["flat_dict_meta"]
             ):
                 sxy = {
-                    "x": self.tmp["meta"]["EScan/PixelWidth"],
-                    "y": self.tmp["meta"]["EScan/PixelHeight"],
+                    "x": self.tmp["flat_dict_meta"]["EScan/PixelWidth"],
+                    "y": self.tmp["flat_dict_meta"]["EScan/PixelHeight"],
                 }
             else:
                 print("WARNING: Assuming pixel width and height unit is meter!")
@@ -268,7 +268,7 @@ class TfsTiffSubParser(TiffSubParser):
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata(
             TFS_APERTURE_STATIC_TO_NX_EM,
-            fd.FlatDict(self.tmp["meta"]),
+            self.tmp["flat_dict_meta"],
             identifier,
             template,
         )
@@ -278,7 +278,7 @@ class TfsTiffSubParser(TiffSubParser):
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata(
             TFS_DETECTOR_STATIC_TO_NX_EM,
-            fd.FlatDict(self.tmp["meta"]),
+            self.tmp["flat_dict_meta"],
             identifier,
             template,
         )
@@ -288,7 +288,7 @@ class TfsTiffSubParser(TiffSubParser):
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata(
             TFS_VARIOUS_STATIC_TO_NX_EM,
-            fd.FlatDict(self.tmp["meta"]),
+            self.tmp["flat_dict_meta"],
             identifier,
             template,
         )
@@ -298,7 +298,7 @@ class TfsTiffSubParser(TiffSubParser):
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata(
             TFS_OPTICS_DYNAMIC_TO_NX_EM,
-            fd.FlatDict(self.tmp["meta"]),
+            self.tmp["flat_dict_meta"],
             identifier,
             template,
         )
@@ -308,7 +308,7 @@ class TfsTiffSubParser(TiffSubParser):
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata(
             TFS_STAGE_DYNAMIC_TO_NX_EM,
-            fd.FlatDict(self.tmp["meta"]),
+            self.tmp["flat_dict_meta"],
             identifier,
             template,
         )
@@ -318,7 +318,7 @@ class TfsTiffSubParser(TiffSubParser):
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata(
             TFS_SCAN_DYNAMIC_TO_NX_EM,
-            fd.FlatDict(self.tmp["meta"]),
+            self.tmp["flat_dict_meta"],
             identifier,
             template,
         )
@@ -328,7 +328,7 @@ class TfsTiffSubParser(TiffSubParser):
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata(
             TFS_VARIOUS_DYNAMIC_TO_NX_EM,
-            fd.FlatDict(self.tmp["meta"]),
+            self.tmp["flat_dict_meta"],
             identifier,
             template,
         )

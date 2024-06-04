@@ -35,13 +35,6 @@ def string_to_number(arg: str):
         raise TypeError(f"Input argument arg needs to be a string!")
 
 
-# str_val = "-0.4899999"
-# str_val = "-2."
-# str_val = "-2.000000001"
-# str_val = "test"
-# print(f"{string_to_number(str_val)}, {type(string_to_number(str_val))}")
-
-
 def rchop(s, suffix):
     if suffix and s.endswith(suffix):
         return s[: -len(suffix)]
