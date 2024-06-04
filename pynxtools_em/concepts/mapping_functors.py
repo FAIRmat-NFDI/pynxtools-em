@@ -141,13 +141,13 @@ def add_specific_metadata(
     if "map_to_bool" in concept_mapping:
         for entry in concept_mapping["map_to_bool"]:
             if isinstance(entry, str):
-                if f"{prefix_src}{entry[0]}" not in orgmeta:
+                if f"{prefix_src}{entry[1]}" not in orgmeta:
                     continue
                 trg = variadic_path_to_specific_path(
                     f"{variadic_prefix_trg}/{entry[0]}", identifier
                 )
                 template[f"{trg}"] = try_interpret_as_boolean(
-                    orgmeta[f"{prefix_src}{entry[0]}"]
+                    orgmeta[f"{prefix_src}{entry[1]}"]
                 )
             if isinstance(entry, tuple):
                 if len(entry) == 2:
@@ -164,18 +164,18 @@ def add_specific_metadata(
         for entry in concept_mapping["map_to_real"]:
             if isinstance(entry, str):
                 if isinstance(entry[0], str):
-                    if f"{prefix_src}{entry[0]}" not in orgmeta:
+                    if f"{prefix_src}{entry[1]}" not in orgmeta:
                         continue
                     if (
-                        isinstance(orgmeta[f"{prefix_src}{entry[0]}"], str)
-                        and orgmeta[f"{prefix_src}{entry[0]}"] == ""
+                        isinstance(orgmeta[f"{prefix_src}{entry[1]}"], str)
+                        and orgmeta[f"{prefix_src}{entry[1]}"] == ""
                     ):
                         continue
                     trg = variadic_path_to_specific_path(
                         f"{variadic_prefix_trg}/{entry[0]}", identifier
                     )
                     template[f"{trg}"] = string_to_number(
-                        orgmeta[f"{prefix_src}{entry[0]}"]
+                        orgmeta[f"{prefix_src}{entry[1]}"]
                     )
             if isinstance(entry, tuple):
                 if len(entry) == 2:
@@ -183,7 +183,7 @@ def add_specific_metadata(
                         if f"{prefix_src}{entry[1]}" not in orgmeta:
                             continue
                         if (
-                            isinstance(orgmeta[f"{prefix_src}{entry[0]}"], str)
+                            isinstance(orgmeta[f"{prefix_src}{entry[1]}"], str)
                             and orgmeta[f"{prefix_src}{entry[1]}"] == ""
                         ):
                             continue
