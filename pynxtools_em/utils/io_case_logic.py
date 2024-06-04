@@ -48,6 +48,7 @@ class EmUseCaseSelector:
         self.case: Dict[str, list] = {}
         self.cfg: List[str] = []
         self.eln: List[str] = []
+        self.cvn: List[str] = []
         self.dat: List[str] = []
         self.is_valid = False
         self.supported_file_name_suffixes = (
@@ -84,7 +85,7 @@ class EmUseCaseSelector:
             else:
                 continue
         # print(f"{dat_input}, {other_input}")
-        if 1 <= other_input <= 2:
+        if 1 <= other_input <= 3:
             self.is_valid = True
             self.dat: List[str] = []
             for suffix in VALID_FILE_NAME_SUFFIX_DATA:
@@ -97,11 +98,16 @@ class EmUseCaseSelector:
                     ".oasis.specific.yml"
                 ):
                     self.cfg += [entry]
-                else:
+                elif entry.endswith("eln_data.yaml") or entry.endswith("eln_data.yml"):
                     self.eln += [entry]
+                elif entry.endswith("conventions.yaml") or entry.endswith(
+                    "conventions.yml"
+                ):
+                    self.cvn += [entry]
             print(
                 f"Oasis local config: {self.cfg}\n"
                 f"Oasis ELN: {self.eln}\n"
+                f"Conventions ELN: {self.cvn}\n"
                 f"Tech (meta)data: {self.dat}\n"
             )
 

@@ -32,17 +32,10 @@ EM_PYNX_TO_NEXUS = {
 class NxEmAppDef:
     """Add NeXus NXem appdef specific contextualization."""
 
-    def __init__(self):
-        pass
+    def __init__(self, entry_id: int = 1):
+        self.entry_id = entry_id
 
-    def parse(
-        self, template: dict, entry_id: int = 1, cmd_line_args: tuple = ()
-    ) -> dict:
+    def parse(self, template: dict) -> dict:
         """Parse application definition."""
-        identifier = [entry_id]
-        add_specific_metadata(EM_PYNX_TO_NEXUS, {}, identifier, template)
-        # if cmd_line_args != () and all(isinstance(item, str) for item in cmd_line_args):
-        #     template[f"/ENTRY[entry{entry_id}]/profiling/command_line_call"] = " ".join(
-        #        cmd_line_args
-        #     )
+        add_specific_metadata(EM_PYNX_TO_NEXUS, {}, [self.entry_id], template)
         return template

@@ -25,6 +25,7 @@ import numpy as np
 from pynxtools.dataconverter.readers.base.reader import BaseReader
 
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
+from pynxtools_em.subparsers.convention_reader import NxEmConventionParser
 from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
 from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
 from pynxtools_em.subparsers.nxs_nion import ZipNionProjectSubParser
@@ -37,7 +38,6 @@ from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
 from pynxtools_em.utils.io_case_logic import EmUseCaseSelector
 from pynxtools_em.utils.nx_atom_types import NxEmAtomTypesResolver
 
-# from pynxtools_em.geometry.convention_mapper import NxEmConventionMapper
 # from pynxtools_em.subparsers.zip_ebsd_parser import NxEmOmZipEbsdParser
 from pynxtools_em.utils.nx_default_plots import NxEmDefaultPlotResolver
 
@@ -78,24 +78,26 @@ class EMReader(BaseReader):
             print("Such a combination of input-file(s, if any) is not supported !")
             return {}
 
-        print("Parse (meta)data coming from a configuration of an RDM...")
         if len(case.cfg) == 1:
+            print("Parse (meta)data coming from a configuration of an RDM...")
             # having or using a deployment-specific configuration is optional
             nx_em_cfg = NxEmNomadOasisConfigurationParser(case.cfg[0], entry_id)
             nx_em_cfg.report(template)
 
-        print("Parse (meta)data coming from an ELN...")
         if len(case.eln) == 1:
+            print("Parse (meta)data coming from an ELN...")
             nx_em_eln = NxEmNomadOasisElnSchemaParser(case.eln[0], entry_id)
             nx_em_eln.report(template)
 
         print("Parse NeXus appdef-specific content...")
-        nxs = NxEmAppDef()
-        nxs.parse(template, entry_id, file_paths)
+        nxs = NxEmAppDef(entry_id)
+        nxs.parse(template)
 
-        # print("Parse conventions of reference frames...")
-        # conventions = NxEmConventionMapper(entry_id)
-        # conventions.parse(template)
+        print("Parse conventions of reference frames...")
+        if len(case.cvn) == 1:
+            # using conventions currently is optional
+            conventions = NxEmConventionParser(case.cvn[0], entry_id)
+            conventions.parse(template)
 
         print("Parse and map pieces of information within files from tech partners...")
         if len(case.dat) == 1:

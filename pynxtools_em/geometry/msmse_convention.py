@@ -18,7 +18,7 @@
 """Conventions used in the EBSD community https://dx.doi.org/10.1088/0965-0393/23/8/083501."""
 
 msmse_convention = {
-    "three_dimensional_rotation_handedness": "counter_clockwise",
+    "rotation_handedness": "counter_clockwise",
     "rotation_convention": "passive",
     "euler_angle_convention": "zxz",
     "axis_angle_convention": "rotation_angle_on_interval_zero_to_pi",
@@ -30,7 +30,7 @@ msmse_convention = {
 def is_consistent_with_msmse_convention(dct: dict) -> str:
     """Check if a set of conventions is consistent with above-mentioned paper."""
     for field_name in [
-        "three_dimensional_rotation_handedness",
+        "rotation_handedness",
         "rotation_convention",
         "euler_angle_convention",
         "axis_angle_convention",

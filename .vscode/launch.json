@@ -13,12 +13,12 @@
             "args": ["convert",
                      "examples/eln_data.yaml",
                      "examples/em.oasis.specific.yaml",
-                     "dbg/0c8nA_3deg_003_AplusB_test.tif",
+                     "dbg/Spectrum_Image_HAADF_1055_340_kx.emd",
                      "--nxdl",
                      "NXem",
                      "--reader",
                      "em",
-                     "--output=dbg/dbg.nxs"],
+                     "--output=dbg/OpenEM.nxs"],
         }
     ]
 }
