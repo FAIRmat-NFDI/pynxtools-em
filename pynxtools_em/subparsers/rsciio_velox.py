@@ -26,8 +26,7 @@ import pytz
 from ase.data import chemical_symbols
 from rsciio import emd
 
-from pynxtools_em.concepts.concept_mapper import add_specific_metadata_deprecate
-from pynxtools_em.concepts.mapping_functors import variadic_path_to_specific_path
+from pynxtools_em.concepts.mapping_functors import add_specific_metadata
 from pynxtools_em.config.rsciio_velox_cfg import (
     VELOX_DYNAMIC_TO_NX_EM,
     VELOX_EBEAM_DYNAMIC_TO_NX_EM,
@@ -265,16 +264,14 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         self, orgmeta: fd.FlatDict, identifier: list, template: dict
     ) -> dict:
         """Map entry-specific metadata on NXem instance."""
-        add_specific_metadata_deprecate(
-            VELOX_ENTRY_TO_NX_EM, orgmeta, identifier, template
-        )
+        add_specific_metadata(VELOX_ENTRY_TO_NX_EM, orgmeta, identifier, template)
         return template
 
     def add_ebeam_static(
         self, orgmeta: fd.FlatDict, identifier: list, template: dict
     ) -> dict:
         """Map em_lab ebeam."""
-        add_specific_metadata_deprecate(
+        add_specific_metadata(
             VELOX_EBEAM_STATIC_TO_NX_EM, orgmeta, identifier, template
         )
         return template
@@ -283,48 +280,38 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         self, orgmeta: fd.FlatDict, identifier: list, template: dict
     ) -> dict:
         """Map fabrication-specific metadata on NXem instance"""
-        add_specific_metadata_deprecate(
-            VELOX_FABRICATION_TO_NX_EM, orgmeta, identifier, template
-        )
+        add_specific_metadata(VELOX_FABRICATION_TO_NX_EM, orgmeta, identifier, template)
         return template
 
     def add_scan(self, orgmeta: fd.FlatDict, identifier: list, template: dict) -> dict:
         """Map scan-specific metadata on NXem instance."""
-        add_specific_metadata_deprecate(
-            VELOX_SCAN_TO_NX_EM, orgmeta, identifier, template
-        )
+        add_specific_metadata(VELOX_SCAN_TO_NX_EM, orgmeta, identifier, template)
         return template
 
     def add_optics(
         self, orgmeta: fd.FlatDict, identifier: list, template: dict
     ) -> dict:
         """Map optics-specific metadata on NXem instance."""
-        add_specific_metadata_deprecate(
-            VELOX_OPTICS_TO_NX_EM, orgmeta, identifier, template
-        )
+        add_specific_metadata(VELOX_OPTICS_TO_NX_EM, orgmeta, identifier, template)
         return template
 
     def add_stage(self, orgmeta: fd.FlatDict, identifier: list, template: dict) -> dict:
         """Map optics-specific metadata on NXem instance."""
-        add_specific_metadata_deprecate(
-            VELOX_STAGE_TO_NX_EM, orgmeta, identifier, template
-        )
+        add_specific_metadata(VELOX_STAGE_TO_NX_EM, orgmeta, identifier, template)
         return template
 
     def add_various_dynamic(
         self, orgmeta: fd.FlatDict, identifier: list, template: dict
     ) -> dict:
         """Map optics-specific metadata on NXem instance."""
-        add_specific_metadata_deprecate(
-            VELOX_DYNAMIC_TO_NX_EM, orgmeta, identifier, template
-        )
+        add_specific_metadata(VELOX_DYNAMIC_TO_NX_EM, orgmeta, identifier, template)
         return template
 
     def add_ebeam_dynamic(
         self, orgmeta: fd.FlatDict, identifier: list, template: dict
     ) -> dict:
         """Map optics-specific metadata on NXem instance."""
-        add_specific_metadata_deprecate(
+        add_specific_metadata(
             VELOX_EBEAM_DYNAMIC_TO_NX_EM, orgmeta, identifier, template
         )
         return template

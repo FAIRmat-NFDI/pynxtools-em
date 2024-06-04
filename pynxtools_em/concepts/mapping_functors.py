@@ -293,8 +293,6 @@ def add_specific_metadata(
                             continue
                         tzone = "UTC"
                         if len(entry) == 3:
-                            # if not isinstance(entry[2], str):
-                            #     raise TypeError(f"{tzone} needs to be of type string!")
                             tzone = entry[2]
                         if tzone not in pytz.all_timezones:
                             raise ValueError(
