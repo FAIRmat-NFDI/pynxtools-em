@@ -410,7 +410,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
                     "strength": 1,
                 }
                 template[f"{trg}/image_twod/axis_{dim[0]}/@long_name"] = (
-                    f"{dim[0]}-axis position ({unit})"
+                    f"Coordinate along {dim[0]}-axis ({unit})"
                 )
         template[f"{trg}/image_twod/title"] = meta["General/title"]
         template[f"{trg}/image_twod/intensity"] = {
@@ -461,7 +461,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
                     "strength": 1,
                 }
                 template[f"{trg}/image_twod/axis_{dim[0]}/@long_name"] = (
-                    f"{dim[0]}-axis position ({unit})"
+                    f"Coordinate along {dim[0]}-axis ({unit})"
                 )
         template[f"{trg}/image_twod/title"] = meta["General/title"]
         template[f"{trg}/image_twod/intensity"] = {
@@ -531,7 +531,7 @@ class RsciioVeloxSubParser(RsciioBaseParser):
                     "strength": 1,
                 }
                 template[f"{trg}/image_twod/axis_{idx_map[dim[0]]}/@long_name"] = (
-                    f"{idx_map[dim[0]]}-axis position ({unit})"
+                    f"Coordinate along {idx_map[dim[0]]}-axis ({unit})"
                 )
         template[f"{trg}/image_twod/title"] = meta["General/title"]
         template[f"{trg}/image_twod/magnitude"] = {
@@ -556,6 +556,8 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         n_dims = None
         if dims == [("Energy", 0)]:
             n_dims = 1
+        elif dims == [("x", 0), ("X-ray energy", 1)]:
+            n_dims = 2
         elif dims == [("y", 0), ("x", 1), ("X-ray energy", 2)]:
             n_dims = 3
         else:
@@ -588,8 +590,14 @@ class RsciioVeloxSubParser(RsciioBaseParser):
         trg = (
             f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
             f"EVENT_DATA_EM[event_data_em{self.id_mgn['event']}]/"
-            f"SPECTRUM_SET[spectrum_set{self.id_mgn['event_spc']}]/spectrum_zerod"
+            f"SPECTRUM_SET[spectrum_set{self.id_mgn['event_spc']}]"
         )
+        if n_dims == 1:
+            trg = trg.replace(trg, f"{trg}/spectrum_zerod")
+        elif n_dims == 2:
+            trg = trg.replace(trg, f"{trg}/spectrum_oned")
+        elif n_dims == 3:
+            trg = trg.replace(trg, f"{trg}/spectrum_twod")
         template[f"{trg}/@signal"] = "intensity"
         if n_dims == 1:
             template[f"{trg}/@axes"] = ["axis_energy"]
@@ -602,28 +610,31 @@ class RsciioVeloxSubParser(RsciioBaseParser):
             template[f"{trg}/AXISNAME[axis_energy]/@long_name"] = f"Energy ({unit})"
         if n_dims == 3:
             template[f"{trg}/@axes"] = ["axis_y", "axis_x", "axis_energy"]
-            template[f"{trg}/@AXISNAME_indices[axis_y_indices]"] = np.uint32(2)
-            template[f"{trg}/@AXISNAME_indices[axis_x_indices]"] = np.uint32(1)
+            for dim, idx in [("y", 2), ("x", 1)]:
+                template[f"{trg}/@AXISNAME_indices[axis_{dim}_indices]"] = np.uint32(
+                    idx
+                )
+                support, unit = get_named_axis(obj["axes"], dim)
+                template[f"{trg}/AXISNAME[axis_{dim}]"] = {
+                    "compress": support,
+                    "strength": 1,
+                }
+                template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
+                    f"Coordinate along {dim}-axis ({unit})"
+                )
             template[f"{trg}/@AXISNAME_indices[axis_energy_indices]"] = np.uint32(0)
-            support, unit = get_named_axis(obj["axes"], "y")
-            template[f"{trg}/AXISNAME[axis_y]"] = {"compress": support, "strength": 1}
-            template[f"{trg}/AXISNAME[axis_y]/@long_name"] = f"y-axis position ({unit})"
-            support, unit = get_named_axis(obj["axes"], "x")
-            template[f"{trg}/AXISNAME[axis_x]"] = {"compress": support, "strength": 1}
-            template[f"{trg}/AXISNAME[axis_x]/@long_name"] = f"x-axis position ({unit})"
             support, unit = get_named_axis(obj["axes"], "X-ray energy")
             template[f"{trg}/AXISNAME[axis_energy]"] = {
                 "compress": support,
                 "strength": 1,
             }
             template[f"{trg}/AXISNAME[axis_energy]/@long_name"] = f"Energy ({unit})"
-        # template[f"{trg}/description"] = ""
         template[f"{trg}/title"] = f"EDS spectrum {meta['General/title']}"
         template[f"{trg}/intensity"] = {
             "compress": np.asarray(obj["data"]),
             "strength": 1,
         }
-        # template[f"{trg}/intensity/@long_name"] = ""
+        template[f"{trg}/intensity/@long_name"] = "Count (1)"
         self.add_metadata(
             orgmeta,
             [self.entry_id, self.id_mgn["event"], self.id_mgn["event_spc"]],
@@ -672,14 +683,13 @@ class RsciioVeloxSubParser(RsciioBaseParser):
                     "strength": 1,
                 }
                 template[f"{trg}/image_twod/axis_{dim[0]}/@long_name"] = (
-                    f"{dim[0]}-axis position ({unit})"
+                    f"Coordinate along {dim[0]}-axis ({unit})"
                 )
-        template[f"{trg}/title"] = f"EDS map {meta['General/title']}"
+        template[f"{trg}/image_twod/title"] = f"EDS map {meta['General/title']}"
         template[f"{trg}/image_twod/intensity"] = {
             "compress": np.asarray(obj["data"]),
             "strength": 1,
         }
-        # template[f"{trg}/image_twod/intensity/@long_name"] = f"Signal"
         self.id_mgn["eds_img"] += 1
         self.id_mgn["roi"] += 1  # TODO not necessarily has to be incremented!
         return template

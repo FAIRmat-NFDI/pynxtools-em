@@ -17,10 +17,7 @@
 #
 """Parse conventions from an ELN schema instance."""
 
-from pynxtools_em.concepts.concept_mapper import (
-    apply_modifier,
-    variadic_path_to_specific_path,
-)
+from pynxtools_em.concepts.mapping_functors import add_specific_metadata
 from pynxtools_em.geometry.geometry import NxEmConventions
 from pynxtools_em.geometry.handed_cartesian import (
     AXIS_DIRECTIONS,

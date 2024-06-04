@@ -797,7 +797,7 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
             fp[f"{src}/REGION"].attrs["X2"][0].dtype,
         )
         self.tmp[ckey].tmp["spectrum_oned/axis_x@long_name"] = (
-            "Position along the line (µm)"
+            "Coordinate along x-axis (µm)"
         )
         self.tmp[ckey].tmp["spectrum_oned/intensity"].value = np.asarray(
             fp[f"{src}/LSD"][0], np.int32
