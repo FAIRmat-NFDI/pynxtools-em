@@ -70,9 +70,9 @@ def add_specific_metadata(
         prefix_src = ""
 
     # process all mapping functors
-    # (in graphical programming these are also referred to as filters or nodes), i.e.
-    # an agent that gets some input does some (maybe abstract mapping) and returns an output
-    # as the mapping can be abstract we call it functor
+    # (in graphical programming these are also referred to as filters or nodes),
+    # i.e. an agent that gets some input does some (maybe abstract mapping)
+    # returns an output as the mapping can be abstract we call it functor
     if "use" in concept_mapping:
         for entry in concept_mapping["use"]:
             if isinstance(entry, tuple):
@@ -238,9 +238,14 @@ def add_specific_metadata(
                         trg = variadic_path_to_specific_path(
                             f"{variadic_prefix_trg}/{entry[0]}", identifier
                         )
-                        template[f"{trg}"] = entry[2] * string_to_number(
-                            orgmeta[f"{prefix_src}{entry[1]}"]
-                        )
+                        if isinstance(orgmeta[f"{prefix_src}{entry[1]}"], str):
+                            template[f"{trg}"] = entry[2] * string_to_number(
+                                orgmeta[f"{prefix_src}{entry[1]}"]
+                            )
+                        else:
+                            template[f"{trg}"] = (
+                                entry[2] * orgmeta[f"{prefix_src}{entry[1]}"]
+                            )
     if "map_to_real_and_join" in concept_mapping:
         for entry in concept_mapping["map_to_real_and_join"]:
             if isinstance(entry, tuple):
