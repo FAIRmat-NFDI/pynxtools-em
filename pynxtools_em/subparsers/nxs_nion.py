@@ -20,7 +20,7 @@
 
 import json
 import mmap
-from typing import Dict, List
+from typing import Dict
 from zipfile import ZipFile
 
 import flatdict as fd
@@ -79,7 +79,7 @@ class ZipNionProjectSubParser:
         self.tmp["cfg"]["event_data_em_id"] = 1
         self.tmp["cfg"]["image_id"] = 1
         self.tmp["cfg"]["spectrum_id"] = 1
-        self.tmp["meta"]: Dict = {}
+        self.tmp["flat_dict_meta"] = fd.FlatDict({})
 
     def check_if_zipped_nionswift_project_file(self):
         """Inspect the content of the compressed project file to check if supported."""

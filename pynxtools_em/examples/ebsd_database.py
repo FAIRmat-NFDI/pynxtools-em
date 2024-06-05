@@ -15,26 +15,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Pieces of information relevant for the parsing the ebsd_database use case."""
+"""Pieces of information relevant for the parsing the ebsd_database use case.
 
-# for the Summer2023 EBSD database example with NOMAD OASIS:
-# we collected several EBSD datasets from colleagues. In these research studies,
-# names of the phases used for indexing (NXem_ebsd_crystal_structure_candidate)
-# instances were very different elements, substances, free-text annotations,
-# mineral names, names of mineral groups, or names of rocks
-# here is the FOR NOW human expert dictionary composed from these names
-# to map used phase names on atom types
-# the idea behind this was to identify what is the minimal information that
-# is recoverable when there is no common agreement about the phases used and their
-# exact atomic configuration
+We collected several EBSD datasets from the community. In these studies, names of the
+phases used for indexing almost never documented the exact atomic coordinates values
+of and all details to the atomic motif and crystal structures explicitly. Instead,
+free-text, elements, mineral names, fragments of chemical formulas, names of
+mineral groups or rocks are used. The dict maps from these NXcrystal_structure/phase_name
+onto the set of NXem/ENTRY/sample/atom_types.
+"""
 
-# typical scanning schemes used for EBSD
-# which lattice symmetry
-HEXAGONAL_GRID = "hexagonal_grid"  # typically assuming a tiling with regular hexagons
-SQUARE_GRID = "square_grid"  # a tiling with squares
+# typical scan schemes used for EBSD
+HEXAGONAL_FLAT_TOP_TILING = "hexagonal_flat_top_tiling"
+SQUARE_TILING = "square_tiling"
 REGULAR_TILING = "regular_tiling"
+
 # most frequently this is the sequence of set scan positions with actual positions
-# based on grid type and spacing based on tiling
+# based on grid type, spacing, and tiling
 FLIGHT_PLAN = "start_top_left_stack_x_left_to_right_stack_x_line_along_end_bottom_right"
 
 

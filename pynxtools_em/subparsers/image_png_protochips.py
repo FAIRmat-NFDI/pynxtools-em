@@ -28,8 +28,10 @@ import numpy as np
 import xmltodict
 from PIL import Image
 
-from pynxtools_em.concepts.concept_mapper import add_specific_metadata_deprecate
-from pynxtools_em.concepts.mapping_functors import variadic_path_to_specific_path
+from pynxtools_em.concepts.mapping_functors import (
+    add_specific_metadata,
+    variadic_path_to_specific_path,
+)
 from pynxtools_em.config.image_png_protochips_cfg import (
     AXON_AUX_DYNAMIC_TO_NX_EM,
     AXON_CHIP_DYNAMIC_TO_NX_EM,
@@ -156,7 +158,7 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
                         else:
                             grpnm_lookup[concept] = value
                     # second phase, evaluate each concept instance symbol wrt to its prefix coming from the unique concept
-                    self.tmp["meta"][file] = {}
+                    self.tmp["meta"][file] = fd.FlatDict({})
                     for k, v in meta.items():
                         grpnms = None
                         idxs = re.finditer(r".\[[0-9]+\].", k)
@@ -188,20 +190,16 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
                                         if key not in self.tmp["meta"][file]:
                                             self.tmp["meta"][file][key] = v
                                         else:
-                                            raise KeyError(
-                                                "Trying to register a duplicated key {key}"
+                                            print(
+                                                f"Trying to register duplicated key {key}"
                                             )
                         else:
                             key = f"{k}"
                             if key not in self.tmp["meta"][file]:
                                 self.tmp["meta"][file][key] = v
                             else:
-                                raise KeyError(
-                                    "Trying to register a duplicated key {key}"
-                                )
+                                print(f"Trying to register duplicated key {key}")
                         # TODO::simplify and check that metadata end up correctly in self.tmp["meta"][file]
-                    self.tmp["meta"][file] = fd.FlatDict(self.tmp["meta"][file])
-                    # debug
                     # for key, value in self.tmp["meta"][file].items():
                     #     print(f"{type(key)}: {key}\t\t{type(value)}:{value}")
         except ValueError:
@@ -242,18 +240,19 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
 
     def sort_event_data_em(self) -> List:
         events: List = []
-        for file_name, mdict in self.tmp["meta"].items():
+        for file_name, mdata in self.tmp["meta"].items():
             key = f"MicroscopeControlImageMetadata.MicroscopeDateTime"
-            if key in mdict.keys():
-                if mdict[key].count(".") == 1:
-                    datetime_obj = datetime.datetime.strptime(
-                        mdict[key], "%Y-%m-%dT%H:%M:%S.%f%z"
-                    )
-                else:
-                    datetime_obj = datetime.datetime.strptime(
-                        mdict[key], "%Y-%m-%dT%H:%M:%S%z"
-                    )
-                events.append((f"{file_name}", datetime_obj))
+            if isinstance(mdata, fd.FlatDict):
+                if key in mdata:
+                    if mdata[key].count(".") == 1:
+                        datetime_obj = datetime.datetime.strptime(
+                            mdata[key], "%Y-%m-%dT%H:%M:%S.%f%z"
+                        )
+                    else:
+                        datetime_obj = datetime.datetime.strptime(
+                            mdata[key], "%Y-%m-%dT%H:%M:%S%z"
+                        )
+                    events.append((f"{file_name}", datetime_obj))
 
         events_sorted = sort_ascendingly_by_second_argument_iso8601(events)
         del events
@@ -269,7 +268,7 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
 
     def add_detector_static_metadata(self, file_name: str, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata_deprecate(
+        add_specific_metadata(
             AXON_DETECTOR_STATIC_TO_NX_EM,
             self.tmp["meta"][file_name],
             identifier,
@@ -279,7 +278,7 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
 
     def add_stage_static_metadata(self, file_name: str, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata_deprecate(
+        add_specific_metadata(
             AXON_STAGE_STATIC_TO_NX_EM,
             self.tmp["meta"][file_name],
             identifier,
@@ -289,7 +288,7 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
 
     def add_stage_dynamic_metadata(self, file_name: str, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata_deprecate(
+        add_specific_metadata(
             AXON_STAGE_DYNAMIC_TO_NX_EM,
             self.tmp["meta"][file_name],
             identifier,
@@ -299,7 +298,7 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
 
     def add_chip_dynamic_metadata(self, file_name: str, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata_deprecate(
+        add_specific_metadata(
             AXON_CHIP_DYNAMIC_TO_NX_EM,
             self.tmp["meta"][file_name],
             identifier,
@@ -309,14 +308,17 @@ class ProtochipsPngSetSubParser(ImgsBaseParser):
 
     def add_aux_dynamic_metadata(self, file_name: str, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata_deprecate(
-            AXON_AUX_DYNAMIC_TO_NX_EM, self.tmp["meta"][file_name], identifier, template
+        add_specific_metadata(
+            AXON_AUX_DYNAMIC_TO_NX_EM,
+            self.tmp["meta"][file_name],
+            identifier,
+            template,
         )
         return template
 
     def add_various_dynamic_metadata(self, file_name: str, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata_deprecate(
+        add_specific_metadata(
             AXON_VARIOUS_DYNAMIC_TO_NX_EM,
             self.tmp["meta"][file_name],
             identifier,

@@ -41,7 +41,7 @@ AXON_STAGE_STATIC_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/STAGE_LAB[stage_lab]",
     "prefix_src": "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.",
     "use": [("design", "heating_chip")],
-    "load": [("alias", "Name")],
+    "map": [("alias", "Name")],
 }
 
 
@@ -106,7 +106,7 @@ AXON_VARIOUS_DYNAMIC_TO_NX_EM = {
         ),
         ("em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/camera_length", "m"),
     ],
-    "load": [
+    "map": [
         (
             "em_lab/EBEAM_COLUMN[ebeam_column]/DEFLECTOR[beam_blanker1]/state",
             "BeamBlankerState",

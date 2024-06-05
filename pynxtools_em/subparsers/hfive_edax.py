@@ -26,9 +26,9 @@ from diffpy.structure import Lattice, Structure
 from pynxtools_em.examples.ebsd_database import (
     ASSUME_PHASE_NAME_TO_SPACE_GROUP,
     FLIGHT_PLAN,
-    HEXAGONAL_GRID,
+    HEXAGONAL_FLAT_TOP_TILING,
     REGULAR_TILING,
-    SQUARE_GRID,
+    SQUARE_TILING,
 )
 from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.hfive_utils import (
@@ -131,9 +131,9 @@ class HdfFiveEdaxOimAnalysisReader(HdfFiveBaseParser):
         self.tmp[ckey]["dimensionality"] = 2
         grid_type = read_strings_from_dataset(fp[f"{grp_name}/Grid Type"][()])
         if grid_type == "HexGrid":
-            self.tmp[ckey]["grid_type"] = HEXAGONAL_GRID
+            self.tmp[ckey]["grid_type"] = HEXAGONAL_FLAT_TOP_TILING
         elif grid_type == "SqrGrid":
-            self.tmp[ckey]["grid_type"] = SQUARE_GRID
+            self.tmp[ckey]["grid_type"] = SQUARE_TILING
         else:
             raise ValueError(f"Unable to parse {grp_name}/Grid Type !")
         # the next two lines encode the typical assumption that is not reported in tech partner file!
@@ -315,7 +315,7 @@ class HdfFiveEdaxOimAnalysisReader(HdfFiveBaseParser):
             print(
                 f"{self.version['schema_version']}, tech partner accounted for calibration"
             )
-            if self.tmp[ckey]["grid_type"] != SQUARE_GRID:
+            if self.tmp[ckey]["grid_type"] != SQUARE_TILING:
                 print(
                     f"WARNING: Check carefully correct interpretation of scan_point coords!"
                 )
@@ -327,7 +327,7 @@ class HdfFiveEdaxOimAnalysisReader(HdfFiveBaseParser):
             )
         else:
             print(f"{self.version['schema_version']}, parser has to do the calibration")
-            if self.tmp[ckey]["grid_type"] != SQUARE_GRID:
+            if self.tmp[ckey]["grid_type"] != SQUARE_TILING:
                 print(
                     f"WARNING: Check carefully correct interpretation of scan_point coords!"
                 )

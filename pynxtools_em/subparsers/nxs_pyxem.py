@@ -825,7 +825,7 @@ class NxEmNxsPyxemSubParser:
                 }
                 template[f"{trg}/intensity/@long_name"] = (
                     inp[ckey].tmp["spectrum_zerod/intensity@long_name"].value
-                )  # f"Signal"
+                )
                 template[f"{trg}/@AXISNAME_indices[axis_energy_indices]"] = np.uint32(0)
                 template[f"{trg}/AXISNAME[axis_energy]"] = {
                     "compress": inp[ckey].tmp[f"spectrum_zerod/axis_energy"].value,

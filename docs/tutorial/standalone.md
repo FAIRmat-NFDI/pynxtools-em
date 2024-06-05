@@ -12,7 +12,7 @@ into a NeXus standardized format.
 
 ## What you will know at the end of this tutorial?
 
-You will have a basic understanding how to use pynxtools-apm for converting your atom probe data to a NeXus/HDF5 file.
+You will have a basic understanding how to use pynxtools-em for converting your electron microscopy data to a NeXus/HDF5 file.
 
 ## Steps
 

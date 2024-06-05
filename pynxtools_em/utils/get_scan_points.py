@@ -21,9 +21,9 @@ import numpy as np
 
 from pynxtools_em.examples.ebsd_database import (
     FLIGHT_PLAN,
-    HEXAGONAL_GRID,
+    HEXAGONAL_FLAT_TOP_TILING,
     REGULAR_TILING,
-    SQUARE_GRID,
+    SQUARE_TILING,
 )
 
 
@@ -37,7 +37,7 @@ def get_scan_point_axis_values(inp: dict, dim_name: str):
         if key not in inp.keys():
             raise ValueError(f"Unable to find required key {key} in inp !")
 
-    if inp["grid_type"] in [HEXAGONAL_GRID, SQUARE_GRID]:
+    if inp["grid_type"] in [HEXAGONAL_FLAT_TOP_TILING, SQUARE_TILING]:
         return np.asarray(
             np.linspace(
                 0, inp[f"n_{dim_name}"] - 1, num=inp[f"n_{dim_name}"], endpoint=True
@@ -61,7 +61,7 @@ def threed(inp: dict):
 def square_grid(inp: dict):
     """Identify if square grid with specific assumptions."""
     if (
-        inp["grid_type"] == SQUARE_GRID
+        inp["grid_type"] == SQUARE_TILING
         and inp["tiling"] == REGULAR_TILING
         and inp["flight_plan"] == FLIGHT_PLAN
     ):
@@ -72,7 +72,7 @@ def square_grid(inp: dict):
 def hexagonal_grid(inp: dict):
     """Identify if square grid with specific assumptions."""
     if (
-        inp["grid_type"] == HEXAGONAL_GRID
+        inp["grid_type"] == HEXAGONAL_FLAT_TOP_TILING
         and inp["tiling"] == REGULAR_TILING
         and inp["flight_plan"] == FLIGHT_PLAN
     ):

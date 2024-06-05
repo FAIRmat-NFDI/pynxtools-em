@@ -31,19 +31,20 @@ from pynxtools_em.utils.string_conversions import rchop, string_to_number
 def variadic_path_to_specific_path(path: str, instance_identifier: list):
     """Transforms a variadic path to an actual path with instances."""
     if (path is not None) and (path != ""):
-        narguments = path.count("*")
-        if narguments == 0:  # path is not variadic
+        nvariadic_parts = path.count("*")
+        if nvariadic_parts == 0:  # path is not variadic
             return path
-        if len(instance_identifier) >= narguments:
-            tmp = path.split("*")
-            if len(tmp) == narguments + 1:
+        if len(instance_identifier) >= nvariadic_parts:
+            variadic_part = path.split("*")
+            if len(variadic_part) == nvariadic_parts + 1:
                 nx_specific_path = ""
-                for idx in range(0, narguments):
-                    nx_specific_path += f"{tmp[idx]}{instance_identifier[idx]}"
+                for idx in range(0, nvariadic_parts):
+                    nx_specific_path += (
+                        f"{variadic_part[idx]}{instance_identifier[idx]}"
+                    )
                     idx += 1
-                nx_specific_path += f"{tmp[-1]}"
+                nx_specific_path += f"{variadic_part[-1]}"
                 return nx_specific_path
-    return None
 
 
 def add_specific_metadata(
@@ -69,9 +70,9 @@ def add_specific_metadata(
         prefix_src = ""
 
     # process all mapping functors
-    # (in graphical programming these are also referred to as filters or nodes), i.e.
-    # an agent that gets some input does some (maybe abstract mapping) and returns an output
-    # as the mapping can be abstract we call it functor
+    # (in graphical programming these are also referred to as filters or nodes),
+    # i.e. an agent that gets some input does some (maybe abstract mapping)
+    # returns an output as the mapping can be abstract we call it functor
     if "use" in concept_mapping:
         for entry in concept_mapping["use"]:
             if isinstance(entry, tuple):
@@ -140,13 +141,13 @@ def add_specific_metadata(
     if "map_to_bool" in concept_mapping:
         for entry in concept_mapping["map_to_bool"]:
             if isinstance(entry, str):
-                if f"{prefix_src}{entry[0]}" not in orgmeta:
+                if f"{prefix_src}{entry[1]}" not in orgmeta:
                     continue
                 trg = variadic_path_to_specific_path(
                     f"{variadic_prefix_trg}/{entry[0]}", identifier
                 )
                 template[f"{trg}"] = try_interpret_as_boolean(
-                    orgmeta[f"{prefix_src}{entry[0]}"]
+                    orgmeta[f"{prefix_src}{entry[1]}"]
                 )
             if isinstance(entry, tuple):
                 if len(entry) == 2:
@@ -163,18 +164,18 @@ def add_specific_metadata(
         for entry in concept_mapping["map_to_real"]:
             if isinstance(entry, str):
                 if isinstance(entry[0], str):
-                    if f"{prefix_src}{entry[0]}" not in orgmeta:
+                    if f"{prefix_src}{entry[1]}" not in orgmeta:
                         continue
                     if (
-                        isinstance(orgmeta[f"{prefix_src}{entry[0]}"], str)
-                        and orgmeta[f"{prefix_src}{entry[0]}"] == ""
+                        isinstance(orgmeta[f"{prefix_src}{entry[1]}"], str)
+                        and orgmeta[f"{prefix_src}{entry[1]}"] == ""
                     ):
                         continue
                     trg = variadic_path_to_specific_path(
                         f"{variadic_prefix_trg}/{entry[0]}", identifier
                     )
                     template[f"{trg}"] = string_to_number(
-                        orgmeta[f"{prefix_src}{entry[0]}"]
+                        orgmeta[f"{prefix_src}{entry[1]}"]
                     )
             if isinstance(entry, tuple):
                 if len(entry) == 2:
@@ -182,7 +183,7 @@ def add_specific_metadata(
                         if f"{prefix_src}{entry[1]}" not in orgmeta:
                             continue
                         if (
-                            isinstance(orgmeta[f"{prefix_src}{entry[0]}"], str)
+                            isinstance(orgmeta[f"{prefix_src}{entry[1]}"], str)
                             and orgmeta[f"{prefix_src}{entry[1]}"] == ""
                         ):
                             continue
@@ -237,9 +238,14 @@ def add_specific_metadata(
                         trg = variadic_path_to_specific_path(
                             f"{variadic_prefix_trg}/{entry[0]}", identifier
                         )
-                        template[f"{trg}"] = entry[2] * string_to_number(
-                            orgmeta[f"{prefix_src}{entry[1]}"]
-                        )
+                        if isinstance(orgmeta[f"{prefix_src}{entry[1]}"], str):
+                            template[f"{trg}"] = entry[2] * string_to_number(
+                                orgmeta[f"{prefix_src}{entry[1]}"]
+                            )
+                        else:
+                            template[f"{trg}"] = (
+                                entry[2] * orgmeta[f"{prefix_src}{entry[1]}"]
+                            )
     if "map_to_real_and_join" in concept_mapping:
         for entry in concept_mapping["map_to_real_and_join"]:
             if isinstance(entry, tuple):
@@ -287,8 +293,6 @@ def add_specific_metadata(
                             continue
                         tzone = "UTC"
                         if len(entry) == 3:
-                            # if not isinstance(entry[2], str):
-                            #     raise TypeError(f"{tzone} needs to be of type string!")
                             tzone = entry[2]
                         if tzone not in pytz.all_timezones:
                             raise ValueError(

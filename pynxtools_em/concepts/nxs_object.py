@@ -23,11 +23,15 @@ import numpy as np
 
 
 class NxObject:
-    """An object in a graph e.g. an attribute, dataset, or group in NeXus."""
+    """An object in a graph e.g. an attribute, dataset, or group in NeXus.
+    name: name of the node
+    unit: unit, not unit category, unitless if no unit, dimensionless if units cancel
+    dtype np.dtype
+    value: numpy scalar, tensor, or string if possible
+    eqv_hdf: node type in HDF5 serialization, group, dset/field, attribute
+    """
 
-    def __init__(
-        self, name: str = None, unit: str = None, dtype=None, value=None, **kwargs
-    ):
+    def __init__(self, name: str, unit: str, dtype, value, **kwargs):
         if (name is not None) and (name == ""):
             raise ValueError(
                 f"Value for argument name needs to be a non-empty string !"
@@ -41,16 +45,12 @@ class NxObject:
                 f"Value of argument dtype must not be None "
                 f" and a valid, ideally a numpy datatype !"
             )
-        # self.doc = None  # docstring
-        self.name = name  # name of the field
-        self.unit = unit  # not unit category but actual unit
-        # use special values "unitless" for NX_UNITLESS (e.g. 1) and
-        # "dimensionless" for NX_DIMENSIONLESS (e.g. 1m / 1m)
-        self.dtype = dtype  # use np.dtype if possible
+        self.name = name
+        self.unit = unit
+        self.dtype = dtype
         if value is None or isinstance(dtype, str):
             self.unit = "unitless"
         self.value = value
-        # value should be a numpy scalar, tensor, or string if possible
         self.eqv_hdf = None
         if "eqv_hdf" in kwargs:
             if kwargs["eqv_hdf"] in ["group", "dataset", "attribute"]:
@@ -62,4 +62,10 @@ class NxObject:
 
     def __repr__(self):
         """Report values."""
-        return f"Name: {self.name}, unit: {self.unit}, dtype: {self.dtype}, np.shape(value): {np.shape(self.value)}, eqv_hdf: {self.eqv_hdf}"
+        return (
+            f"name: {self.name}"
+            f"unit: {self.unit}"
+            f"dtype: {self.dtype}"
+            f"np.shape(value): {np.shape(self.value)}"
+            f"eqv_hdf: {self.eqv_hdf}"
+        )

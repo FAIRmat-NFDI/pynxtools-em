@@ -17,19 +17,21 @@
 #
 """(Sub-)parser mapping concepts and content from community *.dream3d files on NXem."""
 
-import numpy as np
-import h5py
 from typing import Dict
 
+import h5py
+import numpy as np
+
+# EBSD_MAP_SPACEGROUP
+from pynxtools_em.examples.ebsd_database import (
+    FLIGHT_PLAN,
+    REGULAR_TILING,
+    SQUARE_TILING,
+)
 from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.hfive_utils import (
     read_strings_from_dataset,
-)  # EBSD_MAP_SPACEGROUP
-from pynxtools_em.examples.ebsd_database import (
-    SQUARE_GRID,
-    REGULAR_TILING,
-    FLIGHT_PLAN,
-)  # ASSUME_PHASE_NAME_TO_SPACE_GROUP, HEXAGONAL_GRID
+)
 
 # DREAM3D implements essentially a data analysis workflow with individual steps
 # in the DREAM3D jargon each step is referred to as a filter, filters have well-defined
@@ -331,7 +333,7 @@ class HdfFiveDreamThreedReader(HdfFiveBaseParser):
 
             # TODO::is it correct an assumption that DREAM3D regrids using square voxel
             self.tmp[ckey]["dimensionality"] = 3
-            self.tmp[ckey]["grid_type"] = SQUARE_GRID
+            self.tmp[ckey]["grid_type"] = SQUARE_TILING
             # the next two lines encode the typical assumption that is not reported in tech partner file!
             self.tmp[ckey]["tiling"] = REGULAR_TILING
             self.tmp[ckey]["flight_plan"] = FLIGHT_PLAN
@@ -429,7 +431,7 @@ class HdfFiveDreamThreedReader(HdfFiveBaseParser):
             # in effect, the phase_id == 0 rightly so marks position indexed with the null-model
 
             # normalize pixel coordinates to physical positions even though the origin can still dangle somewhere
-            if self.tmp[ckey]["grid_type"] != SQUARE_GRID:
+            if self.tmp[ckey]["grid_type"] != SQUARE_TILING:
                 print(
                     f"WARNING: Check carefully correct interpretation of scan_point coords!"
                 )

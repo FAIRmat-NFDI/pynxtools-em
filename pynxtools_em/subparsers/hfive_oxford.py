@@ -26,7 +26,7 @@ from diffpy.structure import Lattice, Structure
 from pynxtools_em.examples.ebsd_database import (
     FLIGHT_PLAN,
     REGULAR_TILING,
-    SQUARE_GRID,
+    SQUARE_TILING,
 )
 from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.hfive_utils import (
@@ -141,7 +141,7 @@ class HdfFiveOxfordReader(HdfFiveBaseParser):
 
         # TODO::check if Oxford always uses SquareGrid like assumed here
         self.tmp[ckey]["dimensionality"] = 2
-        self.tmp[ckey]["grid_type"] = SQUARE_GRID
+        self.tmp[ckey]["grid_type"] = SQUARE_TILING
         # the next two lines encode the typical assumption that is not reported in tech partner file!
         self.tmp[ckey]["tiling"] = REGULAR_TILING
         self.tmp[ckey]["flight_plan"] = FLIGHT_PLAN
@@ -312,7 +312,7 @@ class HdfFiveOxfordReader(HdfFiveBaseParser):
         # expected is order on x is first all possible x values while y == 0
         # followed by as many copies of this linear sequence for each y increment
         # no action needed Oxford reports already the pixel coordinate multiplied by step
-        if self.tmp[ckey]["grid_type"] != SQUARE_GRID:
+        if self.tmp[ckey]["grid_type"] != SQUARE_TILING:
             print(
                 f"WARNING: Check carefully correct interpretation of scan_point coords!"
             )
