@@ -26,6 +26,7 @@ VALID_FILE_NAME_SUFFIX_DATA = [
     ".tif",
     ".zip.axon",
     ".zip.nion",
+    ".nsproj",
     ".edaxh5",
     ".h5",
     ".hdf5",

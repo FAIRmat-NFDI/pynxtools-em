@@ -28,7 +28,7 @@ from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 from pynxtools_em.subparsers.convention_reader import NxEmConventionParser
 from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
 from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
-from pynxtools_em.subparsers.nxs_nion import ZipNionProjectSubParser
+from pynxtools_em.subparsers.nxs_nion import NionProjectSubParser
 from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
 from pynxtools_em.subparsers.oasis_config_reader import (
     NxEmNomadOasisConfigurationParser,
@@ -113,7 +113,7 @@ class EMReader(BaseReader):
             nxs_pyxem = NxEmNxsPyxemSubParser(entry_id, case.dat[0], verbose=False)
             nxs_pyxem.parse(template)
 
-            nxs_nion = ZipNionProjectSubParser(entry_id, case.dat[0], verbose=False)
+            nxs_nion = NionProjectSubParser(entry_id, case.dat[0], verbose=False)
             nxs_nion.parse(template)
 
             # zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id)
