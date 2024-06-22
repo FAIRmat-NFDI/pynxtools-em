@@ -17,6 +17,7 @@
 #
 
 """Parse Nion-specific content in a file containing a zip-compressed nionswift project."""
+
 import glob
 import json
 import mmap
@@ -427,8 +428,6 @@ class NionProjectSubParser:
                     "Parsing in-place zip-compressed nionswift project (nsproj + data)..."
                 )
             else:
-                print(
-                    "Parsing in-place nionswift project (nsproj + data)..."
-                )
+                print("Parsing in-place nionswift project (nsproj + data)...")
             self.parse_project_file(template)
         return template
