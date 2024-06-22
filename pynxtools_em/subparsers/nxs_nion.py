@@ -154,21 +154,20 @@ class NionProjectSubParser:
             nsproj_data_path = f"{self.file_path[0:self.file_path.rfind(".")]} Data"
             print(f"nsproj_data_path __{nsproj_data_path}__")
             for file in glob.glob(f"{nsproj_data_path}/**/*", recursive=True):
+                print(f"----->>>> {file}")
                 if file.endswith((".h5", ".hdf", ".hdf5")):
                     with open(file) as fp:
-                        magic = fp.read(8)
                         if self.verbose:
                             fp.seek(0, 2)
                             eof_byte_offset = fp.tell()
                             print(
-                                f"Expecting hfive: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
+                                f"Expecting hfive: ___{file}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
                             )
                         key = file[file.rfind("/") + 1 :].replace(".h5", "")
                         if key not in self.hfive_file_dict:
                             self.hfive_file_dict[key] = file
                 elif file.endswith(".ndata"):
                     with open(file) as fp:
-                        magic = fp.read(8)
                         if self.verbose:
                             fp.seek(0, 2)
                             eof_byte_offset = fp.tell()
@@ -184,7 +183,7 @@ class NionProjectSubParser:
                 "Test 2 failed, UUID keys of *.ndata and *.h5 files in project are not disjoint!"
             )
             return
-        if len(self.proj_file_dict.keys()) != 1:
+        if self.is_zipped and len(self.proj_file_dict.keys()) != 1:
             print(
                 "Test 3 failed, he project contains either no or more than one nsproj file!"
             )
@@ -286,7 +285,6 @@ class NionProjectSubParser:
         del flat_metadata_dict
         del data_arr
         del nx_concept_name
-        return template
         """
         return template
 
@@ -352,7 +350,9 @@ class NionProjectSubParser:
                         )
         else:
             with open(self.file_path) as file_hdl:
-                nionswift_proj_mdata = fd.FlatDict(yaml.safe_load(file_hdl), delimiter="/")
+                nionswift_proj_mdata = fd.FlatDict(
+                    yaml.safe_load(file_hdl), delimiter="/"
+                )
         # TODO::inspection phase, maybe with yaml to file?
         if self.verbose:
             print(f"Flattened content of {proj_file_name}")
@@ -372,49 +372,41 @@ class NionProjectSubParser:
                         )
                         # file_name without the mime type
                         if key in self.ndata_file_dict.keys():
-                            print(
-                                f"Key {key} is *.ndata maps to {self.ndata_file_dict[key]}"
-                            )
+                            this_file = self.ndata_file_dict[key]
+                            print(f"Key {key} is *.ndata maps to {this_file}")
+                            print(f"Parsing {this_file}...")
                             if self.is_zipped:
                                 with ZipFile(self.file_path) as zip_file_hdl:
-                                    print(f"Parsing {self.ndata_file_dict[key]}...")
-                                    with zip_file_hdl.open(
-                                        self.ndata_file_dict[key]
-                                    ) as file_hdl:
+                                    with zip_file_hdl.open(this_file) as file_hdl:
                                         self.process_ndata(
                                             file_hdl,
-                                            self.ndata_file_dict[key],
+                                            this_file,
                                             template,
                                         )
                             else:
-                                print(f"Parsing {self.ndata_file_dict[key]}...")
-                                with open(self.ndata_file_dict[key]) as file_hdl:
+                                with open(this_file) as file_hdl:
                                     self.process_ndata(
                                         file_hdl,
-                                        self.ndata_file_dict[key],
+                                        this_file,
                                         template,
                                     )
                         elif key in self.hfive_file_dict.keys():
-                            print(
-                                f"Key {key} is *.h5 maps to {self.hfive_file_dict[key]}"
-                            )
+                            this_file = self.hfive_file_dict[key]
+                            print(f"Key {key} is *.h5 maps to {this_file}")
+                            print(f"Parsing {this_file}...")
                             if self.is_zipped:
                                 with ZipFile(self.file_path) as zip_file_hdl:
-                                    print(f"Parsing {self.hfive_file_dict[key]}...")
-                                    with zip_file_hdl.open(
-                                        self.hfive_file_dict[key]
-                                    ) as file_hdl:
+                                    with zip_file_hdl.open(this_file) as file_hdl:
                                         self.process_hfive(
                                             file_hdl,
-                                            self.hfive_file_dict[key],
+                                            this_file,
                                             template,
                                         )
                             else:
-                                print(f"Parsing {self.hfive_file_dict[key]}...")
-                                with open(self.hfive_file_dict[key]) as file_hdl:
+                                with open(this_file) as file_hdl:
                                     self.process_hfive(
                                         file_hdl,
-                                        self.hfive_file_dict[key],
+                                        this_file,
                                         template,
                                     )
                         else:
@@ -424,8 +416,13 @@ class NionProjectSubParser:
     def parse(self, template: dict) -> dict:
         """Parse NOMAD OASIS relevant data and metadata from swift project."""
         if self.supported:
-            print(
-                "Parsing in-place from zip-compressed nionswift project (nsproj + directory)..."
-            )
+            if self.is_zipped:
+                print(
+                    "Parsing in-place zip-compressed nionswift project (nsproj + data)..."
+                )
+            else:
+                print(
+                    "Parsing in-place nionswift project (nsproj + data)..."
+                )
             self.parse_project_file(template)
         return template
