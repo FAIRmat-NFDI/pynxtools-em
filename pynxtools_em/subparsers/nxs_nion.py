@@ -384,7 +384,7 @@ class NionProjectSubParser:
                                             template,
                                         )
                             else:
-                                with open(this_file) as file_hdl:
+                                with open(this_file, "rb") as file_hdl:
                                     self.process_ndata(
                                         file_hdl,
                                         this_file,
@@ -403,7 +403,7 @@ class NionProjectSubParser:
                                             template,
                                         )
                             else:
-                                with open(this_file) as file_hdl:
+                                with open(this_file, "rb") as file_hdl:
                                     self.process_hfive(
                                         file_hdl,
                                         this_file,
