@@ -156,18 +156,20 @@ class NionProjectSubParser:
             for file in glob.glob(f"{nsproj_data_path}/**/*", recursive=True):
                 print(f"----->>>> {file}")
                 if file.endswith((".h5", ".hdf", ".hdf5")):
-                    with open(file) as fp:
+                    with open(file, "rb") as fp:
+                        magic = fp.read(8)
                         if self.verbose:
                             fp.seek(0, 2)
                             eof_byte_offset = fp.tell()
                             print(
-                                f"Expecting hfive: ___{file}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
+                                f"Expecting hfive: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
                             )
                         key = file[file.rfind("/") + 1 :].replace(".h5", "")
                         if key not in self.hfive_file_dict:
                             self.hfive_file_dict[key] = file
                 elif file.endswith(".ndata"):
-                    with open(file) as fp:
+                    with open(file, "rb") as fp:
+                        magic = fp.read(8)
                         if self.verbose:
                             fp.seek(0, 2)
                             eof_byte_offset = fp.tell()
@@ -355,7 +357,10 @@ class NionProjectSubParser:
                 )
         # TODO::inspection phase, maybe with yaml to file?
         if self.verbose:
-            print(f"Flattened content of {proj_file_name}")
+            if self.is_zipped:
+                print(f"Flattened content of {proj_file_name}")
+            else:
+                print(f"Flattened content of {self.file_path}")
             for key, value in nionswift_proj_mdata.items():  # ["display_items"]:
                 print(f"nsprj, flat: ___{key}___{value}___")
         if nionswift_proj_mdata == {}:
