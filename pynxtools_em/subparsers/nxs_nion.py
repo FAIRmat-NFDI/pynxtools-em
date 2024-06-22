@@ -151,7 +151,7 @@ class NionProjectSubParser:
                     else:
                         continue
         else:
-            nsproj_data_path = f"{self.file_path[0:self.file_path.rfind(".")]} Data"
+            nsproj_data_path = f"{self.file_path[0:self.file_path.rfind('.')]} Data"
             print(f"nsproj_data_path __{nsproj_data_path}__")
             for file in glob.glob(f"{nsproj_data_path}/**/*", recursive=True):
                 print(f"----->>>> {file}")
