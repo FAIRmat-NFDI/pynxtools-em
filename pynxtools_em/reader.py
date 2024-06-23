@@ -113,7 +113,7 @@ class EMReader(BaseReader):
             nxs_pyxem = NxEmNxsPyxemSubParser(entry_id, case.dat[0], verbose=False)
             nxs_pyxem.parse(template)
 
-            nxs_nion = NionProjectSubParser(entry_id, case.dat[0], verbose=True)
+            nxs_nion = NionProjectSubParser(entry_id, case.dat[0], verbose=False)
             nxs_nion.parse(template)
 
             # zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id)
