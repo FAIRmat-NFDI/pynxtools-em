@@ -58,6 +58,9 @@ dev = [
 [project.entry-points."pynxtools.reader"]
 em = "pynxtools_em.reader:EMReader"
 
+[tool.setuptools.packages.find]
+exclude = ["dev/*"]
+
 [tool.setuptools_scm]
 version_scheme = "no-guess-dev"
 local_scheme = "node-and-date"

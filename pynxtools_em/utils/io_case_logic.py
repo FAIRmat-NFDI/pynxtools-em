@@ -26,6 +26,7 @@ VALID_FILE_NAME_SUFFIX_DATA = [
     ".tif",
     ".zip.axon",
     ".zip.nion",
+    ".nsproj",
     ".edaxh5",
     ".h5",
     ".hdf5",
@@ -85,7 +86,7 @@ class EmUseCaseSelector:
             else:
                 continue
         # print(f"{dat_input}, {other_input}")
-        if 1 <= other_input <= 3:
+        if 0 <= other_input <= 3:
             self.is_valid = True
             self.dat: List[str] = []
             for suffix in VALID_FILE_NAME_SUFFIX_DATA:

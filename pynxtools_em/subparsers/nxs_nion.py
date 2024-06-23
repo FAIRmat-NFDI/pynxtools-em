@@ -18,6 +18,7 @@
 
 """Parse Nion-specific content in a file containing a zip-compressed nionswift project."""
 
+import glob
 import json
 import mmap
 from typing import Dict
@@ -44,8 +45,8 @@ from pynxtools_em.utils.get_file_checksum import (
 from pynxtools_em.utils.nion_utils import uuid_to_file_name
 
 
-class ZipNionProjectSubParser:
-    """Parse zip-compressed archive of a nionswift project with its content."""
+class NionProjectSubParser:
+    """Parse (zip-compressed archive of a) nionswift project with its content."""
 
     def __init__(
         self, entry_id: int = 1, input_file_path: str = "", verbose: bool = True
@@ -71,7 +72,8 @@ class ZipNionProjectSubParser:
         self.configure()
         self.supported = False
         self.verbose = verbose
-        self.check_if_zipped_nionswift_project_file()
+        self.is_zipped = False
+        self.check_if_nionswift_project()
 
     def configure(self):
         self.tmp["cfg"]: Dict = {}
@@ -81,41 +83,86 @@ class ZipNionProjectSubParser:
         self.tmp["cfg"]["spectrum_id"] = 1
         self.tmp["flat_dict_meta"] = fd.FlatDict({})
 
-    def check_if_zipped_nionswift_project_file(self):
+    def check_if_nionswift_project(self):
         """Inspect the content of the compressed project file to check if supported."""
-        if not self.file_path.endswith(".zip.nion"):
+        if self.file_path.endswith(".zip.nion"):
+            self.is_zipped = True
+        elif self.file_path.endswith(".nsproj"):
+            self.is_zipped = False
+        else:
             print(
-                f"Parser ZipNionProject finds no content in {self.file_path} that it supports"
+                f"Parser NionProject finds no content in {self.file_path} that it supports"
             )
             return
 
-        with open(self.file_path, "rb", 0) as fp:
-            s = mmap.mmap(fp.fileno(), 0, access=mmap.ACCESS_READ)
-            magic = s.read(8)
-            if self.verbose:
-                fp.seek(0, 2)
-                eof_byte_offset = fp.tell()
-                print(
-                    f"Expecting zip-compressed file: ___{self.file_path}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
-                )
-            """
-            if magic != b'PK\x03\x04':  # https://en.wikipedia.org/wiki/List_of_file_signatures
-                print(f"Test 1 failed, {self.file_path} is not a ZIP archive !")
-                return False
-            """
-        # analyze information content in the archive an granularization
-        with ZipFile(self.file_path) as zip_file_hdl:
-            for file in zip_file_hdl.namelist():
-                if (
-                    file.endswith(".h5")
-                    or file.endswith(".hdf")
-                    or file.endswith(".hdf5")
-                ):
-                    with zip_file_hdl.open(file) as fp:
+        if self.is_zipped:
+            with open(self.file_path, "rb", 0) as fp:
+                s = mmap.mmap(fp.fileno(), 0, access=mmap.ACCESS_READ)
+                magic = s.read(8)
+                if self.verbose:
+                    fp.seek(0, 2)
+                    eof_byte_offset = fp.tell()
+                    print(
+                        f"Expecting zip-compressed file: ___{self.file_path}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
+                    )
+                """
+                if magic != b'PK\x03\x04':  # https://en.wikipedia.org/wiki/List_of_file_signatures
+                    print(f"Test 1 failed, {self.file_path} is not a ZIP archive !")
+                    return False
+                """
+            # analyze information content of the project and its granularization
+            with ZipFile(self.file_path) as zip_file_hdl:
+                for file in zip_file_hdl.namelist():
+                    if file.endswith((".h5", ".hdf", ".hdf5")):
+                        with zip_file_hdl.open(file) as fp:
+                            magic = fp.read(8)
+                            if self.verbose:
+                                fp.seek(0, 2)
+                                eof_byte_offset = fp.tell()
+                                print(
+                                    f"Expecting hfive: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
+                                )
+                            key = file[file.rfind("/") + 1 :].replace(".h5", "")
+                            if key not in self.hfive_file_dict:
+                                self.hfive_file_dict[key] = file
+                    elif file.endswith(".ndata"):
+                        with zip_file_hdl.open(file) as fp:
+                            magic = fp.read(8)
+                            if self.verbose:
+                                fp.seek(0, 2)
+                                eof_byte_offset = fp.tell()
+                                print(
+                                    f"Expecting ndata: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
+                                )
+                            key = file[file.rfind("/") + 1 :].replace(".ndata", "")
+                            if key not in self.ndata_file_dict:
+                                self.ndata_file_dict[key] = file
+                    elif file.endswith(".nsproj"):
+                        with zip_file_hdl.open(file) as fp:
+                            magic = fp.read(8)
+                            if self.verbose:
+                                fp.seek(0, 2)
+                                eof_byte_offset = fp.tell()
+                                print(
+                                    f"Expecting nsproj: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
+                                )
+                            key = file[file.rfind("/") + 1 :].replace(".nsproj", "")
+                            if key not in self.proj_file_dict:
+                                self.proj_file_dict[key] = file
+                    else:
+                        continue
+        else:
+            nsproj_data_path = f"{self.file_path[0:self.file_path.rfind('.')]} Data"
+            print(f"nsproj_data_path __{nsproj_data_path}__")
+            for file in glob.glob(f"{nsproj_data_path}/**/*", recursive=True):
+                print(f"----->>>> {file}")
+                if file.endswith((".h5", ".hdf", ".hdf5")):
+                    with open(file, "rb") as fp:
                         magic = fp.read(8)
                         if self.verbose:
                             fp.seek(0, 2)
                             eof_byte_offset = fp.tell()
+                            # get_sha256_of_file_content(fp)
                             print(
                                 f"Expecting hfive: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
                             )
@@ -123,7 +170,7 @@ class ZipNionProjectSubParser:
                         if key not in self.hfive_file_dict:
                             self.hfive_file_dict[key] = file
                 elif file.endswith(".ndata"):
-                    with zip_file_hdl.open(file) as fp:
+                    with open(file, "rb") as fp:
                         magic = fp.read(8)
                         if self.verbose:
                             fp.seek(0, 2)
@@ -134,26 +181,13 @@ class ZipNionProjectSubParser:
                         key = file[file.rfind("/") + 1 :].replace(".ndata", "")
                         if key not in self.ndata_file_dict:
                             self.ndata_file_dict[key] = file
-                elif file.endswith(".nsproj"):
-                    with zip_file_hdl.open(file) as fp:
-                        magic = fp.read(8)
-                        if self.verbose:
-                            fp.seek(0, 2)
-                            eof_byte_offset = fp.tell()
-                            print(
-                                f"Expecting nsproj: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
-                            )
-                        key = file[file.rfind("/") + 1 :].replace(".nsproj", "")
-                        if key not in self.proj_file_dict:
-                            self.proj_file_dict[key] = file
-                else:
-                    continue
+
         if not self.ndata_file_dict.keys().isdisjoint(self.hfive_file_dict.keys()):
             print(
                 "Test 2 failed, UUID keys of *.ndata and *.h5 files in project are not disjoint!"
             )
             return
-        if len(self.proj_file_dict.keys()) != 1:
+        if self.is_zipped and len(self.proj_file_dict.keys()) != 1:
             print(
                 "Test 3 failed, he project contains either no or more than one nsproj file!"
             )
@@ -255,7 +289,6 @@ class ZipNionProjectSubParser:
         del flat_metadata_dict
         del data_arr
         del nx_concept_name
-        return template
         """
         return template
 
@@ -312,20 +345,26 @@ class ZipNionProjectSubParser:
     def parse_project_file(self, template: dict) -> dict:
         """Parse lazily from compressed NionSwift project (nsproj + directory)."""
         nionswift_proj_mdata = {}
-        with ZipFile(self.file_path) as zip_file_hdl:
-            for pkey, proj_file_name in self.proj_file_dict.items():
-                with zip_file_hdl.open(proj_file_name) as file_hdl:
-                    nionswift_proj_mdata = fd.FlatDict(
-                        yaml.safe_load(file_hdl), delimiter="/"
-                    )
-                    # TODO::inspection phase, maybe with yaml to file?
-                    if self.verbose:
-                        print(f"Flattened content of {proj_file_name}")
-                        for (
-                            key,
-                            value,
-                        ) in nionswift_proj_mdata.items():  # ["display_items"]:
-                            print(f"nsprj, flat: ___{key}___{value}___")
+        if self.is_zipped:
+            with ZipFile(self.file_path) as zip_file_hdl:
+                for pkey, proj_file_name in self.proj_file_dict.items():
+                    with zip_file_hdl.open(proj_file_name) as file_hdl:
+                        nionswift_proj_mdata = fd.FlatDict(
+                            yaml.safe_load(file_hdl), delimiter="/"
+                        )
+        else:
+            with open(self.file_path) as file_hdl:
+                nionswift_proj_mdata = fd.FlatDict(
+                    yaml.safe_load(file_hdl), delimiter="/"
+                )
+        # TODO::inspection phase, maybe with yaml to file?
+        if self.verbose:
+            if self.is_zipped:
+                print(f"Flattened content of {proj_file_name}")
+            else:
+                print(f"Flattened content of {self.file_path}")
+            for key, value in nionswift_proj_mdata.items():  # ["display_items"]:
+                print(f"nsprj, flat: ___{key}___{value}___")
         if nionswift_proj_mdata == {}:
             return template
 
@@ -340,31 +379,41 @@ class ZipNionProjectSubParser:
                         )
                         # file_name without the mime type
                         if key in self.ndata_file_dict.keys():
-                            print(
-                                f"Key {key} is *.ndata maps to {self.ndata_file_dict[key]}"
-                            )
-                            with ZipFile(self.file_path) as zip_file_hdl:
-                                print(f"Parsing {self.ndata_file_dict[key]}...")
-                                with zip_file_hdl.open(
-                                    self.ndata_file_dict[key]
-                                ) as file_hdl:
+                            this_file = self.ndata_file_dict[key]
+                            print(f"Key {key} is *.ndata maps to {this_file}")
+                            print(f"Parsing {this_file}...")
+                            if self.is_zipped:
+                                with ZipFile(self.file_path) as zip_file_hdl:
+                                    with zip_file_hdl.open(this_file) as file_hdl:
+                                        self.process_ndata(
+                                            file_hdl,
+                                            this_file,
+                                            template,
+                                        )
+                            else:
+                                with open(this_file, "rb") as file_hdl:
                                     self.process_ndata(
                                         file_hdl,
-                                        self.ndata_file_dict[key],
+                                        this_file,
                                         template,
                                     )
                         elif key in self.hfive_file_dict.keys():
-                            print(
-                                f"Key {key} is *.h5 maps to {self.hfive_file_dict[key]}"
-                            )
-                            with ZipFile(self.file_path) as zip_file_hdl:
-                                print(f"Parsing {self.hfive_file_dict[key]}...")
-                                with zip_file_hdl.open(
-                                    self.hfive_file_dict[key]
-                                ) as file_hdl:
+                            this_file = self.hfive_file_dict[key]
+                            print(f"Key {key} is *.h5 maps to {this_file}")
+                            print(f"Parsing {this_file}...")
+                            if self.is_zipped:
+                                with ZipFile(self.file_path) as zip_file_hdl:
+                                    with zip_file_hdl.open(this_file) as file_hdl:
+                                        self.process_hfive(
+                                            file_hdl,
+                                            this_file,
+                                            template,
+                                        )
+                            else:
+                                with open(this_file, "rb") as file_hdl:
                                     self.process_hfive(
                                         file_hdl,
-                                        self.hfive_file_dict[key],
+                                        this_file,
                                         template,
                                     )
                         else:
@@ -374,8 +423,11 @@ class ZipNionProjectSubParser:
     def parse(self, template: dict) -> dict:
         """Parse NOMAD OASIS relevant data and metadata from swift project."""
         if self.supported:
-            print(
-                "Parsing in-place from zip-compressed nionswift project (nsproj + directory)..."
-            )
+            if self.is_zipped:
+                print(
+                    "Parsing in-place zip-compressed nionswift project (nsproj + data)..."
+                )
+            else:
+                print("Parsing in-place nionswift project (nsproj + data)...")
             self.parse_project_file(template)
         return template
