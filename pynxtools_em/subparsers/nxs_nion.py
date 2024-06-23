@@ -164,7 +164,7 @@ class NionProjectSubParser:
                             eof_byte_offset = fp.tell()
                             # get_sha256_of_file_content(fp)
                             print(
-                                f"Expecting hfive: ___{file}___{magic}___{'0' * 32}___{eof_byte_offset}___"
+                                f"Expecting hfive: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
                             )
                         key = file[file.rfind("/") + 1 :].replace(".h5", "")
                         if key not in self.hfive_file_dict:
@@ -176,7 +176,7 @@ class NionProjectSubParser:
                             fp.seek(0, 2)
                             eof_byte_offset = fp.tell()
                             print(
-                                f"Expecting ndata: ___{file}___{magic}___{'0' * 32}___{eof_byte_offset}___"
+                                f"Expecting ndata: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
                             )
                         key = file[file.rfind("/") + 1 :].replace(".ndata", "")
                         if key not in self.ndata_file_dict:
