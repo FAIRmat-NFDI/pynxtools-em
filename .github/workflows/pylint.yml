@@ -26,7 +26,7 @@ jobs:
           uv pip install -r dev-requirements.txt
       - name: ruff
         run: |
-          ruff pynxtools_em tests
+          ruff check pynxtools_em tests
       - name: ruff formatting
         run: |
           ruff format --check pynxtools_em tests
