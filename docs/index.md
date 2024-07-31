@@ -2,7 +2,8 @@
 hide: toc
 ---
 
-# pynxtools-em documentation
+# Documentation for pynxtools-em
+
 pynxtools-em is a free and open-source data software for creating standardized semantic serializations of electron microscopy data and metadata for research data management using NeXus, implemented with the goal to make scientific research data FAIR (findable, accessible, interoperable and reusable).
 
 pynxtools-em, which is a plugin for pynxtools, provides a tool for reading data from various proprietary and open data formats from technology partners and the wider electron microscopy community and standardizing it such that it is compliant with the NeXus application definition NXem.
@@ -64,4 +65,8 @@ for the respective file formats of technology partners of the electron microscop
 </div>
 
 <h2>Project and community</h2>
+<!-- - [NOMAD code guidelines](https://nomad-lab.eu/prod/v1/staging/docs/reference/code_guidelines.html) -->
+
+Any questions or suggestions? [Get in touch!](https://www.fair-di.eu/fairmat/about-fairmat/team-fairmat)
+
 [The work is funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) – 460197019 (FAIRmat)](https://gepris.dfg.de/gepris/projekt/460197019?language=en).
