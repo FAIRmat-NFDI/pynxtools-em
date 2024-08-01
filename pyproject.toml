@@ -69,7 +69,9 @@ docs = [
 em = "pynxtools_em.reader:EMReader"
 
 [tool.setuptools.packages.find]
-include = ["src/*"]
+where = [
+    "src",
+]
 exclude = ["dev/*"]
 
 [tool.setuptools_scm]
