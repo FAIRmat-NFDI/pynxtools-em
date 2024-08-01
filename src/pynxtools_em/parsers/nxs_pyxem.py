@@ -42,7 +42,7 @@ from orix.quaternion import Rotation
 from orix.quaternion.symmetry import get_point_group
 from orix.vector import Vector3d
 from PIL import Image as pil
-from pynxtools_em.concepts.nxs_image_r_set import NxImageRealSpaceSet
+from pynxtools_em.concepts.nxs_image_set import NxImageRealSpaceSet
 from pynxtools_em.parsers.hfive_apex import HdfFiveEdaxApexReader
 from pynxtools_em.parsers.hfive_bruker import HdfFiveBrukerEspritReader
 from pynxtools_em.parsers.hfive_dreamthreed import HdfFiveDreamThreedReader
