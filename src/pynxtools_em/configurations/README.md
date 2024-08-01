@@ -64,13 +64,51 @@ AXON_STAGE_STATIC_TO_NX_EM = {
 
 * Required keyword **prefix_trg** specifies the prefix to use when resolving template paths on the *trg* side including separators.
 * Required keyword **prefix_src** specifies the prefix to use when resolving template paths on the *src* side including separators.
-* Optional keywords follow. Each has one list of tuples as a value. These keywords are:
-  * **use** are special to instruct explicit writing of values.
-   Two types of tuples are possible:
+* Optional keywords follow. Each encodes mapping instructions based on one list of tuples as value.
+  These keywords are:
+  * **use** instructs mapping explicitly instance data on *trg* without demanding a *src*.
+
+   Specifically, tuples of the following two datatypes are allowed:
    (str, str | numpy datatype (scalar or array))
    (str, pint.Quantity)
-   The first value of the tuple resolves the *trg* side.
+   The first value resolves the symbol for the concept on the *trg* side.
    The second value resolves the instance data to take.
    The template path on the *trg* side is f"{prefix_trg}{tpl[0]}", prefix_src is ignored.
-  * **map**
+  * **map** | **map_to_dtype** instructs mapping instance data from *src* on *trg*.
+  Differently typed tuples are allowed that encode compact mapping rules to deal with
+  above-mentioned cases of mismatch. The suffix "_to\*" is added to solve mismatch 3.
+  Mismatch cases 1 and 2 are solved based on how the tuple is structured.
+  Mismatch case 3 is solved by adding a suffix like "_to_float64". This will
+  instruct that *src* data are mapped if possible from their type on a numpy datatype.
+
+  Specifically, tuples of the following datatypes are allowed:
+
+  (str, pint.ureg | str, str, pint.ureg | str)
+  Used in cases of mismatch 1 and 2 and explicitly converting given unit on *src* side to match the expectation on the *trg* side.
+  The first value resolves the symbol for the concept on the *trg* side.
+  The second value resolves the specific unit (if pint.ureg) or the string "unitless" or "any" on the *trg* side.
+  The third value resolves the symbol for the concept on the *src* side.
+  The fourth value informs the parser about the specific unit (if pint.ureg) of the instance data on the *src* side. The strings "unitless" or "any" are used if these quantities
+  should map on NX_UNITLESS or NX_ANY.
+
+  (str, str, pint.ureg | str)
+  Used in cases of mismatch 1, the unit from the *src* side is carried over onto the *trg* side.
+  The first value resolves the symbol for the concept on the *trg* side.
+  The second value resolves the symbol for the concept on the *src* side.
+  The third value informs the parser about the specific unit (if pint.ureg) of the instance data on the *src* side. The strings "unitless" or "any" are used if these quantities
+  should map on NX_UNITLESS or NX_ANY.
+
+  (str, pint.ureg | str, str)
+  Used in cases of mismatch 1 and 2 and a shorthand to explicitly set unit on the *trg* side.
+  The first value resolves the symbol for the concept on the *trg* side.
+  The second value resolves the specific unit (if pint.ureg) or the string "unitless" or "any" on the *trg* side.
+  The third value resolves the symbol for the concept on the *src* side.
+
+  (str, str)
+  Used in cases of mismatch 1. Units on *src* will be carried over onto the *trg* side.
+  The first value resolves the symbol for the concept on the *trg* side.
+  The second value resolves the symbol for the concept on the *src* side.
+
+  (str)
+  Used in cases when symbols on *src* and *trg* are the same.
 
