@@ -27,6 +27,7 @@ dependencies = [
     "rosettasciio>=0.4",
     "kikuchipy>=0.9.0",
     "pyxem>=0.16.0",
+    "numpy<=1.26.4",
     "nionswift",
     "flatdict",
     "xmltodict",
@@ -39,14 +40,6 @@ dependencies = [
 "Bug Tracker" = "https://github.com/FAIRmat-NFDI/pynxtools-em/issues"
 
 [project.optional-dependencies]
-docs = [
-    "mkdocs",
-    "mkdocs-material",
-    "mkdocs-material-extensions",
-    "mkdocs-macros-plugin",
-    "pymdown-extensions",
-    "mkdocs-click"
-]
 dev = [
     "mypy",
     "ruff==0.5.5",
@@ -64,11 +57,22 @@ dev = [
     "jupyterlab",
     "jupyterlab-h5web"
 ]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocs-material-extensions",
+    "mkdocs-macros-plugin",
+    "pymdown-extensions",
+    "mkdocs-click"
+]
 
 [project.entry-points."pynxtools.reader"]
 em = "pynxtools_em.reader:EMReader"
 
 [tool.setuptools.packages.find]
+where = [
+    "src",
+]
 exclude = ["dev/*"]
 
 [tool.setuptools_scm]
@@ -76,7 +80,7 @@ version_scheme = "no-guess-dev"
 local_scheme = "node-and-date"
 
 [tool.ruff]
-include = ["pynxtools_em/*.py", "tests/*.py"]
+include = ["src/*.py", "tests/*.py"]
 line-length = 88
 indent-width = 4
 
