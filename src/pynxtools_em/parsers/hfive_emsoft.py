@@ -17,11 +17,11 @@
 #
 """(Sub-)parser mapping concepts and content from Marc deGraeff's EMsoft *.h5 files on NXem."""
 
-import numpy as np
-import h5py
 from typing import Dict
 
-from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
+import h5py
+import numpy as np
+from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.hfive_utils import read_strings_from_dataset
 
 

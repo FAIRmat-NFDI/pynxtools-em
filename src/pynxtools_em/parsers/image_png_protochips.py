@@ -27,12 +27,11 @@ import flatdict as fd
 import numpy as np
 import xmltodict
 from PIL import Image
-
 from pynxtools_em.concepts.mapping_functors import (
     add_specific_metadata,
     variadic_path_to_specific_path,
 )
-from pynxtools_em.config.image_png_protochips_cfg import (
+from pynxtools_em.configurations.image_png_protochips_cfg import (
     AXON_AUX_DYNAMIC_TO_NX_EM,
     AXON_CHIP_DYNAMIC_TO_NX_EM,
     AXON_DETECTOR_STATIC_TO_NX_EM,
@@ -41,7 +40,7 @@ from pynxtools_em.config.image_png_protochips_cfg import (
     AXON_VARIOUS_DYNAMIC_TO_NX_EM,
     specific_to_variadic,
 )
-from pynxtools_em.subparsers.image_base import ImgsBaseParser
+from pynxtools_em.parsers.image_base import ImgsBaseParser
 from pynxtools_em.utils.get_file_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -50,7 +49,7 @@ from pynxtools_em.utils.sorting import sort_ascendingly_by_second_argument_iso86
 from pynxtools_em.utils.xml_utils import flatten_xml_to_dict
 
 
-class ProtochipsPngSetSubParser(ImgsBaseParser):
+class ProtochipsPngSetParser(ImgsBaseParser):
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
         super().__init__(file_path)
         self.entry_id = entry_id

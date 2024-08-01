@@ -47,7 +47,7 @@ def hfive_to_template(payload):
     return np.asarray(payload[...], dtype=payload.dtype)
 
 
-class NxEmNxsMTexSubParser:
+class NxEmNxsMTexParser:
     """Map content from *.nxs.mtex files on an instance of NXem."""
 
     def __init__(self, entry_id: int = 1, file_path: str = "", verbose: bool = False):

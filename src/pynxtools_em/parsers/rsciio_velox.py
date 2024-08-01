@@ -24,10 +24,8 @@ import flatdict as fd
 import numpy as np
 import pytz
 from ase.data import chemical_symbols
-from rsciio import emd
-
 from pynxtools_em.concepts.mapping_functors import add_specific_metadata
-from pynxtools_em.config.rsciio_velox_cfg import (
+from pynxtools_em.configurations.rsciio_velox_cfg import (
     VELOX_DYNAMIC_TO_NX_EM,
     VELOX_EBEAM_DYNAMIC_TO_NX_EM,
     VELOX_EBEAM_STATIC_TO_NX_EM,
@@ -37,7 +35,7 @@ from pynxtools_em.config.rsciio_velox_cfg import (
     VELOX_SCAN_TO_NX_EM,
     VELOX_STAGE_TO_NX_EM,
 )
-from pynxtools_em.subparsers.rsciio_base import RsciioBaseParser
+from pynxtools_em.parsers.rsciio_base import RsciioBaseParser
 from pynxtools_em.utils.get_file_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -48,6 +46,7 @@ from pynxtools_em.utils.rsciio_hspy_utils import (
     get_named_axis,
 )
 from pynxtools_em.utils.string_conversions import string_to_number
+from rsciio import emd
 
 REAL_SPACE = 0
 COMPLEX_SPACE = 1
@@ -63,7 +62,7 @@ def all_req_keywords_in_dict(dct: dict, keywords: list) -> bool:
     return True
 
 
-class RsciioVeloxSubParser(RsciioBaseParser):
+class RsciioVeloxParser(RsciioBaseParser):
     """Read Velox EMD File Format emd."""
 
     def __init__(self, entry_id: int = 1, file_path: str = "", verbose: bool = False):

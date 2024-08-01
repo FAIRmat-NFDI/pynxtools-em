@@ -22,7 +22,6 @@ from typing import Dict
 import h5py
 import numpy as np
 from diffpy.structure import Lattice, Structure
-
 from pynxtools_em.examples.ebsd_database import (
     ASSUME_PHASE_NAME_TO_SPACE_GROUP,
     FLIGHT_PLAN,
@@ -30,7 +29,7 @@ from pynxtools_em.examples.ebsd_database import (
     REGULAR_TILING,
     SQUARE_TILING,
 )
-from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
+from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.hfive_utils import (
     EULER_SPACE_SYMMETRY,
     format_euler_parameterization,

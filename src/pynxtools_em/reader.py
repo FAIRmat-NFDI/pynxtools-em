@@ -25,20 +25,20 @@ import numpy as np
 from pynxtools.dataconverter.readers.base.reader import BaseReader
 
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
-from pynxtools_em.subparsers.convention_reader import NxEmConventionParser
-from pynxtools_em.subparsers.nxs_imgs import NxEmImagesSubParser
-from pynxtools_em.subparsers.nxs_mtex import NxEmNxsMTexSubParser
-from pynxtools_em.subparsers.nxs_nion import NionProjectSubParser
-from pynxtools_em.subparsers.nxs_pyxem import NxEmNxsPyxemSubParser
-from pynxtools_em.subparsers.oasis_config_reader import (
+from pynxtools_em.parsers.convention_reader import NxEmConventionParser
+from pynxtools_em.parsers.nxs_imgs import NxEmImagesParser
+from pynxtools_em.parsers.nxs_mtex import NxEmNxsMTexParser
+from pynxtools_em.parsers.nxs_nion import NionProjectParser
+from pynxtools_em.parsers.nxs_pyxem import NxEmNxsPyxemParser
+from pynxtools_em.parsers.oasis_config_reader import (
     NxEmNomadOasisConfigurationParser,
 )
-from pynxtools_em.subparsers.oasis_eln_reader import NxEmNomadOasisElnSchemaParser
-from pynxtools_em.subparsers.rsciio_velox import RsciioVeloxSubParser
+from pynxtools_em.parsers.oasis_eln_reader import NxEmNomadOasisElnSchemaParser
+from pynxtools_em.parsers.rsciio_velox import RsciioVeloxParser
 from pynxtools_em.utils.io_case_logic import EmUseCaseSelector
 from pynxtools_em.utils.nx_atom_types import NxEmAtomTypesResolver
 
-# from pynxtools_em.subparsers.zip_ebsd_parser import NxEmOmZipEbsdParser
+# from pynxtools_em.parsers.zip_ebsd_parser import NxEmOmZipEbsdParser
 from pynxtools_em.utils.nx_default_plots import NxEmDefaultPlotResolver
 
 
@@ -101,19 +101,19 @@ class EMReader(BaseReader):
 
         print("Parse and map pieces of information within files from tech partners...")
         if len(case.dat) == 1:
-            images = NxEmImagesSubParser(entry_id, case.dat[0], verbose=False)
+            images = NxEmImagesParser(entry_id, case.dat[0], verbose=False)
             images.parse(template)
 
-            velox = RsciioVeloxSubParser(entry_id, case.dat[0], verbose=False)
+            velox = RsciioVeloxParser(entry_id, case.dat[0], verbose=False)
             velox.parse(template)
 
-            nxs_mtex = NxEmNxsMTexSubParser(entry_id, case.dat[0], verbose=False)
+            nxs_mtex = NxEmNxsMTexParser(entry_id, case.dat[0], verbose=False)
             nxs_mtex.parse(template)
 
-            nxs_pyxem = NxEmNxsPyxemSubParser(entry_id, case.dat[0], verbose=False)
+            nxs_pyxem = NxEmNxsPyxemParser(entry_id, case.dat[0], verbose=False)
             nxs_pyxem.parse(template)
 
-            nxs_nion = NionProjectSubParser(entry_id, case.dat[0], verbose=False)
+            nxs_nion = NionProjectParser(entry_id, case.dat[0], verbose=False)
             nxs_nion.parse(template)
 
             # zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id)

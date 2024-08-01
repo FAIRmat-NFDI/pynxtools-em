@@ -18,12 +18,12 @@
 """(Sub-)parser for reading content from Bruker *.BCF files via rosettasciio."""
 
 from typing import Dict, List
+
+from pynxtools_em.parsers.rsciio_base import RsciioBaseParser
 from rsciio import bruker
 
-from pynxtools_em.subparsers.rsciio_base import RsciioBaseParser
 
-
-class RsciioBrukerSubParser(RsciioBaseParser):
+class RsciioBrukerParser(RsciioBaseParser):
     """Read Bruker BCF File Format bcf."""
 
     def __init__(self, file_path: str = ""):

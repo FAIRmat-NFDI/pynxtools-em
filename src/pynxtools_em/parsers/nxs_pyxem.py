@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""HDF5 base parser to inherit from for tech-partner-specific HDF5 subparsers."""
+"""HDF5 base parser to inherit from for tech-partner-specific HDF5 parsers."""
 
 # the base parser implements the processing of standardized orientation maps via
 # the pyxem software package from the electron microscopy community
@@ -42,15 +42,14 @@ from orix.quaternion import Rotation
 from orix.quaternion.symmetry import get_point_group
 from orix.vector import Vector3d
 from PIL import Image as pil
-
 from pynxtools_em.concepts.nxs_image_r_set import NxImageRealSpaceSet
-from pynxtools_em.subparsers.hfive_apex import HdfFiveEdaxApexReader
-from pynxtools_em.subparsers.hfive_bruker import HdfFiveBrukerEspritReader
-from pynxtools_em.subparsers.hfive_dreamthreed import HdfFiveDreamThreedReader
-from pynxtools_em.subparsers.hfive_ebsd import HdfFiveCommunityReader
-from pynxtools_em.subparsers.hfive_edax import HdfFiveEdaxOimAnalysisReader
-from pynxtools_em.subparsers.hfive_emsoft import HdfFiveEmSoftReader
-from pynxtools_em.subparsers.hfive_oxford import HdfFiveOxfordReader
+from pynxtools_em.parsers.hfive_apex import HdfFiveEdaxApexReader
+from pynxtools_em.parsers.hfive_bruker import HdfFiveBrukerEspritReader
+from pynxtools_em.parsers.hfive_dreamthreed import HdfFiveDreamThreedReader
+from pynxtools_em.parsers.hfive_ebsd import HdfFiveCommunityReader
+from pynxtools_em.parsers.hfive_edax import HdfFiveEdaxOimAnalysisReader
+from pynxtools_em.parsers.hfive_emsoft import HdfFiveEmSoftReader
+from pynxtools_em.parsers.hfive_oxford import HdfFiveOxfordReader
 from pynxtools_em.utils.get_scan_points import (
     get_scan_point_axis_values,
     get_scan_point_coords,
@@ -104,7 +103,7 @@ def get_ipfdir_legend(ipf_key):
     return img
 
 
-class NxEmNxsPyxemSubParser:
+class NxEmNxsPyxemParser:
     """Map content from different type of *.h5 files on an instance of NXem."""
 
     def __init__(self, entry_id: int = 1, file_path: str = "", verbose: bool = False):
@@ -157,9 +156,9 @@ class NxEmNxsPyxemSubParser:
         # non-trivial to establish this mapping and only because of this we
         # map over using hardcoding of concept names and symbols
 
-        # a collection of different tech-partner-specific subparser follows
-        # these subparsers already extract specific information and perform a first
-        # step of harmonization. The subparsers specifically store e.g. EBSD maps in a
+        # a collection of different tech-partner-specific parser follows
+        # these parsers already extract specific information and perform a first
+        # step of harmonization. The parsers specifically store e.g. EBSD maps in a
         # tmp dictionary, which is
         # TODO: scan point positions (irrespective on which grid type (sqr, hex) these
         # were probed, in some cases the grid may have a two large extent along a dim
@@ -200,7 +199,7 @@ class NxEmNxsPyxemSubParser:
         return template
 
     def identify_hfive_type(self):
-        """Identify if HDF5 file matches a known format for which a subparser exists."""
+        """Identify if HDF5 file matches a known format for which a parser exists."""
         with open(self.file_path, "rb", 0) as file:
             s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
             magic = s.read(4)
@@ -279,7 +278,7 @@ class NxEmNxsPyxemSubParser:
         self, inp: dict, roi_id: str, template: dict
     ) -> dict:
         print("Parse ROI default plot...")
-        # tech partner specific subparsers have just extracted the per scan point information
+        # tech partner specific parsers have just extracted the per scan point information
         # in the sequence they were (which is often how they were scanned)
         # however that can be a square, a hexagonal or some random grid
         # a consuming visualization tool (like h5web) may however not be able to

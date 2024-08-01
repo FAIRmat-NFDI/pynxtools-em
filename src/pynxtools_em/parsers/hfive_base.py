@@ -17,16 +17,16 @@
 #
 """Parent class for all tech partner-specific HDF5 parsers for mapping on NXem."""
 
-import numpy as np
-import h5py
 from typing import Dict, List
 
-from pynxtools_em.subparsers.hfive_concept import (
+import h5py
+import numpy as np
+from pynxtools_em.parsers.hfive_concept import (
+    IS_ATTRIBUTE,
+    IS_COMPOUND_DATASET,
+    IS_FIELD_IN_COMPOUND_DATASET,
     IS_GROUP,
     IS_REGULAR_DATASET,
-    IS_COMPOUND_DATASET,
-    IS_ATTRIBUTE,
-    IS_FIELD_IN_COMPOUND_DATASET,
     Concept,
 )
 
@@ -437,7 +437,7 @@ class HdfFiveBaseParser:
 # with which the content in the HDF5 file is formatted
 # Therefore, at least some of the content and how that content is
 # formatted is inspected to make an informed decision which specific hfive
-# subparser can be expected to deal at all with the content of the HDF5 file
+# parser can be expected to deal at all with the content of the HDF5 file
 
 # For the example of EBSD there was once a suggestion made by the academic community
 # to report EBSD results via HDF5, specifically via H5EBSD (Jackson et al.).

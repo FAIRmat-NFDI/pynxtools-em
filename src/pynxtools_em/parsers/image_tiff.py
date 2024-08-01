@@ -15,17 +15,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Derived image class to derive every tech-partner-specific TIFF subparser from."""
+"""Derived image class to derive every tech-partner-specific TIFF parser from."""
 
 import mmap
 from typing import Dict
+
 from PIL import Image
 from PIL.TiffTags import TAGS
+from pynxtools_em.parsers.image_base import ImgsBaseParser
 
-from pynxtools_em.subparsers.image_base import ImgsBaseParser
 
-
-class TiffSubParser(ImgsBaseParser):
+class TiffParser(ImgsBaseParser):
     """Read Tagged Image File Format TIF/TIFF."""
 
     def __init__(self, file_path: str = ""):
@@ -93,7 +93,7 @@ class TiffSubParser(ImgsBaseParser):
     def parse_and_normalize(self):
         """Perform actual parsing filling cache self.tmp."""
         if self.supported is True:
-            print(f"Parsing via TiffSubParser...")
+            print(f"Parsing via TiffParser...")
             self.get_tags()
         else:
             print(f"{self.file_path} is not a TIFF file this parser can process !")

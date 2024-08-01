@@ -21,12 +21,11 @@ import pathlib
 
 import flatdict as fd
 import yaml
-
 from pynxtools_em.concepts.mapping_functors import (
     add_specific_metadata,
     variadic_path_to_specific_path,
 )
-from pynxtools_em.config.conventions_cfg import (
+from pynxtools_em.configurations.conventions_cfg import (
     DETECTOR_CSYS_TO_NEXUS,
     GNOMONIC_CSYS_TO_NEXUS,
     PATTERN_CSYS_TO_NEXUS,
@@ -34,13 +33,13 @@ from pynxtools_em.config.conventions_cfg import (
     ROTATIONS_TO_NEXUS,
     SAMPLE_CSYS_TO_NEXUS,
 )
-from pynxtools_em.geometry.euler_angle_convention import euler_convention
-from pynxtools_em.geometry.handed_cartesian import (
+from pynxtools_em.geometries.euler_angle_convention import euler_convention
+from pynxtools_em.geometries.handed_cartesian import (
     AXIS_DIRECTIONS,
     REFERENCE_FRAMES,
     is_cartesian_cs_well_defined,
 )
-from pynxtools_em.geometry.msmse_convention import is_consistent_with_msmse_convention
+from pynxtools_em.geometries.msmse_convention import is_consistent_with_msmse_convention
 
 
 class NxEmConventionParser:

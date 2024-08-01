@@ -31,9 +31,8 @@ import pathlib
 
 import flatdict as fd
 import yaml
-
 from pynxtools_em.concepts.mapping_functors import add_specific_metadata
-from pynxtools_em.config.oasis_cfg import EM_CSYS_TO_NEXUS, EM_CITATION_TO_NEXUS
+from pynxtools_em.configurations.oasis_cfg import EM_CITATION_TO_NEXUS, EM_CSYS_TO_NEXUS
 
 
 class NxEmNomadOasisConfigurationParser:

@@ -22,13 +22,12 @@ from typing import Dict
 import h5py
 import numpy as np
 from diffpy.structure import Lattice, Structure
-
 from pynxtools_em.examples.ebsd_database import (
     FLIGHT_PLAN,
     REGULAR_TILING,
     SQUARE_TILING,
 )
-from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
+from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.hfive_utils import (
     format_euler_parameterization,
     read_strings_from_dataset,
