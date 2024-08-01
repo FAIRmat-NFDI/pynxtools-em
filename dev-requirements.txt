@@ -406,6 +406,7 @@ numexpr==2.10.1
     #   pyxem
 numpy==1.26.4
     # via
+    #   pynxtools-em (pyproject.toml)
     #   ase
     #   contourpy
     #   dask

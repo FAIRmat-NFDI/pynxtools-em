@@ -24,12 +24,12 @@ jobs:
       - name: Install dev requirements
         run: |
           uv pip install -r dev-requirements.txt
-      - name: ruff
+      - name: ruff check
         run: |
-          ruff check pynxtools_em tests
+          ruff check src/pynxtools_em tests
       - name: ruff formatting
         run: |
-          ruff format --check pynxtools_em tests
+          ruff format --check src/pynxtools_em tests
       - name: mypy
         run: |
-          mypy pynxtools_em tests
+          mypy src/pynxtools_em tests
