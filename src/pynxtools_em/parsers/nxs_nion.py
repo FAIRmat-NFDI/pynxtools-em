@@ -45,7 +45,7 @@ from pynxtools_em.utils.get_file_checksum import (
 from pynxtools_em.utils.nion_utils import uuid_to_file_name
 
 
-class NionProjectSubParser:
+class NionProjectParser:
     """Parse (zip-compressed archive of a) nionswift project with its content."""
 
     def __init__(

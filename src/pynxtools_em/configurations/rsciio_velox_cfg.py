@@ -17,7 +17,7 @@
 #
 """Map content from Velox EMD file format onto NeXus concepts.
 
-# TODO move to pynxtools-em Velox subparser documentation
+# TODO move to pynxtools-em Velox parser documentation
 "Core/MetadataDefinitionVersion": ["7.9"]
 "Core/MetadataSchemaVersion": ["v1/2013/07"]
 all *.emd files from https://ac.archive.fhi.mpg.de/D62142 parsed with

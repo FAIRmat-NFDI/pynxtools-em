@@ -18,10 +18,9 @@
 """Discretize point cloud in R^d (d=2, 3) with mark data to square/cube voxel grid."""
 
 import numpy as np
-from scipy.spatial import KDTree
-
 from pynxtools_em.examples.ebsd_database import SQUARE_TILING
 from pynxtools_em.utils.get_scan_points import hexagonal_grid, square_grid, threed
+from scipy.spatial import KDTree
 
 
 def get_scan_points_with_mark_data_discretized_on_sqr_grid(
@@ -90,7 +89,7 @@ def get_scan_points_with_mark_data_discretized_on_sqr_grid(
         # https://stackoverflow.com/questions/18982650/differences-between-matlab-and-numpy-and-pythons-round-function
         # MTex/Matlab round not exactly the same as numpy round but reasonably close
 
-        # scan point positions were normalized by tech partner subparsers such that they
+        # scan point positions were normalized by tech partner parsers such that they
         # always build on pixel coordinates calibrated for step size not by giving absolute positions
         # in the sample surface frame of reference as this is typically not yet consistently documented
         # because we assume in addition that we always start at the top left corner the zeroth/first

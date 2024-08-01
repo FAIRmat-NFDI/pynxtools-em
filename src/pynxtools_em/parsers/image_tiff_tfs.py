@@ -24,9 +24,8 @@ import flatdict as fd
 import numpy as np
 from PIL import Image
 from PIL.TiffTags import TAGS
-
 from pynxtools_em.concepts.mapping_functors import add_specific_metadata
-from pynxtools_em.config.image_tiff_tfs_cfg import (
+from pynxtools_em.configurations.image_tiff_tfs_cfg import (
     TFS_APERTURE_STATIC_TO_NX_EM,
     TFS_DETECTOR_STATIC_TO_NX_EM,
     TFS_OPTICS_DYNAMIC_TO_NX_EM,
@@ -35,8 +34,8 @@ from pynxtools_em.config.image_tiff_tfs_cfg import (
     TFS_VARIOUS_DYNAMIC_TO_NX_EM,
     TFS_VARIOUS_STATIC_TO_NX_EM,
 )
-from pynxtools_em.subparsers.image_tiff import TiffSubParser
-from pynxtools_em.subparsers.image_tiff_tfs_concepts import (
+from pynxtools_em.parsers.image_tiff import TiffParser
+from pynxtools_em.parsers.image_tiff_tfs_concepts import (
     get_fei_childs,
     get_fei_parent_concepts,
 )
@@ -46,7 +45,7 @@ from pynxtools_em.utils.image_utils import (
 )
 
 
-class TfsTiffSubParser(TiffSubParser):
+class TfsTiffParser(TiffParser):
     def __init__(self, file_path: str = "", entry_id: int = 1):
         super().__init__(file_path)
         self.entry_id = entry_id

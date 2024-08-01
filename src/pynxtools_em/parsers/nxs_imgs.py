@@ -17,11 +17,11 @@
 #
 """Parser mapping content of specific image files on NeXus."""
 
-from pynxtools_em.subparsers.image_tiff_tfs import TfsTiffSubParser
-from pynxtools_em.subparsers.image_png_protochips import ProtochipsPngSetSubParser
+from pynxtools_em.parsers.image_png_protochips import ProtochipsPngSetParser
+from pynxtools_em.parsers.image_tiff_tfs import TfsTiffParser
 
 
-class NxEmImagesSubParser:
+class NxEmImagesParser:
     """Map content from different type of image files on an instance of NXem."""
 
     def __init__(self, entry_id: int = 1, file_path: str = "", verbose: bool = False):
@@ -35,12 +35,12 @@ class NxEmImagesSubParser:
         self.verbose = verbose
 
     def identify_image_type(self):
-        """Identify if image matches known mime type and has content for which subparser exists."""
+        """Identify if image matches known mime type and has content for which parser exists."""
         # tech partner formats used for measurement
-        img = TfsTiffSubParser(self.file_path)
+        img = TfsTiffParser(self.file_path)
         if img.supported:
             return "single_tiff_tfs"
-        img = ProtochipsPngSetSubParser(self.file_path)
+        img = ProtochipsPngSetParser(self.file_path)
         if img.supported:
             return "set_of_zipped_png_protochips"
         return None
@@ -54,13 +54,13 @@ class NxEmImagesSubParser:
             return template
         print(f"{self.__class__.__name__} identified content as {image_parser_type}")
         # see also comments for respective nxs_pyxem parser
-        # and its interaction with tech-partner-specific hfive_* subparsers
+        # and its interaction with tech-partner-specific hfive_* parsers
         if image_parser_type == "single_tiff_tfs":
-            tiff = TfsTiffSubParser(self.file_path, self.entry_id)
+            tiff = TfsTiffParser(self.file_path, self.entry_id)
             tiff.parse_and_normalize()
             tiff.process_into_template(template)
         elif image_parser_type == "set_of_zipped_png_protochips":
-            pngs = ProtochipsPngSetSubParser(self.file_path, self.entry_id)
+            pngs = ProtochipsPngSetParser(self.file_path, self.entry_id)
             pngs.parse_and_normalize()
             pngs.process_into_template(template)
         # add here further specific content (sub-)parsers for formats from other

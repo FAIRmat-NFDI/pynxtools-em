@@ -21,9 +21,8 @@ import pathlib
 
 import flatdict as fd
 import yaml
-
 from pynxtools_em.concepts.mapping_functors import add_specific_metadata
-from pynxtools_em.config.eln_cfg import (
+from pynxtools_em.configurations.eln_cfg import (
     EM_ENTRY_TO_NEXUS,
     EM_SAMPLE_TO_NEXUS,
     EM_USER_IDENTIFIER_TO_NEXUS,

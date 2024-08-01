@@ -17,7 +17,7 @@
 #
 """Base class to inherit sub-parser from when interacting with rosettasciio."""
 
-# this subparser is currently implemented such that it represents the first
+# this parser is currently implemented such that it represents the first
 # and the second step of a parsing and mapping workflow whereby concepts and
 # instance data within the representation realm of a tech partner is mapped
 # onto the realm of NeXus e.g. to offer normalized content to e.g. NOMAD OASIS

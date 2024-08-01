@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Configuration of the image_png_protochips subparser."""
+"""Configuration of the image_png_protochips parser."""
 
 import re
 from typing import Dict

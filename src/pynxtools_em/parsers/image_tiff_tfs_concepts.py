@@ -15,10 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Configuration of the image_tiff_tfs subparser."""
+"""Configuration of the image_tiff_tfs parser."""
 
 from typing import List
-
 
 # this example exemplifies the situation for the TFS/FEI SEM Apreo from the IKZ of Prof. Martin Albrecht
 # thanks to Robert Kernke it was clarified the microscope has several detectors and imaging modes

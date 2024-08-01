@@ -23,7 +23,6 @@ import h5py
 import numpy as np
 from diffpy.structure import Lattice, Structure
 from orix.quaternion import Orientation
-
 from pynxtools_em.concepts.nxs_em_eds_indexing import NxEmEdsIndexing
 from pynxtools_em.concepts.nxs_image_r_set import NxImageRealSpaceSet
 from pynxtools_em.concepts.nxs_object import NxObject
@@ -35,7 +34,7 @@ from pynxtools_em.examples.ebsd_database import (
     REGULAR_TILING,
     SQUARE_TILING,
 )
-from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
+from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.get_scan_points import get_scan_point_coords
 from pynxtools_em.utils.get_xrayline_iupac_names import get_xrayline_candidates
 from pynxtools_em.utils.hfive_utils import read_strings_from_dataset
@@ -376,7 +375,7 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         # distances for hexagonal or square tiling of R^2
         # self.tmp[ckey]["grid_type"] in ["HexGrid", "SqrGrid"]:
         # if just SQUARE_GRID there is no point to explicitly compute the scan_point
-        # coordinates here (for every subparser) especially not when the respective
+        # coordinates here (for every parser) especially not when the respective
         # quantity from the tech partner is just a pixel index i.e. zeroth, first px ...
         # however, ideally the tech partners would use the scan_point fields to report
         # calibrated absolute scan point positions in the local reference frame of the

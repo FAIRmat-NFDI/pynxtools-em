@@ -28,7 +28,7 @@ from pynxtools_em.examples.ebsd_database import (
     REGULAR_TILING,
     SQUARE_TILING,
 )
-from pynxtools_em.subparsers.hfive_base import HdfFiveBaseParser
+from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.hfive_utils import (
     read_strings_from_dataset,
 )
