@@ -66,6 +66,8 @@ AXON_STAGE_STATIC_TO_NX_EM = {
 }
 ```
 
+<!--The pint.ureg('') maps on NX_DIMENSIONLESS.-->
+
 In this example the template path for the tuple in *use* on the *trg* side will be f"{prefix_trg}/{use[0][0]}" with value use[0][1].
 The template path for the tuple in *map* on the *trg* side will be f"{prefix_trg}{map[0][0]}" with the value that is read from the *src* side
 pointed to by keyword f"{prefix_src}{map[0][1]}".
@@ -93,32 +95,39 @@ pointed to by keyword f"{prefix_src}{map[0][1]}".
     TODO more work needs to be done here
 
     Specifically, tuples of the following datatypes are allowed or a str but in only one case:
-    * ```(str, pint.ureg, str, pint.ureg)``` aka case five.
+    * ```(str, pint.ureg, str | list[str], pint.ureg)``` aka case five.
       Used in cases of mismatch 1 and 2 with the aim to explicitly convert units between *src* and *trg*.
 
       The first value resolves the symbol for the concept on the *trg* side.
       The second value resolves the specific unit on the *trg* side.
       The third value resolves the symbol for the concept on the *src* side.
       The fourth value resolves the specific unit on the *src* side.
-      The pint.ureg('') maps on NX_DIMENSIONLESS.
-    * ```(str, str, pint.ureg)``` aka case four.
+
+      The third value can be a list of strings of symbols for concepts on the *src* side.
+      This is useful for joining individual scalar values in an array,
+      like x, y, z coordinates.
+
+    * ```(str, str | list[str], pint.ureg)``` aka case four.
       Used in cases of mismatch 1 with the aim to accept the unit from the *src* side.
 
       The first value resolves the symbol for the concept on the *trg* side.
       The second value resolves the symbol for the concept on the *src* side.
       The third value resolves the specific unit on the *src* side.
 
-      This case can be avoided in an implementation when the value on the *src* side
-      is already normalized as a pint.Quantity.
-    * ```(str, pint.ureg, str)``` aka case three.
+      In an implementation, this case can be avoided when the value on the *src* side
+      is already normalized into a pint.Quantity. The second value can be a list of
+      strings of symbols for concepts on the *src* side.
+
+    * ```(str, pint.ureg, str | list[str])``` aka case three.
       Used in cases of mismatch 1 and 2 with the aim to explicitly convert to a specific unit on the *trg* side.
 
       The first value resolves the symbol for the concept on the *trg* side.
       The second value resolves the specific unit on the *trg* side.
       The third value resolves the symbol for the concept on the *src* side.
 
-      This case can be avoided in an implementation when there is another
-      look-up table or cache from which the unit to use is defined explicitly.
+      The third value can be a list of strings of symbols for concepts on the *src* side.
+      In an implementation, this case can be avoided when there is another look-up table or
+      cache from which the unit to use is defined explicitly.
       The practical issue with NeXus though is that often concepts are constrained
       only as strong as to match a specific unit category, e.g. voltage, i.e. all possible
       units that are convertible into the base unit V.
@@ -129,14 +138,17 @@ pointed to by keyword f"{prefix_src}{map[0][1]}".
       information. In summary, it is best to use a global look-up table for all concepts
       in an application definition and then infer the unit from this table. The actual
       unit conversion is performable then e.g. with pint.
-    * ```(str, str)``` aka case two.
+
+    * ```(str, str | list[str])``` aka case two.
       Used in cases of mismatch 1. Units on *src* will be carried over onto the *trg* side.
 
       The first value resolves the symbol for the concept on the *trg* side.
       The second value resolves the symbol for the concept on the *src* side.
 
+      The second value can be a list of strings of symbols for concepts on the *src* side.
       This case is an especially useful short-hand notation for concepts with string,
       unitless, dimensionless quantities.
+
     * ```str``` aka case one.
       Used in cases when symbols on the *trg* and *src* side are the same and
       units should be carried through as is.
