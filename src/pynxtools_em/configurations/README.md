@@ -74,84 +74,74 @@ pointed to by keyword f"{prefix_src}{map[0][1]}".
 * Required keyword **prefix_src** specifies the prefix to use when resolving template paths on the *src* side including separators.
 * Optional keywords follow. Each encodes mapping instructions based on one list of tuples as value.
   * **use** instructs mapping explicitly instance data on *trg* without demanding a *src*.
-
-   Specifically, tuples of the following two datatypes are allowed:
-   (str, str | numpy datatype (scalar or array))
-   (str, pint.Quantity)
-   The first value resolves the symbol for the concept on the *trg* side.
-   The second value resolves the instance data to store on the *trg* side.
-   The template path on the *trg* side is f"{prefix_trg}/{tpl[0]}", if provided prefix_src will be ignored.
+    Specifically, tuples of the following two datatypes are allowed:
+    (str, str | numpy datatype (scalar or array))
+    (str, pint.Quantity)
+    The first value resolves the symbol for the concept on the *trg* side.
+    The second value resolves the instance data to store on the *trg* side.
+    The template path on the *trg* side is f"{prefix_trg}/{tpl[0]}", if provided prefix_src will be ignored.
   * **map** | **map_to_dtype** | **map_to_dtype_and_join** instructs mapping instance data from *src* on *trg*.
-  Differently typed tuples are allowed that encode compact mapping rules to deal with
-  above-mentioned cases of mismatch. The suffix "_to\*" is added to solve mismatch 3.
-  Mismatch cases 1 and 2 are solved based on how the tuple is structured.
-  Mismatch case 3 is solved by adding a suffix like "_to_float64" which will instruct
-  that the *src* data will be mapped if possible from original datatype and precision
-  on the numpy datatype and precision specified by *dtype*.
+    Differently typed tuples are allowed that encode compact mapping rules to deal with
+    above-mentioned cases of mismatch. The suffix "_to\*" is added to solve mismatch 3.
+    Mismatch cases 1 and 2 are solved based on how the tuple is structured.
+    Mismatch case 3 is solved by adding a suffix like "_to_float64" which will instruct
+    that the *src* data will be mapped if possible from original datatype and precision
+    on the numpy datatype and precision specified by *dtype*.
 
-  The suffix **_and_join** will accept a list of below
-  mentioned tuples to concatenate information.
+    The suffix **_and_join** will accept a list of below mentioned tuples to concatenate information.
 
-  TODO more work needs to be done here
+    TODO more work needs to be done here
 
-  Specifically, tuples of the following datatypes are allowed or a str but in only one case:
+    Specifically, tuples of the following datatypes are allowed or a str but in only one case:
+    * ```(str, pint.ureg, str, pint.ureg)``` aka case five.
+      Used in cases of mismatch 1 and 2 with the aim to explicitly convert units between *src* and *trg*.
 
-  (str, pint.ureg, str, pint.ureg)
-  Aka case five.
-  Used in cases of mismatch 1 and 2 with the aim to explicitly convert units between *src* and *trg*.
+      The first value resolves the symbol for the concept on the *trg* side.
+      The second value resolves the specific unit on the *trg* side.
+      The third value resolves the symbol for the concept on the *src* side.
+      The fourth value resolves the specific unit on the *src* side.
+      The pint.ureg('') maps on NX_DIMENSIONLESS.
+    * ```(str, str, pint.ureg)``` aka case four.
+      Used in cases of mismatch 1 with the aim to accept the unit from the *src* side.
 
-  The first value resolves the symbol for the concept on the *trg* side.
-  The second value resolves the specific unit on the *trg* side.
-  The third value resolves the symbol for the concept on the *src* side.
-  The fourth value resolves the specific unit on the *src* side.
-  The pint.ureg('') maps on NX_DIMENSIONLESS.
+      The first value resolves the symbol for the concept on the *trg* side.
+      The second value resolves the symbol for the concept on the *src* side.
+      The third value resolves the specific unit on the *src* side.
 
-  (str, str, pint.ureg)
-  Aka case four.
-  Used in cases of mismatch 1 with the aim to accept the unit from the *src* side.
+      This case can be avoided in an implementation when the value on the *src* side
+      is already normalized as a pint.Quantity.
+    * ```(str, pint.ureg, str)``` aka case three.
+      Used in cases of mismatch 1 and 2 with the aim to explicitly convert to a specific unit on the *trg* side.
 
-  The first value resolves the symbol for the concept on the *trg* side.
-  The second value resolves the symbol for the concept on the *src* side.
-  The third value resolves the specific unit on the *src* side.
+      The first value resolves the symbol for the concept on the *trg* side.
+      The second value resolves the specific unit on the *trg* side.
+      The third value resolves the symbol for the concept on the *src* side.
 
-  This case can be avoided in an implementation when the value on the *src* side
-  is already normalized as a pint.Quantity.
+      This case can be avoided in an implementation when there is another
+      look-up table or cache from which the unit to use is defined explicitly.
+      The practical issue with NeXus though is that often concepts are constrained
+      only as strong as to match a specific unit category, e.g. voltage, i.e. all possible
+      units that are convertible into the base unit V.
 
-  (str, pint.ureg, str)
-  Aka case three.
-  Used in cases of mismatch 1 and 2 with the aim to explicitly convert to a specific unit on the *trg* side.
+      Therefore, in practice it makes sense to use this case to be specific about
+      which unit should be used on the *trg* side. However, for parsers which cover
+      many file formats, like pynxtools-em, this will ask people to add potentially duplicated
+      information. In summary, it is best to use a global look-up table for all concepts
+      in an application definition and then infer the unit from this table. The actual
+      unit conversion is performable then e.g. with pint.
+    * ```(str, str)``` aka case two.
+      Used in cases of mismatch 1. Units on *src* will be carried over onto the *trg* side.
 
-  The first value resolves the symbol for the concept on the *trg* side.
-  The second value resolves the specific unit on the *trg* side.
-  The third value resolves the symbol for the concept on the *src* side.
+      The first value resolves the symbol for the concept on the *trg* side.
+      The second value resolves the symbol for the concept on the *src* side.
 
-  This case can be avoided in an implementation when there is another
-  look-up table or cache from which the unit to use is defined explicitly.
-  The practical issue with NeXus though is that often concepts are constrained
-  only as strong as to match a specific unit category, e.g. voltage, i.e. all possible
-  units that are convertible into the base unit V.
-  Therefore, in practice it makes sense to use this case to be specific about
-  which unit should be used on the *trg* side. However, for parsers which cover
-  many file formats, like pynxtools-em, this will ask people to add potentially duplicated
-  information. In summary, it is best to use a global look-up table for all concepts
-  in an application definition and then infer the unit from this table. The actual
-  unit conversion is performable then e.g. with pint.
+      This case is an especially useful short-hand notation for concepts with string,
+      unitless, dimensionless quantities.
+    * ```str``` aka case one.
+      Used in cases when symbols on the *trg* and *src* side are the same and
+      units should be carried through as is.
 
-  (str, str)
-  Aka case two.
-  Used in cases of mismatch 1. Units on *src* will be carried over onto the *trg* side.
-  The first value resolves the symbol for the concept on the *trg* side.
-  The second value resolves the symbol for the concept on the *src* side.
-
-  This case is an especially useful short-hand notation for concepts with string,
-  unitless, dimensionless quantities.
-
-  str
-  Aka case one.
-  Used in cases when symbols on the *trg* and *src* side are the same and
-  units should be carried through as is.
-
-  This case is a further simplification for making writing the mapping tables
-  even more compact. Therefore, it is
+      This case is a further simplification for writing mapping tables even more compact
+      Python allows for a having a mixture of string and tuples in the lists.
 
 <!-- * **map_to_iso8601** -->
