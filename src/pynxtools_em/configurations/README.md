@@ -90,9 +90,9 @@ VELOX_STAGE_TO_NX_EM = {
 }
 ```
 
-Keywords *use* and *map* were processed of in a loop and thus template pathes like *tilt1/@units* were set
-independent from an potential issues with finding the corresponding value *tilt1*. In summary,
-the old mapping dictionary was less compact and problematic as a comparison to the new formatting shows:
+Keywords *use* and *map* were looped over. Therefore, template pathes like *tilt1/@units* were set
+independently whether the corresponding value *tilt1* was found. The new approach solves this
+and makes the dictionary more compact:
 ```
 VELOX_STAGE_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
@@ -105,13 +105,13 @@ VELOX_STAGE_TO_NX_EM = {
 }
 ```
 
-The example shows though that it is not necessarily use to try an encoding of all mapping conventions
-into such dictionaries. Indeed, if there is a mismatch between the reference frames of *src* compared
-to *trg* an instruction like concatenate the three values *Stage/Position/x, y, z* into an array of
-np.float64 and convert to unit meter may not be sufficient enough as offsets or rotations of the
-reference frame are required. In this case a more complicated mapping dictionary is required.
-This is an open question we leave for the future. Instead, we currently implement such as explicit
-mapping and translations as hard-coded instructions.
+The example shows though that it is not necessarily useful to encode all mapping conventions into
+such dictionaries. Indeed, if there is a mismatch between the reference frames of *src* and the one
+used for the *trg* side, an instruction like concatenate the three values *Stage/Position/x, y, z*
+into an array of np.float64 and convert to unit meter may not be sufficient. Offsets or rotations
+of the reference frame may also be required. In this case, a more complicated mapping dictionary
+is required. We leave this for now as an open issue for the future and implement such as an explicit
+mapping and translations as hard-coded instructions instead.
 
 
 * Required keyword **prefix_trg** specifies the prefix to use when resolving template paths on the *trg* side excluding the / separator.
