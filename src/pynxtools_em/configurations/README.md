@@ -11,45 +11,49 @@ Configurations how concepts defined in specific serialization formats are mapped
 
 # Mapping approach
 
-Mapping information from one serialization format to another typically faces the challenge that
-the data models differ. Assume that we wish to map instance data representing concepts on the *src* side
-to store these instance data using potentially a different data model on the *trg* side.
-Several situation have to be covered:
+Mapping information from one serialization format onto another can face various cases of information content,
+representation, and formatting mismatch as the data models can differ.
+Assume that we wish to map instance data for concepts on the *src* side, e.g. content stored
+from files collected during an measurement, onto instance data for concepts of a different data model
+on the *trg* side. Several cases of mismatch can occur:
 
-1. Mismatch in symbols used for identifying concepts (aka concept names)
+1. Mismatch in symbols (aka concept names) used for identifying concepts
   An example: *high_voltage* is expected by *trg* but *HV* is used as a symbol by *src*.
 2. Mismatch in units
-  An example: *trg* expects voltage as *V* but *src* provides *kV*
+  An example: *trg* expects voltage quantities with unit *V* but *src* provides unit *kV*
   An example: *trg* expects angle as *radian* but *src* provides *deg*
 3. Mismatch in data types
   An example: *np.float64* is expected by *trg* but *single precision float* is used by *src*.
-  An example: *1* as an int is expected by *trg* but that number has been serialized as string "1".
-  An example: *trg expects voltage as *V* but tech partner on *src* assumes SI unit hence does not add them
+  An example: *1* as an int is expected by *trg* but that number has been serialized as a string "1".
+  An example: *trg* expects voltage as *V* but on *src* tech partners agreed to use SI unit but do not write these unit explicitly
 4. Mismatch in the granularization of information or different standards used for representing information
   An example: *trg* expects ISO8601 with local time zone offset to UTC but *src* provides date, time, and timezone as individual strings
-  An example: *trg* expects UNIX time stamp but *src* provides some other time stamp.
+  An example: *trg* expects UNIX timestamp but *src* provides MS-DOS timestamp.
 5. Mismatch in dimensions
   An example: *trg* requests an (>1,) array but *src* only provides a scalar
 
 Configurations are the solutions which guide the parser how to map instance data for each concept.
 Often the mismatch cannot be resolved because the *trg* and *src* have not exchanged precisely
-defined versions of their data model. In this case on often uses assumptions.
+defined versions of their data models. In this case, one often uses assumptions.
 
-Configurations implement these rules outside the actual source code (aka a frontend) to provide
-a single place where preferentially such mismatches should be resolved. This enables that the
-backend code can iterate over the cases and is not too strongly hard-coded for specific
-assumptions.
+Configurations implement these assumptions and mapping decisions outside the actual source code
+to offer a single place where preferentially such mismatches should be resolved. This enables users
+to often avoid having to take a look into the backend code surplus this solutions avoids
+that the mapping of potentially many individual concepts becomes too strongly hard-coded and
+long mapping pathes need be repeated which would create code bloat.
 
 Configurations should group mapping rules to reduce the overall size of the mapping tables.
 Configurations are stored as Python dictionaries with specific formatting.
-Configurations use abbreviations wherever possible to yield compact descriptions.
+Configurations use abbreviations wherever possible. All combined, this yields compact
+descriptions that are hopefully easier to read and having fewer places where changes
+need to be implemented when mapping paths change as the data models evolve.
 
-Mismatch cases 1, 2, 3, 4 are dealt with. Mismatch case 5 is ignored.
-Instead, instance data from *src* are copied to *trg* if no other mismatch is observed.
-This may cause the resulting collection of instance data on the *trg* side, which for
-pynxtools-em currently is NeXus to end up not fully compliant with an application definition.
-However, this is not a problem because verification of the instance data takes place
-during consumption of the serialized NeXus artifact/file.
+Mismatch cases 1, 2, 3, 4 are dealt with. Mismatch case 5 is currently ignored.
+Instead, instance data from *src* are copied to *trg* if no mismatch 1 -4 is observed.
+This may cause though that the resulting collection of instance data on the *trg* side
+does not end up fully compliant with an application definition.
+However, this is not a problem because verification of the instance data
+takes place during consumption of the serialized NeXus artifact/file.
 
 The following example shows one typical such dictionary.
 
@@ -62,9 +66,11 @@ AXON_STAGE_STATIC_TO_NX_EM = {
 }
 ```
 
-In this example the template path for the tuple in use on the *trg* side will be f"{prefix_trg}{use[0][0]}" with value use[0][1]. The template path for the tuple in map on the *trg* side will be f"{prefix_trg}{map[0][0]}" with the value read from the *src* side pointed to by keyword f"{prefix_src}{map[0][1]}".
+In this example the template path for the tuple in *use* on the *trg* side will be f"{prefix_trg}/{use[0][0]}" with value use[0][1].
+The template path for the tuple in *map* on the *trg* side will be f"{prefix_trg}{map[0][0]}" with the value that is read from the *src* side
+pointed to by keyword f"{prefix_src}{map[0][1]}".
 
-* Required keyword **prefix_trg** specifies the prefix to use when resolving template paths on the *trg* side including separators.
+* Required keyword **prefix_trg** specifies the prefix to use when resolving template paths on the *trg* side excluding the / separator.
 * Required keyword **prefix_src** specifies the prefix to use when resolving template paths on the *src* side including separators.
 * Optional keywords follow. Each encodes mapping instructions based on one list of tuples as value.
   * **use** instructs mapping explicitly instance data on *trg* without demanding a *src*.
@@ -73,63 +79,79 @@ In this example the template path for the tuple in use on the *trg* side will be
    (str, str | numpy datatype (scalar or array))
    (str, pint.Quantity)
    The first value resolves the symbol for the concept on the *trg* side.
-   The second value resolves the instance data to take.
-   The template path on the *trg* side is f"{prefix_trg}{tpl[0]}", prefix_src is ignored.
+   The second value resolves the instance data to store on the *trg* side.
+   The template path on the *trg* side is f"{prefix_trg}/{tpl[0]}", if provided prefix_src will be ignored.
   * **map** | **map_to_dtype** | **map_to_dtype_and_join** instructs mapping instance data from *src* on *trg*.
   Differently typed tuples are allowed that encode compact mapping rules to deal with
   above-mentioned cases of mismatch. The suffix "_to\*" is added to solve mismatch 3.
   Mismatch cases 1 and 2 are solved based on how the tuple is structured.
-  Mismatch case 3 is solved by adding a suffix like "_to_float64".
-  This will instruct that *src* data are mapped if possible
-  from their type on the numpy datatype written *dtype*.
+  Mismatch case 3 is solved by adding a suffix like "_to_float64" which will instruct
+  that the *src* data will be mapped if possible from original datatype and precision
+  on the numpy datatype and precision specified by *dtype*.
 
   The suffix **_and_join** will accept a list of below
   mentioned tuples to concatenate information.
 
-  Specifically, tuples of the following datatypes are allowed:
+  TODO more work needs to be done here
 
-  (str, pint.ureg | str, str, pint.ureg | str)
+  Specifically, tuples of the following datatypes are allowed or a str but in only one case:
+
+  (str, pint.ureg, str, pint.ureg)
+  Aka case five.
   Used in cases of mismatch 1 and 2 with the aim to explicitly convert units between *src* and *trg*.
 
   The first value resolves the symbol for the concept on the *trg* side.
-  The second value resolves the specific unit (if pint.ureg) on the *trg* side.
+  The second value resolves the specific unit on the *trg* side.
   The third value resolves the symbol for the concept on the *src* side.
-  The fourth value resolves the specific unit (if pint.ureg) on the *src* side.
-
-  For the second and the fourth values the strings "unitless" or "any" can be used
-  if the quantities should map on NX_UNITLESS or NX_ANY.
+  The fourth value resolves the specific unit on the *src* side.
   The pint.ureg('') maps on NX_DIMENSIONLESS.
 
-  (str, str, pint.ureg | str)
+  (str, str, pint.ureg)
+  Aka case four.
   Used in cases of mismatch 1 with the aim to accept the unit from the *src* side.
 
   The first value resolves the symbol for the concept on the *trg* side.
   The second value resolves the symbol for the concept on the *src* side.
-  The third value resolves the specific unit (if pint.ureg) on the *src* side.
+  The third value resolves the specific unit on the *src* side.
 
-  For the third value the strings "unitless" or "any" can be used
-  if the quantities should map on NX_UNITLESS or NX_ANY.
-  The pint.ureg('') maps on NX_DIMENSIONLESS.
+  This case can be avoided in an implementation when the value on the *src* side
+  is already normalized as a pint.Quantity.
 
-  (str, pint.ureg | str, str)
-  Used in cases of mismatch 1 and 2 with the aim to provide to explicitly
-  convert to a specific unit on the *trg* side.
+  (str, pint.ureg, str)
+  Aka case three.
+  Used in cases of mismatch 1 and 2 with the aim to explicitly convert to a specific unit on the *trg* side.
 
   The first value resolves the symbol for the concept on the *trg* side.
-  The second value resolves the specific unit (if pint.ureg) on the *trg* side.
+  The second value resolves the specific unit on the *trg* side.
   The third value resolves the symbol for the concept on the *src* side.
 
-  For the third value the strings "unitless" or "any" can be used
-  if the quantities should map on NX_UNITLESS or NX_ANY.
-  The pint.ureg('') maps on NX_DIMENSIONLESS.
+  This case can be avoided in an implementation when there is another
+  look-up table or cache from which the unit to use is defined explicitly.
+  The practical issue with NeXus though is that often concepts are constrained
+  only as strong as to match a specific unit category, e.g. voltage, i.e. all possible
+  units that are convertible into the base unit V.
+  Therefore, in practice it makes sense to use this case to be specific about
+  which unit should be used on the *trg* side. However, for parsers which cover
+  many file formats, like pynxtools-em, this will ask people to add potentially duplicated
+  information. In summary, it is best to use a global look-up table for all concepts
+  in an application definition and then infer the unit from this table. The actual
+  unit conversion is performable then e.g. with pint.
 
   (str, str)
+  Aka case two.
   Used in cases of mismatch 1. Units on *src* will be carried over onto the *trg* side.
   The first value resolves the symbol for the concept on the *trg* side.
   The second value resolves the symbol for the concept on the *src* side.
 
-  (str)
+  This case is an especially useful short-hand notation for concepts with string,
+  unitless, dimensionless quantities.
+
+  str
+  Aka case one.
   Used in cases when symbols on the *trg* and *src* side are the same and
   units should be carried through as is.
 
-  * **map_to_iso8601**
+  This case is a further simplification for making writing the mapping tables
+  even more compact. Therefore, it is
+
+<!-- * **map_to_iso8601** -->
