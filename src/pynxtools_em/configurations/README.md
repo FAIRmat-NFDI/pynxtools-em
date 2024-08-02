@@ -25,7 +25,7 @@ on the *trg* side. Several cases of mismatch can occur:
 3. Mismatch in data types
   An example: *np.float64* is expected by *trg* but *single precision float* is used by *src*.
   An example: *1* as an int is expected by *trg* but that number has been serialized as a string "1".
-  An example: *trg* expects voltage as *V* but on *src* tech partners agreed to use SI unit but do not write these unit explicitly
+  An example: *trg* expects voltag-e as *V* but on *src* tech partners agreed to use SI unit but do not write these unit explicitly
 4. Mismatch in the granularization of information or different standards used for representing information
   An example: *trg* expects ISO8601 with local time zone offset to UTC but *src* provides date, time, and timezone as individual strings
   An example: *trg* expects UNIX timestamp but *src* provides MS-DOS timestamp.
@@ -42,7 +42,7 @@ to often avoid having to take a look into the backend code surplus this solution
 that the mapping of potentially many individual concepts becomes too strongly hard-coded and
 long mapping pathes need be repeated which would create code bloat.
 
-Configurations should group mapping rules to reduce the overall size of the mapping tables.
+Configurations should group mapping rules to reduce the overall size of the mapping dictionaries.
 Configurations are stored as Python dictionaries with specific formatting.
 Configurations use abbreviations wherever possible. All combined, this yields compact
 descriptions that are hopefully easier to read and having fewer places where changes
@@ -71,6 +71,48 @@ AXON_STAGE_STATIC_TO_NX_EM = {
 In this example the template path for the tuple in *use* on the *trg* side will be f"{prefix_trg}/{use[0][0]}" with value use[0][1].
 The template path for the tuple in *map* on the *trg* side will be f"{prefix_trg}{map[0][0]}" with the value that is read from the *src* side
 pointed to by keyword f"{prefix_src}{map[0][1]}".
+
+Problems with the old algorithm can be exemplified with the following example
+```
+VELOX_STAGE_TO_NX_EM = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
+    "use": [
+        ("tilt1/@units", "rad"),
+        ("tilt2/@units", "rad"),
+        ("position/@units", "m"),
+    ],
+    "map_to_str": [("design", "Stage/HolderType")],
+    "map_to_real": [
+        ("tilt1", "Stage/AlphaTilt"),
+        ("tilt2", "Stage/BetaTilt"),
+        ("position", ["Stage/Position/x", "Stage/Position/y", "Stage/Position/z"]),
+    ],
+}
+```
+
+Keywords *use* and *map* were processed of in a loop and thus template pathes like *tilt1/@units* were set
+independent from an potential issues with finding the corresponding value *tilt1*. In summary,
+the old mapping dictionary was less compact and problematic as a comparison to the new formatting shows:
+```
+VELOX_STAGE_TO_NX_EM = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
+    "map": [("design", "Stage/HolderType")],
+    "map_to_float64": [
+        ("tilt1", ureg.radiant, "Stage/AlphaTilt"),
+        ("tilt2", ureg.radiant, "Stage/BetaTilt"),
+        ("position", ureg.meter, ["Stage/Position/x", "Stage/Position/y", "Stage/Position/z"]),
+    ],
+}
+```
+
+The example shows though that it is not necessarily use to try an encoding of all mapping conventions
+into such dictionaries. Indeed, if there is a mismatch between the reference frames of *src* compared
+to *trg* an instruction like concatenate the three values *Stage/Position/x, y, z* into an array of
+np.float64 and convert to unit meter may not be sufficient enough as offsets or rotations of the
+reference frame are required. In this case a more complicated mapping dictionary is required.
+This is an open question we leave for the future. Instead, we currently implement such as explicit
+mapping and translations as hard-coded instructions.
+
 
 * Required keyword **prefix_trg** specifies the prefix to use when resolving template paths on the *trg* side excluding the / separator.
 * Required keyword **prefix_src** specifies the prefix to use when resolving template paths on the *src* side including separators.
@@ -119,14 +161,15 @@ pointed to by keyword f"{prefix_src}{map[0][1]}".
       strings of symbols for concepts on the *src* side.
 
     * ```(str, pint.ureg, str | list[str])``` aka case three.
-      Used in cases of mismatch 1 and 2 with the aim to explicitly convert to a specific unit on the *trg* side.
+      Used in cases of mismatch 1 and 2 with the aim to explicitly convert to
+      a specific unit on the *trg* side.
 
       The first value resolves the symbol for the concept on the *trg* side.
       The second value resolves the specific unit on the *trg* side.
       The third value resolves the symbol for the concept on the *src* side.
 
       The third value can be a list of strings of symbols for concepts on the *src* side.
-      In an implementation, this case can be avoided when there is another look-up table or
+      In an implementation, this case can be avoided when there is another look-up dictionary or
       cache from which the unit to use is defined explicitly.
       The practical issue with NeXus though is that often concepts are constrained
       only as strong as to match a specific unit category, e.g. voltage, i.e. all possible
@@ -135,8 +178,8 @@ pointed to by keyword f"{prefix_src}{map[0][1]}".
       Therefore, in practice it makes sense to use this case to be specific about
       which unit should be used on the *trg* side. However, for parsers which cover
       many file formats, like pynxtools-em, this will ask people to add potentially duplicated
-      information. In summary, it is best to use a global look-up table for all concepts
-      in an application definition and then infer the unit from this table. The actual
+      information. In summary, it is best to use a global look-up dictionary for all concepts
+      in an application definition and then infer the unit from this dictionary. The actual
       unit conversion is performable then e.g. with pint.
 
     * ```(str, str | list[str])``` aka case two.
@@ -153,7 +196,7 @@ pointed to by keyword f"{prefix_src}{map[0][1]}".
       Used in cases when symbols on the *trg* and *src* side are the same and
       units should be carried through as is.
 
-      This case is a further simplification for writing mapping tables even more compact
+      This case is a further simplification for writing even more compact mapping dictionaries.
       Python allows for a having a mixture of string and tuples in the lists.
 
 <!-- * **map_to_iso8601** -->
