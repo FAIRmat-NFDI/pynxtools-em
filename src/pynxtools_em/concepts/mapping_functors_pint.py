@@ -208,7 +208,7 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
 
 
 def use_functor(
-    cmds: list, mdata: fd.FlatDict, var_prefix_trg: str, ids: list, template: dict
+    cmds: list, mdata: fd.FlatDict, prfx_trg: str, ids: list, template: dict
 ) -> dict:
     """Process the use functor."""
     for cmd in cmds:
@@ -216,10 +216,10 @@ def use_functor(
             if len(cmd) == 2:
                 if isinstance(cmd[0], str):
                     if isinstance(cmd[1], str):  # str, str
-                        trg = var_path_to_spcfc_path(f"{var_prefix_trg}/{cmd[0]}", ids)
+                        trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
                         set_value(template, trg, cmd[1])
                     elif isinstance(cmd[1], pint.Quantity):  # str, pint.Quantity
-                        trg = var_path_to_spcfc_path(f"{var_prefix_trg}/{cmd[0]}", ids)
+                        trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
                         set_value(template, trg, cmd[1])
     return template
 
@@ -227,8 +227,8 @@ def use_functor(
 def map_functor(
     cmds: list,
     mdata: fd.FlatDict,
-    prefix_src: str,
-    var_prefix_trg: str,
+    prfx_src: str,
+    prfx_trg: str,
     ids: list,
     template: dict,
     **kwargs,
@@ -239,16 +239,16 @@ def map_functor(
     for cmd in cmds:
         case = get_case(cmd)
         if case == "case_one":  # str
-            if f"{prefix_src}{cmd}" not in mdata:
+            if f"{prfx_src}{cmd}" not in mdata:
                 continue
-            src_val = mdata[f"{prefix_src}{cmd}"]
-            trg = var_path_to_spcfc_path(f"{var_prefix_trg}/{cmd}", ids)
+            src_val = mdata[f"{prfx_src}{cmd}"]
+            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd}", ids)
             set_value(template, trg, src_val)
         elif case == "case_two_str":  # str, str
-            if f"{prefix_src}{cmd[1]}" not in mdata:
+            if f"{prfx_src}{cmd[1]}" not in mdata:
                 continue
-            src_val = mdata[f"{prefix_src}{cmd[1]}"]
-            trg = var_path_to_spcfc_path(f"{var_prefix_trg}/{cmd[0]}", ids)
+            src_val = mdata[f"{prfx_src}{cmd[1]}"]
+            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             set_value(template, trg, src_val)
         elif case == "case_two_list":
             # ignore empty list, all src paths str, all src_val have to exist of same type
@@ -256,20 +256,20 @@ def map_functor(
                 continue
             if not all(isinstance(val, str) for val in cmd[1]):
                 continue
-            if not all(f"{prefix_src}{val}" in mdata for val in cmd[1]):
+            if not all(f"{prfx_src}{val}" in mdata for val in cmd[1]):
                 continue
-            src_values = [mdata[f"{prefix_src}{val}"] for val in cmd[1]]
+            src_values = [mdata[f"{prfx_src}{val}"] for val in cmd[1]]
             if len(src_values) == 0:
                 continue
             if not all(type(val) is type(src_values[0]) for val in src_values):
                 continue
-            trg = var_path_to_spcfc_path(f"{var_prefix_trg}/{cmd[0]}", ids)
+            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             set_value(template, trg, np.asarray(src_values))
         elif case == "case_three_str":  # str, pint.Unit, str
-            if f"{prefix_src}{cmd[2]}" not in mdata:
+            if f"{prfx_src}{cmd[2]}" not in mdata:
                 continue
-            src_val = mdata[f"{prefix_src}{cmd[2]}"]
-            trg = var_path_to_spcfc_path(f"{var_prefix_trg}/{cmd[0]}", ids)
+            src_val = mdata[f"{prfx_src}{cmd[2]}"]
+            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_val, pint.Quantity):
                 set_value(template, trg, src_val)
             else:
@@ -279,13 +279,13 @@ def map_functor(
                 continue
             if not all(isinstance(val, str) for val in cmd[2]):
                 continue
-            if not all(f"{prefix_src}{val}" in mdata for val in cmd[2]):
+            if not all(f"{prfx_src}{val}" in mdata for val in cmd[2]):
                 continue
-            src_values = [mdata[f"{prefix_src}{val}"] for val in cmd[2]]
+            src_values = [mdata[f"{prfx_src}{val}"] for val in cmd[2]]
             if not all(type(val) is type(src_values[0]) for val in src_values):
                 # need to check whether content are scalars also
                 continue
-            trg = var_path_to_spcfc_path(f"{var_prefix_trg}/{cmd[0]}", ids)
+            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_values, pint.Quantity):
                 set_value(template, trg, src_values)
             else:
@@ -299,10 +299,10 @@ def map_functor(
                 f"that values on the src side are pint.Quantities already!"
             )
         elif case == "case_five_str":
-            if f"{prefix_src}{cmd[2]}" not in mdata:
+            if f"{prfx_src}{cmd[2]}" not in mdata:
                 continue
-            src_val = mdata[f"{prefix_src}{cmd[2]}"]
-            trg = var_path_to_spcfc_path(f"{var_prefix_trg}/{cmd[0]}", ids)
+            src_val = mdata[f"{prfx_src}{cmd[2]}"]
+            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_val, pint.Quantity):
                 set_value(template, trg, src_val.units.to(cmd[1]))
             else:
@@ -314,37 +314,42 @@ def map_functor(
                 continue
             if not all(isinstance(val, str) for val in cmd[2]):
                 continue
-            if not all(f"{prefix_src}{val}" in mdata for val in cmd[2]):
+            if not all(f"{prfx_src}{val}" in mdata for val in cmd[2]):
                 continue
-            src_values = [mdata[f"{prefix_src}{val}"] for val in cmd[2]]
+            src_values = [mdata[f"{prfx_src}{val}"] for val in cmd[2]]
             if isinstance(src_values[0], pint.Quantity):
                 raise ValueError(
                     f"Hit unimplemented case that src_val is pint.Quantity"
                 )
             if not all(type(val) is type(src_values[0]) for val in src_values):
                 continue
-            trg = var_path_to_spcfc_path(f"{var_prefix_trg}/{cmd[0]}", ids)
+            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_values, pint.Quantity):
                 set_value(template, trg, src_values.units.to(cmd[1]))
             else:
                 pint_src = pint.Quantity(src_values, cmd[3])
                 set_value(template, trg, pint_src.units.to(cmd[1]))
 
-    # try_interpret_as_boolean(mdata[f"{prefix_src}{entry[1]}"])
-    # string_to_number(mdata[f"{prefix_src}{entry[1]}"])
+    # try_interpret_as_boolean(mdata[f"{prfx_src}{entry[1]}"])
+    # string_to_number(mdata[f"{prfx_src}{entry[1]}"])
     return template
 
 
 def timestamp_functor(
-    cmds: list, mdata: fd.FlatDict, prefix_src: str, var_prefix_trg: str, ids: list, template: dict
+    cmds: list,
+    mdata: fd.FlatDict,
+    prfx_src: str,
+    prfx_trg: str,
+    ids: list,
+    template: dict,
 ) -> dict:
     for cmd in cmds:
         if isinstance(cmd, tuple):
             if 2 <= len(cmd) <= 3:  # trg, src, timestamp or empty string (meaning utc)
                 if all(isinstance(elem, str) for elem in cmd):
-                    if f"{prefix_src}{cmd[1]}" not in mdata:
+                    if f"{prfx_src}{cmd[1]}" not in mdata:
                         continue
-                    if mdata[f"{prefix_src}{cmd[1]}"] == "":
+                    if mdata[f"{prfx_src}{cmd[1]}"] == "":
                         continue
                     tzone = "UTC"
                     if len(cmd) == 3:
@@ -354,34 +359,39 @@ def timestamp_functor(
                             f"{tzone} is not a timezone in pytz.all_timezones!"
                         )
                     var_path_to_spcfc_path
-                    trg = var_path_to_spcfc_path(f"{var_prefix_trg}/{cmd[0]}", ids)
+                    trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
                     template[f"{trg}"] = datetime.fromtimestamp(
-                        int(mdata[f"{prefix_src}{cmd[1]}"]),
+                        int(mdata[f"{prfx_src}{cmd[1]}"]),
                         tz=pytz.timezone(tzone),
                     ).isoformat()
     return template
 
 
 def filehash_functor(
-    cmds: list, mdata: fd.FlatDict, prefix_src: str, var_prefix_trg: str, ids: list, template: dict
+    cmds: list,
+    mdata: fd.FlatDict,
+    prfx_src: str,
+    prfx_trg: str,
+    ids: list,
+    template: dict,
 ) -> dict:
     for cmd in cmds:
         if isinstance(cmd, tuple):
             if len(cmd) == 2:
                 if not all(isinstance(elem, str) for elem in cmd):
                     continue
-                if f"{prefix_src}{cmd[1]}" not in mdata:
+                if f"{prfx_src}{cmd[1]}" not in mdata:
                     continue
-                if mdata[f"{prefix_src}{cmd[1]}"] == "":
+                if mdata[f"{prfx_src}{cmd[1]}"] == "":
                     continue
-                trg = var_path_to_spcfc_path(f"{var_prefix_trg}/{cmd[0]}", ids)
-                with open(mdata[f"{prefix_src}{cmd[1]}"], "rb") as fp:
+                trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+                with open(mdata[f"{prfx_src}{cmd[1]}"], "rb") as fp:
                     template[f"{rchop(trg, 'checksum')}checksum"] = (
                         get_sha256_of_file_content(fp)
                     )
                     template[f"{rchop(trg, 'checksum')}type"] = "file"
                     template[f"{rchop(trg, 'checksum')}path"] = mdata[
-                        f"{prefix_src}{cmd[1]}"
+                        f"{prfx_src}{cmd[1]}"
                     ]
                     template[f"{rchop(trg, 'checksum')}algorithm"] = "sha256"
     return template
@@ -398,11 +408,11 @@ def add_specific_metadata_pint(
     template: dictionary where to store mapped instance data using template paths
     """
     if "prefix_trg" in cfg:
-        var_prefix_trg = cfg["prefix_trg"]
+        prfx_trg = cfg["prefix_trg"]
     else:
         raise KeyError(f"prefix_trg not found in cfg!")
     if "prefix_src" in cfg:
-        prefix_src = cfg["prefix_src"]
+        prfx_src = cfg["prefix_src"]
     else:
         raise KeyError(f"prefix_src not found in cfg!")
 
@@ -415,22 +425,30 @@ def add_specific_metadata_pint(
 
     for functor_key in cfg:
         if functor_key == "use":
-            use_functor(cfg["use"], mdata, var_prefix_trg, ids, template)
+            use_functor(cfg["use"], mdata, prfx_trg, ids, template)
         if functor_key == "map":
-            map_functor(cfg[functor_key], mdata, prefix_src, var_prefix_trg, ids, template)
+            map_functor(cfg[functor_key], mdata, prfx_src, prfx_trg, ids, template)
         if functor_key.startswith("map_to_"):
             dtype_key = functor_key.replace("map_to_", "")
             print(f"dtype_key >>>> {dtype_key}")
             if dtype_key in MAP_TO_DTYPES:
                 map_functor(
-                    cfg[functor_key], mdata, prefix_src, var_prefix_trg, ids, template, trg_dtype_key=dtype_key
+                    cfg[functor_key],
+                    mdata,
+                    prfx_src,
+                    prfx_trg,
+                    ids,
+                    template,
+                    trg_dtype_key=dtype_key,
                 )
             else:
                 raise KeyError(f"Unexpected dtype_key {dtype_key} !")
         if functor_key == "unix_to_iso8601":
-            timestamp_functor(cfg["unix_to_iso8601"], mdata, prefix_src, var_prefix_trg, ids, template)
+            timestamp_functor(
+                cfg["unix_to_iso8601"], mdata, prfx_src, prfx_trg, ids, template
+            )
         if functor_key == "sha256":
-            filehash_functor(cfg["sha256"], mdata, prefix_src, var_prefix_trg, ids, template)
+            filehash_functor(cfg["sha256"], mdata, prfx_src, prfx_trg, ids, template)
     return template
 
 
