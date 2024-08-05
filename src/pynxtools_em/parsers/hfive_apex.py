@@ -24,7 +24,7 @@ import numpy as np
 from diffpy.structure import Lattice, Structure
 from orix.quaternion import Orientation
 from pynxtools_em.concepts.nxs_em_eds_indexing import NxEmEdsIndexing
-from pynxtools_em.concepts.nxs_image_r_set import NxImageRealSpaceSet
+from pynxtools_em.concepts.nxs_image_set import NxImageRealSpaceSet
 from pynxtools_em.concepts.nxs_object import NxObject
 from pynxtools_em.concepts.nxs_spectrum_set import NxSpectrumSet
 from pynxtools_em.examples.ebsd_database import (

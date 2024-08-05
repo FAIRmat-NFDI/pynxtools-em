@@ -9,16 +9,16 @@
             "type": "debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "../.py3.11.5/bin/dataconverter",
+            "program": "../.py3.12.4/bin/dataconverter",
             "args": ["convert",
                      "examples/eln_data.yaml",
                      "examples/em.oasis.specific.yaml",
-                     "dbg/Spectrum_Image_HAADF_1055_340_kx.emd",
+                     "../dbg/Spectrum_Image_HAADF_1055_340_kx.emd",
                      "--nxdl",
                      "NXem",
                      "--reader",
                      "em",
-                     "--output=dbg/OpenEM.nxs"],
+                     "--output=../dbg/OpenEM.nxs"],
         }
     ]
 }
