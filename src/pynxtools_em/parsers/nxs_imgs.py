@@ -18,6 +18,7 @@
 """Parser mapping content of specific image files on NeXus."""
 
 from pynxtools_em.parsers.image_png_protochips import ProtochipsPngSetParser
+from pynxtools_em.parsers.image_tiff_point_electronic import PointElectronicTiffParser
 from pynxtools_em.parsers.image_tiff_tfs import TfsTiffParser
 
 
@@ -40,6 +41,9 @@ class NxEmImagesParser:
         img = TfsTiffParser(self.file_path)
         if img.supported:
             return "single_tiff_tfs"
+        img = PointElectronicTiffParser(self.file_path)
+        if img.supported:
+            return "tiff_point_electronic"
         img = ProtochipsPngSetParser(self.file_path)
         if img.supported:
             return "set_of_zipped_png_protochips"
@@ -59,6 +63,10 @@ class NxEmImagesParser:
             tiff = TfsTiffParser(self.file_path, self.entry_id)
             tiff.parse_and_normalize()
             tiff.process_into_template(template)
+        elif image_parser_type == "tiff_point_electronic":
+            diss = PointElectronicTiffParser(self.file_path, self.entry_id)
+            diss.parse_and_normalize()
+            diss.process_into_template(template)
         elif image_parser_type == "set_of_zipped_png_protochips":
             pngs = ProtochipsPngSetParser(self.file_path, self.entry_id)
             pngs.parse_and_normalize()
