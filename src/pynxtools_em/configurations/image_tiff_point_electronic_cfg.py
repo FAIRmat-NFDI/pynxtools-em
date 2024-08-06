@@ -17,79 +17,27 @@
 #
 """Configuration of the image_tiff_point_electronic EBIC parser."""
 
-from numpy import pi
+from pint import UnitRegistry
 
-RAD2DEG = 180.0 / pi
-
-
-TFS_DETECTOR_STATIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/DETECTOR[detector*]",
-    "map": [
-        ("local_name", "Detectors/Name"),
-    ],
-}
+ureg = UnitRegistry()
 
 
-TFS_APERTURE_STATIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/EBEAM_COLUMN[ebeam_column]/APERTURE_EM[aperture_em*]",
-    "use": [("value/@units", "m")],
-    "map": [
-        ("description", "Beam/Aperture"),
-        ("value", "EBeam/ApertureDiameter"),
-    ],
-}
-
-
-TFS_VARIOUS_STATIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab",
-    "use": [("FABRICATION[fabrication]/vendor", "FEI")],
-    "map": [
-        ("FABRICATION[fabrication]/model", "System/SystemType"),
-        ("FABRICATION[fabrication]/identifier", "System/BuildNr"),
-        ("EBEAM_COLUMN[ebeam_column]/electron_source/emitter_type", "System/Source"),
-    ],
-}
-
-
-TFS_OPTICS_DYNAMIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]",
-    "use": [("beam_current/@units", "A"), ("working_distance/@units", "m")],
-    "map": [
-        ("beam_current", "EBeam/BeamCurrent"),
-        ("working_distance", "EBeam/WD"),
-    ],
-}
-
-
-TFS_STAGE_DYNAMIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
-    "use": [("tilt1/@units", "deg"), ("tilt2/@units", "deg")],
-    "map_to_real_and_multiply": [
-        ("tilt1", "EBeam/StageTa", RAD2DEG),
-        ("tilt2", "EBeam/StageTb", RAD2DEG),
-    ],
-}
-
-
-TFS_SCAN_DYNAMIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/SCANBOX_EM[scanbox_em]",
-    "use": [
-        ("dwell_time/@units", "s"),
-    ],
-    "map": [("dwell_time", "Scan/Dwelltime"), ("scan_schema", "System/Scan")],
-}
-
-
-TFS_VARIOUS_DYNAMIC_TO_NX_EM = {
+DISS_VARIOUS_DYNAMIC_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]",
-    "use": [("em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage/@units", "V")],
-    "map": [
-        ("em_lab/DETECTOR[detector*]/mode", "Detectors/Mode"),
-        ("em_lab/EBEAM_COLUMN[ebeam_column]/operation_mode", "EBeam/UseCase"),
-        ("em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage", "EBeam/HV"),
-        ("event_type", "T1/Signal"),
-        ("event_type", "T2/Signal"),
-        ("event_type", "T3/Signal"),
-        ("event_type", "ETD/Signal"),
+    "prefix_src": "",
+    "map_to_f64": [
+        ("em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/magnification", "Mag"),
+        (
+            "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/working_distance",
+            ureg.millimeter,
+            "WD/value",
+            "WD/Unit",
+        ),
+        (
+            "em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage",
+            ureg.kilovolt,
+            "HV/value",
+            "HV/Unit",
+        ),
     ],
 }

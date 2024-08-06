@@ -18,14 +18,13 @@
 """Utilities for working with NeXus concepts encoded as Python dicts in the concepts dir."""
 
 from datetime import datetime
+from typing import Any
 
 import flatdict as fd
 import numpy as np
-import pytz
 import pint
+import pytz
 from pint import UnitRegistry
-from typing import Any
-
 from pynxtools_em.utils.get_file_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.interpret_boolean import try_interpret_as_boolean
 from pynxtools_em.utils.string_conversions import rchop, string_to_number
@@ -45,7 +44,7 @@ MAP_TO_DTYPES = {
     "i1": np.int8,
     "u2": np.uint16,
     "i2": np.int16,
-    "f2": np.float16,
+    # "f2": np.float16, not supported yet with all HDF5 h5py versions
     "u4": np.uint32,
     "i4": np.int32,
     "f4": np.float32,
@@ -126,6 +125,69 @@ def get_case(arg):
                     return "case_five_list"
 
 
+def map_to_dtype(trg_dtype: str, value: Any) -> Any:
+    # can this be done more elegantly, i.e. written more compact?
+    # yes I already tried MAP_TO_DTYPE[trg_dtype](value) but mypy does not like it
+    # error: Argument 1 has incompatible type "generic | bool | int | float | complex |
+    #      str | bytes | memoryview"; expected "str | bytes | SupportsIndex"  [arg-type]
+    if np.shape(value) != ():
+        if trg_dtype == "u1":
+            return np.asarray(value, np.uint8)
+        elif trg_dtype == "i1":
+            return np.asarray(value, np.int8)
+        elif trg_dtype == "u2":
+            return np.asarray(value, np.uint16)
+        elif trg_dtype == "i2":
+            return np.asarray(value, np.int16)
+        # elif trg_dtype == "f2":
+        #     return np.asarray(value, np.float16)
+        elif trg_dtype == "u4":
+            return np.asarray(value, np.uint32)
+        elif trg_dtype == "i4":
+            return np.asarray(value, np.int32)
+        elif trg_dtype == "f4":
+            return np.asarray(value, np.float32)
+        elif trg_dtype == "u8":
+            return np.asarray(value, np.uint64)
+        elif trg_dtype == "i8":
+            return np.asarray(value, np.int64)
+        elif trg_dtype == "f8":
+            return np.asarray(value, np.float64)
+        elif trg_dtype == "bool":
+            if hasattr(value, "dtype"):
+                if value.dtype is bool:
+                    return np.asarray(value, bool)
+        else:
+            raise ValueError(f"map_to_dtype, hitting unexpected case for array !")
+    else:
+        if trg_dtype == "u1":
+            return np.uint8(value)
+        elif trg_dtype == "i1":
+            return np.int8(value)
+        elif trg_dtype == "u2":
+            return np.uint16(value)
+        elif trg_dtype == "i2":
+            return np.int16(value)
+        # elif trg_dtype == "f2":
+        #     return np.float16(value)
+        elif trg_dtype == "u4":
+            return np.uint32(value)
+        elif trg_dtype == "i4":
+            return np.int32(value)
+        elif trg_dtype == "f4":
+            return np.float32(value)
+        elif trg_dtype == "u8":
+            return np.uint64(value)
+        elif trg_dtype == "i8":
+            return np.int64(value)
+        elif trg_dtype == "f8":
+            return np.float64(value)
+        elif trg_dtype == "bool":
+            return try_interpret_as_boolean(value)
+        else:
+            raise ValueError(f"map_to_dtype, hitting unexpected case for scalar !")
+
+
 def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> dict:
     """Set value in the template using trg.
 
@@ -176,13 +238,11 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
                 )
             elif isinstance(src_val, pint.Quantity):
                 if isinstance(src_val.magnitude, (np.ndarray, np.generic)):
-                    template[f"{trg}"] = np.asarray(
-                        src_val.magnitude, MAP_TO_DTYPES[trg_dtype]
-                    )
+                    template[f"{trg}"] = map_to_dtype(trg_dtype, src_val.magnitude)
                     if is_not_special_unit(src_val.units):
                         template[f"{trg}/@units"] = src_val.units
                 elif np.isscalar(src_val.magnitude):  # bool typically not expected
-                    template[f"{trg}"] = MAP_TO_DTYPES[trg_dtype](src_val.magnitude)
+                    template[f"{trg}"] = map_to_dtype(trg_dtype, src_val.magnitude)
                     if is_not_special_unit(src_val.units):
                         template[f"{trg}/@units"] = src_val.units
                 else:
@@ -190,13 +250,13 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
                         f"Unexpected type for explicit src_val.magnitude, set_value, trg {trg} !"
                     )
             elif isinstance(src_val, (np.ndarray, np.generic)):
-                template[f"{trg}"] = np.asarray(src_val, MAP_TO_DTYPES[trg_dtype])
+                template[f"{trg}"] = map_to_dtype(trg_dtype, src_val)
                 # units may be required, need to be set explicitly elsewhere in the source code!
                 print(
                     f"WARNING::Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
                 )
             elif np.isscalar(src_val):
-                template[f"{trg}"] = MAP_TO_DTYPES[trg_dtype](src_val)
+                template[f"{trg}"] = map_to_dtype(trg_dtype, src_val)
                 print(
                     f"WARNING::Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
                 )

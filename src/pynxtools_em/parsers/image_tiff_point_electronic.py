@@ -23,9 +23,10 @@ from typing import Dict
 import flatdict as fd
 import numpy as np
 from PIL import Image, ImageSequence
-
-# from pynxtools_em.concepts.mapping_functors import add_specific_metadata
-# from pynxtools_em.configurations.image_tiff_tfs_cfg import
+from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
+from pynxtools_em.configurations.image_tiff_point_electronic_cfg import (
+    DISS_VARIOUS_DYNAMIC_TO_NX_EM,
+)
 from pynxtools_em.parsers.image_tiff import TiffParser
 
 
@@ -79,10 +80,22 @@ class PointElectronicTiffParser(TiffParser):
                             self.tmp["flatdict_meta"] = fd.FlatDict({}, "/")
                             for entry in meta["xmpmeta/RDF/Description"]:
                                 tmp = fd.FlatDict(entry, "/")
-                                for key, value in tmp.items():
-                                    if value:
-                                        if key not in self.tmp["flat_dict_meta"]:
-                                            self.tmp["flat_dict_meta"][key] = value
+                                for key, obj in tmp.items():
+                                    if isinstance(obj, list):
+                                        for dct in obj:
+                                            if isinstance(dct, dict):
+                                                lst = fd.FlatDict(dct, "/")
+                                                for kkey, kobj in lst.items():
+                                                    if (
+                                                        f"{key}/{kkey}"
+                                                        not in self.tmp["flatdict_meta"]
+                                                    ):
+                                                        self.tmp["flatdict_meta"][
+                                                            f"{key}/{kkey}"
+                                                        ] = kobj
+                                    if isinstance(obj, str) and obj != "":
+                                        if key not in self.tmp["flatdict_meta"]:
+                                            self.tmp["flatdict_meta"][key] = obj
                                         else:
                                             raise KeyError(f"Duplicated key {key} !")
                             # check if written about with supported DISS version
@@ -191,14 +204,14 @@ class PointElectronicTiffParser(TiffParser):
                 image_identifier += 1
         return template
 
-    def add_change_me(self, template: dict) -> dict:
-        # identifier = [self.entry_id, self.event_id, 1]
-        # add_specific_metadata(
-        #     TFS_APERTURE_STATIC_TO_NX_EM,
-        #     self.tmp["flat_dict_meta"],
-        #     identifier,
-        #     template,
-        # )
+    def add_various_dynamic(self, template: dict) -> dict:
+        identifier = [self.entry_id, self.event_id, 1]
+        add_specific_metadata_pint(
+            DISS_VARIOUS_DYNAMIC_TO_NX_EM,
+            self.tmp["flat_dict_meta"],
+            identifier,
+            template,
+        )
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:
@@ -207,6 +220,6 @@ class PointElectronicTiffParser(TiffParser):
         print(
             f"Mapping some of the point electronic DISS metadata on respective NeXus concepts..."
         )
-        self.add_change_me(template)
-        # TODO add more
+        self.add_various_dynamic(template)
+        # ... add more as required ...
         return template
