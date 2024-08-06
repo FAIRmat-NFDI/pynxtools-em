@@ -564,7 +564,7 @@ pymdown-extensions==10.9
     # via
     #   pynxtools-em (pyproject.toml)
     #   mkdocs-material
-pynxtools==0.5.2
+pynxtools @ git+https://github.com/FAIRmat-NFDI/pynxtools@143cd960cf41709064b68150603e86b4d5c69a3f
     # via pynxtools-em (pyproject.toml)
 pyparsing==3.1.2
     # via matplotlib
