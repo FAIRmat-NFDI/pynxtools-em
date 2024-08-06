@@ -23,7 +23,7 @@ classifiers = [
 ]
 dependencies = [
     "pint==0.17",
-    "pynxtools @ git+https://github.com/FAIRmat-NFDI/pynxtools@143cd960cf41709064b68150603e86b4d5c69a3f",
+    "pynxtools @ git+https://github.com/FAIRmat-NFDI/pynxtools@sprint23_em_v3",
     "rosettasciio>=0.4",
     "kikuchipy>=0.9.0",
     "pyxem>=0.16.0",
