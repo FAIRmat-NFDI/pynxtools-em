@@ -113,7 +113,12 @@ def get_case(arg):
                         return "case_four_str"
                     elif isinstance(arg[1], list):
                         return "case_four_list"
-        elif len(arg) == 4:  # str, pint.Unit, str | list, pint.Unit
+        elif len(arg) == 4:
+            # str, pint.Unit, str | list, pint.Unit
+            # str, pint.Unit, str, str
+            # last string points to unit string for situations where e.g. tech partner
+            # report HV/value, HV/Unit and these two pieces of information should be
+            # fused into a pint.Quantity with target pint.Unit given as second argument
             if (
                 isinstance(arg[0], str)
                 and isinstance(arg[1], pint.Unit)
@@ -123,6 +128,13 @@ def get_case(arg):
                     return "case_five_str"
                 elif isinstance(arg[2], list):
                     return "case_five_list"
+            elif (
+                isinstance(arg[0], str)
+                and isinstance(arg[1], pint.Unit)
+                and isinstance(arg[2], str)
+                and isinstance(arg[3], str)
+            ):
+                return "case_six"
 
 
 def map_to_dtype(trg_dtype: str, value: Any) -> Any:
@@ -291,11 +303,8 @@ def map_functor(
     prfx_trg: str,
     ids: list,
     template: dict,
-    **kwargs,
+    trg_dtype_key: str = "",
 ) -> dict:
-    if "trg_dtype_key" in kwargs:
-        trg_dtype = kwargs["trg_dtype"]
-        # this will force the conversion of all instance data from src to match trg_dtype
     for cmd in cmds:
         case = get_case(cmd)
         if case == "case_one":  # str
@@ -303,13 +312,13 @@ def map_functor(
                 continue
             src_val = mdata[f"{prfx_src}{cmd}"]
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd}", ids)
-            set_value(template, trg, src_val)
+            set_value(template, trg, src_val, trg_dtype_key)
         elif case == "case_two_str":  # str, str
             if f"{prfx_src}{cmd[1]}" not in mdata:
                 continue
             src_val = mdata[f"{prfx_src}{cmd[1]}"]
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-            set_value(template, trg, src_val)
+            set_value(template, trg, src_val, trg_dtype_key)
         elif case == "case_two_list":
             # ignore empty list, all src paths str, all src_val have to exist of same type
             if len(cmd[1]) == 0:
@@ -324,16 +333,18 @@ def map_functor(
             if not all(type(val) is type(src_values[0]) for val in src_values):
                 continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-            set_value(template, trg, np.asarray(src_values))
+            set_value(template, trg, np.asarray(src_values), trg_dtype_key)
         elif case == "case_three_str":  # str, pint.Unit, str
             if f"{prfx_src}{cmd[2]}" not in mdata:
                 continue
             src_val = mdata[f"{prfx_src}{cmd[2]}"]
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_val, pint.Quantity):
-                set_value(template, trg, src_val)
+                set_value(template, trg, src_val, trg_dtype_key)
             else:
-                set_value(template, trg, pint.Quantity(src_val, cmd[1].units))
+                set_value(
+                    template, trg, pint.Quantity(src_val, cmd[1].units), trg_dtype_key
+                )
         elif case == "case_three_list":  # str, pint.Unit, list
             if len(cmd[2]) == 0:
                 continue
@@ -347,9 +358,14 @@ def map_functor(
                 continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_values, pint.Quantity):
-                set_value(template, trg, src_values)
+                set_value(template, trg, src_values, trg_dtype_key)
             else:
-                set_value(template, trg, pint.Quantity(src_values, cmd[1].units))
+                set_value(
+                    template,
+                    trg,
+                    pint.Quantity(src_values, cmd[1].units),
+                    trg_dtype_key,
+                )
         elif case.startswith("case_four"):
             # both of these cases can be avoided in an implementation when the
             # src quantity is already a pint quantity instead of some
@@ -364,11 +380,11 @@ def map_functor(
             src_val = mdata[f"{prfx_src}{cmd[2]}"]
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_val, pint.Quantity):
-                set_value(template, trg, src_val.units.to(cmd[1]))
+                set_value(template, trg, src_val.units.to(cmd[1]), trg_dtype_key)
             else:
                 pint_src = pint.Quantity(src_val, cmd[3])
                 # pint_trg = pint_src.units.to(cmd[1])
-                set_value(template, trg, pint_src.units.to(cmd[1]))
+                set_value(template, trg, pint_src.units.to(cmd[1]), trg_dtype_key)
         elif case == "case_five_list":
             if len(cmd[2]) == 0:
                 continue
@@ -385,13 +401,21 @@ def map_functor(
                 continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_values, pint.Quantity):
-                set_value(template, trg, src_values.units.to(cmd[1]))
+                set_value(template, trg, src_values.units.to(cmd[1]), trg_dtype_key)
             else:
                 pint_src = pint.Quantity(src_values, cmd[3])
-                set_value(template, trg, pint_src.units.to(cmd[1]))
-
-    # try_interpret_as_boolean(mdata[f"{prfx_src}{entry[1]}"])
-    # string_to_number(mdata[f"{prfx_src}{entry[1]}"])
+                set_value(template, trg, pint_src.units.to(cmd[1]), trg_dtype_key)
+        elif case == "case_six":
+            if f"{prfx_src}{cmd[2]}" not in mdata or f"{prfx_src}{cmd[3]}" not in mdata:
+                continue
+            src_val = mdata[f"{prfx_src}{cmd[2]}"]
+            src_unit = mdata[f"{prfx_src}{cmd[3]}"]
+            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+            if isinstance(src_val, pint.Quantity):
+                set_value(template, trg, src_val.units.to(cmd[1]), trg_dtype_key)
+            else:
+                pint_src = pint.Quantity(src_val, pint.Unit(src_unit))
+                set_value(template, trg, pint_src.units.to(cmd[1]), trg_dtype_key)
     return template
 
 
@@ -499,7 +523,7 @@ def add_specific_metadata_pint(
                     prfx_trg,
                     ids,
                     template,
-                    trg_dtype_key=dtype_key,
+                    dtype_key,
                 )
             else:
                 raise KeyError(f"Unexpected dtype_key {dtype_key} !")

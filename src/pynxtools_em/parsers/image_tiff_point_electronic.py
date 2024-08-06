@@ -28,6 +28,7 @@ from pynxtools_em.configurations.image_tiff_point_electronic_cfg import (
     DISS_VARIOUS_DYNAMIC_TO_NX_EM,
 )
 from pynxtools_em.parsers.image_tiff import TiffParser
+from pynxtools_em.utils.string_conversions import string_to_number
 
 
 class PointElectronicTiffParser(TiffParser):
@@ -92,10 +93,12 @@ class PointElectronicTiffParser(TiffParser):
                                                     ):
                                                         self.tmp["flatdict_meta"][
                                                             f"{key}/{kkey}"
-                                                        ] = kobj
+                                                        ] = string_to_number(kobj)
                                     if isinstance(obj, str) and obj != "":
                                         if key not in self.tmp["flatdict_meta"]:
-                                            self.tmp["flatdict_meta"][key] = obj
+                                            self.tmp["flatdict_meta"][key] = (
+                                                string_to_number(obj)
+                                            )
                                         else:
                                             raise KeyError(f"Duplicated key {key} !")
                             # check if written about with supported DISS version

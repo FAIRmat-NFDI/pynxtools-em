@@ -25,17 +25,17 @@ ureg = UnitRegistry()
 DISS_VARIOUS_DYNAMIC_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "",
-    "map_to_f64": [
+    "map_to_f32": [
         ("em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/magnification", "Mag"),
         (
             "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/working_distance",
-            ureg.millimeter,
+            ureg.centimeter,
             "WD/value",
             "WD/Unit",
         ),
         (
             "em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage",
-            ureg.kilovolt,
+            ureg.picovolt,
             "HV/value",
             "HV/Unit",
         ),
