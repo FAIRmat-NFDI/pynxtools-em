@@ -7,3 +7,7 @@ The pynxtools-em parser and normalizer reads the following content and maps them
 | --------------- | --------------  |
 | Reconstructed positions (x, y, z) | :heavy_check_mark: |
 | Mass-to-charge-state-ratio values (m/q) | :heavy_check_mark: |-->
+
+<!-- ThermoFisher-->
+<!-- point electronic DISS-->
+<!-- JEOL-->

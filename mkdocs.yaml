@@ -21,7 +21,7 @@ nav:
     - reference/contextualization.md
     - reference/tiff.md
     - reference/png.md
-    - reference/vemd.md
+    - reference/velox.md
     - reference/apex.md
     - reference/nion.md
 plugins:

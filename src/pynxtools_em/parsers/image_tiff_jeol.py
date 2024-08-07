@@ -18,35 +18,51 @@
 """Subparser for harmonizing JEOL specific content in TIFF files."""
 
 import mmap
-from typing import Dict
+from typing import Dict, List
 
 import flatdict as fd
 import numpy as np
+import pint
 from PIL import Image, ImageSequence
+from pint import UnitRegistry
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 
 # from pynxtools_em.configurations.image_tiff_jeol_cfg import JEOL_VARIOUS_DYNAMIC_TO_NX_EM
 from pynxtools_em.parsers.image_tiff import TiffParser
 from pynxtools_em.utils.string_conversions import string_to_number
 
+ureg = UnitRegistry()
+
 
 class JeolTiffParser(TiffParser):
-    def __init__(
-        self, tiff_file_path: str = "", txt_file_path: str = "", entry_id: int = 1
-    ):
-        super().__init__(tiff_file_path)
-        self.entry_id = entry_id
-        self.event_id = 1
-        self.txt_file_path = None
-        if txt_file_path is not None and txt_file_path != "":
-            self.txt_file_path = txt_file_path
-        self.prfx = None
-        self.tmp: Dict = {"data": None, "flat_dict_meta": fd.FlatDict({})}
-        self.supported_version: Dict = {}
-        self.version: Dict = {}
-        self.tags: Dict = {}
-        self.supported = False
-        self.check_if_tiff_jeol()
+    def __init__(self, file_paths: List[str], entry_id: int = 1, verbose=False):
+        tif_txt = ["", ""]
+        if (
+            len(file_paths) == 2
+            and file_paths[0][0 : file_paths[0].rfind(".")]
+            == file_paths[1][0 : file_paths[0].rfind(".")]
+        ):
+            for entry in file_paths:
+                if entry.lower().endswith((".tif", ".tiff")):
+                    tif_txt[0] = entry
+                elif entry.lower().endswith((".txt")):
+                    tif_txt[1] = entry
+        if all(value != "" for value in tif_txt):
+            super().__init__(tif_txt[0])
+            self.entry_id = entry_id
+            self.event_id = 1
+            self.verbose = verbose
+            self.txt_file_path = tif_txt[1]
+            self.prfx = None
+            self.tmp: Dict = {"data": None, "flat_dict_meta": fd.FlatDict({})}
+            self.supported_version: Dict = {}
+            self.version: Dict = {}
+            self.tags: Dict = {}
+            self.supported = False
+            self.check_if_tiff_jeol()
+        else:
+            print(f"Parser {self.__class__.__name__} needs TIF and TXT file !")
+            self.supported = False
 
     def check_if_tiff_jeol(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file.
@@ -58,7 +74,8 @@ class JeolTiffParser(TiffParser):
         if self.txt_file_path is None:
             self.supported = False
             print(
-                f"Parser {self.__class__.__name__} does not work with JEOL metadata text file !"
+                f"Parser {self.__class__.__name__} does not work without a JEOL text file with the image metadata !"
+                f"This file is required to have exactly the same file name as the file with the TIF image data !"
             )
             return
         with open(self.file_path, "rb", 0) as file:
@@ -70,7 +87,6 @@ class JeolTiffParser(TiffParser):
                     f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
                 )
                 return
-
         with open(self.txt_file_path, "r") as txt:
             txt = [
                 line.strip().lstrip("$")
@@ -85,7 +101,19 @@ class JeolTiffParser(TiffParser):
                     print(f"WARNING::{line} is currently ignored !")
                 elif len(tmp) == 2:
                     if tmp[0] not in self.tmp["flat_dict_meta"]:
-                        self.tmp["flat_dict_meta"][tmp[0]] = string_to_number(tmp[1])
+                        # this is not working robustly as the following example fails:
+                        # CM_TITLE 20240227_A1_2m_0_FA3_1 ('invalid decimal literal', (1, 9))
+                        # try:
+                        #     self.tmp["flat_dict_meta"][tmp[0]] = pint.Quantity(tmp[1])
+                        # except pint.errors.UndefinedUnitError:
+                        #     self.tmp["flat_dict_meta"][tmp[0]] = tmp[1]
+                        # as an alternative we currently use a mixture of pint quantities
+                        # and regular numpy / pure Python types, the mapping functor should
+                        # take care of resolving the cases properly
+                        if tmp[0] != "SM_MICRON_MARKER":
+                            self.tmp["flat_dict_meta"][tmp[0]] = tmp[1]
+                        else:
+                            self.tmp["flat_dict_meta"][tmp[0]] = pint.Quantity(tmp[1])
                     else:
                         raise KeyError(f"Found duplicated key {tmp[0]} !")
                 else:  # len(tmp) > 2:
@@ -106,20 +134,16 @@ class JeolTiffParser(TiffParser):
                     f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
                 )
 
-    def parse_and_normalize(self):
-        """Perform actual parsing filling cache self.tmp."""
+    def parse(self, template: dict) -> dict:
         if self.supported is True:
             print(f"Parsing via JEOL...")
             # metadata have at this point already been collected into an fd.FlatDict
+            self.process_event_data_em_metadata(template)
+            self.process_event_data_em_data(template)
         else:
             print(
                 f"{self.file_path} is not a JEOL-specific TIFF file that this parser can process !"
             )
-
-    def process_into_template(self, template: dict) -> dict:
-        if self.supported is True:
-            self.process_event_data_em_metadata(template)
-            self.process_event_data_em_data(template)
         return template
 
     def process_event_data_em_data(self, template: dict) -> dict:
@@ -128,8 +152,6 @@ class JeolTiffParser(TiffParser):
         print(
             f"Writing JEOL TIFF image data to the respective NeXus concept instances..."
         )
-        # read image in-place
-        ####################################################
         image_identifier = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
@@ -161,12 +183,22 @@ class JeolTiffParser(TiffParser):
 
                 sxy = {"i": 1.0, "j": 1.0}
                 scan_unit = {"i": "m", "j": "m"}
-                if ("PixelSizeX" in self.tmp["flat_dict_meta"]) and (
-                    "PixelSizeY" in self.tmp["flat_dict_meta"]
+                if ("SM_MICRON_BAR" in self.tmp["flat_dict_meta"]) and (
+                    "SM_MICRON_MARKER" in self.tmp["flat_dict_meta"]
                 ):
+                    # JEOL-specific conversion for micron bar pixel to physical length
+                    resolution = int(self.tmp["flat_dict_meta"]["SM_MICRON_BAR"])
+                    physical_length = (
+                        self.tmp["flat_dict_meta"]["SM_MICRON_MARKER"]
+                        .to(ureg.meter)
+                        .magnitude
+                    )
+                    # resolution many pixel represent physical_length scanned surface
+                    # assuming square pixel
+                    print(f"resolution {resolution}, L {physical_length}")
                     sxy = {
-                        "i": self.tmp["flat_dict_meta"]["PixelSizeX"],
-                        "j": self.tmp["flat_dict_meta"]["PixelSizeY"],
+                        "i": physical_length / resolution,
+                        "j": physical_length / resolution,
                     }
                 else:
                     print("WARNING: Assuming pixel width and height unit is meter!")
@@ -191,21 +223,22 @@ class JeolTiffParser(TiffParser):
         return template
 
     def add_various_dynamic(self, template: dict) -> dict:
+        pass
+        """
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata_pint(
-            DISS_VARIOUS_DYNAMIC_TO_NX_EM,
+            JEOL_VARIOUS_DYNAMIC_TO_NX_EM,
             self.tmp["flat_dict_meta"],
             identifier,
             template,
         )
+        """
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
-        print(
-            f"Mapping some of the point electronic DISS metadata on respective NeXus concepts..."
-        )
+        print(f"Mapping some of JEOL metadata on respective NeXus concepts...")
         self.add_various_dynamic(template)
         # ... add more as required ...
         return template

@@ -26,6 +26,7 @@ from pynxtools.dataconverter.readers.base.reader import BaseReader
 
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 from pynxtools_em.parsers.convention_reader import NxEmConventionParser
+from pynxtools_em.parsers.image_tiff_jeol import JeolTiffParser
 from pynxtools_em.parsers.nxs_imgs import NxEmImagesParser
 from pynxtools_em.parsers.nxs_mtex import NxEmNxsMTexParser
 from pynxtools_em.parsers.nxs_nion import NionProjectParser
@@ -118,6 +119,9 @@ class EMReader(BaseReader):
 
             # zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id)
             # zip_parser.parse(template)
+        elif len(case.dat) == 2:
+            jeol = JeolTiffParser(case.dat, entry_id, verbose=False)
+            jeol.parse(template)
 
         nxplt = NxEmDefaultPlotResolver()
         nxplt.priority_select(template)
