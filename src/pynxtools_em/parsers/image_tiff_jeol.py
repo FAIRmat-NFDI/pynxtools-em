@@ -31,109 +31,89 @@ from pynxtools_em.utils.string_conversions import string_to_number
 
 
 class JeolTiffParser(TiffParser):
-    def __init__(self, file_path: str = "", entry_id: int = 1):
-        super().__init__(file_path)
+    def __init__(
+        self, tiff_file_path: str = "", txt_file_path: str = "", entry_id: int = 1
+    ):
+        super().__init__(tiff_file_path)
         self.entry_id = entry_id
         self.event_id = 1
+        self.txt_file_path = None
+        if txt_file_path is not None and txt_file_path != "":
+            self.txt_file_path = txt_file_path
         self.prfx = None
         self.tmp: Dict = {"data": None, "flat_dict_meta": fd.FlatDict({})}
         self.supported_version: Dict = {}
         self.version: Dict = {}
         self.tags: Dict = {}
         self.supported = False
-        self.init_support()
-        self.check_if_tiff_point_electronic()
+        self.check_if_tiff_jeol()
 
-    def init_support(self):
-        """Init supported versions."""
-        self.supported_version["tech_partner"] = ["point electronic"]
-        self.supported_version["schema_name"] = ["DISS"]
-        self.supported_version["schema_version"] = ["5.15.31.0"]
-
-    def xmpmeta_to_flat_dict(self, meta: fd.FlatDict):
-        for entry in meta["xmpmeta/RDF/Description"]:
-            tmp = fd.FlatDict(entry, "/")
-            for key, obj in tmp.items():
-                if isinstance(obj, list):
-                    for dct in obj:
-                        if isinstance(dct, dict):
-                            lst = fd.FlatDict(dct, "/")
-                            for kkey, kobj in lst.items():
-                                if isinstance(kobj, str) and kobj != "":
-                                    if (
-                                        f"{key}/{kkey}"
-                                        not in self.tmp["flat_dict_meta"]
-                                    ):
-                                        self.tmp["flat_dict_meta"][f"{key}/{kkey}"] = (
-                                            string_to_number(kobj)
-                                        )
-                if isinstance(obj, str) and obj != "":
-                    if key not in self.tmp["flat_dict_meta"]:
-                        self.tmp["flat_dict_meta"][key] = string_to_number(obj)
-                    else:
-                        raise KeyError(f"Duplicated key {key} !")
-
-    def check_if_tiff_point_electronic(self):
+    def check_if_tiff_jeol(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file.
 
-        This also loads the metadata first if possible as these contain details
-        about which software was used to process the image data, e.g. DISS software.
+        This loads the metadata with the txt_file_path first to the formatting of that
+        information can be used to tell JEOL data apart from other data.
         """
-        self.supported = 0  # voting-based
+        # currently not voting-based algorithm required as used in other parsers
+        if self.txt_file_path is None:
+            self.supported = False
+            print(
+                f"Parser {self.__class__.__name__} does not work with JEOL metadata text file !"
+            )
+            return
         with open(self.file_path, "rb", 0) as file:
             s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
             magic = s.read(4)
-            if magic == b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
-                self.supported += 1
-            else:
+            if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                 self.supported = False
                 print(
                     f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
                 )
                 return
-        with Image.open(self.file_path, mode="r") as fp:
-            # either hunt for metadata under tag_v2 key 700 or take advantage of the
-            # fact that point electronic write xmpmeta/xmptk XMP Core 5.1.2
-            meta = fd.FlatDict(fp.getxmp(), "/")
-            if meta:
-                if "xmpmeta/xmptk" in meta:
-                    if meta["xmpmeta/xmptk"] == "XMP Core 5.1.2":
-                        # load the metadata
-                        self.tmp["flat_dict_meta"] = fd.FlatDict({}, "/")
-                        self.xmpmeta_to_flat_dict(meta)
 
-                        for key, value in self.tmp["flat_dict_meta"].items():
-                            print(f"{key}____{type(value)}____{value}")
+        with open(self.txt_file_path, "r") as txt:
+            txt = [
+                line.strip().lstrip("$")
+                for line in txt.readlines()
+                if line.strip() != "" and line.startswith("$")
+            ]
 
-                        # check if written about with supported DISS version
-                        prefix = f"{self.supported_version['tech_partner'][0]} {self.supported_version['schema_name'][0]}"
-                        supported_versions = [
-                            f"{prefix} {val}"
-                            for val in self.supported_version["schema_version"]
-                        ]
-                        print(supported_versions)
-                        if (
-                            self.tmp["flat_dict_meta"]["CreatorTool"]
-                            in supported_versions
-                        ):
-                            self.supported += 1  # found specific XMP metadata
-        if self.supported == 2:
-            self.supported = True
-        else:
-            self.supported = False
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
-            )
+            self.tmp["flat_dict_meta"] = fd.FlatDict({}, "/")
+            for line in txt:
+                tmp = line.split()
+                if len(tmp) == 1:
+                    print(f"WARNING::{line} is currently ignored !")
+                elif len(tmp) == 2:
+                    if tmp[0] not in self.tmp["flat_dict_meta"]:
+                        self.tmp["flat_dict_meta"][tmp[0]] = string_to_number(tmp[1])
+                    else:
+                        raise KeyError(f"Found duplicated key {tmp[0]} !")
+                else:  # len(tmp) > 2:
+                    print(f"WARNING::{line} is currently ignored !")
+
+            # report metadata just for verbose purposes right now
+            for key, value in self.tmp["flat_dict_meta"].items():
+                print(f"{key}______{type(value)}____{value}")
+
+            if (
+                self.tmp["flat_dict_meta"]["SEM_DATA_VERSION"] == "1"
+                and self.tmp["flat_dict_meta"]["CM_LABEL"] == "JEOL"
+            ):
+                self.supported = True
+            else:
+                self.supported = False
+                print(
+                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+                )
 
     def parse_and_normalize(self):
         """Perform actual parsing filling cache self.tmp."""
         if self.supported is True:
-            print(f"Parsing via point electronic DISS-specific metadata...")
+            print(f"Parsing via JEOL...")
             # metadata have at this point already been collected into an fd.FlatDict
         else:
             print(
-                f"{self.file_path} is not a point electronic DISS-specific "
-                f"TIFF file that this parser can process !"
+                f"{self.file_path} is not a JEOL-specific TIFF file that this parser can process !"
             )
 
     def process_into_template(self, template: dict) -> dict:
@@ -146,9 +126,10 @@ class JeolTiffParser(TiffParser):
         """Add respective heavy data."""
         # default display of the image(s) representing the data collected in this event
         print(
-            f"Writing point electronic DISS TIFF image data to the respective NeXus concept instances..."
+            f"Writing JEOL TIFF image data to the respective NeXus concept instances..."
         )
         # read image in-place
+        ####################################################
         image_identifier = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
@@ -156,7 +137,7 @@ class JeolTiffParser(TiffParser):
                 print(
                     f"Processing image {image_identifier} ... {type(nparr)}, {np.shape(nparr)}, {nparr.dtype}"
                 )
-                # eventually similar open discussions points as for the TFS TIFF parser
+                # eventually similar open discussions points as were raised for tiff_tfs parser
                 trg = (
                     f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
                     f"EVENT_DATA_EM[event_data_em{self.event_id}]/"
@@ -179,8 +160,7 @@ class JeolTiffParser(TiffParser):
                 template[f"{trg}/real/@long_name"] = f"Signal"
 
                 sxy = {"i": 1.0, "j": 1.0}
-                scan_unit = {"i": "m", "j": "m"}  # assuming FEI reports SI units
-                # we may face the CCD overview camera for the chamber for which there might not be a calibration!
+                scan_unit = {"i": "m", "j": "m"}
                 if ("PixelSizeX" in self.tmp["flat_dict_meta"]) and (
                     "PixelSizeY" in self.tmp["flat_dict_meta"]
                 ):
