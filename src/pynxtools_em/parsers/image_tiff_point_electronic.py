@@ -157,7 +157,7 @@ class PointElectronicTiffParser(TiffParser):
                 print(
                     f"Processing image {image_identifier} ... {type(nparr)}, {np.shape(nparr)}, {nparr.dtype}"
                 )
-                # eventually similar open discussions points as for the TFS TIFF parser
+                # eventually similar open discussions points as were raised for tiff_tfs parser
                 trg = (
                     f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
                     f"EVENT_DATA_EM[event_data_em{self.event_id}]/"
@@ -180,8 +180,7 @@ class PointElectronicTiffParser(TiffParser):
                 template[f"{trg}/real/@long_name"] = f"Signal"
 
                 sxy = {"i": 1.0, "j": 1.0}
-                scan_unit = {"i": "m", "j": "m"}  # assuming FEI reports SI units
-                # we may face the CCD overview camera for the chamber for which there might not be a calibration!
+                scan_unit = {"i": "m", "j": "m"}
                 if ("PixelSizeX" in self.tmp["flat_dict_meta"]) and (
                     "PixelSizeY" in self.tmp["flat_dict_meta"]
                 ):

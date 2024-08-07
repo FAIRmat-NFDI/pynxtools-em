@@ -57,7 +57,7 @@ for the respective file formats of technology partners of the electron microscop
 - [How to map pieces of information to NeXus](reference/contextualization.md)
 - [Tagged Image File Format (TIFF)](reference/tiff.md)
 - [Portable Network Graphics (PNG)](reference/png.md)
-- [Velox EMD](reference/vemd.md)
+- [Velox EMD](reference/velox.md)
 - [EDAX APEX](reference/apex.md)
 - [Nion Co. projects](reference/nion.md)
 

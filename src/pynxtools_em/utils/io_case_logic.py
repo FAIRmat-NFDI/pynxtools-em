@@ -33,6 +33,7 @@ VALID_FILE_NAME_SUFFIX_DATA = [
     ".h5oina",
     ".mtex.h5",
     ".dream3d",
+    ".txt",
 ]
 # ".dm3", ".dm4"]
 
