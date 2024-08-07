@@ -486,10 +486,10 @@ definitions:
                   eln:
                     component: RadioEnumEditQuantity
         
-        gnomonic_projection_reference_frame:
+        gnomonic_reference_frame:
           section:
             description: |
-              Details about the gnomonic_projection_reference_frame.
+              Details about the gnomonic_reference_frame.
             m_annotations:
               eln:
             quantities:
@@ -501,7 +501,7 @@ definitions:
                     - cartesian
                 description: |
                   Type of coordinate system/reference frame used for identifying positions in the Xg, Yg, Zg
-                  gnomonic_projection_reference_frame according to DOI: 10.1016/j.matchar.2016.04.008.
+                  gnomonic_reference_frame according to DOI: 10.1016/j.matchar.2016.04.008.
                 m_annotations:
                   eln:
                     component: RadioEnumEditQuantity
@@ -513,7 +513,7 @@ definitions:
                     - in_the_pattern_centre
                 # just stating in the pattern_centre is not necessarily sufficient
                 description: |
-                  Is the origin of the gnomonic_projection_reference_frame located where we assume the location of the pattern
+                  Is the origin of the gnomonic_reference_frame located where we assume the location of the pattern
                   centre. This is the location Xg = 0, Yg = 0, Zg = 0 according to reference DOI: 10.1016/j.matchar.2016.04.008.
                 m_annotations:
                   eln:

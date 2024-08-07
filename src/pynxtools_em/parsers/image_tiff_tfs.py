@@ -76,11 +76,12 @@ class TfsTiffParser(TiffParser):
             tfs_keys = [34682]
             for tfs_key in tfs_keys:
                 if tfs_key in fp.tag_v2:
-                    if len(fp.tag[tfs_key]) == 1:
+                    if len(fp.tag_v2[tfs_key]) == 1:
                         self.supported += 1  # found TFS-specific tag
         if self.supported == 2:
             self.supported = True
         else:
+            self.supported = False
             print(
                 f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
             )

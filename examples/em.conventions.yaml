@@ -34,7 +34,7 @@ detector_reference_frame:
   y_direction: south
   z_alias: undefined
   z_direction: undefined
-gnomonic_projection_reference_frame:
+gnomonic_reference_frame:
   type: cartesian
   handedness: right_handed
   origin: in_the_pattern_centre

@@ -76,7 +76,7 @@ class NxEmConventionParser:
         add_specific_metadata(PATTERN_CSYS_TO_NEXUS, self.yml, identifier, template)
 
         # check is used convention follows EBSD community suggestions by Rowenhorst et al.
-        prfx = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/conventions/rotation_conventions"
+        prfx = f"/ENTRY[entry{self.entry_id}]/coordinate_system_set"
         cvn_used = {}
         for key in [
             "rotation_handedness",
@@ -90,7 +90,7 @@ class NxEmConventionParser:
 
         # assess if made conventions are consistent
         for csys_name in ["processing", "sample"]:
-            trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/conventions"
+            trg = f"/ENTRY[entry{self.entry_id}]/coordinate_system_set"
             handedness = template.undocumented[
                 f"{trg}/{csys_name}_reference_frame/handedness"
             ]
