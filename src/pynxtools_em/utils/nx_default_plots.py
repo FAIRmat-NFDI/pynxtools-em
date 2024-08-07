@@ -60,14 +60,13 @@ class NxEmDefaultPlotResolver:
         # TODO: some of the here used idx_head, idx_tail string mangling could be
         # made likely better with using a regex
         candidates: Dict = {}
-        priorities = [1, 2, 3, 4, 5]
+        priorities = [1, 2, 3, 4]
         for votes in priorities:
             candidates[votes] = []
 
         dtyp_vote = [
-            ("IMAGE_R_SET", "image", 1),
-            ("IMAGE_C_SET", "image", 2),
-            ("SPECTRUM_SET", "spectrum", 3),
+            ("IMAGE_SET", "image", 1),
+            ("SPECTRUM_SET", "spectrum", 2),
         ]
         for key in template.keys():
             for tpl in dtyp_vote:
@@ -126,16 +125,16 @@ class NxEmDefaultPlotResolver:
                             )
                     vote_ipf_map = sort_list_of_tuples_desc_order(vote_ipf_map)
                     if len(vote_ipf_map) > 0:
-                        if vote_ipf_map[0][0] not in candidates[5]:
-                            candidates[5].append(vote_ipf_map[0][0])
+                        if vote_ipf_map[0][0] not in candidates[4]:
+                            candidates[4].append(vote_ipf_map[0][0])
 
             # find ebsd roi map
             idx_tail = key.find("/ebsd/indexing/roi")
             if idx_head is not None and idx_tail is not None:
                 if 0 < idx_head < idx_tail:
                     keyword = key[0 : idx_tail + len("/ebsd/indexing/roi")]
-                    if keyword not in candidates[4]:
-                        candidates[4].append(keyword)
+                    if keyword not in candidates[3]:
+                        candidates[3].append(keyword)
 
         # TODO:one could think about more fine-grained priority voting, e.g. based on
         # image descriptors or shape of the data behind a key in template

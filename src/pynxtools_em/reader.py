@@ -128,8 +128,8 @@ class EMReader(BaseReader):
         debugging = False
         if debugging:
             print("Reporting state of template before passing to HDF5 writing...")
-            for keyword in template:
-                print(f"{keyword}")  # : {template[keyword]}")
+            for keyword, value in template.items():
+                print(f"{keyword}____{type(value)}")  # : {template[keyword]}")
 
         print("Forward instantiated template to the NXS writer...")
         toc = perf_counter_ns()

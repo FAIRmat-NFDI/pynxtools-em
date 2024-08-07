@@ -27,9 +27,11 @@ import pytz
 from pint import UnitRegistry
 from pynxtools_em.utils.get_file_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.interpret_boolean import try_interpret_as_boolean
-from pynxtools_em.utils.string_conversions import rchop, string_to_number
+from pynxtools_em.utils.string_conversions import rchop
 
 ureg = UnitRegistry()
+# ureg.formatter.default_format = "D"
+# https://pint.readthedocs.io/en/stable/user/formatting.html
 ureg.define("nx_unitless = 1")
 ureg.define("nx_dimensionless = 1")
 ureg.define("nx_any = 1")
@@ -220,7 +222,7 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
                 ):  # bool case typically not expected!
                     template[f"{trg}"] = src_val.magnitude
                     if is_not_special_unit(src_val.units):
-                        template[f"{trg}/@units"] = src_val.units
+                        template[f"{trg}/@units"] = f"{src_val.units}"
                     print(
                         f"WARNING::Assuming writing to HDF5 will auto-convert Python types to numpy type, trg {trg} !"
                     )
@@ -252,11 +254,11 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
                 if isinstance(src_val.magnitude, (np.ndarray, np.generic)):
                     template[f"{trg}"] = map_to_dtype(trg_dtype, src_val.magnitude)
                     if is_not_special_unit(src_val.units):
-                        template[f"{trg}/@units"] = src_val.units
+                        template[f"{trg}/@units"] = f"{src_val.units}"
                 elif np.isscalar(src_val.magnitude):  # bool typically not expected
                     template[f"{trg}"] = map_to_dtype(trg_dtype, src_val.magnitude)
                     if is_not_special_unit(src_val.units):
-                        template[f"{trg}/@units"] = src_val.units
+                        template[f"{trg}/@units"] = f"{src_val.units}"
                 else:
                     raise TypeError(
                         f"Unexpected type for explicit src_val.magnitude, set_value, trg {trg} !"
