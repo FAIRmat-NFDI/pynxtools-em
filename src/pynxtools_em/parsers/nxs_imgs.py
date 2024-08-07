@@ -19,6 +19,7 @@
 
 from pynxtools_em.parsers.image_png_protochips import ProtochipsPngSetParser
 from pynxtools_em.parsers.image_tiff_point_electronic import PointElectronicTiffParser
+from pynxtools_em.parsers.image_tiff_tescan import TescanTiffParser
 from pynxtools_em.parsers.image_tiff_tfs import TfsTiffParser
 
 
@@ -41,6 +42,9 @@ class NxEmImagesParser:
         img = TfsTiffParser(self.file_path)
         if img.supported:
             return "single_tiff_tfs"
+        img = TescanTiffParser(self.file_path)
+        if img.supported:
+            return "single_tiff_tescan"
         img = PointElectronicTiffParser(self.file_path)
         if img.supported:
             return "tiff_point_electronic"
@@ -60,17 +64,21 @@ class NxEmImagesParser:
         # see also comments for respective nxs_pyxem parser
         # and its interaction with tech-partner-specific hfive_* parsers
         if image_parser_type == "single_tiff_tfs":
-            tiff = TfsTiffParser(self.file_path, self.entry_id)
-            tiff.parse_and_normalize()
-            tiff.process_into_template(template)
+            tfs = TfsTiffParser(self.file_path, self.entry_id)
+            tfs.parse_and_normalize()
+            tfs.process_into_template(template)
+        elif image_parser_type == "single_tiff_tescan":
+            tsc = TescanTiffParser(self.file_path, self.entry_id)
+            tsc.parse_and_normalize()
+            tsc.process_into_template(template)
         elif image_parser_type == "tiff_point_electronic":
-            diss = PointElectronicTiffParser(self.file_path, self.entry_id)
-            diss.parse_and_normalize()
-            diss.process_into_template(template)
+            pe = PointElectronicTiffParser(self.file_path, self.entry_id)
+            pe.parse_and_normalize()
+            pe.process_into_template(template)
         elif image_parser_type == "set_of_zipped_png_protochips":
-            pngs = ProtochipsPngSetParser(self.file_path, self.entry_id)
-            pngs.parse_and_normalize()
-            pngs.process_into_template(template)
+            axon = ProtochipsPngSetParser(self.file_path, self.entry_id)
+            axon.parse_and_normalize()
+            axon.process_into_template(template)
         # add here further specific content (sub-)parsers for formats from other
         # tech partner or other custom parsing of images
         return template

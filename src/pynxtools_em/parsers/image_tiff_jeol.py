@@ -120,12 +120,12 @@ class JeolTiffParser(TiffParser):
                             self.tmp["flat_dict_meta"][tmp[0]] = pint.Quantity(tmp[1])
                     else:
                         raise KeyError(f"Found duplicated key {tmp[0]} !")
-                else:  # len(tmp) > 2:
+                else:
                     print(f"WARNING::{line} is currently ignored !")
 
-            # report metadata just for verbose purposes right now
-            for key, value in self.tmp["flat_dict_meta"].items():
-                print(f"{key}______{type(value)}____{value}")
+            if self.verbose:
+                for key, value in self.tmp["flat_dict_meta"].items():
+                    print(f"{key}______{type(value)}____{value}")
 
             if (
                 self.tmp["flat_dict_meta"]["SEM_DATA_VERSION"] == 1
