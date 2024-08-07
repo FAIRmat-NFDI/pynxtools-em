@@ -25,7 +25,7 @@ ureg = UnitRegistry()
 DISS_VARIOUS_DYNAMIC_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "",
-    "map_to_f32": [
+    "map_to_f8": [
         ("em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/magnification", "Mag"),
         (
             "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/working_distance",

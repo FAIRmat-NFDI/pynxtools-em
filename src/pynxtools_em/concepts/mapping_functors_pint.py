@@ -380,11 +380,10 @@ def map_functor(
             src_val = mdata[f"{prfx_src}{cmd[2]}"]
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_val, pint.Quantity):
-                set_value(template, trg, src_val.units.to(cmd[1]), trg_dtype_key)
+                set_value(template, trg, src_val.to(cmd[1]), trg_dtype_key)
             else:
                 pint_src = pint.Quantity(src_val, cmd[3])
-                # pint_trg = pint_src.units.to(cmd[1])
-                set_value(template, trg, pint_src.units.to(cmd[1]), trg_dtype_key)
+                set_value(template, trg, pint_src.to(cmd[1]), trg_dtype_key)
         elif case == "case_five_list":
             if len(cmd[2]) == 0:
                 continue
@@ -401,10 +400,10 @@ def map_functor(
                 continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_values, pint.Quantity):
-                set_value(template, trg, src_values.units.to(cmd[1]), trg_dtype_key)
+                set_value(template, trg, src_values.to(cmd[1]), trg_dtype_key)
             else:
                 pint_src = pint.Quantity(src_values, cmd[3])
-                set_value(template, trg, pint_src.units.to(cmd[1]), trg_dtype_key)
+                set_value(template, trg, pint_src.to(cmd[1]), trg_dtype_key)
         elif case == "case_six":
             if f"{prfx_src}{cmd[2]}" not in mdata or f"{prfx_src}{cmd[3]}" not in mdata:
                 continue
@@ -415,7 +414,7 @@ def map_functor(
                 set_value(template, trg, src_val.units.to(cmd[1]), trg_dtype_key)
             else:
                 pint_src = pint.Quantity(src_val, pint.Unit(src_unit))
-                set_value(template, trg, pint_src.units.to(cmd[1]), trg_dtype_key)
+                set_value(template, trg, pint_src.to(cmd[1]), trg_dtype_key)
     return template
 
 

@@ -13,11 +13,12 @@
             "args": ["convert",
                      "examples/eln_data.yaml",
                      "examples/em.oasis.specific.yaml",
-                     "--nxdl",
-                     "NXem",
+                     "../ebic_dm3_goette/documents-export-2024-06-06/EBIC/Defekt1.tif",
                      "--reader",
                      "em",
-                     "--output=../dbg/dbg.nxs"],
+                     "--nxdl",
+                     "NXem",
+                     "--output=dbg/dbg.nxs"],
         }
     ]
 }
