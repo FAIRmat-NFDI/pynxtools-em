@@ -26,8 +26,10 @@ import pint
 from PIL import Image, ImageSequence
 from pint import UnitRegistry
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
-
-# from pynxtools_em.configurations.image_tiff_jeol_cfg import JEOL_VARIOUS_DYNAMIC_TO_NX_EM
+from pynxtools_em.configurations.image_tiff_jeol_cfg import (
+    JEOL_VARIOUS_DYNAMIC_TO_NX_EM,
+    JEOL_VARIOUS_STATIC_TO_NX_EM,
+)
 from pynxtools_em.parsers.image_tiff import TiffParser
 from pynxtools_em.utils.string_conversions import string_to_number
 
@@ -111,7 +113,9 @@ class JeolTiffParser(TiffParser):
                         # and regular numpy / pure Python types, the mapping functor should
                         # take care of resolving the cases properly
                         if tmp[0] != "SM_MICRON_MARKER":
-                            self.tmp["flat_dict_meta"][tmp[0]] = tmp[1]
+                            self.tmp["flat_dict_meta"][tmp[0]] = string_to_number(
+                                tmp[1]
+                            )
                         else:
                             self.tmp["flat_dict_meta"][tmp[0]] = pint.Quantity(tmp[1])
                     else:
@@ -124,7 +128,7 @@ class JeolTiffParser(TiffParser):
                 print(f"{key}______{type(value)}____{value}")
 
             if (
-                self.tmp["flat_dict_meta"]["SEM_DATA_VERSION"] == "1"
+                self.tmp["flat_dict_meta"]["SEM_DATA_VERSION"] == 1
                 and self.tmp["flat_dict_meta"]["CM_LABEL"] == "JEOL"
             ):
                 self.supported = True
@@ -223,8 +227,6 @@ class JeolTiffParser(TiffParser):
         return template
 
     def add_various_dynamic(self, template: dict) -> dict:
-        pass
-        """
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata_pint(
             JEOL_VARIOUS_DYNAMIC_TO_NX_EM,
@@ -232,7 +234,16 @@ class JeolTiffParser(TiffParser):
             identifier,
             template,
         )
-        """
+        return template
+
+    def add_various_static(self, template: dict) -> dict:
+        identifier = [self.entry_id, self.event_id, 1]
+        add_specific_metadata_pint(
+            JEOL_VARIOUS_STATIC_TO_NX_EM,
+            self.tmp["flat_dict_meta"],
+            identifier,
+            template,
+        )
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:
@@ -240,5 +251,6 @@ class JeolTiffParser(TiffParser):
         # contextualization to understand how the image relates to the EM session
         print(f"Mapping some of JEOL metadata on respective NeXus concepts...")
         self.add_various_dynamic(template)
+        self.add_various_static(template)
         # ... add more as required ...
         return template
