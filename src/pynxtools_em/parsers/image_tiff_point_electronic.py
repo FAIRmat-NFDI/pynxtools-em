@@ -32,10 +32,11 @@ from pynxtools_em.utils.string_conversions import string_to_number
 
 
 class PointElectronicTiffParser(TiffParser):
-    def __init__(self, file_path: str = "", entry_id: int = 1):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
         super().__init__(file_path)
         self.entry_id = entry_id
         self.event_id = 1
+        self.verbose = verbose
         self.prfx = None
         self.tmp: Dict = {"data": None, "flat_dict_meta": fd.FlatDict({})}
         self.supported_version: Dict = {}

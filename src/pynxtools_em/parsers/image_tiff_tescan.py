@@ -24,20 +24,20 @@ import flatdict as fd
 import numpy as np
 from PIL import Image, ImageSequence
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
-
-# from pynxtools_em.configurations.image_tiff_tescan_cfg import (
-#     TESCAN_VARIOUS_DYNAMIC_TO_NX_EM,
-#     TESCAN_VARIOUS_STATIC_TO_NX_EM
-# )
+from pynxtools_em.configurations.image_tiff_tescan_cfg import (
+    TESCAN_VARIOUS_DYNAMIC_TO_NX_EM,
+    TESCAN_VARIOUS_STATIC_TO_NX_EM,
+)
 from pynxtools_em.parsers.image_tiff import TiffParser
 from pynxtools_em.utils.string_conversions import string_to_number
 
 
 class TescanTiffParser(TiffParser):
-    def __init__(self, file_path: str = "", entry_id: int = 1):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
         super().__init__(file_path)
         self.entry_id = entry_id
         self.event_id = 1
+        self.verbose = verbose
         self.prfx = None
         self.tmp: Dict = {"data": None, "flat_dict_meta": fd.FlatDict({})}
         self.supported_version: Dict = {}
@@ -188,26 +188,22 @@ class TescanTiffParser(TiffParser):
 
     def add_various_dynamic(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        """
         add_specific_metadata_pint(
             TESCAN_VARIOUS_DYNAMIC_TO_NX_EM,
             self.tmp["flat_dict_meta"],
             identifier,
             template,
         )
-        """
         return template
 
     def add_various_static(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
-        """
         add_specific_metadata_pint(
             TESCAN_VARIOUS_STATIC_TO_NX_EM,
             self.tmp["flat_dict_meta"],
             identifier,
             template,
         )
-        """
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:
