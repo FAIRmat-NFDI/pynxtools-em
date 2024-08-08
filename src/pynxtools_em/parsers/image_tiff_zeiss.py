@@ -24,21 +24,17 @@ from typing import Dict
 
 import flatdict as fd
 import numpy as np
-import pint
-from PIL import Image
+from PIL import Image, ImageSequence
 from PIL.TiffTags import TAGS
-from pint import UnitRegistry
+from pint import UndefinedUnitError
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_zeiss_cfg import (
     ZEISS_VARIOUS_DYNAMIC_TO_NX_EM,
     ZEISS_VARIOUS_STATIC_TO_NX_EM,
 )
 from pynxtools_em.parsers.image_tiff import TiffParser
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
-
-ureg = UnitRegistry()
-ureg.define("Hours = 1 * h")
-ureg.define("Secs = 1 * s")
 
 ZEISS_CONCEPT_PREFIXES = ("AP_", "DP_", "SV_")
 
@@ -115,7 +111,7 @@ class ZeissTiffParser(TiffParser):
                     else:
                         try:
                             self.tmp["flat_dict_meta"][line] = ureg.Quantity(token[1])
-                        except pint.UndefinedUnitError:
+                        except UndefinedUnitError:
                             if token[1]:
                                 self.tmp["flat_dict_meta"][line] = string_to_number(
                                     token[1]
@@ -138,7 +134,7 @@ class ZeissTiffParser(TiffParser):
             idx += 1
         if self.verbose:
             for key, value in self.tmp["flat_dict_meta"].items():
-                if isinstance(value, pint.Quantity):
+                if isinstance(value, ureg.Quantity):
                     # try:
                     #     if not value.dimensionless:
                     #         print(f"{value}, {type(value)}, {key}")
@@ -180,6 +176,7 @@ class ZeissTiffParser(TiffParser):
         """Perform actual parsing filling cache self.tmp."""
         if self.supported is True:
             print(f"Parsing via Zeiss-specific metadata...")
+            # metadata have at this point already been collected into an fd.FlatDict
         else:
             print(
                 f"{self.file_path} is not a Zeiss-specific "
@@ -189,90 +186,70 @@ class ZeissTiffParser(TiffParser):
     def process_into_template(self, template: dict) -> dict:
         if self.supported is True:
             self.process_event_data_em_metadata(template)
-            # self.process_event_data_em_data(template)
+            self.process_event_data_em_data(template)
         return template
 
     def process_event_data_em_data(self, template: dict) -> dict:
-        ############################
-        ############################
         """Add respective heavy data."""
-        # default display of the image(s) representing the data collected in this event
-        print(
-            f"Writing Zeiss TIFF image data to the respective NeXus concept instances..."
-        )
-        # read image in-place
+        print(f"Writing Zeiss image data to the respective NeXus concept instances...")
+        image_identifier = 1
         with Image.open(self.file_path, mode="r") as fp:
-            nparr = np.array(fp)
-            # print(f"type: {type(nparr)}, dtype: {nparr.dtype}, shape: {np.shape(nparr)}")
-            # TODO::discussion points
-            # - how do you know we have an image of real space vs. imaginary space (from the metadata?)
-            # - how do deal with the (ugly) scale bar that is typically stamped into the TIFF image content?
-            # with H5Web and NeXus most of this is obsolete unless there are metadata stamped which are not
-            # available in NeXus or in the respective metadata in the metadata section of the TIFF image
-            # remember H5Web images can be scaled based on the metadata allowing basically the same
-            # explorative viewing using H5Web than what traditionally typical image viewers are meant for
-            image_identifier = 1
-            trg = (
-                f"/ENTRY[entry{self.entry_id}]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/"
-                f"EVENT_DATA_EM[event_data_em{self.event_id}]/"
-                f"IMAGE_R_SET[image_r_set{image_identifier}]/image_twod"
-            )
-            # TODO::writer should decorate automatically!
-            template[f"{trg}/title"] = f"Image"
-            template[f"{trg}/@signal"] = "intensity"
-            dims = ["x", "y"]
-            idx = 0
-            for dim in dims:
-                template[f"{trg}/@AXISNAME_indices[axis_{dim}_indices]"] = np.uint32(
-                    idx
+            for img in ImageSequence.Iterator(fp):
+                nparr = np.array(img)
+                print(
+                    f"Processing image {image_identifier} ... {type(nparr)}, {np.shape(nparr)}, {nparr.dtype}"
                 )
-                idx += 1
-            template[f"{trg}/@axes"] = []
-            for dim in dims[::-1]:
-                template[f"{trg}/@axes"].append(f"axis_{dim}")
-            template[f"{trg}/intensity"] = {"compress": np.array(fp), "strength": 1}
-            #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
-            template[f"{trg}/intensity/@long_name"] = f"Signal"
+                # eventually similar open discussions points as were raised for tiff_tfs parser
+                trg = (
+                    f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
+                    f"EVENT_DATA_EM[event_data_em{self.event_id}]/"
+                    f"IMAGE_SET[image_set{image_identifier}]/image_twod"
+                )
+                template[f"{trg}/title"] = f"Image"
+                template[f"{trg}/@signal"] = "real"
+                dims = ["i", "j"]  # i == x (fastest), j == y (fastest)
+                idx = 0
+                for dim in dims:
+                    template[f"{trg}/@AXISNAME_indices[axis_{dim}_indices]"] = (
+                        np.uint32(idx)
+                    )
+                    idx += 1
+                template[f"{trg}/@axes"] = []
+                for dim in dims[::-1]:
+                    template[f"{trg}/@axes"].append(f"axis_{dim}")
+                template[f"{trg}/real"] = {"compress": np.array(fp), "strength": 1}
+                #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
+                template[f"{trg}/real/@long_name"] = f"Signal"
 
-            sxy = {"x": 1.0, "y": 1.0}
-            scan_unit = {"x": "m", "y": "m"}  # assuming FEI reports SI units
-            # we may face the CCD overview camera for the chamber for which there might not be a calibration!
-            if ("EScan/PixelWidth" in self.tmp["flat_dict_meta"]) and (
-                "EScan/PixelHeight" in self.tmp["flat_dict_meta"]
-            ):
-                sxy = {
-                    "x": self.tmp["flat_dict_meta"]["EScan/PixelWidth"],
-                    "y": self.tmp["flat_dict_meta"]["EScan/PixelHeight"],
-                }
-            else:
-                print("WARNING: Assuming pixel width and height unit is meter!")
-            nxy = {"x": np.shape(np.array(fp))[1], "y": np.shape(np.array(fp))[0]}
-            # TODO::be careful we assume here a very specific coordinate system
-            # however the TIFF file gives no clue, TIFF just documents in which order
-            # it arranges a bunch of pixels that have stream in into a n-d tiling
-            # e.g. a 2D image
-            # also we have to be careful because TFS just gives us here
-            # typical case of an image without an information without its location
-            # on the physical sample surface, therefore we can only scale
-            # pixel_identifier by physical scaling quantities s_x, s_y
-            # also the dimensions of the image are on us to fish with the image
-            # reading library instead of TFS for consistency checks adding these
-            # to the metadata the reason is that TFS TIFF use the TIFF tagging mechanism
-            # and there is already a proper TIFF tag for the width and height of an
-            # image in number of pixel
-            for dim in dims:
-                template[f"{trg}/AXISNAME[axis_{dim}]"] = {
-                    "compress": np.asarray(
-                        np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
-                        * sxy[dim],
-                        np.float64,
-                    ),
-                    "strength": 1,
-                }
-                template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                    f"Coordinate along {dim}-axis ({scan_unit[dim]})"
-                )
-                template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit[dim]}"
+                sxy = {"i": 1.0, "j": 1.0}
+                scan_unit = {"i": "m", "j": "m"}
+                if "APImagePixelSize" in self.tmp["flat_dict_meta"]:
+                    pixel_size = (
+                        self.tmp["flat_dict_meta"]["APImagePixelSize"]
+                        .to(ureg.meter)
+                        .magnitude
+                    )
+                    sxy = {"i": pixel_size, "j": pixel_size}
+                else:
+                    print("WARNING: Assuming pixel width and height unit is meter!")
+                nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
+                # TODO::be careful we assume here a very specific coordinate system
+                # however, these assumptions need to be confirmed by point electronic
+                # additional points as discussed already in comments to TFS TIFF reader
+                for dim in dims:
+                    template[f"{trg}/AXISNAME[axis_{dim}]"] = {
+                        "compress": np.asarray(
+                            np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
+                            * sxy[dim],
+                            np.float64,
+                        ),
+                        "strength": 1,
+                    }
+                    template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
+                        f"Coordinate along {dim}-axis ({scan_unit[dim]})"
+                    )
+                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit[dim]}"
+                image_identifier += 1
         return template
 
     def add_various_dynamic_metadata(self, template: dict) -> dict:

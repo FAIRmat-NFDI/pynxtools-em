@@ -17,10 +17,7 @@
 #
 """Configuration of the image_tiff_tescan parser."""
 
-from pint import UnitRegistry
-
-ureg = UnitRegistry()
-
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 TESCAN_VARIOUS_DYNAMIC_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]",

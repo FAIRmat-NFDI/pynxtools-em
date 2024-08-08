@@ -120,7 +120,7 @@ mapping and translations as hard-coded instructions instead.
   * **use** instructs mapping explicitly instance data on *trg* without demanding a *src*.
     Specifically, tuples of the following two datatypes are allowed:
     (str, str | numpy datatype (scalar or array))
-    (str, pint.Quantity)
+    (str, pint.ureg)
     The first value resolves the symbol for the concept on the *trg* side.
     The second value resolves the instance data to store on the *trg* side.
     The template path on the *trg* side is f"{prefix_trg}/{tpl[0]}", if provided prefix_src will be ignored.
@@ -157,7 +157,7 @@ mapping and translations as hard-coded instructions instead.
       The third value resolves the specific unit on the *src* side.
 
       In an implementation, this case can be avoided when the value on the *src* side
-      is already normalized into a pint.Quantity. The second value can be a list of
+      is already normalized into a pint.ureg. The second value can be a list of
       strings of symbols for concepts on the *src* side.
 
     * ```(str, pint.ureg, str | list[str])``` aka case three.

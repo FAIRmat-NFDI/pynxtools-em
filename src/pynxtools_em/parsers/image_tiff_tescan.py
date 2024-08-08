@@ -123,9 +123,7 @@ class TescanTiffParser(TiffParser):
 
     def process_event_data_em_data(self, template: dict) -> dict:
         """Add respective heavy data."""
-        # default display of the image(s) representing the data collected in this event
         print(f"Writing TESCAN image data to the respective NeXus concept instances...")
-        # read image in-place
         image_identifier = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
