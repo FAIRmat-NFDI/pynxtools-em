@@ -22,18 +22,15 @@ from typing import Dict, List
 
 import flatdict as fd
 import numpy as np
-import pint
 from PIL import Image, ImageSequence
-from pint import UnitRegistry
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_jeol_cfg import (
     JEOL_VARIOUS_DYNAMIC_TO_NX_EM,
     JEOL_VARIOUS_STATIC_TO_NX_EM,
 )
 from pynxtools_em.parsers.image_tiff import TiffParser
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
-
-ureg = UnitRegistry()
 
 
 class JeolTiffParser(TiffParser):
@@ -103,21 +100,14 @@ class JeolTiffParser(TiffParser):
                     print(f"WARNING::{line} is currently ignored !")
                 elif len(tmp) == 2:
                     if tmp[0] not in self.tmp["flat_dict_meta"]:
-                        # this is not working robustly as the following example fails:
-                        # CM_TITLE 20240227_A1_2m_0_FA3_1 ('invalid decimal literal', (1, 9))
-                        # try:
-                        #     self.tmp["flat_dict_meta"][tmp[0]] = pint.Quantity(tmp[1])
-                        # except pint.errors.UndefinedUnitError:
-                        #     self.tmp["flat_dict_meta"][tmp[0]] = tmp[1]
-                        # as an alternative we currently use a mixture of pint quantities
-                        # and regular numpy / pure Python types, the mapping functor should
-                        # take care of resolving the cases properly
+                        # replace with pint parsing and catching multiple exceptions
+                        # as it is exemplified in the tiff_zeiss parser
                         if tmp[0] != "SM_MICRON_MARKER":
                             self.tmp["flat_dict_meta"][tmp[0]] = string_to_number(
                                 tmp[1]
                             )
                         else:
-                            self.tmp["flat_dict_meta"][tmp[0]] = pint.Quantity(tmp[1])
+                            self.tmp["flat_dict_meta"][tmp[0]] = ureg.Quantity(tmp[1])
                     else:
                         raise KeyError(f"Found duplicated key {tmp[0]} !")
                 else:
