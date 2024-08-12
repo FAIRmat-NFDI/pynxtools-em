@@ -30,8 +30,8 @@ import nion.swift.model.NDataHandler as nsnd
 import numpy as np
 import yaml
 from pynxtools_em.configurations.nion_cfg import (
-    UNITS_TO_IMAGE_LIKE_NXDATA,
-    UNITS_TO_SPECTRUM_LIKE_NXDATA,
+    WHICH_IMAGE,
+    WHICH_SPECTRUM,
 )
 from pynxtools_em.utils.get_file_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
@@ -395,18 +395,18 @@ class NionProjectParser:
         prfx = f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.event_id}]"
         self.event_id += 1
         axis_names = None
-        if unit_combination in UNITS_TO_SPECTRUM_LIKE_NXDATA:
-            trg = f"{prfx}/SPECTRUM_SET[spectrum_set1]/{UNITS_TO_SPECTRUM_LIKE_NXDATA[unit_combination][0]}"
+        if unit_combination in WHICH_SPECTRUM:
+            trg = f"{prfx}/SPECTRUM_SET[spectrum_set1]/{WHICH_SPECTRUM[unit_combination][0]}"
             template[f"{trg}/title"] = f"{flat_metadata["title"]}"
             template[f"{trg}/@signal"] = f"intensity"
             template[f"{trg}/intensity"] = {"compress": nparr, "strength": 1}
-            axis_names = UNITS_TO_SPECTRUM_LIKE_NXDATA[unit_combination][1]
-        elif unit_combination in UNITS_TO_IMAGE_LIKE_NXDATA:
-            trg = f"{prfx}/IMAGE_SET[image_set1]/{UNITS_TO_IMAGE_LIKE_NXDATA[unit_combination][0]}"
+            axis_names = WHICH_SPECTRUM[unit_combination][1]
+        elif unit_combination in WHICH_IMAGE:
+            trg = f"{prfx}/IMAGE_SET[image_set1]/{WHICH_IMAGE[unit_combination][0]}"
             template[f"{trg}/title"] = f"{flat_metadata["title"]}"
             template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
             template[f"{trg}/real"] = {"compress": nparr, "strength": 1}
-            axis_names = UNITS_TO_IMAGE_LIKE_NXDATA[unit_combination][1]
+            axis_names = WHICH_IMAGE[unit_combination][1]
         elif not any(
             (value in ["1/", "iteration"]) for value in unit_combination.split(";")
         ):
@@ -446,11 +446,11 @@ class NionProjectParser:
                             np.float32,
                         )
                     )
-                    if unit_combination in UNITS_TO_SPECTRUM_LIKE_NXDATA:
+                    if unit_combination in WHICH_SPECTRUM:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
                             f"Spectrum identifier"
                         )
-                    elif unit_combination in UNITS_TO_IMAGE_LIKE_NXDATA:
+                    elif unit_combination in WHICH_IMAGE:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
                             f"Image identifier"
                         )

@@ -21,7 +21,7 @@ from typing import Any, Dict
 
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-UNITS_TO_SPECTRUM_LIKE_NXDATA = {
+WHICH_SPECTRUM = {
     "eV": ("spectrum_0d", ["energy"]),
     "nm_eV": ("spectrum_1d", ["i", "energy"]),
     "nm_nm_eV": ("spectrum_2d", ["j", "i", "energy"]),
@@ -34,7 +34,7 @@ UNITS_TO_SPECTRUM_LIKE_NXDATA = {
         ["spectrum_identifier", "k", "j", "i", "energy"],
     ),
 }
-UNITS_TO_IMAGE_LIKE_NXDATA = {
+WHICH_IMAGE = {
     "nm": ("image_1d", ["i"]),
     "nm_nm": ("image_2d", ["j", "i"]),
     "nm_nm_nm": ("image_3d", ["k", "j", "i"]),
