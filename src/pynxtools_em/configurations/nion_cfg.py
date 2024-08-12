@@ -23,24 +23,24 @@ from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 UNITS_TO_SPECTRUM_LIKE_NXDATA = {
     "eV": ("spectrum_0d", ["energy"]),
-    "nm;eV": ("spectrum_1d", ["i", "energy"]),
-    "nm;nm;eV": ("spectrum_2d", ["j", "i", "energy"]),
-    "nm;nm;nm;eV": ("spectrum_3d", ["k", "j", "i", "energy"]),
-    "unitless;eV": ("stack_0d", ["spectrum_identifier", "energy"]),
-    "unitless;nm;eV": ("stack_1d", ["spectrum_identifier", "energy"]),
-    "unitless;nm;nm;eV": ("stack_2d", ["spectrum_identifier", "j", "i", "energy"]),
-    "unitless;nm;nm;nm;eV": (
+    "nm_eV": ("spectrum_1d", ["i", "energy"]),
+    "nm_nm_eV": ("spectrum_2d", ["j", "i", "energy"]),
+    "nm_nm_nm_eV": ("spectrum_3d", ["k", "j", "i", "energy"]),
+    "unitless_eV": ("stack_0d", ["spectrum_identifier", "energy"]),
+    "unitless_nm_eV": ("stack_1d", ["spectrum_identifier", "energy"]),
+    "unitless_nm_nm_eV": ("stack_2d", ["spectrum_identifier", "j", "i", "energy"]),
+    "unitless_nm_nm_nm_eV": (
         "stack_3d",
         ["spectrum_identifier", "k", "j", "i", "energy"],
     ),
 }
 UNITS_TO_IMAGE_LIKE_NXDATA = {
     "nm": ("image_1d", ["i"]),
-    "nm;nm": ("image_2d", ["j", "i"]),
-    "nm;nm;nm": ("image_3d", ["k", "j", "i"]),
-    "unitless;nm": ("stack_1d", ["image_identifier", "i"]),
-    "unitless;nm;nm": ("stack_2d", ["image_identifier", "j", "i"]),
-    "unitless;nm;nm;nm": ("stack_3d", ["image_identifier", "k", "j", "i"]),
+    "nm_nm": ("image_2d", ["j", "i"]),
+    "nm_nm_nm": ("image_3d", ["k", "j", "i"]),
+    "unitless_nm": ("stack_1d", ["image_identifier", "i"]),
+    "unitless_nm_nm": ("stack_2d", ["image_identifier", "j", "i"]),
+    "unitless_nm_nm_nm": ("stack_3d", ["image_identifier", "k", "j", "i"]),
 }
 
 
@@ -128,32 +128,17 @@ NION_DYNAMIC_LENS_TO_NX_EM: Dict[str, Any] = {
     ],
 }
 
-UNITS_TO_SPECTRUM_LIKE_NXDATA = {
-    "eV": ("spectrum_0d", ["energy"]),
-    "nm;eV": ("spectrum_1d", ["i", "energy"]),
-    "nm;nm;eV": ("spectrum_2d", ["j", "i", "energy"]),
-    "nm;nm;nm;eV": ("spectrum_3d", ["k", "j", "i", "energy"]),
-    "unitless;eV": ("stack_0d", ["spectrum_identifier", "energy"]),
-    "unitless;nm;eV": ("stack_1d", ["spectrum_identifier", "energy"]),
-    "unitless;nm;nm;eV": ("stack_2d", ["spectrum_identifier", "j", "i", "energy"]),
-    "unitless;nm;nm;nm;eV": (
-        "stack_3d",
-        ["spectrum_identifier", "k", "j", "i", "energy"],
-    ),
-}
-UNITS_TO_IMAGE_LIKE_NXDATA = {
-    "nm": ("image_1d", ["i"]),
-    "nm;nm": ("image_2d", ["j", "i"]),
-    "nm;nm;nm": ("image_3d", ["k", "j", "i"]),
-    "unitless;nm": ("stack_1d", ["image_identifier", "i"]),
-    "unitless;nm;nm": ("stack_2d", ["image_identifier", "j", "i"]),
-    "unitless;nm;nm;nm": ("stack_3d", ["image_identifier", "k", "j", "i"]),
-}
 
 NION_DYNAMIC_SCAN_TO_NX_EM: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
     "prefix_src": "metadata/scan/scan_device_properties",
-    "map_to_str": ["ac_line_sync", "calibration_style"],
+    "map_to_str": [
+        "ac_line_sync",
+        "calibration_style",
+        ("scan_schema", "channel_modifier"),
+        # TODO::exemplar mapping of subscan metadata
+    ],
+    "map_to_bool": ["ac_frame_sync"],
     "map_to_f8": [
         ("center", ureg.meter, ["center_x_nm", "center_y_nm"], ureg.nanometer),
         ("flyback_time", ureg.second, "flyback_time_us", ureg.microsecond),
@@ -167,6 +152,11 @@ NION_DYNAMIC_SCAN_TO_NX_EM: Dict[str, Any] = {
         ("rotation", ureg.radian, "rotation_rad", ureg.radian),
     ],
 }
+# TODO metadata/scan/scan_device_parameters/ the following remain unmapped
+# center_nm, data_shape_override, external_clock_mode, external_clock_wait_time_ms,
+# external_scan_mode, external_scan_ratio, pixel_size, scan_id, section_rect,
+# size, state_override, subscan_fractional_center, subscan_fractional_size,
+# subscan_pixel_size, subscan_rotation, subscan_type_partial, top_left_override
 
 
 C0 = "CIRCUIT[magboard0]"
@@ -205,5 +195,62 @@ NION_DYNAMIC_MAGBOARDS_TO_NX_EM: Dict[str, Any] = {
 }
 
 
-NION_STATIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {}
-NION_DYNAMIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {}
+NION_STATIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/DETECTOR[detector*]",
+    "prefix_src": "metadata/hardware_source/detector_configuration/",
+    "map_to_str": [
+        ("FABRICATION[fabrication]/model", "description"),
+        ("FABRICATION[fabrication]/identifier", "detector_number"),
+        "eiger_fw_version",
+        "sensor_material",
+        "software_version",
+    ],
+    "map_to_u4": [
+        ("x_pixel", "x_pixels_in_detector"),
+        ("x_pixel", "x_pixels_in_detector"),
+    ],
+    "map_to_f8": [
+        ("x_pixel_size", ureg.meter, "x_pixel_size", ureg.meter),
+        ("y_pixel_size", ureg.meter, "y_pixel_size", ureg.meter),
+        ("sensor_thickness", ureg.meter, "sensor_thickness", ureg.meter),
+    ],
+}
+
+NION_DYNAMIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/DETECTOR[detector*]",
+    "prefix_src": "metadata/hardware_source/detector_configuration/",
+    "map_to_bool": [
+        "countrate_correction_applied",
+        "pixel_mask_applied",
+        (
+            "flatfield_applied",
+            "flatfield_correction_applied",
+        ),  # example for concept_name mismatch Dectris and NeXus
+    ],
+    "map_to_i1": ["bit_depth_readout", "bit_depth_image"],
+    "map_to_f8": [
+        "beam_center_x",
+        "beam_center_y",
+        ("detector_readout_time", ureg.second, "detector_readout_time", ureg.second),
+        ("frame_time", ureg.second, "frame_time", ureg.second),
+        ("count_time", ureg.second, "count_time", ureg.second),
+        ("threshold_energy", ureg.eV, "threshold_energy", ureg.eV),
+    ],
+}
+
+
+NION_PINPOINT_EVENT_TIME = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]",
+    "prefix_src": "metadata/hardware_source/detector_configuration/",
+    "map": [("start_time", "data_collection_date")],
+    # this could be a poor assumption as we do not know when during the acquisition
+    # this timestamp is taken
+}
+
+# the following concepts from metadata/hardware_source/detector_configuration
+# have no representative in NeXus for now, TODO add them as undocumented ?
+# auto_summation, chi_increment, chi_start, compression, countrate_correction_count_cutoff,
+# detector_translation, element, frame_count_time, frame_period, kappa_increment,
+# kappa_start, nimages, ntrigger, number_of_excluded_pixels, omega_increment,
+# omega_start, phi_increment, phi_start, photon_energy, roi_mode, trigger_mode,
+# two_theta_increment, two_theta_start, virtual_pixel_correction_applied, wavelength
