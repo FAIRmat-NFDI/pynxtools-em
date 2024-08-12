@@ -397,13 +397,13 @@ class NionProjectParser:
         axis_names = None
         if unit_combination in WHICH_SPECTRUM:
             trg = f"{prfx}/SPECTRUM_SET[spectrum_set1]/{WHICH_SPECTRUM[unit_combination][0]}"
-            template[f"{trg}/title"] = f"{flat_metadata["title"]}"
+            template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"intensity"
             template[f"{trg}/intensity"] = {"compress": nparr, "strength": 1}
             axis_names = WHICH_SPECTRUM[unit_combination][1]
         elif unit_combination in WHICH_IMAGE:
             trg = f"{prfx}/IMAGE_SET[image_set1]/{WHICH_IMAGE[unit_combination][0]}"
-            template[f"{trg}/title"] = f"{flat_metadata["title"]}"
+            template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
             template[f"{trg}/real"] = {"compress": nparr, "strength": 1}
             axis_names = WHICH_IMAGE[unit_combination][1]
@@ -411,7 +411,7 @@ class NionProjectParser:
             (value in ["1/", "iteration"]) for value in unit_combination.split(";")
         ):
             trg = f"{prfx}/DATA[data1]"
-            template[f"{trg}/title"] = f"{flat_metadata["title"]}"
+            template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"data"
             template[f"{trg}/data"] = {"compress": nparr, "strength": 1}
             axis_names = ["i", "j", "k", "l", "m"][
