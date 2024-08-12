@@ -29,6 +29,10 @@ import h5py
 import nion.swift.model.NDataHandler as nsnd
 import numpy as np
 import yaml
+from pynxtools_em.configurations.nion_cfg import (
+    UNITS_TO_IMAGE_LIKE_NXDATA,
+    UNITS_TO_SPECTRUM_LIKE_NXDATA,
+)
 
 # from pynxtools_em.utils.swift_generate_dimscale_axes \
 #     import get_list_of_dimension_scale_axes
@@ -42,7 +46,8 @@ from pynxtools_em.utils.get_file_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )
-from pynxtools_em.utils.nion_utils import uuid_to_file_name
+from pynxtools_em.utils.nion_utils import tokenize_dims, uuid_to_file_name
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 
 class NionProjectParser:
@@ -430,4 +435,119 @@ class NionProjectParser:
             else:
                 print("Parsing in-place nionswift project (nsproj + data)...")
             self.parse_project_file(template)
+        return template
+
+    def process_em_data(self, template: dict) -> dict:
+        # TODO
+        dimensional_calibrations = None
+        shape = None
+        # [{'offset': -0.022, 'scale': 0.0013333333333333333, 'units': '1/nm'},
+        #  {'offset': -0.021666666666666667, 'scale': 0.0006666666666666666, 'units': '1/nm'}]
+        unit_combination = tokenize_dims(
+            dimensional_calibrations
+        )  # check already formatting of dimensional calibrations
+        print(dimensional_calibrations)
+        print(shape)
+        print(unit_combination)
+
+        prfx = "~"  # f"/ENTRY[entry1]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em1]"
+        template = {}
+        axis_names = None
+        # {"compress": np.array(fp), "strength": 1}
+        if unit_combination in UNITS_TO_SPECTRUM_LIKE_NXDATA:
+            trg = f"{prfx}/SPECTRUM_SET[spectrum_set1]/{UNITS_TO_SPECTRUM_LIKE_NXDATA[unit_combination][0]}"
+            template[f"{trg}/title"] = f"Spectrum"
+            template[f"{trg}/@signal"] = f"intensity"
+            template[f"{trg}/intensity"] = None
+            axis_names = UNITS_TO_SPECTRUM_LIKE_NXDATA[unit_combination][1]
+        elif unit_combination in UNITS_TO_IMAGE_LIKE_NXDATA:
+            trg = f"{prfx}/IMAGE_SET[image_set1]/{UNITS_TO_IMAGE_LIKE_NXDATA[unit_combination][0]}"
+            template[f"{trg}/title"] = f"Image"
+            template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
+            template[f"{trg}/real"] = None
+            axis_names = UNITS_TO_IMAGE_LIKE_NXDATA[unit_combination][1]
+        elif not any(
+            (value in ["1/", "iteration"]) for value in unit_combination.split(";")
+        ):
+            trg = f"{prfx}/DATA[data1]"
+            template[f"{trg}/title"] = f"Data"
+            template[f"{trg}/@signal"] = f"data"
+            template[f"{trg}/data"] = "ADD_YOUR_VALUES"
+            axis_names = ["i", "j", "k", "l", "m"][
+                0 : len(unit_combination.split(";"))
+            ][::-1]
+        else:
+            print(f"WARNING::{unit_combination} unsupported unit_combination !")
+            return {}
+
+        if len(axis_names) >= 1:
+            # arrays axis_names and dimensional_calibrations are aligned in order
+            # but that order is reversed wrt to AXISNAME_indices !
+            for idx, axis_name in enumerate(axis_names):
+                template[f"{trg}/@AXISNAME_indices[{axis_name}_indices]"] = np.uint32(
+                    len(axis_names) - 1 - idx
+                )
+            template[f"{trg}/@axes"] = axis_names
+
+            for idx, axis in enumerate(dimensional_calibrations):
+                axis_name = axis_names[idx]
+                # if axis["units"] == "nm":
+                offset = axis[
+                    "offset"
+                ]  # ureg.Quantity(axis["offset"], axis["units"])  # .to(ureg.meter)
+                step = axis[
+                    "scale"
+                ]  # ureg.Quantity(axis["scale"], axis["units"])  # .to(ureg.meter)
+                units = axis["units"]
+                count = shape[idx]
+                # elif axis["units"] == "1/nm":
+                #     offset = ureg.Quantity(axis["offset"], axis["units"]).to(1 / ureg.meter)
+                #     step = ureg.Quantity(axis["scale"], axis["units"]).to(1 / ureg.meter)
+                # else:
+                #     offset = ureg.Quantity(axis["offset"], axis["units"])
+                #     step = ureg.Quantity(axis["scale"], axis["units"])
+                if units == "":
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.float32(offset) + (
+                        np.float32(step)
+                        * np.asarray(
+                            np.linspace(
+                                start=0, stop=count - 1, num=count, endpoint=True
+                            ),
+                            np.float32,
+                        )
+                    )
+                    if unit_combination in UNITS_TO_SPECTRUM_LIKE_NXDATA:
+                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
+                            f"Spectrum identifier"
+                        )
+                    elif unit_combination in UNITS_TO_IMAGE_LIKE_NXDATA:
+                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
+                            f"Image identifier"
+                        )
+                    else:
+                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
+                            f"{axis_name}"
+                        )
+                else:
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.float32(offset) + (
+                        np.float32(step)
+                        * np.asarray(
+                            np.linspace(
+                                start=0, stop=count - 1, num=count, endpoint=True
+                            ),
+                            np.float32,
+                        )
+                    )
+                    template[f"{trg}/AXISNAME[{axis_name}]/@units"] = (
+                        f"{ureg.Unit(units)}"
+                    )
+                    if units == "eV":
+                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
+                            f"Energy ({ureg.Unit(units)})"
+                        )
+                    else:
+                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
+                            f"Point coordinate along {axis_name} ({ureg.Unit(units)})"
+                        )
+                    # if unit.dimensionless:
         return template

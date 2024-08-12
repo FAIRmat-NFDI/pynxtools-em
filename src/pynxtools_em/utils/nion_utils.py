@@ -36,3 +36,23 @@ def uuid_to_file_name(data_item_uuid_str: str) -> str:
     data_item_uuid_uuid = uuid.UUID(f"{data_item_uuid_str}")
     return f'data_{encode(data_item_uuid_uuid, "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")}'
     # 25 character results
+
+
+def tokenize_dims(list_of_dict):
+    if len(list_of_dict) >= 1:
+        token = []
+        for obj in list_of_dict:
+            if isinstance(obj, dict):
+                if list(obj.keys()) == ["offset", "scale", "units"]:
+                    if obj["units"] == "":
+                        token.append("unitless")
+                    else:
+                        token.append(obj["units"])
+                else:
+                    raise ValueError(
+                        f"{obj.keys()} are not exactly the expected keywords!"
+                    )
+            else:
+                raise ValueError(f"{obj} is not a dict!")
+        if len(token) >= 1:
+            return ";".join(token)
