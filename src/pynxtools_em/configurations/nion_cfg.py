@@ -52,7 +52,7 @@ WHICH_IMAGE = {
 
 MAG = "magnitude"
 NION_DYNAMIC_ABERRATION_TO_NX_EM: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column/corrector_cs/zemlin_tableauID[zemlin_tableau1]/PROCESS[process]/ABERRATION_MODEL[aberration_model]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column/corrector_cs/zemlin_tableauID[zemlin_tableau1]/ABERRATION_MODEL[aberration_model]",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
         "metadata/hardware_source/autostem/ImageScanned/",
