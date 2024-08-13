@@ -15,12 +15,13 @@
                      // "examples/em.oasis.specific.yaml",
                      //"../tescan/CZ04-2_102_Pic_2.tif",
                      //"../ebic_dm3_goette/em_example_files/SE2.tif",
-                     "../nion-parsing/2022-02-18_Metadata_Kuehbach.zip"
+                     //"../nion-parsing/2022-02-18_Metadata_Kuehbach.zip"
+                     "../nion-parsing/2022-03-01_hBN_ptychography/2022-03-01_hBN_ptychography.nsproj",
                      "--reader",
                      "em",
                      "--nxdl",
                      "NXem",
-                     "--output=dbg/dbg.nxs"],
+                     "--output=dbg/nion.nxs"],
         }
     ]
 }

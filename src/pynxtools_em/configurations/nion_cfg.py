@@ -22,25 +22,31 @@ from typing import Any, Dict
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 WHICH_SPECTRUM = {
-    "eV": ("spectrum_0d", ["energy"]),
-    "nm_eV": ("spectrum_1d", ["i", "energy"]),
-    "nm_nm_eV": ("spectrum_2d", ["j", "i", "energy"]),
-    "nm_nm_nm_eV": ("spectrum_3d", ["k", "j", "i", "energy"]),
-    "unitless_eV": ("stack_0d", ["spectrum_identifier", "energy"]),
-    "unitless_nm_eV": ("stack_1d", ["spectrum_identifier", "energy"]),
-    "unitless_nm_nm_eV": ("stack_2d", ["spectrum_identifier", "j", "i", "energy"]),
+    "eV": ("spectrum_0d", ["axis_energy"]),
+    "nm_eV": ("spectrum_1d", ["axis_i", "axis_energy"]),
+    "nm_nm_eV": ("spectrum_2d", ["axis_j", "axis_i", "axis_energy"]),
+    "nm_nm_nm_eV": ("spectrum_3d", ["axis_k", "axis_j", "axis_i", "axis_energy"]),
+    "unitless_eV": ("stack_0d", ["spectrum_identifier", "axis_energy"]),
+    "unitless_nm_eV": ("stack_1d", ["spectrum_identifier", "axis_energy"]),
+    "unitless_nm_nm_eV": (
+        "stack_2d",
+        ["spectrum_identifier", "axis_j", "axis_i", "axis_energy"],
+    ),
     "unitless_nm_nm_nm_eV": (
         "stack_3d",
-        ["spectrum_identifier", "k", "j", "i", "energy"],
+        ["spectrum_identifier", "axis_k", "axis_j", "axis_i", "axis_energy"],
     ),
 }
 WHICH_IMAGE = {
-    "nm": ("image_1d", ["i"]),
-    "nm_nm": ("image_2d", ["j", "i"]),
-    "nm_nm_nm": ("image_3d", ["k", "j", "i"]),
-    "unitless_nm": ("stack_1d", ["image_identifier", "i"]),
-    "unitless_nm_nm": ("stack_2d", ["image_identifier", "j", "i"]),
-    "unitless_nm_nm_nm": ("stack_3d", ["image_identifier", "k", "j", "i"]),
+    "nm": ("image_1d", ["axis_i"]),
+    "nm_nm": ("image_2d", ["axis_j", "axis_i"]),
+    "nm_nm_nm": ("image_3d", ["axis_k", "axis_j", "axis_i"]),
+    "unitless_nm": ("stack_1d", ["image_identifier", "axis_i"]),
+    "unitless_nm_nm": ("stack_2d", ["image_identifier", "axis_j", "axis_i"]),
+    "unitless_nm_nm_nm": (
+        "stack_3d",
+        ["image_identifier", "axis_k", "axis_j", "axis_i"],
+    ),
 }
 
 
@@ -129,6 +135,9 @@ NION_DYNAMIC_LENS_TO_NX_EM: Dict[str, Any] = {
 }
 
 
+# https://nionswift-instrumentation.readthedocs.io/en/latest/scanning.html#how-does-scanning-work
+# according to this documentation ac_line_style should be boolean but datasets show
+# 1.0, 2.0, True and False !
 NION_DYNAMIC_SCAN_TO_NX_EM: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
     "prefix_src": "metadata/scan/scan_device_properties",
@@ -139,6 +148,7 @@ NION_DYNAMIC_SCAN_TO_NX_EM: Dict[str, Any] = {
         # TODO::exemplar mapping of subscan metadata
     ],
     "map_to_bool": ["ac_frame_sync"],
+    "map_to_u4": [("external_trigger_mode", "external_clock_mode")],
     "map_to_f8": [
         ("center", ureg.meter, ["center_x_nm", "center_y_nm"], ureg.nanometer),
         ("flyback_time", ureg.second, "flyback_time_us", ureg.microsecond),
@@ -150,11 +160,16 @@ NION_DYNAMIC_SCAN_TO_NX_EM: Dict[str, Any] = {
             ureg.microsecond,
         ),  # requested_pixel_time_us
         ("rotation", ureg.radian, "rotation_rad", ureg.radian),
+        (
+            "external_trigger_max_wait_time",
+            ureg.second,
+            "external_clock_wait_time_ms",
+            ureg.millisecond,
+        ),
     ],
 }
 # TODO metadata/scan/scan_device_parameters/ the following remain unmapped
-# center_nm, data_shape_override, external_clock_mode, external_clock_wait_time_ms,
-# external_scan_mode, external_scan_ratio, pixel_size, scan_id, section_rect,
+# center_nm, data_shape_override, external_scan_mode, external_scan_ratio, pixel_size, scan_id, section_rect,
 # size, state_override, subscan_fractional_center, subscan_fractional_size,
 # subscan_pixel_size, subscan_rotation, subscan_type_partial, top_left_override
 

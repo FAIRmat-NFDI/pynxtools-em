@@ -73,6 +73,7 @@ class NionProjectParser:
         self.verbose = verbose
         self.is_zipped = False
         self.check_if_nionswift_project()
+        # eventually allow https://github.com/miurahr/py7zr/ to work with 7z directly
 
     def check_if_nionswift_project(self):
         """Inspect the content of the compressed project file to check if supported."""
@@ -206,12 +207,14 @@ class NionProjectParser:
             f"Inspecting {full_path} with len(local_files.keys()) ___{len(local_files.keys())}___"
         )
         for offset, tpl in local_files.items():
-            print(f"{offset}___{tpl}")
+            if self.verbose:
+                print(f"{offset}___{tpl}")
             # report to know there are more than metadata.json files in the ndata swift container format
             if tpl[0] == b"metadata.json":
-                print(
-                    f"Extract metadata.json from ___{full_path}___ at offset ___{offset}___"
-                )
+                if self.verbose:
+                    print(
+                        f"Extract metadata.json from ___{full_path}___ at offset ___{offset}___"
+                    )
                 # ... explicit jump back to beginning of the file
                 file_hdl.seek(0)
                 flat_metadata = fd.FlatDict(
@@ -236,9 +239,10 @@ class NionProjectParser:
 
         for offset, tpl in local_files.items():
             if tpl[0] == b"data.npy":
-                print(
-                    f"Extract data.npy from ___{full_path}___ at offset ___{offset}___"
-                )
+                if self.verbose:
+                    print(
+                        f"Extract data.npy from ___{full_path}___ at offset ___{offset}___"
+                    )
                 file_hdl.seek(0)
                 nparr = nsnd.read_data(file_hdl, local_files, dir_files, b"data.npy")
                 if isinstance(nparr, np.ndarray):
@@ -389,11 +393,14 @@ class NionProjectParser:
         unit_combination = image_spectrum_or_generic_nxdata(axes)
         print(f"{unit_combination}, {np.shape(nparr)}")
         print(axes)
+        print(f"entry_id {self.entry_id}, event_id {self.event_id}")
         if unit_combination == "":
             return template
 
         prfx = f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.event_id}]"
         self.event_id += 1
+        # hotfix to avoid writing all the data!
+        return template
         axis_names = None
         if unit_combination in WHICH_SPECTRUM:
             trg = f"{prfx}/SPECTRUM_SET[spectrum_set1]/{WHICH_SPECTRUM[unit_combination][0]}"
@@ -412,9 +419,10 @@ class NionProjectParser:
         ):
             trg = f"{prfx}/DATA[data1]"
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
+            template[f"{trg}/@NX_class"] = f"NXdata"
             template[f"{trg}/@signal"] = f"data"
             template[f"{trg}/data"] = {"compress": nparr, "strength": 1}
-            axis_names = ["i", "j", "k", "l", "m"][
+            axis_names = ["axis_i", "axis_j", "axis_k", "axis_l", "axis_m"][
                 0 : len(unit_combination.split("_"))
             ][::-1]
         else:
@@ -457,6 +465,7 @@ class NionProjectParser:
                     else:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
                             f"{axis_name}"
+                            # unitless | dimensionless i.e. no unit in longname
                         )
                 else:
                     template[f"{trg}/AXISNAME[{axis_name}]"] = np.float32(offset) + (
@@ -473,7 +482,7 @@ class NionProjectParser:
                     )
                     if units == "eV":
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Energy ({ureg.Unit(units)})"
+                            f"Energy {ureg.Unit(units)}"  # eV
                         )
                     else:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
