@@ -252,30 +252,16 @@ class ZeissTiffParser(TiffParser):
                 image_identifier += 1
         return template
 
-    def add_various_dynamic_metadata(self, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata_pint(
-            ZEISS_VARIOUS_DYNAMIC_TO_NX_EM,
-            self.tmp["flat_dict_meta"],
-            identifier,
-            template,
-        )
-        return template
-
-    def add_various_static_metadata(self, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata_pint(
-            ZEISS_VARIOUS_STATIC_TO_NX_EM,
-            self.tmp["flat_dict_meta"],
-            identifier,
-            template,
-        )
-        return template
-
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
         print(f"Mapping some of the Zeiss metadata on respective NeXus concepts...")
-        self.add_various_dynamic_metadata(template)
-        self.add_various_static_metadata(template)
+        identifier = [self.entry_id, self.event_id, 1]
+        for cfg in [ZEISS_VARIOUS_DYNAMIC_TO_NX_EM, ZEISS_VARIOUS_STATIC_TO_NX_EM]:
+            add_specific_metadata_pint(
+                cfg,
+                self.tmp["flat_dict_meta"],
+                identifier,
+                template,
+            )
         return template

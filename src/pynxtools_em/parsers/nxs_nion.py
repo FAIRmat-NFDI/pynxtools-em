@@ -29,7 +29,17 @@ import h5py
 import nion.swift.model.NDataHandler as nsnd
 import numpy as np
 import yaml
+from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.nion_cfg import (
+    NION_DYNAMIC_ABERRATION_TO_NX_EM,
+    NION_DYNAMIC_DETECTOR_TO_NX_EM,
+    NION_DYNAMIC_LENS_TO_NX_EM,
+    NION_DYNAMIC_MAGBOARDS_TO_NX_EM,
+    NION_DYNAMIC_SCAN_TO_NX_EM,
+    NION_DYNAMIC_STAGE_TO_NX_EM,
+    NION_DYNAMIC_VARIOUS_TO_NX_EM,
+    NION_PINPOINT_EVENT_TIME,
+    NION_STATIC_DETECTOR_TO_NX_EM,
     WHICH_IMAGE,
     WHICH_SPECTRUM,
 )
@@ -252,10 +262,8 @@ class NionProjectParser:
                 # because we expect (based on Benedikt's example) to find only one npy
                 # file in that *.ndata file pointed to by file_hdl and only one matching
                 # metadata.json we can now write the data and its metadata into template
-                self.process_em_metadata(
-                    flat_metadata, [self.entry_id, self.event_id, 1], template
-                )
-                self.process_em_data(nparr, flat_metadata, template)
+                self.process_event_data_em_metadata(flat_metadata, template)
+                self.process_event_data_em_data(nparr, flat_metadata, template)
                 break
         return template
 
@@ -279,16 +287,14 @@ class NionProjectParser:
             if len(flat_metadata) == 0:
                 return template
 
-            self.process_em_metadata(
-                flat_metadata, [self.entry_id, self.event_id, 1], template
-            )
+            self.process_event_data_em_metadata(flat_metadata, template)
 
             nparr = h5r["data"][()]
             if isinstance(nparr, np.ndarray):
                 print(
                     f"hfive, data, type, shape, dtype: ___{type(nparr)}___{np.shape(nparr)}___{nparr.dtype}___"
                 )
-            self.process_em_data(nparr, flat_metadata, template)
+            self.process_event_data_em_data(nparr, flat_metadata, template)
         return template
 
     def parse_project_file(self, template: dict) -> dict:
@@ -379,13 +385,38 @@ class NionProjectParser:
             self.parse_project_file(template)
         return template
 
-    def process_em_metadata(
-        self, flat_metadata: fd.FlatDict, identifier: List[int], template: dict
+    def process_event_data_em_metadata(
+        self, flat_metadata: fd.FlatDict, template: dict
     ) -> dict:
-        """Add content-specific metadata mapped on NXem."""
+        print(f"Mapping some of the Nion metadata on respective NeXus concepts...")
+        # we assume for now dynamic quantities can just be repeated
+        identifier = [self.entry_id, self.event_id, 1]
+        for cfg in [
+            NION_DYNAMIC_ABERRATION_TO_NX_EM,
+            NION_DYNAMIC_DETECTOR_TO_NX_EM,
+            NION_DYNAMIC_LENS_TO_NX_EM,
+            NION_DYNAMIC_MAGBOARDS_TO_NX_EM,
+            NION_DYNAMIC_SCAN_TO_NX_EM,
+            NION_DYNAMIC_STAGE_TO_NX_EM,
+            NION_DYNAMIC_VARIOUS_TO_NX_EM,
+            NION_PINPOINT_EVENT_TIME,
+        ]:
+            add_specific_metadata_pint(cfg, flat_metadata, identifier, template)
+        # but not so static quantities, for these we ideally need to check if
+        # exactly the same data havent already been written in an effort to avoid
+        # redundancies
+        # most use cases simply avoid this complication as they assume well these
+        # metadata are delivered by the ELN and thus a different serialization code
+        # is used, like oasis_cfg or eln_cfg parsing as also pynxtools-em offers
+
+        # nasty assume there is only one e.g. direct electron detector
+        identifier = [self.entry_id, 1]
+        add_specific_metadata_pint(
+            NION_STATIC_DETECTOR_TO_NX_EM, flat_metadata, identifier, template
+        )
         return template
 
-    def process_em_data(
+    def process_event_data_em_data(
         self, nparr: np.ndarray, flat_metadata: fd.FlatDict, template: dict
     ) -> dict:
         """Map Nion-specifically formatted data arrays on NeXus NXdata/NXimage/NXspectrum."""

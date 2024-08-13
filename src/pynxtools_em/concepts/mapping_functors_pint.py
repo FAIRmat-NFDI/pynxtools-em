@@ -489,6 +489,8 @@ def add_specific_metadata_pint(
     # https://numpy.org/doc/stable/reference/arrays.dtypes.html
 
     for functor_key in cfg:
+        if functor_key in ["prefix_trg", "prefix_src"]:
+            continue
         if functor_key == "use":
             use_functor(cfg["use"], mdata, prfx_trg, ids, template)
         if functor_key == "map":

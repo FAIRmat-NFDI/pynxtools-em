@@ -52,7 +52,7 @@ WHICH_IMAGE = {
 
 MAG = "magnitude"
 NION_DYNAMIC_ABERRATION_TO_NX_EM: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column/corrector_cs/PROCESS[zemlin_tableau1]/PROCESS[process]/ABERRATION_MODEL[aberration_model]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column/corrector_cs/zemlin_tableauID[zemlin_tableau1]/PROCESS[process]/ABERRATION_MODEL[aberration_model]",
     "prefix_src": "metadata/scan/scan_device_properties/ImageScanned:",
     "use": [("model", "nion")],
     "map_to_f8": [
@@ -141,7 +141,7 @@ NION_DYNAMIC_LENS_TO_NX_EM: Dict[str, Any] = {
 NION_DYNAMIC_SCAN_TO_NX_EM: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
     "prefix_src": "metadata/scan/scan_device_properties",
-    "map_to_str": [
+    "map": [
         "ac_line_sync",
         "calibration_style",
         ("scan_schema", "channel_modifier"),
@@ -179,6 +179,11 @@ C1 = "CIRCUIT[magboard1]"
 NION_DYNAMIC_MAGBOARDS_TO_NX_EM: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
     "prefix_src": "metadata/scan/scan_device_properties/mag_boards/",
+    "use": [(f"{C0}/@NX_class", "NXcircuit"), (f"{C1}/@NX_class", "NXcircuit")],
+    # TODO: the above manual adding of NXcircuit should not be necessary
+    # working hypothesis if base class inheritance does not work correctly
+    # NXcomponent has NXcircuit
+    # NXscanbox_em is NXcomponent but does not inherit this NXcircuit
     "map_to_f8": [
         (f"{C0}/dac0", "MagBoard 0 DAC 0"),
         (f"{C0}/dac1", "MagBoard 0 DAC 1"),
@@ -209,11 +214,36 @@ NION_DYNAMIC_MAGBOARDS_TO_NX_EM: Dict[str, Any] = {
     ],
 }
 
-
+# a key challenge with nionswift project file metadata is that swift just repeats
+# all available information in each serialized resources, e.g. a project with two
+# assets (datasets, images, spectra) e.g. both with detector A will exist with all
+# detector specific metadata just dumped without any check with an instance of the same
+# concept exists already and thus there is no need to overwrite it unless it was changed
+# nion does not distinguish static and dynamic metadata as if during a session at the
+# microscope one where to change the window thickness of the detector from one image
+# to the next even if that window is mounted physically on the detector and the user
+# of the microscope not even allowed to open the microscope and de facto destroy the
+# detector, same story for the microscope used, nothing about this in nion metadata
+# the lazy approach to this is just repeat what nion is doing, i.e. copy all desired
+# metadata over all the time or equally nasty assume how many detector their are
+# and write only one and prevent all overwriting of the template afterwards
+# this is not a question of naming conventions, taken an SEM and take datasets with
+# it in the same session, each dataset a combination of some but at least signals
+# from two detectors, when serialized together there is not point in repeating again
+# how to check if (static) metadata from two detectors are the same?
+# with a serial number easy, reject all metadata for that detector we already know and
+# only add missing dat
+# without a serial number though, like when parsing content from different microscopy
+# tech partners and the joint zoo of their formats, this a challenging task especially
+# when one does not have a joint set of concepts on which one could first normalize
+# the representation and then compare if two sets are exactly the same in which case
+# the repetitive writing of detector data could be avoided and for the sake of
+# saving disk space just a reference added, currently there is no parser plugin that
+# deals with this complexity
 NION_STATIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/DETECTOR[detector*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/detectorID[detector*]",
     "prefix_src": "metadata/hardware_source/detector_configuration/",
-    "map_to_str": [
+    "map": [
         ("FABRICATION[fabrication]/model", "description"),
         ("FABRICATION[fabrication]/identifier", "detector_number"),
         "eiger_fw_version",
@@ -222,7 +252,7 @@ NION_STATIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
     ],
     "map_to_u4": [
         ("x_pixel", "x_pixels_in_detector"),
-        ("x_pixel", "x_pixels_in_detector"),
+        ("y_pixel", "y_pixels_in_detector"),
     ],
     "map_to_f8": [
         ("x_pixel_size", ureg.meter, "x_pixel_size", ureg.meter),
@@ -231,8 +261,11 @@ NION_STATIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
     ],
 }
 
+# here is the same issue, for C. Koch's group it is correct that there is only one
+# detector A so writing to detector1 works but not in cases when there are multiple
+# detectors
 NION_DYNAMIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/DETECTOR[detector*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/detectorID[detector*]",
     "prefix_src": "metadata/hardware_source/detector_configuration/",
     "map_to_bool": [
         "countrate_correction_applied",
