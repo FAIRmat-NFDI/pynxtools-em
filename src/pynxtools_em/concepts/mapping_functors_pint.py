@@ -499,7 +499,7 @@ def add_specific_metadata_pint(
                 use_functor(cfg["use"], mdata, prefix_trg, ids, template)
             if functor_key == "map":
                 map_functor(
-                    cfg[functor_key], mdata, prfx_src, prefix_trg, ids, template
+                    cfg[functor_key], mdata, prefix_src, prefix_trg, ids, template
                 )
             if functor_key.startswith("map_to_"):
                 dtype_key = functor_key.replace("map_to_", "")
