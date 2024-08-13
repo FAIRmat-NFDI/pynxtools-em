@@ -430,8 +430,10 @@ class NionProjectParser:
 
         prfx = f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.event_id}]"
         self.event_id += 1
-        # hotfix to avoid writing all the data!
-        return template
+
+        # this is the place when you want to skip individually the writing of NXdata
+        # return template
+
         axis_names = None
         if unit_combination in WHICH_SPECTRUM:
             trg = f"{prfx}/SPECTRUM_SET[spectrum_set1]/{WHICH_SPECTRUM[unit_combination][0]}"

@@ -188,76 +188,73 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
     src_val can be a single value, an array, or a ureg.Quantity (scalar or array)
     """
     # np.issubdtype(np.uint32, np.signedinteger)
-    if src_val:  # covering not None, not "", ...
-        if not trg_dtype:  # go with existent dtype
-            if isinstance(src_val, str):
-                # TODO this is not rigorous need to check for null-term also and str arrays
-                template[f"{trg}"] = src_val
-                # assumes I/O to HDF5 will write specific encoding, typically variable, null-term, utf8
-            elif isinstance(src_val, ureg.Quantity):
-                if isinstance(
-                    src_val.magnitude, (np.ndarray, np.generic)
-                ) or np.isscalar(
-                    src_val.magnitude
-                ):  # bool case typically not expected!
-                    template[f"{trg}"] = src_val.magnitude
-                    if is_not_special_unit(src_val.units):
-                        template[f"{trg}/@units"] = f"{src_val.units}"
-                    print(
-                        f"WARNING::Assuming writing to HDF5 will auto-convert Python types to numpy type, trg {trg} !"
-                    )
-                else:
-                    raise TypeError(
-                        f"ureg.Quantity magnitude should use in-build, bool, or np !"
-                    )
-            elif (
-                isinstance(src_val, (np.ndarray, np.generic))
-                or np.isscalar(src_val)
-                or isinstance(src_val, bool)
-            ):
-                template[f"{trg}"] = src_val
-                # units may be required, need to be set explicitly elsewhere in the source code!
+    if not trg_dtype:  # go with existent dtype
+        if isinstance(src_val, str):
+            # TODO this is not rigorous need to check for null-term also and str arrays
+            template[f"{trg}"] = src_val
+            # assumes I/O to HDF5 will write specific encoding, typically variable, null-term, utf8
+        elif isinstance(src_val, ureg.Quantity):
+            if isinstance(src_val.magnitude, (np.ndarray, np.generic)) or np.isscalar(
+                src_val.magnitude
+            ):  # bool case typically not expected!
+                template[f"{trg}"] = src_val.magnitude
+                if is_not_special_unit(src_val.units):
+                    template[f"{trg}/@units"] = f"{src_val.units}"
                 print(
-                    f"WARNING::Assuming writing to HDF5 will auto-convert Python types to numpy type, trg: {trg} !"
+                    f"WARNING::Assuming writing to HDF5 will auto-convert Python types to numpy type, trg {trg} !"
                 )
             else:
                 raise TypeError(
-                    f"Unexpected type {type(src_val)} found for not trg_dtype case !"
+                    f"ureg.Quantity magnitude should use in-build, bool, or np !"
                 )
-        else:  # do an explicit type conversion
-            # e.g. in cases when tech partner writes float32 but e.g. NeXus assumes float64
-            if isinstance(src_val, str):
-                raise TypeError(
-                    f"Unexpected type str found when calling set_value, trg {trg} !"
-                )
-            elif isinstance(src_val, ureg.Quantity):
-                if isinstance(src_val.magnitude, (np.ndarray, np.generic)):
-                    template[f"{trg}"] = map_to_dtype(trg_dtype, src_val.magnitude)
-                    if is_not_special_unit(src_val.units):
-                        template[f"{trg}/@units"] = f"{src_val.units}"
-                elif np.isscalar(src_val.magnitude):  # bool typically not expected
-                    template[f"{trg}"] = map_to_dtype(trg_dtype, src_val.magnitude)
-                    if is_not_special_unit(src_val.units):
-                        template[f"{trg}/@units"] = f"{src_val.units}"
-                else:
-                    raise TypeError(
-                        f"Unexpected type for explicit src_val.magnitude, set_value, trg {trg} !"
-                    )
-            elif isinstance(src_val, (np.ndarray, np.generic)):
-                template[f"{trg}"] = map_to_dtype(trg_dtype, src_val)
-                # units may be required, need to be set explicitly elsewhere in the source code!
-                print(
-                    f"WARNING::Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
-                )
-            elif np.isscalar(src_val):
-                template[f"{trg}"] = map_to_dtype(trg_dtype, src_val)
-                print(
-                    f"WARNING::Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
-                )
+        elif (
+            isinstance(src_val, (list, np.ndarray, np.generic))
+            or np.isscalar(src_val)
+            or isinstance(src_val, bool)
+        ):
+            template[f"{trg}"] = np.asarray(src_val)
+            # units may be required, need to be set explicitly elsewhere in the source code!
+            print(
+                f"WARNING::Assuming writing to HDF5 will auto-convert Python types to numpy type, trg: {trg} !"
+            )
+        else:
+            raise TypeError(
+                f"Unexpected type {type(src_val)} found for not trg_dtype case !"
+            )
+    else:  # do an explicit type conversion
+        # e.g. in cases when tech partner writes float32 but e.g. NeXus assumes float64
+        if isinstance(src_val, str):
+            raise TypeError(
+                f"Unexpected type str found when calling set_value, trg {trg} !"
+            )
+        elif isinstance(src_val, ureg.Quantity):
+            if isinstance(src_val.magnitude, (np.ndarray, np.generic)):
+                template[f"{trg}"] = map_to_dtype(trg_dtype, src_val.magnitude)
+                if is_not_special_unit(src_val.units):
+                    template[f"{trg}/@units"] = f"{src_val.units}"
+            elif np.isscalar(src_val.magnitude):  # bool typically not expected
+                template[f"{trg}"] = map_to_dtype(trg_dtype, src_val.magnitude)
+                if is_not_special_unit(src_val.units):
+                    template[f"{trg}/@units"] = f"{src_val.units}"
             else:
                 raise TypeError(
-                    f"Unexpected type for explicit type conversion, set_value, trg {trg} !"
+                    f"Unexpected type for explicit src_val.magnitude, set_value, trg {trg} !"
                 )
+        elif isinstance(src_val, (list, np.ndarray, np.generic)):
+            template[f"{trg}"] = map_to_dtype(trg_dtype, np.asarray(src_val))
+            # units may be required, need to be set explicitly elsewhere in the source code!
+            print(
+                f"WARNING::Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
+            )
+        elif np.isscalar(src_val):
+            template[f"{trg}"] = map_to_dtype(trg_dtype, src_val)
+            print(
+                f"WARNING::Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
+            )
+        else:
+            raise TypeError(
+                f"Unexpected type for explicit type conversion, set_value, trg {trg} !"
+            )
     return template
 
 
@@ -473,11 +470,18 @@ def add_specific_metadata_pint(
     template: dictionary where to store mapped instance data using template paths
     """
     if "prefix_trg" in cfg:
-        prfx_trg = cfg["prefix_trg"]
+        prefix_trg = cfg["prefix_trg"]
     else:
         raise KeyError(f"prefix_trg not found in cfg!")
     if "prefix_src" in cfg:
-        prfx_src = cfg["prefix_src"]
+        if isinstance(cfg["prefix_src"], str):
+            prfx_src = [cfg["prefix_src"]]
+        elif isinstance(cfg["prefix_src"], list) and all(
+            isinstance(val, str) for val in cfg["prefix_src"]
+        ):
+            prfx_src = cfg["prefix_src"]
+        else:
+            raise ValueError(f"prefix_src needs to be a str or a list[str] !")
     else:
         raise KeyError(f"prefix_src not found in cfg!")
 
@@ -487,33 +491,37 @@ def add_specific_metadata_pint(
     # returns an output, given the mapping can be abstract, we call it a functor
 
     # https://numpy.org/doc/stable/reference/arrays.dtypes.html
-
-    for functor_key in cfg:
-        if functor_key in ["prefix_trg", "prefix_src"]:
-            continue
-        if functor_key == "use":
-            use_functor(cfg["use"], mdata, prfx_trg, ids, template)
-        if functor_key == "map":
-            map_functor(cfg[functor_key], mdata, prfx_src, prfx_trg, ids, template)
-        if functor_key.startswith("map_to_"):
-            dtype_key = functor_key.replace("map_to_", "")
-            print(f"dtype_key >>>> {dtype_key}")
-            if dtype_key in MAP_TO_DTYPES:
+    for prefix_src in prfx_src:
+        for functor_key in cfg:
+            if functor_key in ["prefix_trg", "prefix_src"]:
+                continue
+            if functor_key == "use":
+                use_functor(cfg["use"], mdata, prefix_trg, ids, template)
+            if functor_key == "map":
                 map_functor(
-                    cfg[functor_key],
-                    mdata,
-                    prfx_src,
-                    prfx_trg,
-                    ids,
-                    template,
-                    dtype_key,
+                    cfg[functor_key], mdata, prfx_src, prefix_trg, ids, template
                 )
-            else:
-                raise KeyError(f"Unexpected dtype_key {dtype_key} !")
-        if functor_key == "unix_to_iso8601":
-            timestamp_functor(
-                cfg["unix_to_iso8601"], mdata, prfx_src, prfx_trg, ids, template
-            )
-        if functor_key == "sha256":
-            filehash_functor(cfg["sha256"], mdata, prfx_src, prfx_trg, ids, template)
+            if functor_key.startswith("map_to_"):
+                dtype_key = functor_key.replace("map_to_", "")
+                print(f"dtype_key >>>> {dtype_key}")
+                if dtype_key in MAP_TO_DTYPES:
+                    map_functor(
+                        cfg[functor_key],
+                        mdata,
+                        prefix_src,
+                        prefix_trg,
+                        ids,
+                        template,
+                        dtype_key,
+                    )
+                else:
+                    raise KeyError(f"Unexpected dtype_key {dtype_key} !")
+            if functor_key == "unix_to_iso8601":
+                timestamp_functor(
+                    cfg["unix_to_iso8601"], mdata, prefix_src, prefix_trg, ids, template
+                )
+            if functor_key == "sha256":
+                filehash_functor(
+                    cfg["sha256"], mdata, prefix_src, prefix_trg, ids, template
+                )
     return template

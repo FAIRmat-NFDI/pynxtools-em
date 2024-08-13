@@ -53,7 +53,15 @@ WHICH_IMAGE = {
 MAG = "magnitude"
 NION_DYNAMIC_ABERRATION_TO_NX_EM: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column/corrector_cs/zemlin_tableauID[zemlin_tableau1]/PROCESS[process]/ABERRATION_MODEL[aberration_model]",
-    "prefix_src": "metadata/scan/scan_device_properties/ImageScanned:",
+    "prefix_src": [
+        "metadata/hardware_source/ImageRonchigram/",
+        "metadata/hardware_source/autostem/ImageScanned/",
+        "metadata/instrument/ImageRonchigram/",
+        "metadata/instrument/ImageScanned/",
+        "metadata/instrument/autostem/ImageScanned/",
+        "metadata/scan/scan_device_properties/ImageScanned:",
+        "metadata/scan_detector/autostem/ImageScanned/",
+    ],
     "use": [("model", "nion")],
     "map_to_f8": [
         (f"c_1_0/{MAG}", "C10"),
@@ -73,15 +81,28 @@ NION_DYNAMIC_ABERRATION_TO_NX_EM: Dict[str, Any] = {
 }
 
 
+# more on metadata https://nionswift.readthedocs.io/en/stable/api/scripting.html#managing-session-metadata
 # TODO::check units currently using alibi units!
 NION_DYNAMIC_VARIOUS_TO_NX_EM: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab",
-    "prefix_src": "metadata/scan/scan_device_properties/ImageScanned:",
+    "prefix_src": [
+        "metadata/hardware_source/ImageRonchigram/",
+        "metadata/hardware_source/autostem/ImageRonchigram/",
+        "metadata/hardware_source/autostem/ImageScanned/",
+        "metadata/instrument/ImageRonchigram/",
+        "metadata/instrument/ImageScanned/",
+        "metadata/instrument/autostem/ImageRonchigram/",
+        "metadata/instrument/autostem/ImageScanned/",
+        "metadata/scan/scan_device_properties/ImageScanned:",
+        "metadata/scan_detector/autostem/ImageScanned/",
+    ],
     "map_to_f8": [
-        ("ebeam_column/electron_source/voltage", "EHT"),
+        ("ebeam_column/electron_source/voltage", ureg.kilovolt, "EHT", ureg.volt),
         (
             "ebeam_column/BEAM[beam]/diameter",
+            ureg.meter,
             "GeometricProbeSize",
+            ureg.meter,
         ),  # diameter? radius ?
         (
             "OPTICAL_SETUP_EM[optical_setup]/semi_convergence_angle",
@@ -91,11 +112,16 @@ NION_DYNAMIC_VARIOUS_TO_NX_EM: Dict[str, Any] = {
         ),
         (
             "OPTICAL_SETUP_EM[optical_setup]/probe_current",
-            ureg.picoampere,
+            ureg.ampere,
             "SuperFEG.^EmissionCurrent",
             ureg.ampere,
         ),
-        # ("OPTICAL_SETUP_EM[optical_setup]/field_of_view", ureg.meter, "fov_nm", ureg.nanometer),
+        (
+            "OPTICAL_SETUP_EM[optical_setup]/field_of_view",
+            ureg.meter,
+            "fov_nm",
+            ureg.nanometer,
+        ),
         # G_2Db, HAADF_Inner_ha, HAADF_Outer_ha, LastTuneCurrent, PMT2_gain, PMTBF_gain,PMTDF_gain
     ],
 }
@@ -103,12 +129,20 @@ NION_DYNAMIC_VARIOUS_TO_NX_EM: Dict[str, Any] = {
 
 NION_DYNAMIC_STAGE_TO_NX_EM: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage]",
-    "prefix_src": "metadata/scan/scan_device_properties/ImageScanned:",
+    "prefix_src": [
+        "metadata/hardware_source/ImageRonchigram/",
+        "metadata/hardware_source/autostem/ImageRonchigram/",
+        "metadata/hardware_source/autostem/ImageScanned/",
+        "metadata/instrument/ImageRonchigram/",
+        "metadata/instrument/ImageScanned/",
+        "metadata/instrument/autostem/ImageRonchigram/",
+        "metadata/instrument/autostem/ImageScanned/",
+        "metadata/scan/scan_device_properties/ImageScanned:",
+        "metadata/scan_detector/autostem/ImageScanned/",
+    ],
     "map_to_f8": [
         ("tilt1", ureg.radian, "StageOutA", ureg.radian),
         ("tilt2", ureg.radian, "StageOutB", ureg.radian),
-    ],
-    "map_to_f8": [
         (
             "position",
             ureg.picometer,
@@ -119,18 +153,31 @@ NION_DYNAMIC_STAGE_TO_NX_EM: Dict[str, Any] = {
 }
 
 
+# TODO::all examples from the last 5years showed only these four different lenses
+# therefore such solution can work for now but nobody states lenses needed to be
+# ordered always 1, 2, 3, 4 and worse, if e.g. only MajorOL is found we get a single
+# instance lens4 only in a NeXus file which might confuse people as they learn that
+# numbering should start from 1
 NION_DYNAMIC_LENS_TO_NX_EM: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column",
-    "prefix_src": "metadata/scan/scan_device_properties/ImageScanned:",
+    "prefix_src": [
+        "metadata/hardware_source/ImageRonchigram/",
+        "metadata/hardware_source/autostem/ImageRonchigram/",
+        "metadata/instrument/ImageRonchigram/",
+        "metadata/instrument/autostem/ImageRonchigram/",
+        "metadata/scan/scan_device_properties/ImageScanned:",
+    ],
     "use": [
         ("LENS_EM[lens1]/name", "C1"),
         ("LENS_EM[lens2]/name", "C2"),
         ("LENS_EM[lens3]/name", "C3"),
+        ("LENS_EM[lens4]/name", "MajorOL"),
     ],
     "map_to_f8": [
         ("LENS_EM[lens1]/value", "C1 ConstW"),
         ("LENS_EM[lens2]/value", "C2 ConstW"),
         ("LENS_EM[lens3]/value", "C3 ConstW"),
+        ("LENS_EM[lens4]/value", "MajorOL"),
     ],
 }
 
@@ -140,7 +187,11 @@ NION_DYNAMIC_LENS_TO_NX_EM: Dict[str, Any] = {
 # 1.0, 2.0, True and False !
 NION_DYNAMIC_SCAN_TO_NX_EM: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
-    "prefix_src": "metadata/scan/scan_device_properties",
+    "prefix_src": [
+        "metadata/hardware_source/",
+        "metadata/scan/scan_device_parameters/",
+        "metadata/scan/scan_device_properties/",
+    ],
     "map": [
         "ac_line_sync",
         "calibration_style",
@@ -178,8 +229,11 @@ C0 = "CIRCUIT[magboard0]"
 C1 = "CIRCUIT[magboard1]"
 NION_DYNAMIC_MAGBOARDS_TO_NX_EM: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
-    "prefix_src": "metadata/scan/scan_device_properties/mag_boards/",
-    "use": [(f"{C0}/@NX_class", "NXcircuit"), (f"{C1}/@NX_class", "NXcircuit")],
+    "prefix_src": [
+        "metadata/scan/scan_device_properties/",
+        "metadata/scan/scan_device_properties/mag_boards/",
+    ],
+    # "use": [(f"{C0}/@NX_class", "NXcircuit"), (f"{C1}/@NX_class", "NXcircuit")],
     # TODO: the above manual adding of NXcircuit should not be necessary
     # working hypothesis if base class inheritance does not work correctly
     # NXcomponent has NXcircuit
@@ -213,6 +267,49 @@ NION_DYNAMIC_MAGBOARDS_TO_NX_EM: Dict[str, Any] = {
         (f"{C1}/relay", "MagBoard 1 Relay"),
     ],
 }
+
+# here is the same issue, for C. Koch's group it is correct that there is only one
+# detector A so writing to detector1 works but not in cases when there are multiple
+# detectors
+NION_DYNAMIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/detectorID[detector*]",
+    "prefix_src": "metadata/hardware_source/detector_configuration/",
+    "map_to_bool": [
+        "countrate_correction_applied",
+        "pixel_mask_applied",
+        (
+            "flatfield_applied",
+            "flatfield_correction_applied",
+        ),  # example for concept_name mismatch Dectris and NeXus
+    ],
+    "map_to_i1": ["bit_depth_readout", "bit_depth_image"],
+    "map_to_f8": [
+        "beam_center_x",
+        "beam_center_y",
+        ("detector_readout_time", ureg.second, "detector_readout_time", ureg.second),
+        ("frame_time", ureg.second, "frame_time", ureg.second),
+        ("count_time", ureg.second, "count_time", ureg.second),
+        ("threshold_energy", ureg.eV, "threshold_energy", ureg.eV),
+    ],
+}
+
+
+NION_PINPOINT_EVENT_TIME = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]",
+    "prefix_src": "metadata/hardware_source/detector_configuration/",
+    "map": [("start_time", "data_collection_date")],
+    # this could be a poor assumption as we do not know when during the acquisition
+    # this timestamp is taken
+}
+
+# the following concepts from metadata/hardware_source/detector_configuration
+# have no representative in NeXus for now, TODO add them as undocumented ?
+# auto_summation, chi_increment, chi_start, compression, countrate_correction_count_cutoff,
+# detector_translation, element, frame_count_time, frame_period, kappa_increment,
+# kappa_start, nimages, ntrigger, number_of_excluded_pixels, omega_increment,
+# omega_start, phi_increment, phi_start, photon_energy, roi_mode, trigger_mode,
+# two_theta_increment, two_theta_start, virtual_pixel_correction_applied, wavelength
+
 
 # a key challenge with nionswift project file metadata is that swift just repeats
 # all available information in each serialized resources, e.g. a project with two
@@ -260,45 +357,3 @@ NION_STATIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
         ("sensor_thickness", ureg.meter, "sensor_thickness", ureg.meter),
     ],
 }
-
-# here is the same issue, for C. Koch's group it is correct that there is only one
-# detector A so writing to detector1 works but not in cases when there are multiple
-# detectors
-NION_DYNAMIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/detectorID[detector*]",
-    "prefix_src": "metadata/hardware_source/detector_configuration/",
-    "map_to_bool": [
-        "countrate_correction_applied",
-        "pixel_mask_applied",
-        (
-            "flatfield_applied",
-            "flatfield_correction_applied",
-        ),  # example for concept_name mismatch Dectris and NeXus
-    ],
-    "map_to_i1": ["bit_depth_readout", "bit_depth_image"],
-    "map_to_f8": [
-        "beam_center_x",
-        "beam_center_y",
-        ("detector_readout_time", ureg.second, "detector_readout_time", ureg.second),
-        ("frame_time", ureg.second, "frame_time", ureg.second),
-        ("count_time", ureg.second, "count_time", ureg.second),
-        ("threshold_energy", ureg.eV, "threshold_energy", ureg.eV),
-    ],
-}
-
-
-NION_PINPOINT_EVENT_TIME = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]",
-    "prefix_src": "metadata/hardware_source/detector_configuration/",
-    "map": [("start_time", "data_collection_date")],
-    # this could be a poor assumption as we do not know when during the acquisition
-    # this timestamp is taken
-}
-
-# the following concepts from metadata/hardware_source/detector_configuration
-# have no representative in NeXus for now, TODO add them as undocumented ?
-# auto_summation, chi_increment, chi_start, compression, countrate_correction_count_cutoff,
-# detector_translation, element, frame_count_time, frame_period, kappa_increment,
-# kappa_start, nimages, ntrigger, number_of_excluded_pixels, omega_increment,
-# omega_start, phi_increment, phi_start, photon_energy, roi_mode, trigger_mode,
-# two_theta_increment, two_theta_start, virtual_pixel_correction_applied, wavelength
