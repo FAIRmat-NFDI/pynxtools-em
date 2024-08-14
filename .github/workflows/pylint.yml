@@ -23,15 +23,8 @@ jobs:
           python-version: ${{ matrix.python_version }}
       - name: Install dependencies
         run: |
-										
-														  
           curl -LsSf https://astral.sh/uv/install.sh | sh
-							 
-			  
           uv pip install ".[dev,docs]"
-									  
-			  
-												
       - name: ruff check
         run: |
           ruff check src/pynxtools_em tests
