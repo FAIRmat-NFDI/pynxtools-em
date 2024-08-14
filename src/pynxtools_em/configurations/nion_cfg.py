@@ -62,21 +62,20 @@ NION_DYNAMIC_ABERRATION_TO_NX_EM: Dict[str, Any] = {
         "metadata/scan/scan_device_properties/ImageScanned:",
         "metadata/scan_detector/autostem/ImageScanned/",
     ],
-    "use": [("model", "nion")],
     "map_to_f8": [
-        (f"c_1_0/{MAG}", "C10"),
+        (f"c_1_0/{MAG}", ureg.meter, "C10", ureg.meter),
         (f"c_1_2_a/{MAG}", "C12.a"),
         (f"c_1_2_b/{MAG}", "C12.b"),
         (f"c_2_1_a/{MAG}", "C21.a"),
         (f"c_2_1_b/{MAG}", "C21.b"),
         (f"c_2_3_a/{MAG}", "C23.a"),
         (f"c_2_3_b/{MAG}", "C23.b"),
-        (f"c_3_0/{MAG}", "C30"),
+        (f"c_3_0/{MAG}", ureg.meter, "C30", ureg.meter),
         (f"c_3_2_a/{MAG}", "C32.a"),
         (f"c_3_2_b/{MAG}", "C32.b"),
         (f"c_3_4_a/{MAG}", "C34.a"),
         (f"c_3_4_a/{MAG}", "C34.b"),
-        (f"c_5_0/{MAG}", "C50"),
+        (f"c_5_0/{MAG}", ureg.meter, "C50", ureg.meter),
     ],
 }
 
@@ -163,15 +162,18 @@ NION_DYNAMIC_LENS_TO_NX_EM: Dict[str, Any] = {
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
         "metadata/hardware_source/autostem/ImageRonchigram/",
+        "metadata/hardware_source/autostem/ImageScanned/",
         "metadata/instrument/ImageRonchigram/",
+        "metadata/instrument/ImageScanned/",
         "metadata/instrument/autostem/ImageRonchigram/",
         "metadata/scan/scan_device_properties/ImageScanned:",
+        "metadata/scan_detector/autostem/ImageScanned/",
     ],
     "use": [
-        ("lensID[lens1]/name", "C1"),
-        ("lensID[lens2]/name", "C2"),
-        ("lensID[lens3]/name", "C3"),
-        ("lensID[lens4]/name", "MajorOL"),
+        (
+            "operation_mode",
+            "Currently, nionswift stores the operation mode relevant settings via multiple metadata keywords and none of them in my opinion fit quite with this concept. The community should decide how to solve this.",
+        )
     ],
     "map_to_f8": [
         ("lensID[lens1]/value", "C1 ConstW"),
@@ -191,6 +193,12 @@ NION_DYNAMIC_SCAN_TO_NX_EM: Dict[str, Any] = {
         "metadata/hardware_source/",
         "metadata/scan/scan_device_parameters/",
         "metadata/scan/scan_device_properties/",
+    ],
+    "use": [
+        (
+            "scan_schema",
+            "Currently, nionswift stores scan_schema relevant settings via multiple metadata keywords. The community should decide which of this is required.",
+        )
     ],
     "map": [
         "ac_line_sync",
@@ -273,6 +281,12 @@ NION_DYNAMIC_MAGBOARDS_TO_NX_EM: Dict[str, Any] = {
 NION_DYNAMIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/detectorID[detector*]",
     "prefix_src": "metadata/hardware_source/detector_configuration/",
+    "use": [
+        (
+            "mode",
+            "Currently, nionswift does not have a metadata key for this although Dectrics detectors use many of the Dectris NeXus keywords also in nionswift.",
+        )
+    ],
     "map_to_bool": [
         "countrate_correction_applied",
         "pixel_mask_applied",
@@ -283,8 +297,8 @@ NION_DYNAMIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
     ],
     "map_to_i1": ["bit_depth_readout", "bit_depth_image"],
     "map_to_f8": [
-        "beam_center_x",
-        "beam_center_y",
+        ("beam_center_x", ureg.meter, "beam_center_x", ureg.meter),
+        ("beam_center_y", ureg.meter, "beam_center_y", ureg.meter),
         ("detector_readout_time", ureg.second, "detector_readout_time", ureg.second),
         ("frame_time", ureg.second, "frame_time", ureg.second),
         ("count_time", ureg.second, "count_time", ureg.second),
@@ -358,5 +372,29 @@ NION_STATIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
         ("x_pixel_size", ureg.meter, "x_pixel_size", ureg.meter),
         ("y_pixel_size", ureg.meter, "y_pixel_size", ureg.meter),
         ("sensor_thickness", ureg.meter, "sensor_thickness", ureg.meter),
+    ],
+}
+
+NION_STATIC_LENS_TO_NX_EM: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/ebeam_column",
+    "prefix_src": [
+        "metadata/hardware_source/ImageRonchigram/",
+        "metadata/hardware_source/autostem/ImageRonchigram/",
+        "metadata/hardware_source/autostem/ImageScanned/",
+        "metadata/instrument/ImageRonchigram/",
+        "metadata/instrument/ImageScanned/",
+        "metadata/instrument/autostem/ImageRonchigram/",
+        "metadata/scan/scan_device_properties/ImageScanned:",
+        "metadata/scan_detector/autostem/ImageScanned/",
+    ],
+    "use": [
+        (
+            "operation_mode",
+            "Currently, nionswift stores the operation mode relevant settings via multiple metadata keywords and none of them in my opinion fit quite with this concept. The community should decide how to solve this.",
+        ),
+        ("lensID[lens1]/name", "C1"),
+        ("lensID[lens2]/name", "C2"),
+        ("lensID[lens3]/name", "C3"),
+        ("lensID[lens4]/name", "MajorOL"),
     ],
 }

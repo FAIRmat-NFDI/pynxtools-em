@@ -40,6 +40,7 @@ from pynxtools_em.configurations.nion_cfg import (
     NION_DYNAMIC_VARIOUS_TO_NX_EM,
     NION_PINPOINT_EVENT_TIME,
     NION_STATIC_DETECTOR_TO_NX_EM,
+    NION_STATIC_LENS_TO_NX_EM,
     WHICH_IMAGE,
     WHICH_SPECTRUM,
 )
@@ -414,6 +415,9 @@ class NionProjectParser:
         add_specific_metadata_pint(
             NION_STATIC_DETECTOR_TO_NX_EM, flat_metadata, identifier, template
         )
+        add_specific_metadata_pint(
+            NION_STATIC_LENS_TO_NX_EM, flat_metadata, identifier, template
+        )
         return template
 
     def process_event_data_em_data(
@@ -515,7 +519,7 @@ class NionProjectParser:
                     )
                     if units == "eV":
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Energy {ureg.Unit(units)}"  # eV
+                            f"Energy ({ureg.Unit(units)})"  # eV
                         )
                     else:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
