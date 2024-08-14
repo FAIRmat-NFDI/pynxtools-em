@@ -52,7 +52,7 @@ WHICH_IMAGE = {
 
 MAG = "magnitude"
 NION_DYNAMIC_ABERRATION_TO_NX_EM: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column/corrector_cs/zemlin_tableauID[zemlin_tableau1]/ABERRATION_MODEL[aberration_model]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column/corrector_cs/tableauID[tableau1]",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
         "metadata/hardware_source/autostem/ImageScanned/",
@@ -84,7 +84,7 @@ NION_DYNAMIC_ABERRATION_TO_NX_EM: Dict[str, Any] = {
 # more on metadata https://nionswift.readthedocs.io/en/stable/api/scripting.html#managing-session-metadata
 # TODO::check units currently using alibi units!
 NION_DYNAMIC_VARIOUS_TO_NX_EM: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab",
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
         "metadata/hardware_source/autostem/ImageRonchigram/",
@@ -128,7 +128,7 @@ NION_DYNAMIC_VARIOUS_TO_NX_EM: Dict[str, Any] = {
 
 
 NION_DYNAMIC_STAGE_TO_NX_EM: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage]",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
         "metadata/hardware_source/autostem/ImageRonchigram/",
@@ -159,7 +159,7 @@ NION_DYNAMIC_STAGE_TO_NX_EM: Dict[str, Any] = {
 # instance lens4 only in a NeXus file which might confuse people as they learn that
 # numbering should start from 1
 NION_DYNAMIC_LENS_TO_NX_EM: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column",
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
         "metadata/hardware_source/autostem/ImageRonchigram/",
@@ -168,16 +168,16 @@ NION_DYNAMIC_LENS_TO_NX_EM: Dict[str, Any] = {
         "metadata/scan/scan_device_properties/ImageScanned:",
     ],
     "use": [
-        ("LENS_EM[lens1]/name", "C1"),
-        ("LENS_EM[lens2]/name", "C2"),
-        ("LENS_EM[lens3]/name", "C3"),
-        ("LENS_EM[lens4]/name", "MajorOL"),
+        ("lensID[lens1]/name", "C1"),
+        ("lensID[lens2]/name", "C2"),
+        ("lensID[lens3]/name", "C3"),
+        ("lensID[lens4]/name", "MajorOL"),
     ],
     "map_to_f8": [
-        ("LENS_EM[lens1]/value", "C1 ConstW"),
-        ("LENS_EM[lens2]/value", "C2 ConstW"),
-        ("LENS_EM[lens3]/value", "C3 ConstW"),
-        ("LENS_EM[lens4]/value", "MajorOL"),
+        ("lensID[lens1]/value", "C1 ConstW"),
+        ("lensID[lens2]/value", "C2 ConstW"),
+        ("lensID[lens3]/value", "C3 ConstW"),
+        ("lensID[lens4]/value", "MajorOL"),
     ],
 }
 
@@ -186,7 +186,7 @@ NION_DYNAMIC_LENS_TO_NX_EM: Dict[str, Any] = {
 # according to this documentation ac_line_style should be boolean but datasets show
 # 1.0, 2.0, True and False !
 NION_DYNAMIC_SCAN_TO_NX_EM: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
     "prefix_src": [
         "metadata/hardware_source/",
         "metadata/scan/scan_device_parameters/",
@@ -228,12 +228,11 @@ NION_DYNAMIC_SCAN_TO_NX_EM: Dict[str, Any] = {
 C0 = "CIRCUIT[magboard0]"
 C1 = "CIRCUIT[magboard1]"
 NION_DYNAMIC_MAGBOARDS_TO_NX_EM: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
     "prefix_src": [
         "metadata/scan/scan_device_properties/",
         "metadata/scan/scan_device_properties/mag_boards/",
     ],
-    # "use": [(f"{C0}/@NX_class", "NXcircuit"), (f"{C1}/@NX_class", "NXcircuit")],
     # TODO: the above manual adding of NXcircuit should not be necessary
     # working hypothesis if base class inheritance does not work correctly
     # NXcomponent has NXcircuit
@@ -272,7 +271,7 @@ NION_DYNAMIC_MAGBOARDS_TO_NX_EM: Dict[str, Any] = {
 # detector A so writing to detector1 works but not in cases when there are multiple
 # detectors
 NION_DYNAMIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/detectorID[detector*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/detectorID[detector*]",
     "prefix_src": "metadata/hardware_source/detector_configuration/",
     "map_to_bool": [
         "countrate_correction_applied",
@@ -295,7 +294,7 @@ NION_DYNAMIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
 
 
 NION_PINPOINT_EVENT_TIME = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "metadata/hardware_source/detector_configuration/",
     "map": [("start_time", "data_collection_date")],
     # this could be a poor assumption as we do not know when during the acquisition
@@ -342,6 +341,10 @@ NION_STATIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
     "prefix_src": "metadata/hardware_source/detector_configuration/",
     "map": [
         ("FABRICATION[fabrication]/model", "description"),
+        (
+            "FABRICATION[fabrication]/vendor",
+            "detector_number",
+        ),  # not documented in nion metadata by default
         ("FABRICATION[fabrication]/identifier", "detector_number"),
         "eiger_fw_version",
         "sensor_material",
