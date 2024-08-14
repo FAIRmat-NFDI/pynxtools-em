@@ -88,7 +88,7 @@ class NionProjectParser:
 
     def check_if_nionswift_project(self):
         """Inspect the content of the compressed project file to check if supported."""
-        self.supported = False  # try to falsify
+        self.supported = False
         if self.file_path.endswith(".zip"):
             self.is_zipped = True
         elif self.file_path.endswith(".nsproj"):

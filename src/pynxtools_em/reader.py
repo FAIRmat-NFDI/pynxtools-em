@@ -35,6 +35,7 @@ from pynxtools_em.parsers.oasis_config_reader import (
     NxEmNomadOasisConfigurationParser,
 )
 from pynxtools_em.parsers.oasis_eln_reader import NxEmNomadOasisElnSchemaParser
+from pynxtools_em.parsers.rsciio_gatan import RsciioGatanParser
 from pynxtools_em.parsers.rsciio_velox import RsciioVeloxParser
 from pynxtools_em.utils.io_case_logic import EmUseCaseSelector
 from pynxtools_em.utils.nx_atom_types import NxEmAtomTypesResolver
@@ -108,6 +109,9 @@ class EMReader(BaseReader):
             velox = RsciioVeloxParser(entry_id, case.dat[0], verbose=False)
             velox.parse(template)
 
+            gatan = RsciioGatanParser(entry_id, case.dat[0], verbose=True)
+            gatan.parse(template)
+
             nxs_mtex = NxEmNxsMTexParser(entry_id, case.dat[0], verbose=False)
             nxs_mtex.parse(template)
 
@@ -120,8 +124,10 @@ class EMReader(BaseReader):
             # zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id)
             # zip_parser.parse(template)
         elif len(case.dat) == 2:
+            # technology partners which use metadata sidecar files
             jeol = JeolTiffParser(case.dat, entry_id, verbose=False)
             jeol.parse(template)
+            # TESCAN is another one but currently ignored
 
         nxplt = NxEmDefaultPlotResolver()
         nxplt.priority_select(template)

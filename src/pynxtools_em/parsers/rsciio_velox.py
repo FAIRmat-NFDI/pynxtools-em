@@ -40,26 +40,15 @@ from pynxtools_em.utils.get_file_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )
+from pynxtools_em.utils.numerics import COMPLEX_SPACE, REAL_SPACE
 from pynxtools_em.utils.rsciio_hspy_utils import (
+    all_req_keywords_in_dict,
     get_axes_dims,
     get_axes_units,
     get_named_axis,
 )
 from pynxtools_em.utils.string_conversions import string_to_number
 from rsciio import emd
-
-REAL_SPACE = 0
-COMPLEX_SPACE = 1
-
-
-def all_req_keywords_in_dict(dct: dict, keywords: list) -> bool:
-    """Check if dict dct has all keywords in keywords as keys from."""
-    # falsifiable?
-    for key in keywords:
-        if key in dct:
-            continue
-        return False
-    return True
 
 
 class RsciioVeloxParser(RsciioBaseParser):
