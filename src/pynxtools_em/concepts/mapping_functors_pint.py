@@ -503,7 +503,6 @@ def add_specific_metadata_pint(
                 )
             if functor_key.startswith("map_to_"):
                 dtype_key = functor_key.replace("map_to_", "")
-                print(f"dtype_key >>>> {dtype_key}")
                 if dtype_key in MAP_TO_DTYPES:
                     map_functor(
                         cfg[functor_key],

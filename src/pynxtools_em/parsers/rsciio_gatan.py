@@ -17,29 +17,23 @@
 #
 """(Sub-)parser for reading content from Gatan Digital Micrograph *.dm3 and *.dm4 (HDF5) via rosettasciio."""
 
-from datetime import datetime
 from typing import Dict, List
 
 import flatdict as fd
 import numpy as np
-import pytz
-from ase.data import chemical_symbols
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
-
-# from pynxtools_em.configurations.rsciio_gatan_cfg import
+from pynxtools_em.configurations.gatan_cfg import (
+    GATAN_WHICH_IMAGE,
+    GATAN_WHICH_SPECTRUM,
+)
 from pynxtools_em.parsers.rsciio_base import RsciioBaseParser
+from pynxtools_em.utils.gatan_utils import gatan_image_spectrum_or_generic_nxdata
 from pynxtools_em.utils.get_file_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )
-from pynxtools_em.utils.numerics import COMPLEX_SPACE, REAL_SPACE
-from pynxtools_em.utils.rsciio_hspy_utils import (
-    all_req_keywords_in_dict,
-    get_axes_dims,
-    get_axes_units,
-    get_named_axis,
-)
-from pynxtools_em.utils.string_conversions import string_to_number
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
+from pynxtools_em.utils.rsciio_hspy_utils import all_req_keywords_in_dict
 from rsciio import digitalmicrograph as gatan
 
 
@@ -62,6 +56,11 @@ class RsciioGatanParser(RsciioBaseParser):
 
     def check_if_supported(self):
         self.supported = False
+        if not self.file_path.lower().endswith(("dm3", "dm4")):
+            print(
+                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+            )
+            return
         try:
             self.objs = gatan.file_reader(
                 self.file_path, lazy=False, order="C", optimize=True
@@ -70,7 +69,7 @@ class RsciioGatanParser(RsciioBaseParser):
             # main memory, make use of lazy loading
 
             reqs = ["data", "axes", "metadata", "original_metadata", "mapping"]
-            obj_idx_supported = List[int] = []
+            obj_idx_supported: List[int] = []
             for idx, obj in enumerate(self.objs):
                 if not isinstance(obj, dict):
                     continue
@@ -129,20 +128,131 @@ class RsciioGatanParser(RsciioBaseParser):
         return template
 
     def process_event_data_em_data(self, obj: dict, template: dict) -> dict:
-        """Generic mapping of image data on NeXus template."""
+        """Map Gatan-specifically formatted data arrays on NeXus NXdata/NXimage/NXspectrum."""
         # assume rosettasciio-specific formatting of the obj informationemd parser
         # i.e. a dictionary with the following keys:
         # "data", "axes", "metadata", "original_metadata", "mapping"
         flat_hspy_meta = fd.FlatDict(obj["metadata"], "/")
-        flat_orig_meta = fd.FlatDict(obj["original_metadata"], "/")
-        # dims = get_axes_dims(obj["axes"])
-        # units = get_axes_units(obj["axes"])
         if "General/title" not in flat_hspy_meta:
             return template
-        # TODO::use implementation from Velox logic
-        return template
 
-    # template[f"{trg}/PROCESS[process]/source/type"] = "file"
-    # template[f"{trg}/PROCESS[process]/source/path"] = self.file_path
-    # template[f"{trg}/PROCESS[process]/source/checksum"] = self.file_path_sha256
-    # template[f"{trg}/PROCESS[process]/source/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
+        # flat_orig_meta = fd.FlatDict(obj["original_metadata"], "/")
+        # dims = get_axes_dims(obj["axes"])
+        # units = get_axes_units(obj["axes"])
+        axes = obj["axes"]
+        print(axes)
+        unit_combination = gatan_image_spectrum_or_generic_nxdata(axes)
+        print(f"{unit_combination}, {np.shape(obj["data"])}")
+        if unit_combination == "":
+            return template
+        print(f"entry_id {self.entry_id}, event_id {self.event_id}")
+
+        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.event_id}]"
+        self.event_id += 1
+
+        # this is the place when you want to skip individually the writing of NXdata
+        # return template
+
+        axis_names = None
+        if unit_combination in GATAN_WHICH_SPECTRUM:
+            trg = f"{prfx}/SPECTRUM_SET[spectrum_set1]"
+            template[f"{trg}/PROCESS[process]/source/type"] = "file"
+            template[f"{trg}/PROCESS[process]/source/path"] = self.file_path
+            template[f"{trg}/PROCESS[process]/source/checksum"] = self.file_path_sha256
+            template[f"{trg}/PROCESS[process]/source/algorithm"] = (
+                DEFAULT_CHECKSUM_ALGORITHM
+            )
+            trg = f"{prfx}/SPECTRUM_SET[spectrum_set1]/{GATAN_WHICH_SPECTRUM[unit_combination][0]}"
+            template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
+            template[f"{trg}/@signal"] = f"intensity"
+            template[f"{trg}/intensity"] = {"compress": obj["data"], "strength": 1}
+            axis_names = GATAN_WHICH_SPECTRUM[unit_combination][1]
+        elif unit_combination in GATAN_WHICH_IMAGE:
+            trg = f"{prfx}/IMAGE_SET[image_set1]"
+            template[f"{trg}/PROCESS[process]/source/type"] = "file"
+            template[f"{trg}/PROCESS[process]/source/path"] = self.file_path
+            template[f"{trg}/PROCESS[process]/source/checksum"] = self.file_path_sha256
+            template[f"{trg}/PROCESS[process]/source/algorithm"] = (
+                DEFAULT_CHECKSUM_ALGORITHM
+            )
+            trg = (
+                f"{prfx}/IMAGE_SET[image_set1]/{GATAN_WHICH_IMAGE[unit_combination][0]}"
+            )
+            template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
+            template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
+            template[f"{trg}/real"] = {"compress": obj["data"], "strength": 1}
+            axis_names = GATAN_WHICH_IMAGE[unit_combination][1]
+        else:
+            trg = f"{prfx}/DATA[data1]"
+            # template[f"{trg}/PROCESS[process]/source/type"] = "file"
+            # template[f"{trg}/PROCESS[process]/source/path"] = self.file_path
+            # template[f"{trg}/PROCESS[process]/source/checksum"] = self.file_path_sha256
+            # template[f"{trg}/PROCESS[process]/source/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
+            template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
+            template[f"{trg}/@NX_class"] = f"NXdata"
+            template[f"{trg}/@signal"] = f"data"
+            template[f"{trg}/data"] = {"compress": obj["data"], "strength": 1}
+            axis_names = ["axis_i", "axis_j", "axis_k", "axis_l", "axis_m"][
+                0 : len(unit_combination.split("_"))
+            ][::-1]
+
+        if len(axis_names) >= 1:
+            # arrays axis_names and dimensional_calibrations are aligned in order
+            # but that order is reversed wrt to AXISNAME_indices !
+            for idx, axis_name in enumerate(axis_names):
+                template[f"{trg}/@AXISNAME_indices[{axis_name}_indices]"] = np.uint32(
+                    len(axis_names) - 1 - idx
+                )
+            template[f"{trg}/@axes"] = axis_names
+
+            for idx, axis in enumerate(axes):
+                axis_name = axis_names[idx]
+                offset = axis["offset"]
+                step = axis["scale"]
+                units = axis["units"]
+                count = np.shape(obj["data"])[idx]
+                if units == "":
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.float32(offset) + (
+                        np.float32(step)
+                        * np.asarray(
+                            np.linspace(
+                                start=0, stop=count - 1, num=count, endpoint=True
+                            ),
+                            np.float32,
+                        )
+                    )
+                    if unit_combination in GATAN_WHICH_SPECTRUM:
+                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
+                            f"Spectrum identifier"
+                        )
+                    elif unit_combination in GATAN_WHICH_IMAGE:
+                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
+                            f"Image identifier"
+                        )
+                    else:
+                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
+                            f"{axis_name}"
+                            # unitless | dimensionless i.e. no unit in longname
+                        )
+                else:
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.float32(offset) + (
+                        np.float32(step)
+                        * np.asarray(
+                            np.linspace(
+                                start=0, stop=count - 1, num=count, endpoint=True
+                            ),
+                            np.float32,
+                        )
+                    )
+                    template[f"{trg}/AXISNAME[{axis_name}]/@units"] = (
+                        f"{ureg.Unit(units)}"
+                    )
+                    if units == "eV":
+                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
+                            f"Energy ({ureg.Unit(units)})"  # eV
+                        )
+                    else:
+                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
+                            f"Point coordinate along {axis_name} ({ureg.Unit(units)})"
+                        )
+        return template

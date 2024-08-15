@@ -41,15 +41,15 @@ from pynxtools_em.configurations.nion_cfg import (
     NION_PINPOINT_EVENT_TIME,
     NION_STATIC_DETECTOR_TO_NX_EM,
     NION_STATIC_LENS_TO_NX_EM,
-    WHICH_IMAGE,
-    WHICH_SPECTRUM,
+    NION_WHICH_IMAGE,
+    NION_WHICH_SPECTRUM,
 )
 from pynxtools_em.utils.get_file_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )
 from pynxtools_em.utils.nion_utils import (
-    image_spectrum_or_generic_nxdata,
+    nion_image_spectrum_or_generic_nxdata,
     uuid_to_file_name,
 )
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
@@ -425,7 +425,7 @@ class NionProjectParser:
     ) -> dict:
         """Map Nion-specifically formatted data arrays on NeXus NXdata/NXimage/NXspectrum."""
         axes = flat_metadata["dimensional_calibrations"]
-        unit_combination = image_spectrum_or_generic_nxdata(axes)
+        unit_combination = nion_image_spectrum_or_generic_nxdata(axes)
         print(f"{unit_combination}, {np.shape(nparr)}")
         print(axes)
         print(f"entry_id {self.entry_id}, event_id {self.event_id}")
@@ -439,18 +439,20 @@ class NionProjectParser:
         # return template
 
         axis_names = None
-        if unit_combination in WHICH_SPECTRUM:
-            trg = f"{prfx}/SPECTRUM_SET[spectrum_set1]/{WHICH_SPECTRUM[unit_combination][0]}"
+        if unit_combination in NION_WHICH_SPECTRUM:
+            trg = f"{prfx}/SPECTRUM_SET[spectrum_set1]/{NION_WHICH_SPECTRUM[unit_combination][0]}"
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"intensity"
             template[f"{trg}/intensity"] = {"compress": nparr, "strength": 1}
-            axis_names = WHICH_SPECTRUM[unit_combination][1]
-        elif unit_combination in WHICH_IMAGE:
-            trg = f"{prfx}/IMAGE_SET[image_set1]/{WHICH_IMAGE[unit_combination][0]}"
+            axis_names = NION_WHICH_SPECTRUM[unit_combination][1]
+        elif unit_combination in NION_WHICH_IMAGE:
+            trg = (
+                f"{prfx}/IMAGE_SET[image_set1]/{NION_WHICH_IMAGE[unit_combination][0]}"
+            )
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
             template[f"{trg}/real"] = {"compress": nparr, "strength": 1}
-            axis_names = WHICH_IMAGE[unit_combination][1]
+            axis_names = NION_WHICH_IMAGE[unit_combination][1]
         elif not any(
             (value in ["1/", "iteration"]) for value in unit_combination.split(";")
         ):
@@ -491,11 +493,11 @@ class NionProjectParser:
                             np.float32,
                         )
                     )
-                    if unit_combination in WHICH_SPECTRUM:
+                    if unit_combination in NION_WHICH_SPECTRUM:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
                             f"Spectrum identifier"
                         )
-                    elif unit_combination in WHICH_IMAGE:
+                    elif unit_combination in NION_WHICH_IMAGE:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
                             f"Image identifier"
                         )

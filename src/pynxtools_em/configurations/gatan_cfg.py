@@ -21,4 +21,14 @@ from typing import Any, Dict
 
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-# TODO::
+GATAN_WHICH_SPECTRUM = {
+    "eV": ("spectrum_0d", ["axis_energy"]),
+    "eV_m": ("spectrum_1d", ["axis_i", "axis_energy"]),
+    "eV_m_m": ("spectrum_2d", ["axis_j", "axis_i", "axis_energy"]),
+}
+GATAN_WHICH_IMAGE = {
+    "m": ("image_1d", ["axis_i"]),
+    "1/m": ("image_1d", ["axis_i"]),
+    "m_m": ("image_2d", ["axis_j", "axis_i"]),
+    "1/m_1/m": ("image_2d", ["axis_j", "axis_i"]),
+}

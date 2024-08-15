@@ -21,7 +21,7 @@ from typing import Any, Dict
 
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-WHICH_SPECTRUM = {
+NION_WHICH_SPECTRUM = {
     "eV": ("spectrum_0d", ["axis_energy"]),
     "nm_eV": ("spectrum_1d", ["axis_i", "axis_energy"]),
     "nm_nm_eV": ("spectrum_2d", ["axis_j", "axis_i", "axis_energy"]),
@@ -37,7 +37,7 @@ WHICH_SPECTRUM = {
         ["spectrum_identifier", "axis_k", "axis_j", "axis_i", "axis_energy"],
     ),
 }
-WHICH_IMAGE = {
+NION_WHICH_IMAGE = {
     "nm": ("image_1d", ["axis_i"]),
     "nm_nm": ("image_2d", ["axis_j", "axis_i"]),
     "nm_nm_nm": ("image_3d", ["axis_k", "axis_j", "axis_i"]),
@@ -48,6 +48,7 @@ WHICH_IMAGE = {
         ["image_identifier", "axis_k", "axis_j", "axis_i"],
     ),
 }
+# TODO::use mapping to base_units like exemplified for the gatan parser
 
 
 MAG = "magnitude"
