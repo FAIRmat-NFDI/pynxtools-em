@@ -23,6 +23,8 @@ import flatdict as fd
 import numpy as np
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.gatan_cfg import (
+    GATAN_DYNAMIC_STAGE_TO_NX_EM,
+    GATAN_DYNAMIC_VARIOUS_TO_NX_EM,
     GATAN_WHICH_IMAGE,
     GATAN_WHICH_SPECTRUM,
 )
@@ -122,9 +124,8 @@ class RsciioGatanParser(RsciioBaseParser):
         # steps required
         flat_metadata = fd.FlatDict(obj["original_metadata"], "/")
         identifier = [self.entry_id, self.event_id, 1]
-        # for cfg in []:  # TODO::add configurations
-        #    add_specific_metadata_pint(cfg, flat_metadata, identifier, template)
-
+        for cfg in [GATAN_DYNAMIC_STAGE_TO_NX_EM, GATAN_DYNAMIC_VARIOUS_TO_NX_EM]:
+            add_specific_metadata_pint(cfg, flat_metadata, identifier, template)
         return template
 
     def process_event_data_em_data(self, obj: dict, template: dict) -> dict:
@@ -137,15 +138,14 @@ class RsciioGatanParser(RsciioBaseParser):
             return template
 
         # flat_orig_meta = fd.FlatDict(obj["original_metadata"], "/")
-        # dims = get_axes_dims(obj["axes"])
-        # units = get_axes_units(obj["axes"])
         axes = obj["axes"]
-        print(axes)
         unit_combination = gatan_image_spectrum_or_generic_nxdata(axes)
-        print(f"{unit_combination}, {np.shape(obj["data"])}")
         if unit_combination == "":
             return template
-        print(f"entry_id {self.entry_id}, event_id {self.event_id}")
+        if self.verbose:
+            print(axes)
+            print(f"{unit_combination}, {np.shape(obj['data'])}")
+            print(f"entry_id {self.entry_id}, event_id {self.event_id}")
 
         prfx = f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.event_id}]"
         self.event_id += 1
@@ -194,7 +194,9 @@ class RsciioGatanParser(RsciioBaseParser):
             template[f"{trg}/data"] = {"compress": obj["data"], "strength": 1}
             axis_names = ["axis_i", "axis_j", "axis_k", "axis_l", "axis_m"][
                 0 : len(unit_combination.split("_"))
-            ][::-1]
+            ]  # mind, different to Nion and other tech partners here no [::-1] reversal
+            # of the indices 241.a2c338fd458e6b7023ec946a5e3ce8c85bd2befcb5d17dae7ae5f44b2dede81b.dm4
+            # is a good example!
 
         if len(axis_names) >= 1:
             # arrays axis_names and dimensional_calibrations are aligned in order
@@ -247,9 +249,12 @@ class RsciioGatanParser(RsciioBaseParser):
                     template[f"{trg}/AXISNAME[{axis_name}]/@units"] = (
                         f"{ureg.Unit(units)}"
                     )
-                    if units == "eV":
+                    if (
+                        ureg.Quantity(units).to_base_units().units
+                        == "kilogram * meter ** 2 / second ** 2"
+                    ):
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Energy ({ureg.Unit(units)})"  # eV
+                            f"Energy ({ureg.Unit(units)})"
                         )
                     else:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (

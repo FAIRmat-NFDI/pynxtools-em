@@ -520,6 +520,8 @@ class NionProjectParser:
                         f"{ureg.Unit(units)}"
                     )
                     if units == "eV":
+                        # TODO::this is only robust if Nion reports always as eV and not with other prefix like kilo etc.
+                        # in such case the solution from the gatan parser is required, i.e. conversion to base units
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
                             f"Energy ({ureg.Unit(units)})"  # eV
                         )
