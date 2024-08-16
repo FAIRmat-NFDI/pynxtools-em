@@ -35,14 +35,11 @@ from pynxtools_em.configurations.image_tiff_tfs_cfg import (
     TFS_VARIOUS_STATIC_TO_NX_EM,
 )
 from pynxtools_em.parsers.image_tiff import TiffParser
-from pynxtools_em.parsers.image_tiff_tfs_concepts import (
-    get_fei_childs,
-    get_fei_parent_concepts,
-)
 from pynxtools_em.utils.image_utils import (
     if_str_represents_float,
     sort_ascendingly_by_second_argument,
 )
+from pynxtools_em.utils.tfs_utils import get_fei_childs, get_fei_parent_concepts
 
 
 class TfsTiffParser(TiffParser):
