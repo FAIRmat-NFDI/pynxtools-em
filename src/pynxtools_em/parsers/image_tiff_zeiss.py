@@ -19,7 +19,7 @@
 
 import mmap
 import re
-import tokenize
+from tokenize import TokenError
 from typing import Dict
 
 import flatdict as fd
@@ -116,7 +116,7 @@ class ZeissTiffParser(TiffParser):
                                 self.tmp["flat_dict_meta"][line] = string_to_number(
                                     token[1]
                                 )
-                        except tokenize.TokenError:
+                        except TokenError:
                             if token[1]:
                                 self.tmp["flat_dict_meta"][line] = string_to_number(
                                     token[1]
@@ -203,7 +203,7 @@ class ZeissTiffParser(TiffParser):
                 trg = (
                     f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
                     f"EVENT_DATA_EM[event_data_em{self.event_id}]/"
-                    f"IMAGE_SET[image_set{image_identifier}]/image_twod"
+                    f"IMAGE_SET[image_set{image_identifier}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
                 template[f"{trg}/@signal"] = "real"

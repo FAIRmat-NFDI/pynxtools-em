@@ -52,7 +52,7 @@ TFS_VARIOUS_STATIC_TO_NX_EM = {
 
 
 TFS_OPTICS_DYNAMIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]",
     "use": [("beam_current/@units", "A"), ("working_distance/@units", "m")],
     "map": [
         ("beam_current", "EBeam/BeamCurrent"),
@@ -62,7 +62,7 @@ TFS_OPTICS_DYNAMIC_TO_NX_EM = {
 
 
 TFS_STAGE_DYNAMIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
     "use": [("tilt1/@units", "deg"), ("tilt2/@units", "deg")],
     "map_to_real_and_multiply": [
         ("tilt1", "EBeam/StageTa", RAD2DEG),
@@ -72,7 +72,7 @@ TFS_STAGE_DYNAMIC_TO_NX_EM = {
 
 
 TFS_SCAN_DYNAMIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/SCANBOX_EM[scanbox_em]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/SCANBOX_EM[scanbox_em]",
     "use": [
         ("dwell_time/@units", "s"),
     ],
@@ -81,7 +81,7 @@ TFS_SCAN_DYNAMIC_TO_NX_EM = {
 
 
 TFS_VARIOUS_DYNAMIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
     "use": [("em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage/@units", "V")],
     "map": [
         ("em_lab/DETECTOR[detector*]/mode", "Detectors/Mode"),

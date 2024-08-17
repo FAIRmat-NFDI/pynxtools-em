@@ -26,6 +26,7 @@ from pynxtools.dataconverter.readers.base.reader import BaseReader
 
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 from pynxtools_em.parsers.convention_reader import NxEmConventionParser
+from pynxtools_em.parsers.image_tiff_hitachi import HitachiTiffParser
 from pynxtools_em.parsers.image_tiff_jeol import JeolTiffParser
 from pynxtools_em.parsers.nxs_imgs import NxEmImagesParser
 from pynxtools_em.parsers.nxs_mtex import NxEmNxsMTexParser
@@ -109,7 +110,7 @@ class EMReader(BaseReader):
             velox = RsciioVeloxParser(entry_id, case.dat[0], verbose=False)
             velox.parse(template)
 
-            gatan = RsciioGatanParser(entry_id, case.dat[0], verbose=True)
+            gatan = RsciioGatanParser(entry_id, case.dat[0], verbose=False)
             gatan.parse(template)
 
             nxs_mtex = NxEmNxsMTexParser(entry_id, case.dat[0], verbose=False)
@@ -127,7 +128,12 @@ class EMReader(BaseReader):
             # technology partners which use metadata sidecar files
             jeol = JeolTiffParser(case.dat, entry_id, verbose=False)
             jeol.parse(template)
-            # TESCAN is another one but currently ignored
+
+            hitachi = HitachiTiffParser(case.dat, entry_id, verbose=False)
+            hitachi.parse(template)
+
+            # TESCAN is another one but currently the HDR sidecar file is ignored
+            # as newer TESCAN instruments also store the metadata right in the TIFF file
 
         nxplt = NxEmDefaultPlotResolver()
         nxplt.priority_select(template)

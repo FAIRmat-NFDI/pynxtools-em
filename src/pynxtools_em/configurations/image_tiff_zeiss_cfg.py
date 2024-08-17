@@ -20,7 +20,7 @@
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 ZEISS_VARIOUS_DYNAMIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "",
     "map_to_f8": [
         ("em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/magnification", "AP_MAG"),

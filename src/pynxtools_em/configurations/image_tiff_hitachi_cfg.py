@@ -15,36 +15,46 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Configuration of the image_tiff_jeol parser."""
+"""Configuration of the image_tiff_hitachi parser."""
 
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-JEOL_VARIOUS_DYNAMIC_TO_NX_EM = {
+HITACHI_VARIOUS_DYNAMIC_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "",
     "map_to_f8": [
-        ("em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/magnification", "CM_MAG"),
+        ("em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/magnification", "Magnification"),
         (
             "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/working_distance",
-            ureg.centimeter,
-            "SM_WD",
-            ureg.millimeter,
+            ureg.meter,
+            "WorkingDistance",
         ),
         (
             "em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage",
             ureg.volt,
-            "CM_ACCEL_VOLTAGE",
-            ureg.kilovolt,
+            "AcceleratingVoltage",
+        ),
+        (
+            "em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/filament_current",
+            ureg.ampere,
+            "FilamentCurrent",
+        ),
+        (
+            "em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/emission_current",
+            ureg.ampere,
+            "EmissionCurrent",
         ),
     ],
 }
 
 
-JEOL_VARIOUS_STATIC_TO_NX_EM = {
+HITACHI_VARIOUS_STATIC_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab",
     "prefix_src": "",
-    "use": [("FABRICATION[fabrication]/vendor", "JEOL")],
+    "use": [("FABRICATION[fabrication]/vendor", "Hitachi")],
     "map": [
-        ("FABRICATION[fabrication]/model", "CM_INSTRUMENT"),
+        ("FABRICATION[fabrication]/model", "InstructName"),
+        ("FABRICATION[fabrication]/model", "Instrument name"),
+        ("FABRICATION[fabrication]/identifier", "SerialNumber"),
     ],
 }

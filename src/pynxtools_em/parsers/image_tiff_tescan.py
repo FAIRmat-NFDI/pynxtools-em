@@ -135,7 +135,7 @@ class TescanTiffParser(TiffParser):
                 trg = (
                     f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
                     f"EVENT_DATA_EM[event_data_em{self.event_id}]/"
-                    f"IMAGE_SET[image_set{image_identifier}]/image_twod"
+                    f"IMAGE_SET[image_set{image_identifier}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
                 template[f"{trg}/@signal"] = "real"

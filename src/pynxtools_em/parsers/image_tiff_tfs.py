@@ -200,9 +200,9 @@ class TfsTiffParser(TiffParser):
             # explorative viewing using H5Web than what traditionally typical image viewers are meant for
             image_identifier = 1
             trg = (
-                f"/ENTRY[entry{self.entry_id}]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/"
+                f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
                 f"EVENT_DATA_EM[event_data_em{self.event_id}]/"
-                f"IMAGE_R_SET[image_r_set{image_identifier}]/image_twod"
+                f"IMAGE_R_SET[image_r_set{image_identifier}]/image_2d"
             )
             # TODO::writer should decorate automatically!
             template[f"{trg}/title"] = f"Image"
