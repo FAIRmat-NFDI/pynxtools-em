@@ -25,6 +25,8 @@ import numpy as np
 from PIL import Image, ImageSequence
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_tescan_cfg import (
+    TESCAN_STAGE_DYNAMIC_TO_NX_EM,
+    TESCAN_STIGMATOR_DYNAMIC_TO_NX_EM,
     TESCAN_VARIOUS_DYNAMIC_TO_NX_EM,
     TESCAN_VARIOUS_STATIC_TO_NX_EM,
 )
@@ -98,10 +100,37 @@ class TescanTiffParser(TiffParser):
                                 )
                         else:
                             print(f"Ignore line {line} !")
+        # very frequently using sidecar files create ambiguities: are the metadata in the
+        # image and the sidecar file exactly the same, a subset, which information to
+        # give preference in case of inconsistencies, system time when the sidecar file
+        # is written differs from system time when the image was written, which time
+        # to take for the event data?
         if len(self.tmp["flat_dict_meta"]) == 0:
             if self.hdr_file_path != "":
-                print(">>>>>>>>>>>>>>>>>>>>>>>")
-                # TODO::attempt reading metadata from HDR file ...
+                with open(self.hdr_file_path, mode="r", encoding="utf8") as fp:
+                    txt = fp.read()
+                    txt = txt.replace("\r\n", "\n")  # windows to unix EOL conversion
+                    txt = [
+                        line.strip()
+                        for line in txt.split("\n")
+                        if line.strip() != "" and line.startswith("#") is False
+                    ]
+                    if not all(value in txt for value in ["[MAIN]", "[SEM]"]):
+                        print(
+                            f"WARNING::TESCAN HDR sidecar file exists but does not contain expected section headers !"
+                        )
+                    txt = [line for line in txt if line not in ["[MAIN]", "[SEM]"]]
+                    for line in txt:
+                        tmp = [value.strip() for value in line.split("=")]
+                        if len(tmp) == 1:
+                            print(f"Ignore line {line} !")
+                        elif len(tmp) == 2:
+                            if tmp[0] and tmp[0] not in self.tmp["flat_dict_meta"]:
+                                self.tmp["flat_dict_meta"][tmp[0]] = string_to_number(
+                                    tmp[1]
+                                )
+                        else:
+                            print(f"Ignore line {line} !")
             else:
                 print(f"WARNING::Potential TESCAN TIF without metadata !")
 
@@ -198,7 +227,12 @@ class TescanTiffParser(TiffParser):
         # contextualization to understand how the image relates to the EM session
         print(f"Mapping some of the TESCAN metadata on respective NeXus concepts...")
         identifier = [self.entry_id, self.event_id, 1]
-        for cfg in [TESCAN_VARIOUS_DYNAMIC_TO_NX_EM, TESCAN_VARIOUS_STATIC_TO_NX_EM]:
+        for cfg in [
+            TESCAN_VARIOUS_DYNAMIC_TO_NX_EM,
+            TESCAN_STAGE_DYNAMIC_TO_NX_EM,
+            TESCAN_STIGMATOR_DYNAMIC_TO_NX_EM,
+            TESCAN_VARIOUS_STATIC_TO_NX_EM,
+        ]:
             add_specific_metadata_pint(
                 cfg,
                 self.tmp["flat_dict_meta"],

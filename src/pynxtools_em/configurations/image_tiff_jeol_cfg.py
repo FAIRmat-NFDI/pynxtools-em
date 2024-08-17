@@ -26,7 +26,7 @@ JEOL_VARIOUS_DYNAMIC_TO_NX_EM = {
         ("em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/magnification", "CM_MAG"),
         (
             "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/working_distance",
-            ureg.centimeter,
+            ureg.meter,
             "SM_WD",
             ureg.millimeter,
         ),

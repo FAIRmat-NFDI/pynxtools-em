@@ -41,7 +41,7 @@ class NxEmImagesParser:
         # tech partner formats used for measurement
         img = TfsTiffParser(self.file_path)
         if img.supported:
-            return "single_tiff_tfs"
+            return "tiff_tfs"
         img = ZeissTiffParser(self.file_path)
         if img.supported:
             return "tiff_zeiss"
@@ -63,14 +63,13 @@ class NxEmImagesParser:
         print(f"{self.__class__.__name__} identified content as {image_parser_type}")
         # see also comments for respective nxs_pyxem parser
         # and its interaction with tech-partner-specific hfive_* parsers
-        if image_parser_type == "single_tiff_tfs":
+        if image_parser_type == "tiff_tfs":
             tfs = TfsTiffParser(self.file_path, self.entry_id)
             tfs.parse_and_normalize()
             tfs.process_into_template(template)
         elif image_parser_type == "tiff_zeiss":
             zss = ZeissTiffParser(self.file_path, self.entry_id)
-            zss.parse_and_normalize()
-            zss.process_into_template(template)
+            zss.parse(template)
         elif image_parser_type == "tiff_point_electronic":
             pe = PointElectronicTiffParser(self.file_path, self.entry_id)
             pe.parse_and_normalize()

@@ -145,7 +145,7 @@ NION_DYNAMIC_STAGE_TO_NX_EM: Dict[str, Any] = {
         ("tilt2", ureg.radian, "StageOutB", ureg.radian),
         (
             "position",
-            ureg.picometer,
+            ureg.meter,
             ["StageOutX", "StageOutY", "StageOutZ"],
             ureg.meter,
         ),

@@ -26,13 +26,13 @@ DISS_VARIOUS_DYNAMIC_TO_NX_EM = {
         ("em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/magnification", "Mag"),
         (
             "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/working_distance",
-            ureg.centimeter,
+            ureg.meter,
             "WD/value",
             "WD/Unit",
         ),
         (
             "em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage",
-            ureg.picovolt,
+            ureg.volt,
             "HV/value",
             "HV/Unit",
         ),

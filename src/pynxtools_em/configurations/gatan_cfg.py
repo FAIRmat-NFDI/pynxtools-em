@@ -43,7 +43,7 @@ GATAN_DYNAMIC_VARIOUS_TO_NX_EM: Dict[str, Any] = {
     "map_to_f8": [
         (
             "ebeam_column/electron_source/voltage",
-            ureg.kilovolt,
+            ureg.volt,
             "Voltage",
             ureg.volt,
         ),  # volt?
@@ -102,7 +102,7 @@ GATAN_DYNAMIC_STAGE_TO_NX_EM: Dict[str, Any] = {
         ("tilt2", ureg.radian, "Stage Beta", ureg.radian),
         (
             "position",
-            ureg.picometer,
+            ureg.meter,
             ["Stage X", "Stage Y", "Stage Z"],
             ureg.meter,
         ),

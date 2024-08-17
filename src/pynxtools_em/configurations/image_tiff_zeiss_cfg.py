@@ -26,12 +26,12 @@ ZEISS_VARIOUS_DYNAMIC_TO_NX_EM = {
         ("em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/magnification", "AP_MAG"),
         (
             "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/working_distance",
-            ureg.micrometer,
+            ureg.meter,
             "AP_WD",
         ),
         (
             "em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage",
-            ureg.kilovolt,
+            ureg.volt,
             "AP_MANUALKV",
         ),
     ],

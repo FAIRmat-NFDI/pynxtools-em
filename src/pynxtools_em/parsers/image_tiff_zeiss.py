@@ -169,24 +169,21 @@ class ZeissTiffParser(TiffParser):
                             f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
                         )
                         return
+                    else:
+                        self.supported = True
 
-        self.supported = True
-
-    def parse_and_normalize(self):
+    def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache self.tmp."""
         if self.supported is True:
             print(f"Parsing via Zeiss-specific metadata...")
             # metadata have at this point already been collected into an fd.FlatDict
+            self.process_event_data_em_metadata(template)
+            self.process_event_data_em_data(template)
         else:
             print(
                 f"{self.file_path} is not a Zeiss-specific "
                 f"TIFF file that this parser can process !"
             )
-
-    def process_into_template(self, template: dict) -> dict:
-        if self.supported is True:
-            self.process_event_data_em_metadata(template)
-            self.process_event_data_em_data(template)
         return template
 
     def process_event_data_em_data(self, template: dict) -> dict:
