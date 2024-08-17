@@ -19,7 +19,6 @@
 
 from pynxtools_em.parsers.image_png_protochips import ProtochipsPngSetParser
 from pynxtools_em.parsers.image_tiff_point_electronic import PointElectronicTiffParser
-from pynxtools_em.parsers.image_tiff_tescan import TescanTiffParser
 from pynxtools_em.parsers.image_tiff_tfs import TfsTiffParser
 from pynxtools_em.parsers.image_tiff_zeiss import ZeissTiffParser
 
@@ -43,9 +42,6 @@ class NxEmImagesParser:
         img = TfsTiffParser(self.file_path)
         if img.supported:
             return "single_tiff_tfs"
-        img = TescanTiffParser(self.file_path)
-        if img.supported:
-            return "tiff_tescan"
         img = ZeissTiffParser(self.file_path)
         if img.supported:
             return "tiff_zeiss"
@@ -71,10 +67,6 @@ class NxEmImagesParser:
             tfs = TfsTiffParser(self.file_path, self.entry_id)
             tfs.parse_and_normalize()
             tfs.process_into_template(template)
-        elif image_parser_type == "tiff_tescan":
-            tsc = TescanTiffParser(self.file_path, self.entry_id)
-            tsc.parse_and_normalize()
-            tsc.process_into_template(template)
         elif image_parser_type == "tiff_zeiss":
             zss = ZeissTiffParser(self.file_path, self.entry_id)
             zss.parse_and_normalize()

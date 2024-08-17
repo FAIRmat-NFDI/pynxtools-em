@@ -28,6 +28,7 @@ from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 from pynxtools_em.parsers.convention_reader import NxEmConventionParser
 from pynxtools_em.parsers.image_tiff_hitachi import HitachiTiffParser
 from pynxtools_em.parsers.image_tiff_jeol import JeolTiffParser
+from pynxtools_em.parsers.image_tiff_tescan import TescanTiffParser
 from pynxtools_em.parsers.nxs_imgs import NxEmImagesParser
 from pynxtools_em.parsers.nxs_mtex import NxEmNxsMTexParser
 from pynxtools_em.parsers.nxs_nion import NionProjectParser
@@ -103,7 +104,7 @@ class EMReader(BaseReader):
             conventions.parse(template)
 
         print("Parse and map pieces of information within files from tech partners...")
-        if len(case.dat) == 1:
+        if len(case.dat) == 1:  # no sidecar file
             images = NxEmImagesParser(entry_id, case.dat[0], verbose=False)
             images.parse(template)
 
@@ -124,16 +125,15 @@ class EMReader(BaseReader):
 
             # zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id)
             # zip_parser.parse(template)
-        elif len(case.dat) == 2:
-            # technology partners which use metadata sidecar files
+        elif len(case.dat) >= 1:  # optional sidecar file
+            tescan = TescanTiffParser(case.dat, entry_id)
+            tescan.parse(template)
+        elif len(case.dat) == 2:  # for sure sidecar file
             jeol = JeolTiffParser(case.dat, entry_id, verbose=False)
             jeol.parse(template)
 
             hitachi = HitachiTiffParser(case.dat, entry_id, verbose=False)
             hitachi.parse(template)
-
-            # TESCAN is another one but currently the HDR sidecar file is ignored
-            # as newer TESCAN instruments also store the metadata right in the TIFF file
 
         nxplt = NxEmDefaultPlotResolver()
         nxplt.priority_select(template)
