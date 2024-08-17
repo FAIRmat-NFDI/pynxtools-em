@@ -54,9 +54,12 @@ class TescanTiffParser(TiffParser):
             self.entry_id = entry_id
             self.event_id = 1
             self.verbose = verbose
-            self.hdr_file_path = tif_hdr[1] if tif_hdr[1] != "" else ""
+            if tif_hdr[1] != "":
+                self.hdr_file_path = tif_hdr[1]
+            else:
+                self.hdr_file_path = ""
             self.prfx = None
-            self.tmp: Dict = {"data": None, "flat_dict_meta": fd.FlatDict({})}
+            self.flat_dict_meta = fd.FlatDict({}, "/")
             self.supported_version: Dict = {}
             self.version: Dict = {}
             self.tags: Dict = {}
@@ -79,7 +82,7 @@ class TescanTiffParser(TiffParser):
                 )
                 return
 
-        self.tmp["flat_dict_meta"] = fd.FlatDict({}, "/")
+        self.flat_dict_meta = fd.FlatDict({}, "/")
         with Image.open(self.file_path, mode="r") as fp:
             tescan_keys = [50431]
             for tescan_key in tescan_keys:
@@ -94,10 +97,8 @@ class TescanTiffParser(TiffParser):
                         if len(tmp) == 1:
                             print(f"Ignore line {line} !")
                         elif len(tmp) == 2:
-                            if tmp[0] and tmp[0] not in self.tmp["flat_dict_meta"]:
-                                self.tmp["flat_dict_meta"][tmp[0]] = string_to_number(
-                                    tmp[1]
-                                )
+                            if tmp[0] and tmp[0] not in self.flat_dict_meta:
+                                self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
                         else:
                             print(f"Ignore line {line} !")
         # very frequently using sidecar files create ambiguities: are the metadata in the
@@ -105,7 +106,7 @@ class TescanTiffParser(TiffParser):
         # give preference in case of inconsistencies, system time when the sidecar file
         # is written differs from system time when the image was written, which time
         # to take for the event data?
-        if len(self.tmp["flat_dict_meta"]) == 0:
+        if len(self.flat_dict_meta) == 0:
             if self.hdr_file_path != "":
                 with open(self.hdr_file_path, mode="r", encoding="utf8") as fp:
                     txt = fp.read()
@@ -125,23 +126,21 @@ class TescanTiffParser(TiffParser):
                         if len(tmp) == 1:
                             print(f"Ignore line {line} !")
                         elif len(tmp) == 2:
-                            if tmp[0] and tmp[0] not in self.tmp["flat_dict_meta"]:
-                                self.tmp["flat_dict_meta"][tmp[0]] = string_to_number(
-                                    tmp[1]
-                                )
+                            if tmp[0] and (tmp[0] not in self.flat_dict_meta):
+                                self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
                         else:
                             print(f"Ignore line {line} !")
             else:
                 print(f"WARNING::Potential TESCAN TIF without metadata !")
 
         if self.verbose:
-            for key, value in self.tmp["flat_dict_meta"].items():
+            for key, value in self.flat_dict_meta.items():
                 print(f"{key}____{type(value)}____{value}")
 
         # check if written about with supported DISS version
         supported_versions = ["TIMA"]
-        if "Device" in self.tmp["flat_dict_meta"]:
-            if self.tmp["flat_dict_meta"]["Device"] in supported_versions:
+        if "Device" in self.flat_dict_meta:
+            if self.flat_dict_meta["Device"] in supported_versions:
                 self.supported = True
                 # but this is quite a weak test, more instance data are required
                 # with TESCAN-specific concept names to make this here more robust
@@ -193,12 +192,13 @@ class TescanTiffParser(TiffParser):
 
                 sxy = {"i": 1.0, "j": 1.0}
                 scan_unit = {"i": "m", "j": "m"}
-                if ("PixelSizeX" in self.tmp["flat_dict_meta"]) and (
-                    "PixelSizeY" in self.tmp["flat_dict_meta"]
+                if all(
+                    value in self.flat_dict_meta
+                    for value in ["PixelSizeX", "PixelSizeY"]
                 ):
                     sxy = {
-                        "i": self.tmp["flat_dict_meta"]["PixelSizeX"],
-                        "j": self.tmp["flat_dict_meta"]["PixelSizeY"],
+                        "i": self.flat_dict_meta["PixelSizeX"],
+                        "j": self.flat_dict_meta["PixelSizeY"],
                     }
                 else:
                     print("WARNING: Assuming pixel width and height unit is meter!")
@@ -228,15 +228,10 @@ class TescanTiffParser(TiffParser):
         print(f"Mapping some of the TESCAN metadata on respective NeXus concepts...")
         identifier = [self.entry_id, self.event_id, 1]
         for cfg in [
-            TESCAN_VARIOUS_DYNAMIC_TO_NX_EM,
-            TESCAN_STAGE_DYNAMIC_TO_NX_EM,
             TESCAN_STIGMATOR_DYNAMIC_TO_NX_EM,
             TESCAN_VARIOUS_STATIC_TO_NX_EM,
+            TESCAN_VARIOUS_DYNAMIC_TO_NX_EM,
+            TESCAN_STAGE_DYNAMIC_TO_NX_EM,
         ]:
-            add_specific_metadata_pint(
-                cfg,
-                self.tmp["flat_dict_meta"],
-                identifier,
-                template,
-            )
+            add_specific_metadata_pint(cfg, self.flat_dict_meta, identifier, template)
         return template
