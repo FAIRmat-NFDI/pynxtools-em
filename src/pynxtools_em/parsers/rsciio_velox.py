@@ -54,12 +54,13 @@ from rsciio import emd
 class RsciioVeloxParser(RsciioBaseParser):
     """Read Velox EMD File Format emd."""
 
-    def __init__(self, entry_id: int = 1, file_path: str = "", verbose: bool = False):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
         super().__init__(file_path)
         if entry_id > 0:
             self.entry_id = entry_id
         else:
             self.entry_id = 1
+        self.verbose = verbose
         self.id_mgn: Dict = {
             "event": 1,
             "event_img": 1,
@@ -67,12 +68,15 @@ class RsciioVeloxParser(RsciioBaseParser):
             "roi": 1,
             "eds_img": 1,
         }
-        self.verbose = verbose
-        self.tmp: Dict = {}
-        self.version: Dict = {"trg": {"Core/MetadataDefinitionVersion": ["7.9"],
-            "Core/MetadataSchemaVersion": ["v1/2013/07"]},
-            "src": {"Core/MetadataDefinitionVersion": None,
-            "Core/MetadataSchemaVersion": None}
+        self.version: Dict = {
+            "trg": {
+                "Core/MetadataDefinitionVersion": ["7.9"],
+                "Core/MetadataSchemaVersion": ["v1/2013/07"],
+            },
+            "src": {
+                "Core/MetadataDefinitionVersion": None,
+                "Core/MetadataSchemaVersion": None,
+            },
         }
         self.obj_idx_supported: List = []
         self.supported = False

@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Subparser for harmonizing TESCAN-specific content in TIFF files."""
+"""Parser for harmonizing TESCAN-specific content in TIFF files."""
 
 import mmap
 from typing import Dict, List

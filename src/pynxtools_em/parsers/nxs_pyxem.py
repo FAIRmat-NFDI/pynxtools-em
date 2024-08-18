@@ -106,13 +106,14 @@ def get_ipfdir_legend(ipf_key):
 class NxEmNxsPyxemParser:
     """Map content from different type of *.h5 files on an instance of NXem."""
 
-    def __init__(self, entry_id: int = 1, file_path: str = "", verbose: bool = False):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
         """Overwrite constructor of the generic reader."""
+        self.file_path = file_path
         if entry_id > 0:
             self.entry_id = entry_id
         else:
             self.entry_id = 1
-        self.file_path = file_path
+        self.verbose = verbose
         self.id_mgn = {
             "event": 1,
             "event_img": 1,
@@ -121,7 +122,6 @@ class NxEmNxsPyxemParser:
             "eds_img": 1,
         }
         self.cache = {"is_filled": False}
-        self.verbose = verbose
 
     def parse(self, template: dict) -> dict:
         hfive_parser_type = self.identify_hfive_type()

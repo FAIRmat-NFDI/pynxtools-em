@@ -42,7 +42,7 @@ from rsciio import digitalmicrograph as gatan
 class RsciioGatanParser(RsciioBaseParser):
     """Read Gatan Digital Micrograph dm3/dm4 formats."""
 
-    def __init__(self, entry_id: int = 1, file_path: str = "", verbose: bool = False):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
         super().__init__(file_path)
         if entry_id > 0:
             self.entry_id = entry_id

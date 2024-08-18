@@ -42,4 +42,3 @@ class RsciioBaseParser:
         if file_path is not None and file_path != "":
             self.file_path = file_path
         self.tmp: Dict = {}
-        self.file_path_sha256 = None

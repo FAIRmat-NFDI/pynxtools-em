@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Subparser for harmonizing JEOL specific content in TIFF files."""
+"""Parser for harmonizing JEOL specific content in TIFF files."""
 
 import mmap
 from typing import Dict, List
@@ -111,8 +111,7 @@ class JeolTiffParser(TiffParser):
                     print(f"{key}______{type(value)}____{value}")
 
             if all(
-                key in self.flat_dict_meta
-                for key in ["SEM_DATA_VERSION", "CM_LABEL"]
+                key in self.flat_dict_meta for key in ["SEM_DATA_VERSION", "CM_LABEL"]
             ):
                 if (self.flat_dict_meta["SEM_DATA_VERSION"] == 1) and (
                     self.flat_dict_meta["CM_LABEL"] == "JEOL"
@@ -178,9 +177,7 @@ class JeolTiffParser(TiffParser):
                     # JEOL-specific conversion for micron bar pixel to physical length
                     resolution = int(self.flat_dict_meta["SM_MICRON_BAR"])
                     physical_length = (
-                        self.flat_dict_meta["SM_MICRON_MARKER"]
-                        .to(ureg.meter)
-                        .magnitude
+                        self.flat_dict_meta["SM_MICRON_MARKER"].to(ureg.meter).magnitude
                     )
                     # resolution many pixel represent physical_length scanned surface
                     # assuming square pixel

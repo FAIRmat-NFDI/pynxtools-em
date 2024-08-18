@@ -105,25 +105,25 @@ class EMReader(BaseReader):
 
         print("Parse and map pieces of information within files from tech partners...")
         if len(case.dat) == 1:  # no sidecar file
-            images = NxEmImagesParser(entry_id, case.dat[0], verbose=False)
+            images = NxEmImagesParser(case.dat[0], entry_id, verbose=False)
             images.parse(template)
 
-            velox = RsciioVeloxParser(entry_id, case.dat[0], verbose=False)
+            velox = RsciioVeloxParser(case.dat[0], entry_id, verbose=False)
             velox.parse(template)
 
-            gatan = RsciioGatanParser(entry_id, case.dat[0], verbose=False)
+            gatan = RsciioGatanParser(case.dat[0], entry_id, verbose=False)
             gatan.parse(template)
 
-            nxs_mtex = NxEmNxsMTexParser(entry_id, case.dat[0], verbose=False)
+            nxs_mtex = NxEmNxsMTexParser(case.dat[0], entry_id, verbose=False)
             nxs_mtex.parse(template)
 
-            nxs_pyxem = NxEmNxsPyxemParser(entry_id, case.dat[0], verbose=False)
+            nxs_pyxem = NxEmNxsPyxemParser(case.dat[0], entry_id, verbose=False)
             nxs_pyxem.parse(template)
 
-            nxs_nion = NionProjectParser(entry_id, case.dat[0], verbose=False)
+            nxs_nion = NionProjectParser(case.dat[0], entry_id, verbose=False)
             nxs_nion.parse(template)
 
-            # zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id)
+            # zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id, verbose=False)
             # zip_parser.parse(template)
         if len(case.dat) >= 1:  # optional sidecar file
             tescan = TescanTiffParser(case.dat, entry_id)

@@ -26,15 +26,15 @@ from pynxtools_em.parsers.image_tiff_zeiss import ZeissTiffParser
 class NxEmImagesParser:
     """Map content from different type of image files on an instance of NXem."""
 
-    def __init__(self, entry_id: int = 1, file_path: str = "", verbose: bool = False):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
         """Overwrite constructor of the generic reader."""
+        self.file_path = file_path
         if entry_id > 0:
             self.entry_id = entry_id
         else:
             self.entry_id = 1
-        self.file_path = file_path
-        self.cache = {"is_filled": False}
         self.verbose = verbose
+        self.cache = {"is_filled": False}
 
     def identify_image_type(self):
         """Identify if image matches known mime type and has content for which parser exists."""

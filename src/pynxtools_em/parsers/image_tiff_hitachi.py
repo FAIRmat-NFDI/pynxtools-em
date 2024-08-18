@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Subparser for harmonizing Hitachi-specific content in TIFF files."""
+"""Parser for harmonizing Hitachi-specific content in TIFF files."""
 
 import mmap
 from tokenize import TokenError
@@ -199,7 +199,5 @@ class HitachiTiffParser(TiffParser):
         # we assume for now dynamic quantities can just be repeated
         identifier = [self.entry_id, self.event_id, 1]
         for cfg in [HITACHI_VARIOUS_DYNAMIC_TO_NX_EM, HITACHI_VARIOUS_STATIC_TO_NX_EM]:
-            add_specific_metadata_pint(
-                cfg, self.flat_dict_meta, identifier, template
-            )
+            add_specific_metadata_pint(cfg, self.flat_dict_meta, identifier, template)
         return template

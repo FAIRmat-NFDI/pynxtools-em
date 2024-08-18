@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Subparser for harmonizing ThermoFisher-specific content in TIFF files."""
+"""Parser for harmonizing ThermoFisher-specific content in TIFF files."""
 
 import mmap
 from typing import Dict
@@ -24,6 +24,7 @@ import flatdict as fd
 import numpy as np
 from PIL import Image
 from PIL.TiffTags import TAGS
+
 # https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
 from pynxtools_em.concepts.mapping_functors import add_specific_metadata
 from pynxtools_em.configurations.image_tiff_tfs_cfg import (
@@ -137,9 +138,13 @@ class TfsTiffParser(TiffParser):
                             if value != "":
                                 # execution order of the check here matters!
                                 if value.isdigit() is True:
-                                    self.flat_dict_meta[f"{parent}/{term}"] = np.int64(value)
+                                    self.flat_dict_meta[f"{parent}/{term}"] = np.int64(
+                                        value
+                                    )
                                 elif if_str_represents_float(value) is True:
-                                    self.flat_dict_meta[f"{parent}/{term}"] = np.float64(value)
+                                    self.flat_dict_meta[f"{parent}/{term}"] = (
+                                        np.float64(value)
+                                    )
                                 else:
                                     self.flat_dict_meta[f"{parent}/{term}"] = value
                         else:

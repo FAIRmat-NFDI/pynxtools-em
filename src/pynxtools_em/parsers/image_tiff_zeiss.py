@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Subparser for harmonizing Zeiss-specific content in TIFF files."""
+"""Parser for harmonizing Zeiss-specific content in TIFF files."""
 
 import mmap
 import re
@@ -46,9 +46,13 @@ class ZeissTiffParser(TiffParser):
         self.event_id = 1
         self.verbose = verbose
         self.flat_dict_meta = fd.FlatDict({}, "/")
-        self.version: Dict = {"trg": {"tech_partner": ["Zeiss"],
-                                      "schema_name": ["Zeiss"],
-                                      "schema_version": ["V06.03.00.00 : 15-Dec-17"]}}
+        self.version: Dict = {
+            "trg": {
+                "tech_partner": ["Zeiss"],
+                "schema_name": ["Zeiss"],
+                "schema_version": ["V06.03.00.00 : 15-Dec-17"],
+            }
+        }
         self.supported = False
         self.check_if_tiff_zeiss()
 
@@ -91,7 +95,7 @@ class ZeissTiffParser(TiffParser):
                     elif len(tmp) == 2 and tmp[1] == "X":
                         self.flat_dict_meta[line] = ureg.Quantity(tmp[0])
                     elif len(tmp) == 3 and tmp[1] == "K" and tmp[2] == "X":
-                        self.flat_dict_meta[line] = (ureg.Quantity(tmp[0]) * 1000.0)
+                        self.flat_dict_meta[line] = ureg.Quantity(tmp[0]) * 1000.0
                     else:
                         try:
                             self.flat_dict_meta[line] = ureg.Quantity(token[1])
@@ -198,9 +202,7 @@ class ZeissTiffParser(TiffParser):
                 scan_unit = {"i": "m", "j": "m"}
                 if "APImagePixelSize" in self.flat_dict_meta:
                     pixel_size = (
-                        self.flat_dict_meta["APImagePixelSize"]
-                        .to(ureg.meter)
-                        .magnitude
+                        self.flat_dict_meta["APImagePixelSize"].to(ureg.meter).magnitude
                     )
                     sxy = {"i": pixel_size, "j": pixel_size}
                 else:

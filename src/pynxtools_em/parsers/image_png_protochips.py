@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Subparser for exemplar reading of raw PNG files collected on a TEM with Protochip heating_chip."""
+"""Parser for exemplar reading of raw PNG files collected on a TEM with Protochip heating_chip."""
 
 import datetime
 import mmap

@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Subparser for harmonizing point electronic DISS specific content in TIFF files."""
+"""Parser for harmonizing point electronic DISS specific content in TIFF files."""
 
 import mmap
 from typing import Dict
@@ -38,9 +38,13 @@ class PointElectronicTiffParser(TiffParser):
         self.event_id = 1
         self.verbose = verbose
         self.tmp: Dict = {"data": None, "flat_dict_meta": fd.FlatDict({})}
-        self.version: Dict = {"trg": {"tech_partner": ["point electronic"],
-                                      "schema_name": ["DISS"],
-                                      "schema_version": ["5.15.31.0"]}}
+        self.version: Dict = {
+            "trg": {
+                "tech_partner": ["point electronic"],
+                "schema_name": ["DISS"],
+                "schema_version": ["5.15.31.0"],
+            }
+        }
         self.supported = False
         self.check_if_tiff_point_electronic()
 
