@@ -19,11 +19,18 @@ nav:
     - explanation/implementation.md
   - Reference:
     - reference/contextualization.md
-    - reference/tiff.md
-    - reference/png.md
-    - reference/velox.md
+    - reference/png_axon.md
     - reference/apex.md
+    - reference/gatan.md
+    - reference/tiff_hitachi.md
+    - reference/tiff_jeol.md
     - reference/nion.md
+    - reference/png_point.md
+    - reference/tiff_tescan.md
+    - reference/tiff_tfs.md
+    - reference/velox.md
+    - reference/tiff_zeiss.md
+
 plugins:
   - search
   - macros:

@@ -55,11 +55,20 @@ Here you can learn which specific pieces of information and concepts pynxtools-e
 for the respective file formats of technology partners of the electron microscopy community.
 
 - [How to map pieces of information to NeXus](reference/contextualization.md)
-- [Tagged Image File Format (TIFF)](reference/tiff.md)
-- [Portable Network Graphics (PNG)](reference/png.md)
-- [Velox EMD](reference/velox.md)
+
+- [AXON Protochips Portable Network Graphics PNG](reference/png_axon.md)
 - [EDAX APEX](reference/apex.md)
-- [Nion Co. projects](reference/nion.md)
+- [Gatan DigitalMicrograph DM3/DM4](reference/gatan.md)
+- [Hitachi Tagged Image File Format TIFF](reference/tiff_hitachi.md)
+- [JEOL Tagged Image File Format TIFF](reference/tiff_jeol.md)
+- [Nion Co. projects with NDATA and HDF5 files](reference/nion.md)
+- [Point Electronic DISS Portable Network Graphics PNG](reference/png_point.md)
+- [TESCAN Tagged Image File Format TIFF](reference/tiff_tescan.md)
+- [ThermoFisher Tagged Image File Format TIFF](reference/tiff_tfs.md)
+- [ThermoFisher Velox EMD](reference/velox.md)
+- [Zeiss Tagged Image File Format TIFF](reference/tiff_zeiss.md)
+- [EBSD-centric content for the parsing route via MTex](mtex.md)
+- [EBSD-centric content for the parsing route via pyxem](pyxem.md)
 
 </div>
 </div>
