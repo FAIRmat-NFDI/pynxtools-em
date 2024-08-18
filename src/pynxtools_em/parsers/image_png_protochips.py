@@ -132,6 +132,7 @@ class ProtochipsPngSetParser(ImgsBaseParser):
         self.supported = True
 
     def get_xml_metadata(self, file, fp):
+        """Parse content from the XML payload that PNGs from AXON Studio have."""
         try:
             fp.seek(0)
             with Image.open(fp) as png:
@@ -205,8 +206,8 @@ class ProtochipsPngSetParser(ImgsBaseParser):
     def get_file_hash(self, file, fp):
         self.tmp["meta"][file]["sha256"] = get_sha256_of_file_content(fp)
 
-    def parse_and_normalize(self):
-        """Perform actual parsing filling cache self.tmp."""
+    def parse(self, template: dict) -> dict:
+        """Perform actual parsing filling cache."""
         if self.supported is True:
             print(f"Parsing via Protochips-specific metadata...")
             # may need to set self.supported = False on error
@@ -223,19 +224,17 @@ class ProtochipsPngSetParser(ImgsBaseParser):
                 f"{self.file_path} metadata within PNG collection processed "
                 f"successfully ({len(self.tmp['meta'].keys())} PNGs evaluated)."
             )
+            self.process_event_data_em_metadata(template)
+            self.process_event_data_em_data(template)
         else:
             print(
                 f"{self.file_path} is not a Protochips-specific "
                 f"PNG file that this parser can process !"
             )
-
-    def process_into_template(self, template: dict) -> dict:
-        if self.supported is True:
-            self.process_event_data_em_metadata(template)
-            self.process_event_data_em_data(template)
         return template
 
     def sort_event_data_em(self) -> List:
+        """Sort event data by datetime."""
         events: List = []
         for file_name, mdata in self.tmp["meta"].items():
             key = f"MicroscopeControlImageMetadata.MicroscopeDateTime"

@@ -154,21 +154,18 @@ class TfsTiffParser(TiffParser):
                     else:
                         break
 
-    def parse_and_normalize(self):
+    def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache self.tmp."""
         if self.supported is True:
             print(f"Parsing via ThermoFisher-specific metadata...")
             self.get_metadata()
+            self.process_event_data_em_metadata(template)
+            self.process_event_data_em_data(template)
         else:
             print(
                 f"{self.file_path} is not a ThermoFisher-specific "
                 f"TIFF file that this parser can process !"
             )
-
-    def process_into_template(self, template: dict) -> dict:
-        if self.supported is True:
-            self.process_event_data_em_metadata(template)
-            self.process_event_data_em_data(template)
         return template
 
     def process_event_data_em_data(self, template: dict) -> dict:

@@ -87,11 +87,3 @@ class TiffParser(ImgsBaseParser):
                 self.tags = {TAGS[key]: fp.tag[key] for key in fp.tag_v2}
                 for key, val in self.tags.items():
                     print(f"{key}, {val}")
-
-    def parse_and_normalize(self):
-        """Perform actual parsing filling cache self.tmp."""
-        if self.supported is True:
-            print(f"Parsing via TiffParser...")
-            self.get_tags()
-        else:
-            print(f"{self.file_path} is not a TIFF file this parser can process !")

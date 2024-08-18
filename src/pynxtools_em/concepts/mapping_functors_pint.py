@@ -74,6 +74,9 @@ def var_path_to_spcfc_path(path: str, instance_identifier: list):
 
 
 def get_case(arg):
+    """Identify which case an instruction from the configuration belongs to.
+    Each case comes with specific instructions to resolve that are detailed
+    in the README.md in this source code directory."""
     if isinstance(arg, str):  # str
         return "case_one"
     elif isinstance(arg, tuple):
@@ -261,7 +264,7 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
 def use_functor(
     cmds: list, mdata: fd.FlatDict, prfx_trg: str, ids: list, template: dict
 ) -> dict:
-    """Process the use functor."""
+    """Process concept mapping for simple predefined strings and pint quantities."""
     for cmd in cmds:
         if isinstance(cmd, tuple):
             if len(cmd) == 2:
@@ -284,6 +287,7 @@ def map_functor(
     template: dict,
     trg_dtype_key: str = "",
 ) -> dict:
+    """Process concept mapping, datatype and unit conversion for quantities."""
     for cmd in cmds:
         case = get_case(cmd)
         if case == "case_one":  # str
@@ -405,6 +409,7 @@ def timestamp_functor(
     ids: list,
     template: dict,
 ) -> dict:
+    """Process concept mapping and time format conversion."""
     for cmd in cmds:
         if isinstance(cmd, tuple):
             if 2 <= len(cmd) <= 3:  # trg, src, timestamp or empty string (meaning utc)
@@ -437,6 +442,7 @@ def filehash_functor(
     ids: list,
     template: dict,
 ) -> dict:
+    """Process concept mapping and checksums to add context from which file NeXus content was processed."""
     for cmd in cmds:
         if isinstance(cmd, tuple):
             if len(cmd) == 2:

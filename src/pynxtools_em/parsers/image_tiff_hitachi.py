@@ -37,6 +37,7 @@ from pynxtools_em.utils.string_conversions import string_to_number
 
 class HitachiTiffParser(TiffParser):
     def __init__(self, file_paths: List[str], entry_id: int = 1, verbose=False):
+        # TODO::instantiate super.__init__
         tif_txt = ["", ""]
         if (
             len(file_paths) == 2
@@ -117,6 +118,7 @@ class HitachiTiffParser(TiffParser):
             self.supported = True
 
     def parse(self, template: dict) -> dict:
+        """Perform actual parsing filling cache."""
         if self.supported is True:
             print(f"Parsing via Hitachi...")
             # metadata have at this point already been collected into an fd.FlatDict

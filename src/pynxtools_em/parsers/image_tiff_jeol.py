@@ -123,6 +123,7 @@ class JeolTiffParser(TiffParser):
                 )
 
     def parse(self, template: dict) -> dict:
+        """Perform actual parsing filling cache."""
         if self.supported is True:
             print(f"Parsing via JEOL...")
             # metadata have at this point already been collected into an fd.FlatDict

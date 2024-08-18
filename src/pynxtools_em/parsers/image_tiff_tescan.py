@@ -143,7 +143,7 @@ class TescanTiffParser(TiffParser):
                 # with TESCAN-specific concept names to make this here more robust
 
     def parse(self, template: dict) -> dict:
-        """Perform actual parsing filling cache self.tmp."""
+        """Perform actual parsing filling cache."""
         if self.supported is True:
             print(f"Parsing via TESCAN...")
             # metadata have at this point already been collected into an fd.FlatDict

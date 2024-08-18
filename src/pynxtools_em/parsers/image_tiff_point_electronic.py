@@ -49,6 +49,7 @@ class PointElectronicTiffParser(TiffParser):
         self.check_if_tiff_point_electronic()
 
     def xmpmeta_to_flat_dict(self, meta: fd.FlatDict):
+        """Flatten point-electronic formatting of XMPMeta data."""
         for entry in meta["xmpmeta/RDF/Description"]:
             tmp = fd.FlatDict(entry, "/")
             for key, obj in tmp.items():
@@ -123,21 +124,18 @@ class PointElectronicTiffParser(TiffParser):
                 f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
             )
 
-    def parse_and_normalize(self):
-        """Perform actual parsing filling cache self.tmp."""
+    def parse(self, template: dict) -> dict:
+        """Perform actual parsing filling cache."""
         if self.supported is True:
             print(f"Parsing via point electronic DISS-specific metadata...")
             # metadata have at this point already been collected into an fd.FlatDict
+            self.process_event_data_em_metadata(template)
+            self.process_event_data_em_data(template)
         else:
             print(
                 f"{self.file_path} is not a point electronic DISS-specific "
                 f"TIFF file that this parser can process !"
             )
-
-    def process_into_template(self, template: dict) -> dict:
-        if self.supported is True:
-            self.process_event_data_em_metadata(template)
-            self.process_event_data_em_data(template)
         return template
 
     def process_event_data_em_data(self, template: dict) -> dict:
