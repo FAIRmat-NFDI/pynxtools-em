@@ -263,66 +263,6 @@ class ProtochipsPngSetParser(ImgsBaseParser):
         )
         return events_sorted
 
-    def add_detector_static_metadata(self, file_name: str, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            AXON_DETECTOR_STATIC_TO_NX_EM,
-            self.tmp["meta"][file_name],
-            identifier,
-            template,
-        )
-        return template
-
-    def add_stage_static_metadata(self, file_name: str, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            AXON_STAGE_STATIC_TO_NX_EM,
-            self.tmp["meta"][file_name],
-            identifier,
-            template,
-        )
-        return template
-
-    def add_stage_dynamic_metadata(self, file_name: str, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            AXON_STAGE_DYNAMIC_TO_NX_EM,
-            self.tmp["meta"][file_name],
-            identifier,
-            template,
-        )
-        return template
-
-    def add_chip_dynamic_metadata(self, file_name: str, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            AXON_CHIP_DYNAMIC_TO_NX_EM,
-            self.tmp["meta"][file_name],
-            identifier,
-            template,
-        )
-        return template
-
-    def add_aux_dynamic_metadata(self, file_name: str, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            AXON_AUX_DYNAMIC_TO_NX_EM,
-            self.tmp["meta"][file_name],
-            identifier,
-            template,
-        )
-        return template
-
-    def add_various_dynamic_metadata(self, file_name: str, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            AXON_VARIOUS_DYNAMIC_TO_NX_EM,
-            self.tmp["meta"][file_name],
-            identifier,
-            template,
-        )
-        return template
-
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
@@ -345,12 +285,20 @@ class ProtochipsPngSetParser(ImgsBaseParser):
             )
             template[trg] = f"{iso8601}".replace(" ", "T")
             # AXON reports "yyyy-mm-dd hh-mm-ss*" but NeXus requires yyyy-mm-ddThh-mm-ss*"
-            self.add_detector_static_metadata(file_name, template)
-            self.add_stage_static_metadata(file_name, template)
-            # self.add_stage_dynamic_metadata(file_name, template)  # TODO::unit for stage positions unclear
-            self.add_chip_dynamic_metadata(file_name, template)
-            self.add_aux_dynamic_metadata(file_name, template)
-            self.add_various_dynamic_metadata(file_name, template)
+            for cfg in [
+                AXON_DETECTOR_STATIC_TO_NX_EM,
+                AXON_STAGE_STATIC_TO_NX_EM,
+                # AXON_STAGE_DYNAMIC_TO_NX_EM,
+                AXON_CHIP_DYNAMIC_TO_NX_EM,
+                AXON_AUX_DYNAMIC_TO_NX_EM,
+                AXON_VARIOUS_DYNAMIC_TO_NX_EM,
+            ]:
+                add_specific_metadata(
+                    cfg,
+                    self.tmp["meta"][file_name],
+                    identifier,
+                    template,
+                )
             event_id += 1
         return template
 

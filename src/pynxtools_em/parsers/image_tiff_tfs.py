@@ -22,7 +22,7 @@ from typing import Dict
 
 import flatdict as fd
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageSequence
 from PIL.TiffTags import TAGS
 
 # https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
@@ -175,162 +175,98 @@ class TfsTiffParser(TiffParser):
         """Add respective heavy data."""
         # default display of the image(s) representing the data collected in this event
         print(
-            f"Writing TFS/FEI TIFF image data to the respective NeXus concept instances..."
+            f"Writing TFS/FEI image data to the respective NeXus concept instances..."
         )
-        # read image in-place
+        image_identifier = 1
         with Image.open(self.file_path, mode="r") as fp:
-            nparr = np.array(fp)
-            # print(f"type: {type(nparr)}, dtype: {nparr.dtype}, shape: {np.shape(nparr)}")
-            # TODO::discussion points
-            # - how do you know we have an image of real space vs. imaginary space (from the metadata?)
-            # - how do deal with the (ugly) scale bar that is typically stamped into the TIFF image content?
-            # with H5Web and NeXus most of this is obsolete unless there are metadata stamped which are not
-            # available in NeXus or in the respective metadata in the metadata section of the TIFF image
-            # remember H5Web images can be scaled based on the metadata allowing basically the same
-            # explorative viewing using H5Web than what traditionally typical image viewers are meant for
-            image_identifier = 1
-            trg = (
-                f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
-                f"EVENT_DATA_EM[event_data_em{self.event_id}]/"
-                f"IMAGE_R_SET[image_r_set{image_identifier}]/image_2d"
-            )
-            # TODO::writer should decorate automatically!
-            template[f"{trg}/title"] = f"Image"
-            template[f"{trg}/@signal"] = "intensity"
-            dims = ["x", "y"]
-            idx = 0
-            for dim in dims:
-                template[f"{trg}/@AXISNAME_indices[axis_{dim}_indices]"] = np.uint32(
-                    idx
+            for img in ImageSequence.Iterator(fp):
+                nparr = np.array(img)
+                # print(f"type: {type(nparr)}, dtype: {nparr.dtype}, shape: {np.shape(nparr)}")
+                # TODO::discussion points
+                # - how do you know we have an image of real space vs. imaginary space (from the metadata?)
+                # - how do deal with the (ugly) scale bar that is typically stamped into the TIFF image content?
+                # with H5Web and NeXus most of this is obsolete unless there are metadata stamped which are not
+                # available in NeXus or in the respective metadata in the metadata section of the TIFF image
+                # remember H5Web images can be scaled based on the metadata allowing basically the same
+                # explorative viewing using H5Web than what traditionally typical image viewers are meant for
+                trg = (
+                    f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
+                    f"EVENT_DATA_EM[event_data_em{self.event_id}]/"
+                    f"IMAGE_R_SET[image_r_set{image_identifier}]/image_2d"
                 )
-                idx += 1
-            template[f"{trg}/@axes"] = []
-            for dim in dims[::-1]:
-                template[f"{trg}/@axes"].append(f"axis_{dim}")
-            template[f"{trg}/intensity"] = {"compress": np.array(fp), "strength": 1}
-            #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
-            template[f"{trg}/intensity/@long_name"] = f"Signal"
+                template[f"{trg}/title"] = f"Image"
+                template[f"{trg}/@signal"] = "intensity"
+                dims = ["x", "y"]
+                idx = 0
+                for dim in dims:
+                    template[f"{trg}/@AXISNAME_indices[axis_{dim}_indices]"] = (
+                        np.uint32(idx)
+                    )
+                    idx += 1
+                template[f"{trg}/@axes"] = []
+                for dim in dims[::-1]:
+                    template[f"{trg}/@axes"].append(f"axis_{dim}")
+                template[f"{trg}/intensity"] = {"compress": np.array(fp), "strength": 1}
+                #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
+                template[f"{trg}/intensity/@long_name"] = f"Signal"
 
-            sxy = {"x": 1.0, "y": 1.0}
-            scan_unit = {"x": "m", "y": "m"}  # assuming FEI reports SI units
-            # we may face the CCD overview camera for the chamber for which there might not be a calibration!
-            if ("EScan/PixelWidth" in self.flat_dict_meta) and (
-                "EScan/PixelHeight" in self.flat_dict_meta
-            ):
-                sxy = {
-                    "x": self.flat_dict_meta["EScan/PixelWidth"],
-                    "y": self.flat_dict_meta["EScan/PixelHeight"],
-                }
-            else:
-                print("WARNING: Assuming pixel width and height unit is meter!")
-            nxy = {"x": np.shape(np.array(fp))[1], "y": np.shape(np.array(fp))[0]}
-            # TODO::be careful we assume here a very specific coordinate system
-            # however the TIFF file gives no clue, TIFF just documents in which order
-            # it arranges a bunch of pixels that have stream in into a n-d tiling
-            # e.g. a 2D image
-            # also we have to be careful because TFS just gives us here
-            # typical case of an image without an information without its location
-            # on the physical sample surface, therefore we can only scale
-            # pixel_identifier by physical scaling quantities s_x, s_y
-            # also the dimensions of the image are on us to fish with the image
-            # reading library instead of TFS for consistency checks adding these
-            # to the metadata the reason is that TFS TIFF use the TIFF tagging mechanism
-            # and there is already a proper TIFF tag for the width and height of an
-            # image in number of pixel
-            for dim in dims:
-                template[f"{trg}/AXISNAME[axis_{dim}]"] = {
-                    "compress": np.asarray(
-                        np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
-                        * sxy[dim],
-                        np.float64,
-                    ),
-                    "strength": 1,
-                }
-                template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                    f"Coordinate along {dim}-axis ({scan_unit[dim]})"
-                )
-                template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit[dim]}"
-        return template
-
-    def add_aperture_static_metadata(self, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            TFS_APERTURE_STATIC_TO_NX_EM,
-            self.flat_dict_meta,
-            identifier,
-            template,
-        )
-        return template
-
-    def add_detector_static_metadata(self, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            TFS_DETECTOR_STATIC_TO_NX_EM,
-            self.flat_dict_meta,
-            identifier,
-            template,
-        )
-        return template
-
-    def add_various_static_metadata(self, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            TFS_VARIOUS_STATIC_TO_NX_EM,
-            self.flat_dict_meta,
-            identifier,
-            template,
-        )
-        return template
-
-    def add_optics_dynamic_metadata(self, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            TFS_OPTICS_DYNAMIC_TO_NX_EM,
-            self.flat_dict_meta,
-            identifier,
-            template,
-        )
-        return template
-
-    def add_stage_dynamic_metadata(self, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            TFS_STAGE_DYNAMIC_TO_NX_EM,
-            self.flat_dict_meta,
-            identifier,
-            template,
-        )
-        return template
-
-    def add_scan_dynamic_metadata(self, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            TFS_SCAN_DYNAMIC_TO_NX_EM,
-            self.flat_dict_meta,
-            identifier,
-            template,
-        )
-        return template
-
-    def add_various_dynamic_metadata(self, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            TFS_VARIOUS_DYNAMIC_TO_NX_EM,
-            self.flat_dict_meta,
-            identifier,
-            template,
-        )
+                sxy = {"x": 1.0, "y": 1.0}
+                scan_unit = {"x": "m", "y": "m"}  # assuming FEI reports SI units
+                # we may face the CCD overview camera for the chamber for which there might not be a calibration!
+                if ("EScan/PixelWidth" in self.flat_dict_meta) and (
+                    "EScan/PixelHeight" in self.flat_dict_meta
+                ):
+                    sxy = {
+                        "x": self.flat_dict_meta["EScan/PixelWidth"],
+                        "y": self.flat_dict_meta["EScan/PixelHeight"],
+                    }
+                else:
+                    print("WARNING: Assuming pixel width and height unit is meter!")
+                nxy = {"x": np.shape(np.array(fp))[1], "y": np.shape(np.array(fp))[0]}
+                # TODO::be careful we assume here a very specific coordinate system
+                # however the TIFF file gives no clue, TIFF just documents in which order
+                # it arranges a bunch of pixels that have stream in into a n-d tiling
+                # e.g. a 2D image
+                # also we have to be careful because TFS just gives us here
+                # typical case of an image without an information without its location
+                # on the physical sample surface, therefore we can only scale
+                # pixel_identifier by physical scaling quantities s_x, s_y
+                # also the dimensions of the image are on us to fish with the image
+                # reading library instead of TFS for consistency checks adding these
+                # to the metadata the reason is that TFS TIFF use the TIFF tagging mechanism
+                # and there is already a proper TIFF tag for the width and height of an
+                # image in number of pixel
+                for dim in dims:
+                    template[f"{trg}/AXISNAME[axis_{dim}]"] = {
+                        "compress": np.asarray(
+                            np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
+                            * sxy[dim],
+                            np.float64,
+                        ),
+                        "strength": 1,
+                    }
+                    template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
+                        f"Coordinate along {dim}-axis ({scan_unit[dim]})"
+                    )
+                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit[dim]}"
+                image_identifier += 1
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
         print(f"Mapping some of the TFS/FEI metadata on respective NeXus concepts...")
-        self.add_aperture_static_metadata(template)
-        self.add_detector_static_metadata(template)
-        self.add_various_static_metadata(template)
-        self.add_optics_dynamic_metadata(template)
-        self.add_stage_dynamic_metadata(template)
-        self.add_scan_dynamic_metadata(template)
-        self.add_various_dynamic_metadata(template)
+        identifier = [self.entry_id, self.event_id, 1]
+        for cfg in [
+            TFS_APERTURE_STATIC_TO_NX_EM,
+            TFS_DETECTOR_STATIC_TO_NX_EM,
+            TFS_VARIOUS_STATIC_TO_NX_EM,
+            TFS_OPTICS_DYNAMIC_TO_NX_EM,
+            TFS_SCAN_DYNAMIC_TO_NX_EM,
+            TFS_VARIOUS_DYNAMIC_TO_NX_EM,
+        ]:
+            add_specific_metadata(cfg, self.flat_dict_meta, identifier, template)
+        add_specific_metadata(
+            TFS_STAGE_DYNAMIC_TO_NX_EM, self.flat_dict_meta, identifier, template
+        )
         return template

@@ -87,9 +87,7 @@ VELOX_OPTICS_TO_NX_EM = {
         ("magnification", "Optics/NominalMagnification"),
         ("camera_length", "Optics/CameraLength"),
         ("defocus", "Optics/Defocus"),
-    ],
-    "map_to_real_and_multiply": [
-        ("semi_convergence_angle", "Optics/BeamConvergence", 1.0),
+        ("semi_convergence_angle", "Optics/BeamConvergence"),
     ],
 }
 # assume BeamConvergence is the semi_convergence_angle, needs clarification from vendors and colleagues

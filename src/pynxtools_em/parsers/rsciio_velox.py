@@ -245,64 +245,7 @@ class RsciioVeloxParser(RsciioBaseParser):
             return "imgs"
         if (vote_r_c[0] == 0) and (vote_r_c[1] == len(units)):
             return "diff"
-
         return "n/a"
-
-    def add_entry_header(
-        self, orgmeta: fd.FlatDict, identifier: list, template: dict
-    ) -> dict:
-        """Map entry-specific metadata on NXem instance."""
-        add_specific_metadata(VELOX_ENTRY_TO_NX_EM, orgmeta, identifier, template)
-        return template
-
-    def add_ebeam_static(
-        self, orgmeta: fd.FlatDict, identifier: list, template: dict
-    ) -> dict:
-        """Map em_lab ebeam."""
-        add_specific_metadata(
-            VELOX_EBEAM_STATIC_TO_NX_EM, orgmeta, identifier, template
-        )
-        return template
-
-    def add_fabrication(
-        self, orgmeta: fd.FlatDict, identifier: list, template: dict
-    ) -> dict:
-        """Map fabrication-specific metadata on NXem instance"""
-        add_specific_metadata(VELOX_FABRICATION_TO_NX_EM, orgmeta, identifier, template)
-        return template
-
-    def add_scan(self, orgmeta: fd.FlatDict, identifier: list, template: dict) -> dict:
-        """Map scan-specific metadata on NXem instance."""
-        add_specific_metadata(VELOX_SCAN_TO_NX_EM, orgmeta, identifier, template)
-        return template
-
-    def add_optics(
-        self, orgmeta: fd.FlatDict, identifier: list, template: dict
-    ) -> dict:
-        """Map optics-specific metadata on NXem instance."""
-        add_specific_metadata(VELOX_OPTICS_TO_NX_EM, orgmeta, identifier, template)
-        return template
-
-    def add_stage(self, orgmeta: fd.FlatDict, identifier: list, template: dict) -> dict:
-        """Map optics-specific metadata on NXem instance."""
-        add_specific_metadata(VELOX_STAGE_TO_NX_EM, orgmeta, identifier, template)
-        return template
-
-    def add_various_dynamic(
-        self, orgmeta: fd.FlatDict, identifier: list, template: dict
-    ) -> dict:
-        """Map optics-specific metadata on NXem instance."""
-        add_specific_metadata(VELOX_DYNAMIC_TO_NX_EM, orgmeta, identifier, template)
-        return template
-
-    def add_ebeam_dynamic(
-        self, orgmeta: fd.FlatDict, identifier: list, template: dict
-    ) -> dict:
-        """Map optics-specific metadata on NXem instance."""
-        add_specific_metadata(
-            VELOX_EBEAM_DYNAMIC_TO_NX_EM, orgmeta, identifier, template
-        )
-        return template
 
     def add_lens_event_data(
         self, orgmeta: fd.FlatDict, identifier: list, template: dict
@@ -354,14 +297,21 @@ class RsciioVeloxParser(RsciioBaseParser):
         # use an own function for each instead of a loop of a template function call
         # as for each section there are typically always some extra formatting
         # steps required
-        self.add_entry_header(orgmeta, identifier, template)
-        self.add_ebeam_static(orgmeta, identifier, template)
-        self.add_fabrication(orgmeta, identifier, template)
-        self.add_scan(orgmeta, identifier, template)
-        self.add_optics(orgmeta, identifier, template)
-        self.add_stage(orgmeta, identifier, template)
-        self.add_various_dynamic(orgmeta, identifier, template)
-        self.add_ebeam_dynamic(orgmeta, identifier, template)
+        for cfg in [
+            VELOX_ENTRY_TO_NX_EM,
+            VELOX_EBEAM_STATIC_TO_NX_EM,
+            VELOX_SCAN_TO_NX_EM,
+            VELOX_DYNAMIC_TO_NX_EM,
+            VELOX_OPTICS_TO_NX_EM,
+        ]:
+            add_specific_metadata(cfg, orgmeta, identifier, template)
+
+        add_specific_metadata(VELOX_FABRICATION_TO_NX_EM, orgmeta, identifier, template)
+        add_specific_metadata(VELOX_STAGE_TO_NX_EM, orgmeta, identifier, template)
+        add_specific_metadata(
+            VELOX_EBEAM_DYNAMIC_TO_NX_EM, orgmeta, identifier, template
+        )
+
         self.add_lens_event_data(orgmeta, identifier, template)
         return template
 

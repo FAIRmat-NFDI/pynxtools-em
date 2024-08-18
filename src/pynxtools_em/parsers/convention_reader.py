@@ -68,12 +68,15 @@ class NxEmConventionParser:
         """Extract metadata from generic ELN text file to respective NeXus objects."""
         print("Parsing conventions...")
         identifier = [self.entry_id, 1]
-        add_specific_metadata(ROTATIONS_TO_NEXUS, self.yml, identifier, template)
-        add_specific_metadata(PROCESSING_CSYS_TO_NEXUS, self.yml, identifier, template)
-        add_specific_metadata(SAMPLE_CSYS_TO_NEXUS, self.yml, identifier, template)
-        add_specific_metadata(DETECTOR_CSYS_TO_NEXUS, self.yml, identifier, template)
-        add_specific_metadata(GNOMONIC_CSYS_TO_NEXUS, self.yml, identifier, template)
-        add_specific_metadata(PATTERN_CSYS_TO_NEXUS, self.yml, identifier, template)
+        for cfg in [
+            ROTATIONS_TO_NEXUS,
+            PROCESSING_CSYS_TO_NEXUS,
+            SAMPLE_CSYS_TO_NEXUS,
+            DETECTOR_CSYS_TO_NEXUS,
+            GNOMONIC_CSYS_TO_NEXUS,
+            PATTERN_CSYS_TO_NEXUS,
+        ]:
+            add_specific_metadata(cfg, self.yml, identifier, template)
 
         # check is used convention follows EBSD community suggestions by Rowenhorst et al.
         prfx = f"/ENTRY[entry{self.entry_id}]/coordinate_system_set"
