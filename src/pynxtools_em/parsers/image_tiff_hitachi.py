@@ -54,11 +54,8 @@ class HitachiTiffParser(TiffParser):
             self.event_id = 1
             self.verbose = verbose
             self.txt_file_path = tif_txt[1]
-            self.prfx = None
-            self.tmp: Dict = {"data": None, "flat_dict_meta": fd.FlatDict({})}
-            self.supported_version: Dict = {}
+            self.flat_dict_meta = fd.FlatDict({}, "/")
             self.version: Dict = {}
-            self.tags: Dict = {}
             self.supported = False
             self.check_if_tiff_hitachi()
         else:
@@ -103,19 +100,19 @@ class HitachiTiffParser(TiffParser):
                 print(f"Parser {self.__class__.__name__} metadata section is empty !")
                 return
 
-            self.tmp["flat_dict_meta"] = fd.FlatDict({}, "/")
+            self.flat_dict_meta = fd.FlatDict({}, "/")
             for line in txt[idx + 1 :]:  # + 1 to jump over the header line
                 tmp = [token.strip() for token in line.split("=")]
                 if len(tmp) == 2 and all(token != "" for token in tmp):
                     try:
-                        self.tmp["flat_dict_meta"][tmp[0]] = ureg.Quantity(tmp[1])
+                        self.flat_dict_meta[tmp[0]] = ureg.Quantity(tmp[1])
                     except UndefinedUnitError:
-                        self.tmp["flat_dict_meta"][tmp[0]] = string_to_number(tmp[1])
+                        self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
                     except TokenError:
-                        self.tmp["flat_dict_meta"][tmp[0]] = string_to_number(tmp[1])
+                        self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
 
             if self.verbose:
-                for key, value in self.tmp["flat_dict_meta"].items():
+                for key, value in self.flat_dict_meta.items():
                     print(f"{key}______{type(value)}____{value}")
             self.supported = True
 
@@ -168,11 +165,11 @@ class HitachiTiffParser(TiffParser):
 
                 sxy = {"i": 1.0, "j": 1.0}
                 scan_unit = {"i": "m", "j": "m"}
-                if "PixelSize" in self.tmp["flat_dict_meta"]:
+                if "PixelSize" in self.flat_dict_meta:
                     # in nanometer
                     sxy = {
-                        "i": self.tmp["flat_dict_meta"]["PixelSize"] * 1.0e-9,
-                        "j": self.tmp["flat_dict_meta"]["PixelSize"] * 1.0e-9,
+                        "i": self.flat_dict_meta["PixelSize"] * 1.0e-9,
+                        "j": self.flat_dict_meta["PixelSize"] * 1.0e-9,
                     }
                 else:
                     print("WARNING: Assuming pixel width and height unit is meter!")
@@ -203,6 +200,6 @@ class HitachiTiffParser(TiffParser):
         identifier = [self.entry_id, self.event_id, 1]
         for cfg in [HITACHI_VARIOUS_DYNAMIC_TO_NX_EM, HITACHI_VARIOUS_STATIC_TO_NX_EM]:
             add_specific_metadata_pint(
-                cfg, self.tmp["flat_dict_meta"], identifier, template
+                cfg, self.flat_dict_meta, identifier, template
             )
         return template

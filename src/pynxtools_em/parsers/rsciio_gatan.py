@@ -49,11 +49,9 @@ class RsciioGatanParser(RsciioBaseParser):
         else:
             self.entry_id = 1
         self.event_id = 1
-        self.file_path_sha256 = ""
-        self.supported_version: Dict = {}
+        self.verbose = verbose
         self.version: Dict = {}
         self.supported = False
-        self.verbose = verbose
         self.check_if_supported()
 
     def check_if_supported(self):

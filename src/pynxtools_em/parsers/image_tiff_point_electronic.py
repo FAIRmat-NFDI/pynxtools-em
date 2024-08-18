@@ -37,20 +37,12 @@ class PointElectronicTiffParser(TiffParser):
         self.entry_id = entry_id
         self.event_id = 1
         self.verbose = verbose
-        self.prfx = None
         self.tmp: Dict = {"data": None, "flat_dict_meta": fd.FlatDict({})}
-        self.supported_version: Dict = {}
-        self.version: Dict = {}
-        self.tags: Dict = {}
+        self.version: Dict = {"trg": {"tech_partner": ["point electronic"],
+                                      "schema_name": ["DISS"],
+                                      "schema_version": ["5.15.31.0"]}}
         self.supported = False
-        self.init_support()
         self.check_if_tiff_point_electronic()
-
-    def init_support(self):
-        """Init supported versions."""
-        self.supported_version["tech_partner"] = ["point electronic"]
-        self.supported_version["schema_name"] = ["DISS"]
-        self.supported_version["schema_version"] = ["5.15.31.0"]
 
     def xmpmeta_to_flat_dict(self, meta: fd.FlatDict):
         for entry in meta["xmpmeta/RDF/Description"]:
@@ -108,10 +100,10 @@ class PointElectronicTiffParser(TiffParser):
                             print(f"{key}____{type(value)}____{value}")
 
                         # check if written about with supported DISS version
-                        prefix = f"{self.supported_version['tech_partner'][0]} {self.supported_version['schema_name'][0]}"
+                        prefix = f"{self.version['trg']['tech_partner'][0]} {self.version['trg']['schema_name'][0]}"
                         supported_versions = [
                             f"{prefix} {val}"
-                            for val in self.supported_version["schema_version"]
+                            for val in self.version["trg"]["schema_version"]
                         ]
                         print(supported_versions)
                         if (

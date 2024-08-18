@@ -72,7 +72,8 @@ class NionProjectParser:
         # counters which keep track of how many instances of NXevent_data_em have
         # been instantiated, this implementation currently maps each display_items
         # onto an own NXevent_data_em instance
-        self.prfx = None
+        self.verbose = verbose
+        self.file_path_sha256 = None
         self.tmp: Dict = {}
         self.proj_file_dict: Dict = {}
         # assure that there is exactly one *.nsproj file only to parse from
@@ -81,7 +82,6 @@ class NionProjectParser:
         self.hfive_file_dict: Dict = {}
         # just get the *.h5 files irrespective whether parsed later or not
         self.supported = False
-        self.verbose = verbose
         self.is_zipped = False
         self.check_if_nionswift_project()
         # eventually allow https://github.com/miurahr/py7zr/ to work with 7z directly

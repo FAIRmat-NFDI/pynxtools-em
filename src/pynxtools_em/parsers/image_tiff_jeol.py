@@ -52,11 +52,8 @@ class JeolTiffParser(TiffParser):
             self.event_id = 1
             self.verbose = verbose
             self.txt_file_path = tif_txt[1]
-            self.prfx = None
-            self.tmp: Dict = {"data": None, "flat_dict_meta": fd.FlatDict({})}
-            self.supported_version: Dict = {}
+            self.flat_dict_meta = fd.FlatDict({}, "/")
             self.version: Dict = {}
-            self.tags: Dict = {}
             self.supported = False
             self.check_if_tiff_jeol()
         else:
@@ -91,36 +88,34 @@ class JeolTiffParser(TiffParser):
                 if line.strip() != "" and line.startswith("$")
             ]
 
-            self.tmp["flat_dict_meta"] = fd.FlatDict({}, "/")
+            self.flat_dict_meta = fd.FlatDict({}, "/")
             for line in txt:
                 tmp = line.split()
                 if len(tmp) == 1:
                     print(f"WARNING::{line} is currently ignored !")
                 elif len(tmp) == 2:
-                    if tmp[0] not in self.tmp["flat_dict_meta"]:
+                    if tmp[0] not in self.flat_dict_meta:
                         # replace with pint parsing and catching multiple exceptions
                         # as it is exemplified in the tiff_zeiss parser
                         if tmp[0] != "SM_MICRON_MARKER":
-                            self.tmp["flat_dict_meta"][tmp[0]] = string_to_number(
-                                tmp[1]
-                            )
+                            self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
                         else:
-                            self.tmp["flat_dict_meta"][tmp[0]] = ureg.Quantity(tmp[1])
+                            self.flat_dict_meta[tmp[0]] = ureg.Quantity(tmp[1])
                     else:
                         raise KeyError(f"Found duplicated key {tmp[0]} !")
                 else:
                     print(f"WARNING::{line} is currently ignored !")
 
             if self.verbose:
-                for key, value in self.tmp["flat_dict_meta"].items():
+                for key, value in self.flat_dict_meta.items():
                     print(f"{key}______{type(value)}____{value}")
 
             if all(
-                key in self.tmp["flat_dict_meta"]
+                key in self.flat_dict_meta
                 for key in ["SEM_DATA_VERSION", "CM_LABEL"]
             ):
-                if (self.tmp["flat_dict_meta"]["SEM_DATA_VERSION"] == 1) and (
-                    self.tmp["flat_dict_meta"]["CM_LABEL"] == "JEOL"
+                if (self.flat_dict_meta["SEM_DATA_VERSION"] == 1) and (
+                    self.flat_dict_meta["CM_LABEL"] == "JEOL"
                 ):
                     self.supported = True
             else:
@@ -177,13 +172,13 @@ class JeolTiffParser(TiffParser):
 
                 sxy = {"i": 1.0, "j": 1.0}
                 scan_unit = {"i": "m", "j": "m"}
-                if ("SM_MICRON_BAR" in self.tmp["flat_dict_meta"]) and (
-                    "SM_MICRON_MARKER" in self.tmp["flat_dict_meta"]
+                if ("SM_MICRON_BAR" in self.flat_dict_meta) and (
+                    "SM_MICRON_MARKER" in self.flat_dict_meta
                 ):
                     # JEOL-specific conversion for micron bar pixel to physical length
-                    resolution = int(self.tmp["flat_dict_meta"]["SM_MICRON_BAR"])
+                    resolution = int(self.flat_dict_meta["SM_MICRON_BAR"])
                     physical_length = (
-                        self.tmp["flat_dict_meta"]["SM_MICRON_MARKER"]
+                        self.flat_dict_meta["SM_MICRON_MARKER"]
                         .to(ureg.meter)
                         .magnitude
                     )
@@ -220,7 +215,7 @@ class JeolTiffParser(TiffParser):
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata_pint(
             JEOL_VARIOUS_DYNAMIC_TO_NX_EM,
-            self.tmp["flat_dict_meta"],
+            self.flat_dict_meta,
             identifier,
             template,
         )
@@ -230,7 +225,7 @@ class JeolTiffParser(TiffParser):
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata_pint(
             JEOL_VARIOUS_STATIC_TO_NX_EM,
-            self.tmp["flat_dict_meta"],
+            self.flat_dict_meta,
             identifier,
             template,
         )

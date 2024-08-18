@@ -28,10 +28,8 @@ class RsciioBrukerParser(RsciioBaseParser):
 
     def __init__(self, file_path: str = ""):
         super().__init__(file_path)
-        self.prfx = None
         self.tmp: Dict = {}
         self.objs: List = []
-        self.supported_version: Dict = {}
         self.version: Dict = {}
         self.supported = False
         self.check_if_supported()

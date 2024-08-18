@@ -54,9 +54,7 @@ class ProtochipsPngSetParser(ImgsBaseParser):
         super().__init__(file_path)
         self.entry_id = entry_id
         self.event_id = 1
-        self.prfx = None
         self.tmp: Dict = {"data": None, "meta": {}}
-        self.supported_version: Dict = {}
         self.version: Dict = {}
         self.png_info: Dict = {}
         self.supported = False

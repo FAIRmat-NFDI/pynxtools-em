@@ -35,13 +35,11 @@ from typing import Dict
 
 class RsciioBaseParser:
     def __init__(self, file_path: str = ""):
-        # self.supported_version = VERSION_MANAGEMENT
-        # self.version = VERSION_MANAGEMENT
         # tech_partner the company which designed this format
         # schema_name the specific name of the family of schemas supported by this reader
         # schema_version the specific version(s) supported by this reader
         # writer_name the specific name of the tech_partner's (typically proprietary) software
-        self.prfx = None
-        self.tmp: Dict = {}
         if file_path is not None and file_path != "":
             self.file_path = file_path
+        self.tmp: Dict = {}
+        self.file_path_sha256 = None

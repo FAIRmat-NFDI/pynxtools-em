@@ -24,24 +24,22 @@ import numpy as np
 
 class ImgsBaseParser:
     def __init__(self, file_path: str = "", verbose=False):
-        # self.supported_version = VERSION_MANAGEMENT
-        # self.version = VERSION_MANAGEMENT
         # tech_partner the company which designed this format
         # schema_name the specific name of the family of schemas supported by this reader
         # schema_version the specific version(s) supported by this reader
         # writer_name the specific name of the tech_partner's (typically proprietary) software
-        self.prfx = None
-        self.tmp: Dict = {}
-        self.verbose = verbose
         if file_path is not None and file_path != "":
             self.file_path = file_path
         else:
             raise ValueError(f"{__name__} needs proper instantiation !")
+        self.tmp: Dict = {}
+        self.verbose = verbose
+        self.file_path_sha256 = None
 
     def init_named_cache(self, ckey: str):
         """Init a new cache for normalized image data if not existent."""
         # purpose of the cache is to hold normalized information
-        if ckey not in self.tmp.keys():
+        if ckey not in self.tmp:
             self.tmp[ckey] = {}
             return ckey
         else:

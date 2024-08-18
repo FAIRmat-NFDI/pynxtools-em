@@ -51,18 +51,15 @@ class TescanTiffParser(TiffParser):
                     tif_hdr[1] = entry
         if tif_hdr[0] != "":
             super().__init__(tif_hdr[0])
-            self.entry_id = entry_id
-            self.event_id = 1
-            self.verbose = verbose
             if tif_hdr[1] != "":
                 self.hdr_file_path = tif_hdr[1]
             else:
                 self.hdr_file_path = ""
-            self.prfx = None
+            self.entry_id = entry_id
+            self.event_id = 1
+            self.verbose = verbose
             self.flat_dict_meta = fd.FlatDict({}, "/")
-            self.supported_version: Dict = {}
             self.version: Dict = {}
-            self.tags: Dict = {}
             self.supported = False
             self.check_if_tiff_tescan()
 

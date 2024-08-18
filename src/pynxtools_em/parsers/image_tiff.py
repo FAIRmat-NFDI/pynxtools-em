@@ -30,10 +30,8 @@ class TiffParser(ImgsBaseParser):
 
     def __init__(self, file_path: str = ""):
         super().__init__(file_path)
-        self.prfx = None
         self.tmp: Dict = {}
-        self.supported_version: Dict = {}
-        self.version: Dict = {}
+        self.version: Dict = {}  # trg target versions supported, src actual
         self.tags: Dict = {}
         self.supported = False
         self.check_if_tiff()

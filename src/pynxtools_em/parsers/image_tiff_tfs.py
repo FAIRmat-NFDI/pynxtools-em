@@ -24,6 +24,7 @@ import flatdict as fd
 import numpy as np
 from PIL import Image
 from PIL.TiffTags import TAGS
+# https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
 from pynxtools_em.concepts.mapping_functors import add_specific_metadata
 from pynxtools_em.configurations.image_tiff_tfs_cfg import (
     TFS_APERTURE_STATIC_TO_NX_EM,
@@ -48,11 +49,8 @@ class TfsTiffParser(TiffParser):
         self.entry_id = entry_id
         self.event_id = 1
         self.verbose = verbose
-        self.prfx = None
-        self.tmp: Dict = {"data": None, "flat_dict_meta": fd.FlatDict({})}
-        self.supported_version: Dict = {}
+        self.flat_dict_meta = fd.FlatDict({}, "/")
         self.version: Dict = {}
-        self.tags: Dict = {}
         self.supported = False
         self.check_if_tiff_tfs()
 
@@ -87,12 +85,6 @@ class TfsTiffParser(TiffParser):
     def get_metadata(self):
         """Extract metadata in TFS specific tags if present."""
         print("Parsing TIFF tags...")
-        # for an overview of tags
-        # https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
-        # with Image.open(self.file_path, mode="r") as fp:
-        #     self.tags = {TAGS[key] : fp.tag[key] for key in fp.tag_v2}
-        #     for key, val in self.tags.items():
-        #         print(f"{key}, {val}")
         tfs_parent_concepts = get_fei_parent_concepts()
         tfs_parent_concepts_byte_offset = {}
         for concept in tfs_parent_concepts:
@@ -140,29 +132,22 @@ class TfsTiffParser(TiffParser):
                     if pos < pos_e:  # check if pos_e is None
                         s.seek(pos, 0)
                         value = f"{s.readline().strip().decode('utf8').replace(f'{term}=', '')}"
-                        self.tmp["flat_dict_meta"][f"{parent}/{term}"] = None
+                        self.flat_dict_meta[f"{parent}/{term}"] = None
                         if isinstance(value, str):
                             if value != "":
                                 # execution order of the check here matters!
                                 if value.isdigit() is True:
-                                    self.tmp["flat_dict_meta"][f"{parent}/{term}"] = (
-                                        np.int64(value)
-                                    )
+                                    self.flat_dict_meta[f"{parent}/{term}"] = np.int64(value)
                                 elif if_str_represents_float(value) is True:
-                                    self.tmp["flat_dict_meta"][f"{parent}/{term}"] = (
-                                        np.float64(value)
-                                    )
+                                    self.flat_dict_meta[f"{parent}/{term}"] = np.float64(value)
                                 else:
-                                    self.tmp["flat_dict_meta"][f"{parent}/{term}"] = (
-                                        value
-                                    )
+                                    self.flat_dict_meta[f"{parent}/{term}"] = value
                         else:
                             raise ValueError(
                                 f"Detected an unexpected case {parent}/{term}, type: {type(value)} !"
                             )
                     else:
                         break
-            self.tmp["flat_dict_meta"] = fd.FlatDict(self.tmp["flat_dict_meta"])
 
     def parse_and_normalize(self):
         """Perform actual parsing filling cache self.tmp."""
@@ -224,12 +209,12 @@ class TfsTiffParser(TiffParser):
             sxy = {"x": 1.0, "y": 1.0}
             scan_unit = {"x": "m", "y": "m"}  # assuming FEI reports SI units
             # we may face the CCD overview camera for the chamber for which there might not be a calibration!
-            if ("EScan/PixelWidth" in self.tmp["flat_dict_meta"]) and (
-                "EScan/PixelHeight" in self.tmp["flat_dict_meta"]
+            if ("EScan/PixelWidth" in self.flat_dict_meta) and (
+                "EScan/PixelHeight" in self.flat_dict_meta
             ):
                 sxy = {
-                    "x": self.tmp["flat_dict_meta"]["EScan/PixelWidth"],
-                    "y": self.tmp["flat_dict_meta"]["EScan/PixelHeight"],
+                    "x": self.flat_dict_meta["EScan/PixelWidth"],
+                    "y": self.flat_dict_meta["EScan/PixelHeight"],
                 }
             else:
                 print("WARNING: Assuming pixel width and height unit is meter!")
@@ -266,7 +251,7 @@ class TfsTiffParser(TiffParser):
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata(
             TFS_APERTURE_STATIC_TO_NX_EM,
-            self.tmp["flat_dict_meta"],
+            self.flat_dict_meta,
             identifier,
             template,
         )
@@ -276,7 +261,7 @@ class TfsTiffParser(TiffParser):
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata(
             TFS_DETECTOR_STATIC_TO_NX_EM,
-            self.tmp["flat_dict_meta"],
+            self.flat_dict_meta,
             identifier,
             template,
         )
@@ -286,7 +271,7 @@ class TfsTiffParser(TiffParser):
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata(
             TFS_VARIOUS_STATIC_TO_NX_EM,
-            self.tmp["flat_dict_meta"],
+            self.flat_dict_meta,
             identifier,
             template,
         )
@@ -296,7 +281,7 @@ class TfsTiffParser(TiffParser):
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata(
             TFS_OPTICS_DYNAMIC_TO_NX_EM,
-            self.tmp["flat_dict_meta"],
+            self.flat_dict_meta,
             identifier,
             template,
         )
@@ -306,7 +291,7 @@ class TfsTiffParser(TiffParser):
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata(
             TFS_STAGE_DYNAMIC_TO_NX_EM,
-            self.tmp["flat_dict_meta"],
+            self.flat_dict_meta,
             identifier,
             template,
         )
@@ -316,7 +301,7 @@ class TfsTiffParser(TiffParser):
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata(
             TFS_SCAN_DYNAMIC_TO_NX_EM,
-            self.tmp["flat_dict_meta"],
+            self.flat_dict_meta,
             identifier,
             template,
         )
@@ -326,7 +311,7 @@ class TfsTiffParser(TiffParser):
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata(
             TFS_VARIOUS_DYNAMIC_TO_NX_EM,
-            self.tmp["flat_dict_meta"],
+            self.flat_dict_meta,
             identifier,
             template,
         )

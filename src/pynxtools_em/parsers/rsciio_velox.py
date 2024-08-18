@@ -67,19 +67,15 @@ class RsciioVeloxParser(RsciioBaseParser):
             "roi": 1,
             "eds_img": 1,
         }
-        self.file_path_sha256 = None
+        self.verbose = verbose
         self.tmp: Dict = {}
-        self.supported_version: Dict = {
-            "Core/MetadataDefinitionVersion": ["7.9"],
-            "Core/MetadataSchemaVersion": ["v1/2013/07"],
-        }
-        self.version: Dict = {
-            "Core/MetadataDefinitionVersion": None,
-            "Core/MetadataSchemaVersion": None,
+        self.version: Dict = {"trg": {"Core/MetadataDefinitionVersion": ["7.9"],
+            "Core/MetadataSchemaVersion": ["v1/2013/07"]},
+            "src": {"Core/MetadataDefinitionVersion": None,
+            "Core/MetadataSchemaVersion": None}
         }
         self.obj_idx_supported: List = []
         self.supported = False
-        self.verbose = verbose
         self.check_if_supported()
 
     def check_if_supported(self):
@@ -108,12 +104,12 @@ class RsciioVeloxParser(RsciioBaseParser):
                 if "Core/MetadataDefinitionVersion" in orgmeta:
                     if (
                         orgmeta["Core/MetadataDefinitionVersion"]
-                        not in self.supported_version["Core/MetadataDefinitionVersion"]
+                        not in self.version["trg"]["Core/MetadataDefinitionVersion"]
                     ):
                         continue
                     if (
                         orgmeta["Core/MetadataSchemaVersion"]
-                        not in self.supported_version["Core/MetadataSchemaVersion"]
+                        not in self.version["trg"]["Core/MetadataSchemaVersion"]
                     ):
                         continue
                 self.obj_idx_supported.append(idx)
