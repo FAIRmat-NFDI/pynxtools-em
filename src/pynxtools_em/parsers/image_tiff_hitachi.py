@@ -92,7 +92,7 @@ class HitachiTiffParser(TiffParser):
             idx = 0
             while not txt[idx].startswith(
                 ("[SemImageFile]", "[TemImageFile]")
-            ) and idx < len(txt):
+            ) and idx < (len(txt) - 1):
                 idx += 1
             if idx < len(txt):
                 if not txt[idx].startswith(("[SemImageFile]", "[TemImageFile]")):
@@ -165,16 +165,22 @@ class HitachiTiffParser(TiffParser):
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Signal"
 
-                sxy = {"i": 1.0, "j": 1.0}
-                scan_unit = {"i": "m", "j": "m"}
+                sxy = {
+                    "i": ureg.Quantity(1.0, ureg.meter),
+                    "j": ureg.Quantity(1.0, ureg.meter),
+                }
                 if "PixelSize" in self.flat_dict_meta:
-                    # in nanometer
                     sxy = {
-                        "i": self.flat_dict_meta["PixelSize"] * 1.0e-9,
-                        "j": self.flat_dict_meta["PixelSize"] * 1.0e-9,
+                        "i": ureg.Quantity(
+                            self.flat_dict_meta["PixelSize"], ureg.nanometer
+                        ),
+                        "j": ureg.Quantity(
+                            self.flat_dict_meta["PixelSize"], ureg.nanometer
+                        ),
                     }
                 else:
                     print("WARNING: Assuming pixel width and height unit is meter!")
+
                 nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # however, these assumptions need to be confirmed by point electronic
@@ -183,15 +189,15 @@ class HitachiTiffParser(TiffParser):
                     template[f"{trg}/AXISNAME[axis_{dim}]"] = {
                         "compress": np.asarray(
                             np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
-                            * sxy[dim],
+                            * sxy[dim].magnitude,
                             np.float64,
                         ),
                         "strength": 1,
                     }
                     template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                        f"Coordinate along {dim}-axis ({scan_unit[dim]})"
+                        f"Coordinate along {dim}-axis ({sxy[dim].units})"
                     )
-                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit[dim]}"
+                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
                 image_identifier += 1
         return template
 

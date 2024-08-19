@@ -202,7 +202,7 @@ class RsciioGatanParser(RsciioBaseParser):
             for idx, axis_name in enumerate(axis_names):
                 template[f"{trg}/@AXISNAME_indices[{axis_name}_indices]"] = np.uint32(
                     len(axis_names) - 1 - idx
-                )
+                )  # TODO::check with dissimilarly sized data array if this is idx !
             template[f"{trg}/@axes"] = axis_names
 
             for idx, axis in enumerate(axes):

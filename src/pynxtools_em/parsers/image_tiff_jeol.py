@@ -170,15 +170,17 @@ class JeolTiffParser(TiffParser):
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Signal"
 
-                sxy = {"i": 1.0, "j": 1.0}
-                scan_unit = {"i": "m", "j": "m"}
+                sxy = {
+                    "i": ureg.Quantity(1.0, ureg.meter),
+                    "j": ureg.Quantity(1.0, ureg.meter),
+                }
                 if ("SM_MICRON_BAR" in self.flat_dict_meta) and (
                     "SM_MICRON_MARKER" in self.flat_dict_meta
                 ):
                     # JEOL-specific conversion for micron bar pixel to physical length
                     resolution = int(self.flat_dict_meta["SM_MICRON_BAR"])
                     physical_length = (
-                        self.flat_dict_meta["SM_MICRON_MARKER"].to(ureg.meter).magnitude
+                        self.flat_dict_meta["SM_MICRON_MARKER"]  # .to(ureg.meter)
                     )
                     # resolution many pixel represent physical_length scanned surface
                     # assuming square pixel
@@ -197,15 +199,15 @@ class JeolTiffParser(TiffParser):
                     template[f"{trg}/AXISNAME[axis_{dim}]"] = {
                         "compress": np.asarray(
                             np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
-                            * sxy[dim],
+                            * sxy[dim].magnitude,
                             np.float64,
                         ),
                         "strength": 1,
                     }
                     template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                        f"Coordinate along {dim}-axis ({scan_unit[dim]})"
+                        f"Coordinate along {dim}-axis ({sxy[dim].units})"
                     )
-                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit[dim]}"
+                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
                 image_identifier += 1
         return template
 
