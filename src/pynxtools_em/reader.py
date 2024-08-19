@@ -105,7 +105,7 @@ class EMReader(BaseReader):
 
         print("Parse and map pieces of information within files from tech partners...")
         if len(case.dat) == 1:  # no sidecar file
-            images = NxEmImagesParser(case.dat[0], entry_id, verbose=True)
+            images = NxEmImagesParser(case.dat[0], entry_id, verbose=False)
             images.parse(template)
 
             velox = RsciioVeloxParser(case.dat[0], entry_id, verbose=False)

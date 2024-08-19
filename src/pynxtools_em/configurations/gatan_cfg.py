@@ -78,7 +78,7 @@ GATAN_DYNAMIC_VARIOUS_TO_NX_EM: Dict[str, Any] = {
             ureg.meter,
             "STEM Camera Length",
             ureg.meter,
-        ),
+        ),  # meter?
         # Cs(mm), Indicated Magnification, Magnification Interpolated, Formatted Actual Mag, Formatted Indicated Mag
     ],
     "map": [
@@ -104,7 +104,7 @@ GATAN_DYNAMIC_STAGE_TO_NX_EM: Dict[str, Any] = {
             "position",
             ureg.meter,
             ["Stage X", "Stage Y", "Stage Z"],
-            ureg.meter,
+            ureg.meter,  # really meter?
         ),
     ],
 }

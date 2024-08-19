@@ -15,10 +15,10 @@
                      //"examples/em.conventions.yaml",
                      //"examples/eln_data.yaml",
                      //"examples/em.oasis.specific.yaml",
-                     "../axon/ReductionOfFeOxSmall.zip",
+                     //"../axon/ReductionOfFeOxSmall.zip",
                      //"../nion-parsing/2022-02-18_Metadata_Kuehbach.zip",
-                     //"/media/kaiobach/production/paper_paper_paper/scidat_nomad_em/digitalmicrograph/241.a2c338fd458e6b7023ec946a5e3ce8c85bd2befcb5d17dae7ae5f44b2dede81b.dm4",
-                     //"/media/kaiobach/production/paper_paper_paper/scidat_nomad_em/digitalmicrograph/218.ebdf722abcf63000e2fa71fc6a72cd4b4747991c702a2dc65e400196f990cbad.dm3",
+                     //"../digitalmicrograph/218.ebdf722abcf63000e2fa71fc6a72cd4b4747991c702a2dc65e400196f990cbad.dm3",
+                     "../digitalmicrograph/241.a2c338fd458e6b7023ec946a5e3ce8c85bd2befcb5d17dae7ae5f44b2dede81b.dm4",
                      //"../hitachi/360.tif",
                      //"../hitachi/360.txt",
                      //"../hitachi/TemHitachiImageScExample.txt",
@@ -31,7 +31,10 @@
                      "NXem",
                      //"--output=dbg/conv.nxs",
                      //"--output=dbg/eln.nxs",
-                     "--output=dbg/axon.nxs"],
+                     //"--output=dbg/axon.nxs",
+                     //"--output=dbg/gatan_dm3.nxs",
+                     "--output=dbg/gatan_dm4.nxs",
+                     //"--output=dbg/hitachi.nxs"],
         }
     ]
 }
