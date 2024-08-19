@@ -21,12 +21,12 @@ import pathlib
 
 import flatdict as fd
 import yaml
-from pynxtools_em.concepts.mapping_functors import add_specific_metadata
+from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.eln_cfg import (
-    EM_ENTRY_TO_NEXUS,
-    EM_SAMPLE_TO_NEXUS,
-    EM_USER_IDENTIFIER_TO_NEXUS,
-    EM_USER_TO_NEXUS,
+    OASISELN_EM_ENTRY_TO_NEXUS,
+    OASISELN_EM_SAMPLE_TO_NEXUS,
+    OASISELN_EM_USER_IDENTIFIER_TO_NEXUS,
+    OASISELN_EM_USER_TO_NEXUS,
 )
 
 
@@ -43,52 +43,56 @@ class NxEmNomadOasisElnSchemaParser:
             pathlib.Path(file_path).name.endswith("eln_data.yaml")
             or pathlib.Path(file_path).name.endswith("eln_data.yml")
         ) and entry_id > 0:
-            self.entry_id = entry_id
             self.file_path = file_path
             with open(self.file_path, "r", encoding="utf-8") as stream:
-                self.yml = fd.FlatDict(yaml.safe_load(stream), delimiter="/")
+                self.flat_metadata = fd.FlatDict(yaml.safe_load(stream), delimiter="/")
                 if verbose:
-                    for key, val in self.yml.items():
+                    for key, val in self.flat_metadata.items():
                         print(f"key: {key}, value: {val}")
+            self.entry_id = entry_id
         else:
-            self.entry_id = 1
             self.file_path = ""
-            self.yml = {}
+            self.entry_id = 1
+            self.flat_metadata = fd.FlatDict({}, "/")
 
     def parse_entry(self, template: dict) -> dict:
         """Copy data from entry section into template."""
         identifier = [self.entry_id]
-        add_specific_metadata(EM_ENTRY_TO_NEXUS, self.yml, identifier, template)
+        add_specific_metadata_pint(
+            OASISELN_EM_ENTRY_TO_NEXUS, self.flat_metadata, identifier, template
+        )
         return template
 
     def parse_sample(self, template: dict) -> dict:
         """Copy data from entry section into template."""
         identifier = [self.entry_id]
-        add_specific_metadata(EM_SAMPLE_TO_NEXUS, self.yml, identifier, template)
+        add_specific_metadata_pint(
+            OASISELN_EM_SAMPLE_TO_NEXUS, self.flat_metadata, identifier, template
+        )
         return template
 
     def parse_user(self, template: dict) -> dict:
         """Copy data from user section into template."""
         src = "user"
-        if src in self.yml:
-            if isinstance(self.yml[src], list):
-                if all(isinstance(entry, dict) for entry in self.yml[src]):
+        if src in self.flat_metadata:
+            if isinstance(self.flat_metadata[src], list):
+                if all(isinstance(entry, dict) for entry in self.flat_metadata[src]):
                     user_id = 1
                     # custom schema delivers a list of dictionaries...
-                    for user_dict in self.yml[src]:
-                        if user_dict == {}:
+                    for user_dict in self.flat_metadata[src]:
+                        if len(user_dict) == 0:
                             continue
                         identifier = [self.entry_id, user_id]
-                        add_specific_metadata(
-                            EM_USER_TO_NEXUS,
-                            fd.FlatDict(user_dict),
+                        add_specific_metadata_pint(
+                            OASISELN_EM_USER_TO_NEXUS,
+                            user_dict,
                             identifier,
                             template,
                         )
                         if "orcid" in user_dict:
-                            add_specific_metadata(
-                                EM_USER_IDENTIFIER_TO_NEXUS,
-                                fd.FlatDict(user_dict),
+                            add_specific_metadata_pint(
+                                OASISELN_EM_USER_IDENTIFIER_TO_NEXUS,
+                                user_dict,
                                 identifier,
                                 template,
                             )

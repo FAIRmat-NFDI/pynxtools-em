@@ -44,17 +44,17 @@ class NxEmConventionParser:
             pathlib.Path(file_path).name.endswith("conventions.yaml")
             or pathlib.Path(file_path).name.endswith("conventions.yml")
         ) and entry_id > 0:
-            self.entry_id = entry_id
             self.file_path = file_path
             with open(self.file_path, "r", encoding="utf-8") as stream:
                 self.flat_metadata = fd.FlatDict(yaml.safe_load(stream), delimiter="/")
                 if verbose:
                     for key, val in self.flat_metadata.items():
                         print(f"key: {key}, value: {val}")
+            self.entry_id = entry_id
         else:
-            self.entry_id = 1
             self.file_path = ""
-            self.flat_metadata = {}
+            self.entry_id = 1
+            self.flat_metadata = fd.FlatDict({}, "/")
 
     def parse(self, template) -> dict:
         """Extract metadata from generic ELN text file to respective NeXus objects."""

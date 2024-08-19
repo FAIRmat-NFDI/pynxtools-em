@@ -269,10 +269,8 @@ def use_functor(
         if isinstance(cmd, tuple):
             if len(cmd) == 2:
                 if isinstance(cmd[0], str):
-                    if isinstance(cmd[1], str):  # str, str
-                        trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-                        set_value(template, trg, cmd[1])
-                    elif isinstance(cmd[1], ureg.Quantity):  # str, ureg.Quantity
+                    if isinstance(cmd[1], (str, ureg.Quantity, bool)):
+                        # str, str or str, ureg or str, bool
                         trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
                         set_value(template, trg, cmd[1])
     return template

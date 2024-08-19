@@ -25,7 +25,7 @@ import numpy as np
 from pynxtools.dataconverter.readers.base.reader import BaseReader
 
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
-from pynxtools_em.parsers.convention_reader import NxEmConventionParser
+from pynxtools_em.parsers.conventions_reader import NxEmConventionParser
 from pynxtools_em.parsers.image_tiff_hitachi import HitachiTiffParser
 from pynxtools_em.parsers.image_tiff_jeol import JeolTiffParser
 from pynxtools_em.parsers.image_tiff_tescan import TescanTiffParser

@@ -17,13 +17,12 @@
 #
 """Dict mapping values for a specifically configured NOMAD Oasis."""
 
-# see specific comments about the design that should be moved to mkdocs
-
 # import datetime as dt
 # f"{dt.datetime.now(dt.timezone.utc).isoformat().replace('+00:00', 'Z')}",
 
-EM_CSYS_TO_NEXUS = {
+OASISCFG_EM_CSYS_TO_NEXUS = {
     "prefix_trg": "/ENTRY[entry*]/coordinate_system_set/COORDINATE_SYSTEM[coordinate_system*]",
+    "prefix_src": "",
     "map": [
         "alias",
         "type",
@@ -39,7 +38,8 @@ EM_CSYS_TO_NEXUS = {
 }
 
 
-EM_CITATION_TO_NEXUS = {
+OASISCFG_EM_CITATION_TO_NEXUS = {
     "prefix_trg": "/ENTRY[entry*]/CITE[cite*]",
-    "map_to_str": [("authors"), ("doi"), ("description"), ("url")],
+    "prefix_src": "",
+    "map": ["authors", "doi", "description", "url"],
 }
