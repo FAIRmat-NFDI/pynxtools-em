@@ -18,7 +18,7 @@
 """Dict mapping values for conventions and reference frames."""
 
 # /ENTRY[entryID]/ROI[roiID]/ebsd/conventions"
-ROTATIONS_TO_NEXUS = {
+CONV_ROTATIONS_TO_NEXUS = {
     "prefix_trg": "/ENTRY[entry*]/coordinate_system_set",
     "prefix_src": "rotation_conventions/",
     "map": [
@@ -31,7 +31,7 @@ ROTATIONS_TO_NEXUS = {
 }
 
 
-PROCESSING_CSYS_TO_NEXUS = {
+CONV_PROCESSING_CSYS_TO_NEXUS = {
     "prefix_trg": "/ENTRY[entry*]/coordinate_system_set/processing_reference_frame",
     "prefix_src": "processing_reference_frame/",
     "map": [
@@ -48,7 +48,7 @@ PROCESSING_CSYS_TO_NEXUS = {
 }
 
 
-SAMPLE_CSYS_TO_NEXUS = {
+CONV_SAMPLE_CSYS_TO_NEXUS = {
     "prefix_trg": "/ENTRY[entry*]/coordinate_system_set/sample_reference_frame",
     "prefix_src": "sample_reference_frame/",
     "map": [
@@ -65,8 +65,8 @@ SAMPLE_CSYS_TO_NEXUS = {
 }
 
 
-DETECTOR_CSYS_TO_NEXUS = {
-    "prefix_trg": "/ENTRY[entry*]/coordinate_system_set/detector_reference_frameID[detector_reference_frame1]",
+CONV_DETECTOR_CSYS_TO_NEXUS = {
+    "prefix_trg": "/ENTRY[entry*]/coordinate_system_set/COORDINATE_SYSTEM[detector_reference_frame1]",
     "prefix_src": "detector_reference_frame/",
     "map": [
         "type",
@@ -82,7 +82,7 @@ DETECTOR_CSYS_TO_NEXUS = {
 }
 
 
-GNOMONIC_CSYS_TO_NEXUS = {
+CONV_GNOMONIC_CSYS_TO_NEXUS = {
     "prefix_trg": "/ENTRY[entry*]/ROI[roi*]/ebsd/gnomonic_reference_frame",
     "prefix_src": "gnomonic_reference_frame/",
     "map": [
@@ -96,7 +96,7 @@ GNOMONIC_CSYS_TO_NEXUS = {
 }
 
 
-PATTERN_CSYS_TO_NEXUS = {
+CONV_PATTERN_CSYS_TO_NEXUS = {
     "prefix_trg": "/ENTRY[entry*]/ROI[roi*]/ebsd/pattern_centre",
     "prefix_src": "pattern_centre/",
     "map": [
