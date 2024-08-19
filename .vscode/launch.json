@@ -25,9 +25,10 @@
                      //"../jeol/20240227_A1_2m_0_FA3_1.txt",
                      //"../nion-parsing/2022-02-18_Metadata_Kuehbach.zip",
                      //"../point/Defekt1.tif",
-                     "../tescan/Ti3C2VacDriedFilm19.tif",
-                     "../tescan/Ti3C2VacDriedFilm19.hdr",
+                     //"../tescan/Ti3C2VacDriedFilm19.tif",
+                     //"../tescan/Ti3C2VacDriedFilm19.hdr",
                      //"../tescan/CZ04-2_102_Pic_2.tif",
+                     "../zeiss/SE2.tif",
                      "--reader",
                      "em",
                      "--nxdl",
@@ -41,7 +42,8 @@
                      //"--output=dbg/jeol.nxs",
                      //"--output=dbg/nion.nxs",
                      //"--output=dbg/ebic.nxs",
-                     "--output=dbg/tescan.nxs"],
+                     //"--output=dbg/tescan.nxs",
+                     "--output=dbg/zeiss.nxs"],
         }
     ]
 }

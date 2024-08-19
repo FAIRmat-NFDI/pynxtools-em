@@ -17,9 +17,9 @@
 #
 """Parent class for all tech partner-specific image parsers for mapping on NXem."""
 
-from typing import Dict, List
+from typing import Dict
 
-import numpy as np
+# TODO::deprecated
 
 
 class ImgsBaseParser:

@@ -26,10 +26,13 @@ from pynxtools.dataconverter.readers.base.reader import BaseReader
 
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 from pynxtools_em.parsers.conventions_reader import NxEmConventionParser
+from pynxtools_em.parsers.image_png_protochips import ProtochipsPngSetParser
 from pynxtools_em.parsers.image_tiff_hitachi import HitachiTiffParser
 from pynxtools_em.parsers.image_tiff_jeol import JeolTiffParser
+from pynxtools_em.parsers.image_tiff_point_electronic import PointElectronicTiffParser
 from pynxtools_em.parsers.image_tiff_tescan import TescanTiffParser
-from pynxtools_em.parsers.nxs_imgs import NxEmImagesParser
+from pynxtools_em.parsers.image_tiff_tfs import TfsTiffParser
+from pynxtools_em.parsers.image_tiff_zeiss import ZeissTiffParser
 from pynxtools_em.parsers.nxs_mtex import NxEmNxsMTexParser
 from pynxtools_em.parsers.nxs_nion import NionProjectParser
 from pynxtools_em.parsers.nxs_pyxem import NxEmNxsPyxemParser
@@ -105,8 +108,17 @@ class EMReader(BaseReader):
 
         print("Parse and map pieces of information within files from tech partners...")
         if len(case.dat) == 1:  # no sidecar file
-            images = NxEmImagesParser(case.dat[0], entry_id, verbose=False)
-            images.parse(template)
+            tfs = TfsTiffParser(case.dat[0], entry_id, verbose=False)
+            tfs.parse(template)
+
+            zeiss = ZeissTiffParser(case.dat[0], entry_id, verbose=True)
+            zeiss.parse(template)
+
+            point = PointElectronicTiffParser(case.dat[0], entry_id, verbose=False)
+            point.parse(template)
+
+            axon = ProtochipsPngSetParser(case.dat[0], entry_id, verbose=False)
+            axon.parse(template)
 
             velox = RsciioVeloxParser(case.dat[0], entry_id, verbose=False)
             velox.parse(template)
