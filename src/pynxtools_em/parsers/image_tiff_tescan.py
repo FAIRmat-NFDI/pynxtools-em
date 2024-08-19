@@ -31,6 +31,7 @@ from pynxtools_em.configurations.image_tiff_tescan_cfg import (
     TESCAN_VARIOUS_STATIC_TO_NX_EM,
 )
 from pynxtools_em.parsers.image_tiff import TiffParser
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
 
 
@@ -92,7 +93,16 @@ class TescanTiffParser(TiffParser):
                 if tescan_key in fp.tag_v2:
                     payload = fp.tag_v2[tescan_key]
                     pos = payload.find(bytes("Description", "utf8"))
-                    txt = payload[pos:].decode("utf8")
+                    try:
+                        txt = payload[pos:].decode("utf8")
+                    except UnicodeDecodeError:
+                        print(
+                            f"WARNING::{self.file_path} TESCAN TIFF tag {tescan_key} cannot be decoded using UTF8, trying to use sidecar file instead if available !"
+                        )
+                        if hasattr(self, "hdr_file_path"):
+                            continue
+                        else:
+                            return
                     del payload
 
                     for line in txt.split():
@@ -141,7 +151,7 @@ class TescanTiffParser(TiffParser):
                 print(f"{key}____{type(value)}____{value}")
 
         # check if written about with supported DISS version
-        supported_versions = ["TIMA"]
+        supported_versions = ["TIMA", "MIRA3 LMH"]
         if "Device" in self.flat_dict_meta:
             if self.flat_dict_meta["Device"] in supported_versions:
                 self.supported = True
@@ -189,15 +199,22 @@ class TescanTiffParser(TiffParser):
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Signal"
 
-                sxy = {"i": 1.0, "j": 1.0}
-                scan_unit = {"i": "m", "j": "m"}
+                sxy = {
+                    "i": ureg.Quantity(1.0, ureg.meter),
+                    "j": ureg.Quantity(1.0, ureg.meter),
+                }
+                abbrev = "PixelSize"
                 if all(
                     value in self.flat_dict_meta
                     for value in ["PixelSizeX", "PixelSizeY"]
                 ):
                     sxy = {
-                        "i": self.flat_dict_meta["PixelSizeX"],
-                        "j": self.flat_dict_meta["PixelSizeY"],
+                        "i": ureg.Quantity(
+                            self.flat_dict_meta["PixelSizeX"], ureg.meter
+                        ),
+                        "j": ureg.Quantity(
+                            self.flat_dict_meta["PixelSizeY"], ureg.meter
+                        ),
                     }
                 else:
                     print("WARNING: Assuming pixel width and height unit is meter!")
@@ -209,15 +226,15 @@ class TescanTiffParser(TiffParser):
                     template[f"{trg}/AXISNAME[axis_{dim}]"] = {
                         "compress": np.asarray(
                             np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
-                            * sxy[dim],
+                            * sxy[dim].magnitude,
                             np.float64,
                         ),
                         "strength": 1,
                     }
                     template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                        f"Coordinate along {dim}-axis ({scan_unit[dim]})"
+                        f"Coordinate along {dim}-axis ({sxy[dim].units})"
                     )
-                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit[dim]}"
+                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
                 image_identifier += 1
         return template
 

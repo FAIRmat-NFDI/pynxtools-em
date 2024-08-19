@@ -66,6 +66,11 @@ class HitachiTiffParser(TiffParser):
     def check_if_tiff_hitachi(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file."""
         self.supported = False
+        if not hasattr(self, "file_path"):
+            print(
+                f"... is not a Hitachi-specific TIFF file that this parser can process !"
+            )
+            return
         if self.txt_file_path is None:
             print(
                 f"Parser {self.__class__.__name__} does not work without a Hitachi text file with the image metadata !"
@@ -124,10 +129,6 @@ class HitachiTiffParser(TiffParser):
             # metadata have at this point already been collected into an fd.FlatDict
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
-        else:
-            print(
-                f"{self.file_path} is not a Hitachi-specific TIFF file that this parser can process !"
-            )
         return template
 
     def process_event_data_em_data(self, template: dict) -> dict:

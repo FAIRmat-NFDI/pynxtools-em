@@ -126,7 +126,7 @@ class EMReader(BaseReader):
             # zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id, verbose=False)
             # zip_parser.parse(template)
         if len(case.dat) >= 1:  # optional sidecar file
-            tescan = TescanTiffParser(case.dat, entry_id)
+            tescan = TescanTiffParser(case.dat, entry_id, verbose=False)
             tescan.parse(template)
 
         if len(case.dat) == 2:  # for sure sidecar file
