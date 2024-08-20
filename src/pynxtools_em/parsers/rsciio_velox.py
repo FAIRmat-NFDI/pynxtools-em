@@ -24,16 +24,16 @@ import flatdict as fd
 import numpy as np
 import pytz
 from ase.data import chemical_symbols
-from pynxtools_em.concepts.mapping_functors import add_specific_metadata
+from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.rsciio_velox_cfg import (
-    VELOX_DYNAMIC_TO_NX_EM,
-    VELOX_EBEAM_DYNAMIC_TO_NX_EM,
-    VELOX_EBEAM_STATIC_TO_NX_EM,
-    VELOX_ENTRY_TO_NX_EM,
-    VELOX_FABRICATION_TO_NX_EM,
-    VELOX_OPTICS_TO_NX_EM,
-    VELOX_SCAN_TO_NX_EM,
-    VELOX_STAGE_TO_NX_EM,
+    VELOX_DYNAMIC_VARIOUS_TO_NX_EM,
+    VELOX_DYNAMIC_EBEAM_TO_NX_EM,
+    VELOX_STATIC_EBEAM_TO_NX_EM,
+    VELOX_STATIC_ENTRY_TO_NX_EM,
+    VELOX_STATIC_FABRICATION_TO_NX_EM,
+    VELOX_DYNAMIC_OPTICS_TO_NX_EM,
+    VELOX_DYNAMIC_SCAN_TO_NX_EM,
+    VELOX_DYNAMIC_STAGE_TO_NX_EM,
 )
 from pynxtools_em.parsers.rsciio_base import RsciioBaseParser
 from pynxtools_em.utils.get_file_checksum import (
@@ -170,9 +170,7 @@ class RsciioVeloxParser(RsciioBaseParser):
             elif content_type == "eds_spc":
                 self.normalize_eds_spc_content(obj, template)  # EDS spectrum/(a)
             elif content_type == "eels":
-                self.normalize_eels_content(
-                    obj, template
-                )  # electron energy loss spectroscopy
+                self.normalize_eels_content(obj, template)  # EELS
             else:  # == "n/a"
                 print(
                     f"WARNING::Unable to resolve content of {idx}-th object in {self.file_path}!"
@@ -298,18 +296,22 @@ class RsciioVeloxParser(RsciioBaseParser):
         # as for each section there are typically always some extra formatting
         # steps required
         for cfg in [
-            VELOX_ENTRY_TO_NX_EM,
-            VELOX_EBEAM_STATIC_TO_NX_EM,
-            VELOX_SCAN_TO_NX_EM,
-            VELOX_DYNAMIC_TO_NX_EM,
-            VELOX_OPTICS_TO_NX_EM,
+            VELOX_STATIC_ENTRY_TO_NX_EM,
+            VELOX_STATIC_EBEAM_TO_NX_EM,
+            VELOX_DYNAMIC_SCAN_TO_NX_EM,
+            VELOX_DYNAMIC_VARIOUS_TO_NX_EM,
+            VELOX_DYNAMIC_OPTICS_TO_NX_EM,
         ]:
-            add_specific_metadata(cfg, orgmeta, identifier, template)
+            add_specific_metadata_pint(cfg, orgmeta, identifier, template)
 
-        add_specific_metadata(VELOX_FABRICATION_TO_NX_EM, orgmeta, identifier, template)
-        add_specific_metadata(VELOX_STAGE_TO_NX_EM, orgmeta, identifier, template)
-        add_specific_metadata(
-            VELOX_EBEAM_DYNAMIC_TO_NX_EM, orgmeta, identifier, template
+        add_specific_metadata_pint(
+            VELOX_STATIC_FABRICATION_TO_NX_EM, orgmeta, identifier, template
+        )
+        add_specific_metadata_pint(
+            VELOX_DYNAMIC_STAGE_TO_NX_EM, orgmeta, identifier, template
+        )
+        add_specific_metadata_pint(
+            VELOX_DYNAMIC_EBEAM_TO_NX_EM, orgmeta, identifier, template
         )
 
         self.add_lens_event_data(orgmeta, identifier, template)

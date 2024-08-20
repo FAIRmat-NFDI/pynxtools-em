@@ -37,8 +37,11 @@ this can not work but has to be made explicit with an own function that is Velox
 MetadataSchema-version and NeXus NXem-schema-version-dependent for the lenses
 """
 
-VELOX_ENTRY_TO_NX_EM = {
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
+
+VELOX_STATIC_ENTRY_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/control_program",
+    "prefix_src": "",
     "use": [
         (
             "program",
@@ -49,62 +52,59 @@ VELOX_ENTRY_TO_NX_EM = {
 }
 
 
-VELOX_EBEAM_STATIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/EBEAM_COLUMN[ebeam_column]/electron_source",
+VELOX_STATIC_EBEAM_TO_NX_EM = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/ebeam_column/electron_source",
+    "prefix_src": "",
     "use": [("probe", "electron")],
     "map": [("emitter_type", "Acquisition/SourceType")],
 }
 
 
-VELOX_FABRICATION_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/FABRICATION[fabrication]",
+VELOX_STATIC_FABRICATION_TO_NX_EM = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/fabrication",
+    "prefix_src": "",
     "map": [
         ("identifier", "Instrument/InstrumentId"),
         ("model", "Instrument/InstrumentModel"),
         ("vendor", "Instrument/Manufacturer"),
-    ],
-    "join_str": [
-        ("model", ["Instrument/InstrumentClass", "Instrument/InstrumentModel"])
+        ("model", ["Instrument/InstrumentClass", "Instrument/InstrumentModel"]),
     ],
 }
 
 
-VELOX_SCAN_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/SCANBOX_EM[scanbox_em]",
-    "use": [("dwell_time/@units", "s")],
-    "map_to_real": [("dwell_time", "Scan/DwellTime")],
+VELOX_DYNAMIC_SCAN_TO_NX_EM = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
+    "prefix_src": "",
+    "map_to_f8": [("dwell_time", ureg.second, "Scan/DwellTime", ureg.second)],
 }
 
 
-VELOX_OPTICS_TO_NX_EM = {
+VELOX_DYNAMIC_OPTICS_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]",
-    "use": [
-        ("camera_length/@units", "m"),
-        ("defocus/@units", "m"),
-        ("semi_convergence_angle/@units", "rad"),
-    ],
-    "map_to_real": [
+    "prefix_src": "",
+    "map_to_f8": [
         ("magnification", "Optics/NominalMagnification"),
-        ("camera_length", "Optics/CameraLength"),
-        ("defocus", "Optics/Defocus"),
-        ("semi_convergence_angle", "Optics/BeamConvergence"),
+        ("camera_length", ureg.meter, "Optics/CameraLength", ureg.meter),
+        ("defocus", ureg.meter, "Optics/Defocus", ureg.meter),
+        ("semi_convergence_angle", ureg.radian, "Optics/BeamConvergence", ureg.radian),
     ],
 }
 # assume BeamConvergence is the semi_convergence_angle, needs clarification from vendors and colleagues
 
 
-VELOX_STAGE_TO_NX_EM = {
+VELOX_DYNAMIC_STAGE_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
-    "use": [
-        ("tilt1/@units", "rad"),
-        ("tilt2/@units", "rad"),
-        ("position/@units", "m"),
-    ],
-    "map_to_str": [("design", "Stage/HolderType")],
-    "map_to_real": [
-        ("tilt1", "Stage/AlphaTilt"),
-        ("tilt2", "Stage/BetaTilt"),
-        ("position", ["Stage/Position/x", "Stage/Position/y", "Stage/Position/z"]),
+    "prefix_src": "",
+    "map": [("design", "Stage/HolderType")],
+    "map_to_f8": [
+        ("tilt1", ureg.radian, "Stage/AlphaTilt", ureg.radian),
+        ("tilt2", ureg.radian, "Stage/BetaTilt", ureg.radian),
+        (
+            "position",
+            ureg.meter,
+            ["Stage/Position/x", "Stage/Position/y", "Stage/Position/z"],
+            ureg.meter,
+        ),
     ],
 }
 # we do not know whether the angle is radiant or degree, in all examples
@@ -114,21 +114,20 @@ VELOX_STAGE_TO_NX_EM = {
 # is not a proper unit for an instance of NX_VOLTAGE
 
 
-VELOX_DYNAMIC_TO_NX_EM = {
+VELOX_DYNAMIC_VARIOUS_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
+    "prefix_src": "",
     "unix_to_iso8601": [
         ("start_time", "Acquisition/AcquisitionStartDatetime/DateTime")
     ],
 }
 
 
-VELOX_EBEAM_DYNAMIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/EBEAM_COLUMN[ebeam_column]",
-    "use": [
-        ("electron_source/voltage/@units", "V"),
+VELOX_DYNAMIC_EBEAM_TO_NX_EM = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column",
+    "prefix_src": "",
+    "map": [("operation_mode", ["Optics/OperatingMode", "Optics/TemOperatingSubMode"])],
+    "map_to_f8": [
+        ("electron_source/voltage", ureg.volt, "Optics/AccelerationVoltage", ureg.volt)
     ],
-    "concatenate": [
-        ("operation_mode", ["Optics/OperatingMode", "Optics/TemOperatingSubMode"])
-    ],
-    "map_to_real": [("electron_source/voltage", "Optics/AccelerationVoltage")],
 }
