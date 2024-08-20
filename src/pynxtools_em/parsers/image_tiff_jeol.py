@@ -25,8 +25,8 @@ import numpy as np
 from PIL import Image, ImageSequence
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_jeol_cfg import (
-    JEOL_VARIOUS_DYNAMIC_TO_NX_EM,
-    JEOL_VARIOUS_STATIC_TO_NX_EM,
+    JEOL_DYNAMIC_VARIOUS_TO_NX_EM,
+    JEOL_STATIC_VARIOUS_TO_NX_EM,
 )
 from pynxtools_em.parsers.image_tiff import TiffParser
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
@@ -215,7 +215,7 @@ class JeolTiffParser(TiffParser):
     def add_various_dynamic(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata_pint(
-            JEOL_VARIOUS_DYNAMIC_TO_NX_EM,
+            JEOL_DYNAMIC_VARIOUS_TO_NX_EM,
             self.flat_dict_meta,
             identifier,
             template,
@@ -225,7 +225,7 @@ class JeolTiffParser(TiffParser):
     def add_various_static(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata_pint(
-            JEOL_VARIOUS_STATIC_TO_NX_EM,
+            JEOL_STATIC_VARIOUS_TO_NX_EM,
             self.flat_dict_meta,
             identifier,
             template,

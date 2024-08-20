@@ -19,7 +19,7 @@
 
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-ZEISS_VARIOUS_DYNAMIC_TO_NX_EM = {
+ZEISS_DYNAMIC_VARIOUS_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "",
     "map_to_f8": [
@@ -38,7 +38,7 @@ ZEISS_VARIOUS_DYNAMIC_TO_NX_EM = {
 }
 
 
-ZEISS_VARIOUS_STATIC_TO_NX_EM = {
+ZEISS_STATIC_VARIOUS_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab",
     "prefix_src": "",
     "use": [("FABRICATION[fabrication]/vendor", "Zeiss")],

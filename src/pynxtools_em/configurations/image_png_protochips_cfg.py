@@ -38,7 +38,7 @@ def specific_to_variadic(token):
     return None
 
 
-AXON_STAGE_STATIC_TO_NX_EM = {
+AXON_STATIC_STAGE_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/STAGE_LAB[stage_lab]",
     "prefix_src": "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.",
     "use": [("design", "heating_chip")],
@@ -46,7 +46,7 @@ AXON_STAGE_STATIC_TO_NX_EM = {
 }
 
 
-AXON_DETECTOR_STATIC_TO_NX_EM = {
+AXON_STATIC_DETECTOR_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/detectorID[detector*]",
     "prefix_src": "",
     "use": [
@@ -58,7 +58,7 @@ AXON_DETECTOR_STATIC_TO_NX_EM = {
 }
 
 
-AXON_STAGE_DYNAMIC_TO_NX_EM = {
+AXON_DYNAMIC_STAGE_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
     "prefix_src": "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.",
     "map_to_f8": [
@@ -67,7 +67,7 @@ AXON_STAGE_DYNAMIC_TO_NX_EM = {
 }
 
 
-AXON_CHIP_DYNAMIC_TO_NX_EM = {
+AXON_DYNAMIC_CHIP_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/heater",
     "prefix_src": "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].",
     "map_to_f8": [
@@ -78,7 +78,7 @@ AXON_CHIP_DYNAMIC_TO_NX_EM = {
 }
 
 
-AXON_AUX_DYNAMIC_TO_NX_EM = {
+AXON_DYNAMIC_AUX_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column",
     "prefix_src": "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].",
     "use": [
@@ -92,7 +92,7 @@ AXON_AUX_DYNAMIC_TO_NX_EM = {
 }
 
 
-AXON_VARIOUS_DYNAMIC_TO_NX_EM = {
+AXON_DYNAMIC_VARIOUS_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "MicroscopeControlImageMetadata.MicroscopeSettings.",
     "use": [

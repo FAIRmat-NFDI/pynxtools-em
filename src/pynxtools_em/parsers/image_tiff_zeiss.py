@@ -29,8 +29,8 @@ from PIL.TiffTags import TAGS
 from pint import UndefinedUnitError
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_zeiss_cfg import (
-    ZEISS_VARIOUS_DYNAMIC_TO_NX_EM,
-    ZEISS_VARIOUS_STATIC_TO_NX_EM,
+    ZEISS_DYNAMIC_VARIOUS_TO_NX_EM,
+    ZEISS_STATIC_VARIOUS_TO_NX_EM,
 )
 from pynxtools_em.parsers.image_tiff import TiffParser
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
@@ -239,7 +239,7 @@ class ZeissTiffParser(TiffParser):
         # contextualization to understand how the image relates to the EM session
         print(f"Mapping some of the Zeiss metadata on respective NeXus concepts...")
         identifier = [self.entry_id, self.event_id, 1]
-        for cfg in [ZEISS_VARIOUS_DYNAMIC_TO_NX_EM, ZEISS_VARIOUS_STATIC_TO_NX_EM]:
+        for cfg in [ZEISS_DYNAMIC_VARIOUS_TO_NX_EM, ZEISS_STATIC_VARIOUS_TO_NX_EM]:
             add_specific_metadata_pint(
                 cfg,
                 self.flat_dict_meta,

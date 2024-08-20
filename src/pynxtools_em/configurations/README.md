@@ -58,7 +58,7 @@ takes place during consumption of the serialized NeXus artifact/file.
 The following example shows one typical such dictionary.
 
 ```python
-AXON_STAGE_STATIC_TO_NX_EM = {
+AXON_STATIC_STAGE_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/STAGE_LAB[stage_lab]",
     "prefix_src": "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.",
     "use": [("design", "heating_chip")],

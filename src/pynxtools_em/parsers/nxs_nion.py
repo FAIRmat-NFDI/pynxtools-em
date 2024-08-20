@@ -38,7 +38,7 @@ from pynxtools_em.configurations.nion_cfg import (
     NION_DYNAMIC_SCAN_TO_NX_EM,
     NION_DYNAMIC_STAGE_TO_NX_EM,
     NION_DYNAMIC_VARIOUS_TO_NX_EM,
-    NION_PINPOINT_EVENT_TIME,
+    NION_DYNAMIC_EVENT_TIME,
     NION_STATIC_DETECTOR_TO_NX_EM,
     NION_STATIC_LENS_TO_NX_EM,
     NION_WHICH_IMAGE,
@@ -398,7 +398,7 @@ class NionProjectParser:
             NION_DYNAMIC_SCAN_TO_NX_EM,
             NION_DYNAMIC_STAGE_TO_NX_EM,
             NION_DYNAMIC_VARIOUS_TO_NX_EM,
-            NION_PINPOINT_EVENT_TIME,
+            NION_DYNAMIC_EVENT_TIME,
         ]:
             add_specific_metadata_pint(cfg, flat_metadata, identifier, template)
         # but not so static quantities, for these we ideally need to check if

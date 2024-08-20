@@ -25,10 +25,10 @@ import numpy as np
 from PIL import Image, ImageSequence
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_tescan_cfg import (
-    TESCAN_STAGE_DYNAMIC_TO_NX_EM,
-    TESCAN_STIGMATOR_DYNAMIC_TO_NX_EM,
-    TESCAN_VARIOUS_DYNAMIC_TO_NX_EM,
-    TESCAN_VARIOUS_STATIC_TO_NX_EM,
+    TESCAN_DYNAMIC_STAGE_TO_NX_EM,
+    TESCAN_DYNAMIC_STIGMATOR_TO_NX_EM,
+    TESCAN_DYNAMIC_VARIOUS_TO_NX_EM,
+    TESCAN_STATIC_VARIOUS_TO_NX_EM,
 )
 from pynxtools_em.parsers.image_tiff import TiffParser
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
@@ -244,10 +244,10 @@ class TescanTiffParser(TiffParser):
         print(f"Mapping some of the TESCAN metadata on respective NeXus concepts...")
         identifier = [self.entry_id, self.event_id, 1]
         for cfg in [
-            TESCAN_STIGMATOR_DYNAMIC_TO_NX_EM,
-            TESCAN_VARIOUS_STATIC_TO_NX_EM,
-            TESCAN_VARIOUS_DYNAMIC_TO_NX_EM,
-            TESCAN_STAGE_DYNAMIC_TO_NX_EM,
+            TESCAN_DYNAMIC_STIGMATOR_TO_NX_EM,
+            TESCAN_STATIC_VARIOUS_TO_NX_EM,
+            TESCAN_DYNAMIC_VARIOUS_TO_NX_EM,
+            TESCAN_DYNAMIC_STAGE_TO_NX_EM,
         ]:
             add_specific_metadata_pint(cfg, self.flat_dict_meta, identifier, template)
         return template

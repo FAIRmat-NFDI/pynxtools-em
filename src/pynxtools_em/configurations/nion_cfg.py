@@ -308,7 +308,7 @@ NION_DYNAMIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
 }
 
 
-NION_PINPOINT_EVENT_TIME = {
+NION_DYNAMIC_EVENT_TIME = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "metadata/hardware_source/detector_configuration/",
     "map": [("start_time", "data_collection_date")],
