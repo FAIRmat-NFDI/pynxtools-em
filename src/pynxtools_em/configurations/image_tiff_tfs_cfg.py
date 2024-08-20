@@ -17,80 +17,81 @@
 #
 """Configuration of the image_tiff_tfs parser."""
 
-from numpy import pi
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-RAD2DEG = 180.0 / pi
-
-
-TFS_DETECTOR_STATIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/DETECTOR[detector*]",
-    "map": [
-        ("local_name", "Detectors/Name"),
-    ],
+TFS_STATIC_DETECTOR_TO_NX_EM = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/detectorID[detector*]",
+    "prefix_src": "",
+    "map": [("local_name", "Detectors/Name")],
 }
 
 
-TFS_APERTURE_STATIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/EBEAM_COLUMN[ebeam_column]/APERTURE_EM[aperture_em*]",
-    "use": [("value/@units", "m")],
-    "map": [
-        ("description", "Beam/Aperture"),
-        ("value", "EBeam/ApertureDiameter"),
-    ],
+TFS_STATIC_APERTURE_TO_NX_EM = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/ebeam_column/apertureID[aperture*]",
+    "prefix_src": "",
+    "map": [("description", "Beam/Aperture")],
+    "map_to_f8": [("value", ureg.meter, "EBeam/ApertureDiameter", ureg.meter)],
 }
 
 
-TFS_VARIOUS_STATIC_TO_NX_EM = {
+TFS_STATIC_VARIOUS_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab",
-    "use": [("FABRICATION[fabrication]/vendor", "FEI")],
+    "prefix_src": "",
+    "use": [("fabrication/vendor", "FEI")],
     "map": [
-        ("FABRICATION[fabrication]/model", "System/SystemType"),
-        ("FABRICATION[fabrication]/identifier", "System/BuildNr"),
-        ("EBEAM_COLUMN[ebeam_column]/electron_source/emitter_type", "System/Source"),
+        ("fabrication/model", "System/SystemType"),
+        ("fabrication/identifier", "System/BuildNr"),
+        ("ebeam_column/electron_source/emitter_type", "System/Source"),
     ],
 }
 
 
-TFS_OPTICS_DYNAMIC_TO_NX_EM = {
+TFS_DYNAMIC_OPTICS_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]",
-    "use": [("beam_current/@units", "A"), ("working_distance/@units", "m")],
-    "map": [
-        ("beam_current", "EBeam/BeamCurrent"),
-        ("working_distance", "EBeam/WD"),
+    "prefix_src": "",
+    "map_to_f8": [
+        ("beam_current", ureg.ampere, "EBeam/BeamCurrent", ureg.ampere),
+        ("working_distance", ureg.meter, "EBeam/WD", ureg.meter),
     ],
 }
 
 
-TFS_STAGE_DYNAMIC_TO_NX_EM = {
+TFS_DYNAMIC_STAGE_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
-    "use": [("tilt1/@units", "deg"), ("tilt2/@units", "deg")],
-    "map_to_real_and_multiply": [
-        ("tilt1", "EBeam/StageTa", RAD2DEG),
-        ("tilt2", "EBeam/StageTb", RAD2DEG),
+    "prefix_src": "",
+    "map_to_f8": [
+        ("tilt1", ureg.radian, "EBeam/StageTa", ureg.radian),
+        ("tilt2", ureg.radian, "EBeam/StageTb", ureg.radian),
     ],
 }
 
 
-TFS_SCAN_DYNAMIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/SCANBOX_EM[scanbox_em]",
-    "use": [
-        ("dwell_time/@units", "s"),
-    ],
-    "map": [("dwell_time", "Scan/Dwelltime"), ("scan_schema", "System/Scan")],
+TFS_DYNAMIC_SCAN_TO_NX_EM = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
+    "prefix_src": "",
+    "map": [("scan_schema", "System/Scan")],
+    "map_to_f8": [("dwell_time", ureg.second, "Scan/Dwelltime", ureg.second)],
 }
 
 
-TFS_VARIOUS_DYNAMIC_TO_NX_EM = {
+TFS_DYNAMIC_VARIOUS_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
-    "use": [("em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage/@units", "V")],
+    "prefix_src": "",
     "map": [
-        ("em_lab/DETECTOR[detector*]/mode", "Detectors/Mode"),
-        ("em_lab/EBEAM_COLUMN[ebeam_column]/operation_mode", "EBeam/UseCase"),
-        ("em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage", "EBeam/HV"),
+        ("em_lab/detectorID[detector*]/mode", "Detectors/Mode"),
+        ("em_lab/ebeam_column/operation_mode", "EBeam/UseCase"),
         ("event_type", "T1/Signal"),
         ("event_type", "T2/Signal"),
         ("event_type", "T3/Signal"),
         ("event_type", "ETD/Signal"),
+    ],
+    "map_to_f8": [
+        (
+            "em_lab/ebeam_column/electron_source/voltage",
+            ureg.volt,
+            "EBeam/HV",
+            ureg.volt,
+        )
     ],
 }
 
