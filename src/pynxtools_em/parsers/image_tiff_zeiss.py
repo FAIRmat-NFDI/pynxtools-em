@@ -242,7 +242,6 @@ class ZeissTiffParser(TiffParser):
         identifier = [self.entry_id, self.event_id, 1]
         for cfg in [
             ZEISS_DYNAMIC_VARIOUS_TO_NX_EM,
-            ZEISS_DYNAMIC_STAGE_TO_NX_EM,
             ZEISS_STATIC_VARIOUS_TO_NX_EM,
         ]:
             add_specific_metadata_pint(
@@ -251,4 +250,7 @@ class ZeissTiffParser(TiffParser):
                 identifier,
                 template,
             )
+        add_specific_metadata_pint(
+            ZEISS_DYNAMIC_STAGE_TO_NX_EM, self.flat_dict_meta, identifier, template
+        )
         return template

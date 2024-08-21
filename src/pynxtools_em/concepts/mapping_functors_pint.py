@@ -226,10 +226,8 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
             )
     else:  # do an explicit type conversion
         # e.g. in cases when tech partner writes float32 but e.g. NeXus assumes float64
-        if isinstance(src_val, str):
-            raise TypeError(
-                f"Unexpected type str found when calling set_value, trg {trg} !"
-            )
+        if isinstance(src_val, (str, bool)):
+            template[f"{trg}"] = try_interpret_as_boolean(src_val)
         elif isinstance(src_val, ureg.Quantity):
             if isinstance(src_val.magnitude, (np.ndarray, np.generic)):
                 template[f"{trg}"] = map_to_dtype(trg_dtype, src_val.magnitude)
@@ -292,12 +290,16 @@ def map_functor(
             if f"{prfx_src}{cmd}" not in mdata:
                 continue
             src_val = mdata[f"{prfx_src}{cmd}"]
+            if not src_val:
+                continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd}", ids)
             set_value(template, trg, src_val, trg_dtype_key)
         elif case == "case_two_str":  # str, str
             if f"{prfx_src}{cmd[1]}" not in mdata:
                 continue
             src_val = mdata[f"{prfx_src}{cmd[1]}"]
+            if not src_val:
+                continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             set_value(template, trg, src_val, trg_dtype_key)
         elif case == "case_two_list":
@@ -311,6 +313,8 @@ def map_functor(
             src_values = [mdata[f"{prfx_src}{val}"] for val in cmd[1]]
             if len(src_values) == 0:
                 continue
+            if not all(src_val for src_val in src_values):
+                continue
             if not all(type(val) is type(src_values[0]) for val in src_values):
                 continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
@@ -319,6 +323,8 @@ def map_functor(
             if f"{prfx_src}{cmd[2]}" not in mdata:
                 continue
             src_val = mdata[f"{prfx_src}{cmd[2]}"]
+            if not src_val:
+                continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_val, ureg.Quantity):
                 set_value(template, trg, src_val.to(cmd[1]), trg_dtype_key)
@@ -334,6 +340,8 @@ def map_functor(
             if not all(f"{prfx_src}{val}" in mdata for val in cmd[2]):
                 continue
             src_values = [mdata[f"{prfx_src}{val}"] for val in cmd[2]]
+            if not all(src_val for src_val in src_values):
+                continue
             if not all(type(val) is type(src_values[0]) for val in src_values):
                 # need to check whether content are scalars also
                 continue
@@ -360,14 +368,16 @@ def map_functor(
             # both of these cases can be avoided in an implementation when the
             # src quantity is already a pint quantity instead of some
             # pure python or numpy value or array respectively
-            print(
-                f"WARNING::Ignoring case_four, instead refactor implementation such"
+            raise ValueError(
+                f"Hitting unimplemented case_four, instead refactor implementation such"
                 f"that values on the src side are pint.Quantities already!"
             )
         elif case == "case_five_str":
             if f"{prfx_src}{cmd[2]}" not in mdata:
                 continue
             src_val = mdata[f"{prfx_src}{cmd[2]}"]
+            if not src_val:
+                continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_val, ureg.Quantity):
                 set_value(template, trg, src_val.to(cmd[1]), trg_dtype_key)
@@ -382,6 +392,8 @@ def map_functor(
             if not all(f"{prfx_src}{val}" in mdata for val in cmd[2]):
                 continue
             src_values = [mdata[f"{prfx_src}{val}"] for val in cmd[2]]
+            if not all(src_val for src_val in src_values):
+                continue
             if isinstance(src_values[0], ureg.Quantity):
                 raise ValueError(
                     f"Hit unimplemented case that src_val is ureg.Quantity"
@@ -399,6 +411,8 @@ def map_functor(
                 continue
             src_val = mdata[f"{prfx_src}{cmd[2]}"]
             src_unit = mdata[f"{prfx_src}{cmd[3]}"]
+            if not src_val or not src_unit:
+                continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_val, ureg.Quantity):
                 set_value(template, trg, src_val.units.to(cmd[1]), trg_dtype_key)

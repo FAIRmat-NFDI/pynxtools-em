@@ -66,6 +66,13 @@ TFS_DYNAMIC_STAGE_TO_NX_EM = {
 }
 
 
+TFS_DYNAMIC_STIGMATOR_TO_NX_EM = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column/corrector_ax",
+    "prefix_src": "",
+    "map_to_f8": [("value_x", "Beam/StigmatorX"), ("value_y", "Beam/StigmatorY")],
+}
+
+
 TFS_DYNAMIC_SCAN_TO_NX_EM = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
     "prefix_src": "",
@@ -80,18 +87,63 @@ TFS_DYNAMIC_VARIOUS_TO_NX_EM = {
     "map": [
         ("em_lab/detectorID[detector*]/mode", "Detectors/Mode"),
         ("em_lab/ebeam_column/operation_mode", "EBeam/UseCase"),
+        ("em_lab/ebeam_column/BEAM[beam]/image_mode", "Beam/ImageMode"),
+        ("em_lab/ebeam_column/BEAM[beam]/mode", "EBeam/BeamMode"),
+        ("em_lab/ebeam_column/apertureID[aperture1]/name", "EBeam/Aperture"),
         ("event_type", "T1/Signal"),
         ("event_type", "T2/Signal"),
         ("event_type", "T3/Signal"),
         ("event_type", "ETD/Signal"),
     ],
+    "map_to_bool": [
+        (
+            "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/dynamic_focus",
+            "EBeam/DynamicFocusIsOn",
+        )
+    ],
+    "map_to_u2": [("em_lab/ebeam_column/BEAM[beam]/value", "Beam/Spot")],
     "map_to_f8": [
         (
             "em_lab/ebeam_column/electron_source/voltage",
             ureg.volt,
             "EBeam/HV",
             ureg.volt,
-        )
+        ),
+        (
+            "em_lab/ebeam_column/electron_source/emission_current",
+            ureg.ampere,
+            "EBeam/EmissionCurrent",
+            ureg.ampere,
+        ),
+        (
+            "em_lab/ebeam_column/apertureID[aperture1]/diameter",
+            ureg.meter,
+            "EBeam/ApertureDiameter",
+            ureg.meter,
+        ),
+        (
+            "em_lab/ebeam_column/BEAM[beam]/current",
+            ureg.ampere,
+            "EBeam/BeamCurrent",
+            ureg.ampere,
+        ),
+    ],
+}
+
+
+TFS_DYNAMIC_STAGE_TO_NX_EM = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
+    "prefix_src": "",
+    "map_to_f8": [
+        ("rotation", ureg.radian, "Stage/StageR", ureg.radian),
+        ("tilt1", ureg.radian, "Stage/StageTa", ureg.radian),
+        ("tilt2", ureg.radian, "Stage/StageTb", ureg.radian),
+        (
+            "position",
+            ureg.meter,
+            ["Stage/StageX", "Stage/StageY", "Stage/StageZ"],
+            ureg.meter,
+        ),
     ],
 }
 

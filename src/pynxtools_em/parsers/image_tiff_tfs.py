@@ -31,6 +31,7 @@ from pynxtools_em.configurations.image_tiff_tfs_cfg import (
     TFS_DYNAMIC_OPTICS_TO_NX_EM,
     TFS_DYNAMIC_SCAN_TO_NX_EM,
     TFS_DYNAMIC_STAGE_TO_NX_EM,
+    TFS_DYNAMIC_STIGMATOR_TO_NX_EM,
     TFS_DYNAMIC_VARIOUS_TO_NX_EM,
     TFS_STATIC_APERTURE_TO_NX_EM,
     TFS_STATIC_DETECTOR_TO_NX_EM,
@@ -41,8 +42,8 @@ from pynxtools_em.utils.image_utils import (
     if_str_represents_float,
     sort_ascendingly_by_second_argument,
 )
-from pynxtools_em.utils.tfs_utils import get_fei_childs, get_fei_parent_concepts
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
+from pynxtools_em.utils.tfs_utils import get_fei_childs, get_fei_parent_concepts
 
 
 class TfsTiffParser(TiffParser):
@@ -74,7 +75,7 @@ class TfsTiffParser(TiffParser):
             tfs_keys = [34682]
             for tfs_key in tfs_keys:
                 if tfs_key in fp.tag_v2:
-                    if len(fp.tag_v2[tfs_key]) == 1:
+                    if len(fp.tag_v2[tfs_key]) >= 1:
                         self.supported += 1  # found TFS-specific tag
         if self.supported == 2:
             self.supported = True
@@ -154,6 +155,10 @@ class TfsTiffParser(TiffParser):
                             )
                     else:
                         break
+            if self.verbose:
+                for key, value in self.flat_dict_meta.items():
+                    if value:
+                        print(f"{key}____{type(value)}____{value}")
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache self.tmp."""
@@ -218,13 +223,13 @@ class TfsTiffParser(TiffParser):
                         "i": ureg.Quantity(
                             self.flat_dict_meta["EScan/PixelWidth"], ureg.meter
                         ),
-                        "y": ureg.Quantity(
+                        "j": ureg.Quantity(
                             self.flat_dict_meta["EScan/PixelHeight"], ureg.meter
                         ),
                     }
                 else:
                     print("WARNING: Assuming pixel width and height unit is meter!")
-                nxy = {"x": np.shape(np.array(fp))[1], "y": np.shape(np.array(fp))[0]}
+                nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # however the TIFF file gives no clue, TIFF just documents in which order
                 # it arranges a bunch of pixels that have stream in into a n-d tiling
@@ -266,6 +271,7 @@ class TfsTiffParser(TiffParser):
             TFS_DYNAMIC_OPTICS_TO_NX_EM,
             TFS_DYNAMIC_SCAN_TO_NX_EM,
             TFS_DYNAMIC_VARIOUS_TO_NX_EM,
+            TFS_DYNAMIC_STIGMATOR_TO_NX_EM,
         ]:  # TODO::static quantities may need to be splitted
             add_specific_metadata_pint(cfg, self.flat_dict_meta, identifier, template)
         add_specific_metadata_pint(
