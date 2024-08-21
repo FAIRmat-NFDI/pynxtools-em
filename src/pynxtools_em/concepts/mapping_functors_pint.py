@@ -210,8 +210,15 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
                 raise TypeError(
                     f"ureg.Quantity magnitude should use in-build, bool, or np !"
                 )
+        elif isinstance(src_val, list):
+            if all(isinstance(val, str) for val in src_val):
+                template[f"{trg}"] = ", ".join(src_val)
+            else:
+                raise TypeError(
+                    f"Not List[str] {type(src_val)} found for not trg_dtype case !"
+                )
         elif (
-            isinstance(src_val, (list, np.ndarray, np.generic))
+            isinstance(src_val, (np.ndarray, np.generic))
             or np.isscalar(src_val)
             or isinstance(src_val, bool)
         ):
@@ -318,7 +325,7 @@ def map_functor(
             if not all(type(val) is type(src_values[0]) for val in src_values):
                 continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-            set_value(template, trg, np.asarray(src_values), trg_dtype_key)
+            set_value(template, trg, src_values, trg_dtype_key)
         elif case == "case_three_str":  # str, ureg.Unit, str
             if f"{prfx_src}{cmd[2]}" not in mdata:
                 continue

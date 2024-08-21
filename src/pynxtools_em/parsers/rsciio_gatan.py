@@ -22,9 +22,9 @@ from typing import Dict, List
 import flatdict as fd
 import numpy as np
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
-from pynxtools_em.configurations.gatan_cfg import (
-    GATAN_DYNAMIC_STAGE_TO_NX_EM,
-    GATAN_DYNAMIC_VARIOUS_TO_NX_EM,
+from pynxtools_em.configurations.rsciio_gatan_cfg import (
+    GATAN_DYNAMIC_STAGE_NX,
+    GATAN_DYNAMIC_VARIOUS_NX,
     GATAN_WHICH_IMAGE,
     GATAN_WHICH_SPECTRUM,
 )
@@ -122,8 +122,20 @@ class RsciioGatanParser(RsciioBaseParser):
         # steps required
         flat_metadata = fd.FlatDict(obj["original_metadata"], "/")
         identifier = [self.entry_id, self.event_id, 1]
-        for cfg in [GATAN_DYNAMIC_STAGE_TO_NX_EM, GATAN_DYNAMIC_VARIOUS_TO_NX_EM]:
+        for cfg in [GATAN_DYNAMIC_STAGE_NX, GATAN_DYNAMIC_VARIOUS_NX]:
             add_specific_metadata_pint(cfg, flat_metadata, identifier, template)
+        return template
+
+    def annotate_information_source(
+        self, trg: str, file_path: str, checksum: str, template: dict
+    ) -> dict:
+        """Add from where the information was obtained."""
+        template[f"{trg}/PROCESS[process]/source/type"] = "file"
+        template[f"{trg}/PROCESS[process]/source/path"] = file_path
+        template[f"{trg}/PROCESS[process]/source/checksum"] = checksum
+        template[f"{trg}/PROCESS[process]/source/algorithm"] = (
+            DEFAULT_CHECKSUM_ALGORITHM
+        )
         return template
 
     def process_event_data_em_data(self, obj: dict, template: dict) -> dict:
@@ -153,12 +165,11 @@ class RsciioGatanParser(RsciioBaseParser):
 
         axis_names = None
         if unit_combination in GATAN_WHICH_SPECTRUM:
-            trg = f"{prfx}/SPECTRUM_SET[spectrum_set1]"
-            template[f"{trg}/PROCESS[process]/source/type"] = "file"
-            template[f"{trg}/PROCESS[process]/source/path"] = self.file_path
-            template[f"{trg}/PROCESS[process]/source/checksum"] = self.file_path_sha256
-            template[f"{trg}/PROCESS[process]/source/algorithm"] = (
-                DEFAULT_CHECKSUM_ALGORITHM
+            self.annotate_information_source(
+                f"{prfx}/SPECTRUM_SET[spectrum_set1]",
+                self.file_path,
+                self.file_path_sha256,
+                template,
             )
             trg = f"{prfx}/SPECTRUM_SET[spectrum_set1]/{GATAN_WHICH_SPECTRUM[unit_combination][0]}"
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
@@ -166,12 +177,11 @@ class RsciioGatanParser(RsciioBaseParser):
             template[f"{trg}/intensity"] = {"compress": obj["data"], "strength": 1}
             axis_names = GATAN_WHICH_SPECTRUM[unit_combination][1]
         elif unit_combination in GATAN_WHICH_IMAGE:
-            trg = f"{prfx}/IMAGE_SET[image_set1]"
-            template[f"{trg}/PROCESS[process]/source/type"] = "file"
-            template[f"{trg}/PROCESS[process]/source/path"] = self.file_path
-            template[f"{trg}/PROCESS[process]/source/checksum"] = self.file_path_sha256
-            template[f"{trg}/PROCESS[process]/source/algorithm"] = (
-                DEFAULT_CHECKSUM_ALGORITHM
+            self.annotate_information_source(
+                f"{prfx}/IMAGE_SET[image_set1]",
+                self.file_path,
+                self.file_path_sha256,
+                template,
             )
             trg = (
                 f"{prfx}/IMAGE_SET[image_set1]/{GATAN_WHICH_IMAGE[unit_combination][0]}"
@@ -181,11 +191,10 @@ class RsciioGatanParser(RsciioBaseParser):
             template[f"{trg}/real"] = {"compress": obj["data"], "strength": 1}
             axis_names = GATAN_WHICH_IMAGE[unit_combination][1]
         else:
+            self.annotate_information_source(
+                f"{prfx}/DATA[data1]", self.file_path, self.file_path_sha256, template
+            )
             trg = f"{prfx}/DATA[data1]"
-            # template[f"{trg}/PROCESS[process]/source/type"] = "file"
-            # template[f"{trg}/PROCESS[process]/source/path"] = self.file_path
-            # template[f"{trg}/PROCESS[process]/source/checksum"] = self.file_path_sha256
-            # template[f"{trg}/PROCESS[process]/source/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@NX_class"] = f"NXdata"
             template[f"{trg}/@signal"] = f"data"

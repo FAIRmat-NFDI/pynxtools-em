@@ -17,16 +17,18 @@
 #
 """Configuration of the image_tiff_tfs parser."""
 
+from typing import Any, Dict
+
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-TFS_STATIC_DETECTOR_TO_NX_EM = {
+TFS_STATIC_DETECTOR_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/detectorID[detector*]",
     "prefix_src": "",
     "map": [("local_name", "Detectors/Name")],
 }
 
 
-TFS_STATIC_APERTURE_TO_NX_EM = {
+TFS_STATIC_APERTURE_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/ebeam_column/apertureID[aperture*]",
     "prefix_src": "",
     "map": [("description", "Beam/Aperture")],
@@ -34,7 +36,7 @@ TFS_STATIC_APERTURE_TO_NX_EM = {
 }
 
 
-TFS_STATIC_VARIOUS_TO_NX_EM = {
+TFS_STATIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab",
     "prefix_src": "",
     "use": [("fabrication/vendor", "FEI")],
@@ -46,7 +48,7 @@ TFS_STATIC_VARIOUS_TO_NX_EM = {
 }
 
 
-TFS_DYNAMIC_OPTICS_TO_NX_EM = {
+TFS_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]",
     "prefix_src": "",
     "map_to_f8": [
@@ -56,24 +58,31 @@ TFS_DYNAMIC_OPTICS_TO_NX_EM = {
 }
 
 
-TFS_DYNAMIC_STAGE_TO_NX_EM = {
+TFS_DYNAMIC_STAGE_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
     "prefix_src": "",
     "map_to_f8": [
-        ("tilt1", ureg.radian, "EBeam/StageTa", ureg.radian),
-        ("tilt2", ureg.radian, "EBeam/StageTb", ureg.radian),
+        ("rotation", ureg.radian, "Stage/StageR", ureg.radian),
+        ("tilt1", ureg.radian, "Stage/StageTa", ureg.radian),
+        ("tilt2", ureg.radian, "Stage/StageTb", ureg.radian),
+        (
+            "position",
+            ureg.meter,
+            ["Stage/StageX", "Stage/StageY", "Stage/StageZ"],
+            ureg.meter,
+        ),
     ],
 }
 
 
-TFS_DYNAMIC_STIGMATOR_TO_NX_EM = {
+TFS_DYNAMIC_STIGMATOR_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column/corrector_ax",
     "prefix_src": "",
     "map_to_f8": [("value_x", "Beam/StigmatorX"), ("value_y", "Beam/StigmatorY")],
 }
 
 
-TFS_DYNAMIC_SCAN_TO_NX_EM = {
+TFS_DYNAMIC_SCAN_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
     "prefix_src": "",
     "map": [("scan_schema", "System/Scan")],
@@ -81,7 +90,7 @@ TFS_DYNAMIC_SCAN_TO_NX_EM = {
 }
 
 
-TFS_DYNAMIC_VARIOUS_TO_NX_EM = {
+TFS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "",
     "map": [
@@ -126,23 +135,6 @@ TFS_DYNAMIC_VARIOUS_TO_NX_EM = {
             ureg.ampere,
             "EBeam/BeamCurrent",
             ureg.ampere,
-        ),
-    ],
-}
-
-
-TFS_DYNAMIC_STAGE_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
-    "prefix_src": "",
-    "map_to_f8": [
-        ("rotation", ureg.radian, "Stage/StageR", ureg.radian),
-        ("tilt1", ureg.radian, "Stage/StageTa", ureg.radian),
-        ("tilt2", ureg.radian, "Stage/StageTb", ureg.radian),
-        (
-            "position",
-            ureg.meter,
-            ["Stage/StageX", "Stage/StageY", "Stage/StageZ"],
-            ureg.meter,
         ),
     ],
 }

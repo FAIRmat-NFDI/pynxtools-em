@@ -17,16 +17,18 @@
 #
 """Dict mapping custom schema instances from eln_data.yaml file on concepts in NXem."""
 
+from typing import Any, Dict
+
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-OASISELN_EM_ENTRY_TO_NEXUS = {
+OASISELN_EM_ENTRY_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]",
     "prefix_src": "entry/",
     "map": ["experiment_alias", "start_time", "end_time", "experiment_description"],
 }
 
 
-OASISELN_EM_SAMPLE_TO_NEXUS = {
+OASISELN_EM_SAMPLE_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/sample",
     "prefix_src": "sample/",
     "map": ["method", "name", "atom_types", "preparation_date"],
@@ -34,14 +36,14 @@ OASISELN_EM_SAMPLE_TO_NEXUS = {
 }
 
 
-OASISELN_EM_USER_TO_NEXUS = {
+OASISELN_EM_USER_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/USER[user*]",
     "prefix_src": "",
     "map": ["name", "affiliation", "address", "email", "telephone_number", "role"],
 }
 
 
-OASISELN_EM_USER_IDENTIFIER_TO_NEXUS = {
+OASISELN_EM_USER_IDENTIFIER_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/USER[user*]",
     "prefix_src": "",
     "use": [("identifier/service", "orcid"), ("identifier/is_persistent", True)],

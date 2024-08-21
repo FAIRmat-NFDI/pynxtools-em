@@ -17,9 +17,11 @@
 #
 """Configuration of the image_tiff_tescan parser."""
 
+from typing import Any, Dict
+
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-TESCAN_DYNAMIC_VARIOUS_TO_NX_EM = {
+TESCAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "",
     "map_to_f8": [
@@ -64,14 +66,14 @@ TESCAN_DYNAMIC_VARIOUS_TO_NX_EM = {
 }
 
 
-TESCAN_DYNAMIC_STIGMATOR_TO_NX_EM = {
+TESCAN_DYNAMIC_STIGMATOR_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column/corrector_ax",
     "prefix_src": "",
     "map_to_f8": [("value_x", "StigmatorX"), ("value_y", "StigmatorY")],
 }
 
 
-TESCAN_DYNAMIC_STAGE_TO_NX_EM = {
+TESCAN_DYNAMIC_STAGE_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
     "prefix_src": "",
     "map_to_f8": [
@@ -82,7 +84,7 @@ TESCAN_DYNAMIC_STAGE_TO_NX_EM = {
 }
 
 
-TESCAN_STATIC_VARIOUS_TO_NX_EM = {
+TESCAN_STATIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab",
     "prefix_src": "",
     "use": [("FABRICATION[fabrication]/vendor", "TESCAN")],

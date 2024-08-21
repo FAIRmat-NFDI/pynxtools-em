@@ -28,14 +28,14 @@ from PIL.TiffTags import TAGS
 # https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_tfs_cfg import (
-    TFS_DYNAMIC_OPTICS_TO_NX_EM,
-    TFS_DYNAMIC_SCAN_TO_NX_EM,
-    TFS_DYNAMIC_STAGE_TO_NX_EM,
-    TFS_DYNAMIC_STIGMATOR_TO_NX_EM,
-    TFS_DYNAMIC_VARIOUS_TO_NX_EM,
-    TFS_STATIC_APERTURE_TO_NX_EM,
-    TFS_STATIC_DETECTOR_TO_NX_EM,
-    TFS_STATIC_VARIOUS_TO_NX_EM,
+    TFS_DYNAMIC_OPTICS_NX,
+    TFS_DYNAMIC_SCAN_NX,
+    TFS_DYNAMIC_STAGE_NX,
+    TFS_DYNAMIC_STIGMATOR_NX,
+    TFS_DYNAMIC_VARIOUS_NX,
+    TFS_STATIC_APERTURE_NX,
+    TFS_STATIC_DETECTOR_NX,
+    TFS_STATIC_VARIOUS_NX,
 )
 from pynxtools_em.parsers.image_tiff import TiffParser
 from pynxtools_em.utils.image_utils import (
@@ -265,16 +265,16 @@ class TfsTiffParser(TiffParser):
         print(f"Mapping some of the TFS/FEI metadata on respective NeXus concepts...")
         identifier = [self.entry_id, self.event_id, 1]
         for cfg in [
-            TFS_STATIC_APERTURE_TO_NX_EM,
-            TFS_STATIC_DETECTOR_TO_NX_EM,
-            TFS_STATIC_VARIOUS_TO_NX_EM,
-            TFS_DYNAMIC_OPTICS_TO_NX_EM,
-            TFS_DYNAMIC_SCAN_TO_NX_EM,
-            TFS_DYNAMIC_VARIOUS_TO_NX_EM,
-            TFS_DYNAMIC_STIGMATOR_TO_NX_EM,
+            TFS_STATIC_APERTURE_NX,
+            TFS_STATIC_DETECTOR_NX,
+            TFS_STATIC_VARIOUS_NX,
+            TFS_DYNAMIC_OPTICS_NX,
+            TFS_DYNAMIC_SCAN_NX,
+            TFS_DYNAMIC_VARIOUS_NX,
+            TFS_DYNAMIC_STIGMATOR_NX,
         ]:  # TODO::static quantities may need to be splitted
             add_specific_metadata_pint(cfg, self.flat_dict_meta, identifier, template)
         add_specific_metadata_pint(
-            TFS_DYNAMIC_STAGE_TO_NX_EM, self.flat_dict_meta, identifier, template
+            TFS_DYNAMIC_STAGE_NX, self.flat_dict_meta, identifier, template
         )
         return template

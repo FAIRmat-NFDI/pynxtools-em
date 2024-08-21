@@ -108,7 +108,7 @@ class EMReader(BaseReader):
 
         print("Parse and map pieces of information within files from tech partners...")
         if len(case.dat) == 1:  # no sidecar file
-            tfs = TfsTiffParser(case.dat[0], entry_id, verbose=True)
+            tfs = TfsTiffParser(case.dat[0], entry_id, verbose=False)
             tfs.parse(template)
 
             zeiss = ZeissTiffParser(case.dat[0], entry_id, verbose=False)

@@ -32,12 +32,12 @@ from pynxtools_em.concepts.mapping_functors_pint import (
     var_path_to_spcfc_path,
 )
 from pynxtools_em.configurations.image_png_protochips_cfg import (
-    AXON_DYNAMIC_AUX_TO_NX_EM,
-    AXON_DYNAMIC_CHIP_TO_NX_EM,
-    AXON_STATIC_DETECTOR_TO_NX_EM,
-    AXON_DYNAMIC_STAGE_TO_NX_EM,
-    AXON_STATIC_STAGE_TO_NX_EM,
-    AXON_DYNAMIC_VARIOUS_TO_NX_EM,
+    AXON_DYNAMIC_AUX_NX,
+    AXON_DYNAMIC_CHIP_NX,
+    AXON_DYNAMIC_STAGE_NX,
+    AXON_DYNAMIC_VARIOUS_NX,
+    AXON_STATIC_DETECTOR_NX,
+    AXON_STATIC_STAGE_NX,
     specific_to_variadic,
 )
 from pynxtools_em.parsers.image_base import ImgsBaseParser
@@ -297,7 +297,7 @@ class ProtochipsPngSetParser(ImgsBaseParser):
 
             # static
             if toggle:
-                for cfg in [AXON_STATIC_DETECTOR_TO_NX_EM, AXON_STATIC_STAGE_TO_NX_EM]:
+                for cfg in [AXON_STATIC_DETECTOR_NX, AXON_STATIC_STAGE_NX]:
                     add_specific_metadata_pint(
                         cfg,
                         self.dict_meta[file_name],
@@ -307,9 +307,9 @@ class ProtochipsPngSetParser(ImgsBaseParser):
                 toggle = False
             # dynamic
             for cfg in [
-                AXON_DYNAMIC_CHIP_TO_NX_EM,
-                AXON_DYNAMIC_AUX_TO_NX_EM,
-                AXON_DYNAMIC_VARIOUS_TO_NX_EM,
+                AXON_DYNAMIC_CHIP_NX,
+                AXON_DYNAMIC_AUX_NX,
+                AXON_DYNAMIC_VARIOUS_NX,
             ]:
                 add_specific_metadata_pint(
                     cfg,
@@ -319,7 +319,7 @@ class ProtochipsPngSetParser(ImgsBaseParser):
                 )
             # additional dynamic data with currently different formatting
             add_specific_metadata_pint(
-                AXON_DYNAMIC_STAGE_TO_NX_EM,
+                AXON_DYNAMIC_STAGE_NX,
                 self.dict_meta[file_name],
                 identifier,
                 template,

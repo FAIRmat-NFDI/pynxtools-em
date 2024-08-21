@@ -17,9 +17,11 @@
 #
 """Configuration of the image_tiff_hitachi parser."""
 
+from typing import Any, Dict
+
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-HITACHI_DYNAMIC_VARIOUS_TO_NX_EM = {
+HITACHI_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "",
     "map_to_f8": [
@@ -48,7 +50,7 @@ HITACHI_DYNAMIC_VARIOUS_TO_NX_EM = {
 }
 
 
-HITACHI_STATIC_VARIOUS_TO_NX_EM = {
+HITACHI_STATIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab",
     "prefix_src": "",
     "use": [("FABRICATION[fabrication]/vendor", "Hitachi")],

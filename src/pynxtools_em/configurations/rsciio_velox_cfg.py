@@ -37,9 +37,24 @@ this can not work but has to be made explicit with an own function that is Velox
 MetadataSchema-version and NeXus NXem-schema-version-dependent for the lenses
 """
 
+from typing import Any, Dict
+
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-VELOX_STATIC_ENTRY_TO_NX_EM = {
+VELOX_WHICH_SPECTRUM = {
+    "eV": ("spectrum_0d", ["axis_energy"]),
+    "m_eV": ("spectrum_1d", ["axis_i", "axis_energy"]),
+    "m_m_eV": ("spectrum_2d", ["axis_j", "axis_i", "axis_energy"]),
+}
+VELOX_WHICH_IMAGE = {
+    "m": ("image_1d", ["axis_i"]),
+    "1/m": ("image_1d", ["axis_i"]),
+    "m_m": ("image_2d", ["axis_j", "axis_i"]),
+    "1/m_1/m": ("image_2d", ["axis_j", "axis_i"]),
+}
+
+
+VELOX_STATIC_ENTRY_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/control_program",
     "prefix_src": "",
     "use": [
@@ -52,7 +67,7 @@ VELOX_STATIC_ENTRY_TO_NX_EM = {
 }
 
 
-VELOX_STATIC_EBEAM_TO_NX_EM = {
+VELOX_STATIC_EBEAM_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/ebeam_column/electron_source",
     "prefix_src": "",
     "use": [("probe", "electron")],
@@ -60,26 +75,26 @@ VELOX_STATIC_EBEAM_TO_NX_EM = {
 }
 
 
-VELOX_STATIC_FABRICATION_TO_NX_EM = {
+VELOX_STATIC_FABRICATION_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/fabrication",
     "prefix_src": "",
     "map": [
         ("identifier", "Instrument/InstrumentId"),
         ("model", "Instrument/InstrumentModel"),
         ("vendor", "Instrument/Manufacturer"),
-        ("model", ["Instrument/InstrumentClass", "Instrument/InstrumentModel"]),
+        # ("model", ["Instrument/InstrumentClass", "Instrument/InstrumentModel"]),
     ],
 }
 
 
-VELOX_DYNAMIC_SCAN_TO_NX_EM = {
+VELOX_DYNAMIC_SCAN_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
     "prefix_src": "",
     "map_to_f8": [("dwell_time", ureg.second, "Scan/DwellTime", ureg.second)],
 }
 
 
-VELOX_DYNAMIC_OPTICS_TO_NX_EM = {
+VELOX_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]",
     "prefix_src": "",
     "map_to_f8": [
@@ -92,7 +107,7 @@ VELOX_DYNAMIC_OPTICS_TO_NX_EM = {
 # assume BeamConvergence is the semi_convergence_angle, needs clarification from vendors and colleagues
 
 
-VELOX_DYNAMIC_STAGE_TO_NX_EM = {
+VELOX_DYNAMIC_STAGE_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
     "prefix_src": "",
     "map": [("design", "Stage/HolderType")],
@@ -114,7 +129,7 @@ VELOX_DYNAMIC_STAGE_TO_NX_EM = {
 # is not a proper unit for an instance of NX_VOLTAGE
 
 
-VELOX_DYNAMIC_VARIOUS_TO_NX_EM = {
+VELOX_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "",
     "unix_to_iso8601": [
@@ -123,7 +138,7 @@ VELOX_DYNAMIC_VARIOUS_TO_NX_EM = {
 }
 
 
-VELOX_DYNAMIC_EBEAM_TO_NX_EM = {
+VELOX_DYNAMIC_EBEAM_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column",
     "prefix_src": "",
     "map": [("operation_mode", ["Optics/OperatingMode", "Optics/TemOperatingSubMode"])],

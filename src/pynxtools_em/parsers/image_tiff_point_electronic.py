@@ -25,7 +25,7 @@ import numpy as np
 from PIL import Image, ImageSequence
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_point_electronic_cfg import (
-    DISS_DYNAMIC_VARIOUS_TO_NX_EM,
+    DISS_DYNAMIC_VARIOUS_NX,
 )
 from pynxtools_em.parsers.image_tiff import TiffParser
 from pynxtools_em.utils.string_conversions import string_to_number
@@ -208,7 +208,7 @@ class PointElectronicTiffParser(TiffParser):
     def add_various_dynamic(self, template: dict) -> dict:
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata_pint(
-            DISS_DYNAMIC_VARIOUS_TO_NX_EM,
+            DISS_DYNAMIC_VARIOUS_NX,
             self.tmp["flat_dict_meta"],
             identifier,
             template,
