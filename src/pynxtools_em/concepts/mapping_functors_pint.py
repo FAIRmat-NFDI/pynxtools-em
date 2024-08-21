@@ -341,10 +341,19 @@ def map_functor(
             if isinstance(src_values, ureg.Quantity):
                 set_value(template, trg, src_values, trg_dtype_key)
             else:
+                # potentially a list of ureg.Quantities with different scaling
+                normalize = []
+                for val in src_values:
+                    if isinstance(val, ureg.Quantity):
+                        normalize.append(val.to(cmd[1]).magnitude)
+                    else:
+                        raise TypeError(
+                            "Unimplemented case for {val} in case_three_list !"
+                        )
                 set_value(
                     template,
                     trg,
-                    ureg.Quantity(src_values, cmd[1].units),
+                    ureg.Quantity(normalize, cmd[1]),
                     trg_dtype_key,
                 )
         elif case.startswith("case_four"):
