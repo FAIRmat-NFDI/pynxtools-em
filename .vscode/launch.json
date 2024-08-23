@@ -9,7 +9,7 @@
             "type": "debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": ".py3.12.4/bin/dataconverter",
+            "program": "../.py3.12.4/bin/dataconverter",
             "args": ["convert",
                      // eln_data/oasis_specific
                      //"examples/em.conventions.yaml",
@@ -34,7 +34,11 @@
                      //"tfs/ETD_image.tif",
                      //"tfs/NavCam_normal_vis_light_ccd.tif",
                      //"tfs/T3_image.tif",
-                     "velox/CG71113 1138 Ceta 660 mm Camera.emd",
+                     //"velox/CG71113 1138 Ceta 660 mm Camera.emd",
+                     //"../apex/InGaN_nanowires_linescan.edaxh5",
+                     //"../apex/InGaN_nanowires_map.edaxh5",
+                     //"../apex/InGaN_nanowires_spectra.edaxh5",
+                     //"../apex/2023-08-16_Ni_NFDI.edaxh5",
                      "--reader",
                      "em",
                      "--nxdl",
@@ -51,7 +55,7 @@
                      //"--output=dbg/tescan.nxs",
                      //"--output=pynxtools_em/dbg/zeiss.nxs",
                      //"--output=pynxtools_em/dbg/tfs.nxs",
-                     "--output=pynxtools_em/dbg/velox.nxs"],
+                     //"--output=dbg/apex.nxs"],
         }
     ]
 }
