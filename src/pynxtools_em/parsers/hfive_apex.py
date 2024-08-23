@@ -22,11 +22,16 @@ from typing import Dict
 import h5py
 import numpy as np
 from diffpy.structure import Lattice, Structure
+
+"""
 from orix.quaternion import Orientation
+"""
 from pynxtools_em.concepts.nxs_em_eds_indexing import NxEmEdsIndexing
 from pynxtools_em.concepts.nxs_image_set import NxImageRealSpaceSet
 from pynxtools_em.concepts.nxs_object import NxObject
 from pynxtools_em.concepts.nxs_spectrum_set import NxSpectrumSet
+
+"""
 from pynxtools_em.examples.ebsd_database import (
     ASSUME_PHASE_NAME_TO_SPACE_GROUP,
     FLIGHT_PLAN,
@@ -34,6 +39,7 @@ from pynxtools_em.examples.ebsd_database import (
     REGULAR_TILING,
     SQUARE_TILING,
 )
+"""
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.get_scan_points import get_scan_point_coords
 from pynxtools_em.utils.get_xrayline_iupac_names import get_xrayline_candidates
@@ -125,6 +131,7 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
                                 h5r[f"/{grp_nm}/{sub_grp_nm}/{sub_sub_grp_nm}"]
                             )
                             for area_grp_nm in area_grp_nms:
+                                """
                                 if area_grp_nm.startswith("OIM Map"):
                                     self.prfx = f"/{grp_nm}/{sub_grp_nm}/{sub_sub_grp_nm}/{area_grp_nm}"
                                     print(f"Parsing {self.prfx}")
@@ -138,6 +145,7 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
                                     self.parse_and_normalize_group_ebsd_data(h5r, ckey)
                                     self.parse_and_normalize_group_ebsd_check(ckey)
                                     self.cache_id += 1
+                                """
 
                                 # EDAX, APEX distinguishes different concept/groups:
                                 # FOV*, full area rectangular region plus siblings
@@ -201,6 +209,7 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
                                     self.parse_and_normalize_eds_line_lsd(h5r)
                                     self.parse_and_normalize_eds_line_rois(h5r)
 
+    '''
     def parse_and_normalize_group_ebsd_header(self, fp, ckey: str):
         # no official documentation yet from EDAX/APEX, deeply nested, chunking, virtual ds
         if f"{self.prfx}/EBSD/ANG/DATA/DATA" not in fp:
@@ -418,6 +427,7 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         """Check if all relevant data for EBSD are available, if not clear the cache."""
         # TODO::implement check and clearing procedure
         pass
+    '''
 
     def parse_and_normalize_eds_fov(self, fp):
         """Normalize and scale APEX-specific FOV/ROI image to NeXus."""

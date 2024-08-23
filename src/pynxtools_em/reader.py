@@ -36,6 +36,11 @@ from pynxtools_em.parsers.image_tiff_zeiss import ZeissTiffParser
 from pynxtools_em.parsers.nxs_mtex import NxEmNxsMTexParser
 from pynxtools_em.parsers.nxs_nion import NionProjectParser
 from pynxtools_em.parsers.nxs_pyxem import NxEmNxsPyxemParser
+
+# deactivated because numba cant initiate its cache on NOMAD OASIS container
+# thus kikuchipy and pyxem are in this combination with orix currently not
+# working in 1d3e228c87049e40c0ef65dd60cc220f6df469a1
+# https://gitlab.mpcdf.mpg.de/nomad-lab/nomad-distro/-/blob/test-oasis/pyproject.toml?ref_type=heads
 from pynxtools_em.parsers.oasis_config_reader import (
     NxEmNomadOasisConfigurationParser,
 )

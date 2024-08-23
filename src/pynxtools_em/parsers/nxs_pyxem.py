@@ -37,19 +37,25 @@ import os
 
 import matplotlib.pyplot as plt  # in the hope that this closes figures with orix plot
 import numpy as np
+
+"""
 from orix import plot
 from orix.quaternion import Rotation
 from orix.quaternion.symmetry import get_point_group
 from orix.vector import Vector3d
+"""
 from PIL import Image as pil
 from pynxtools_em.concepts.nxs_image_set import NxImageRealSpaceSet
 from pynxtools_em.parsers.hfive_apex import HdfFiveEdaxApexReader
+
+"""
 from pynxtools_em.parsers.hfive_bruker import HdfFiveBrukerEspritReader
 from pynxtools_em.parsers.hfive_dreamthreed import HdfFiveDreamThreedReader
 from pynxtools_em.parsers.hfive_ebsd import HdfFiveCommunityReader
 from pynxtools_em.parsers.hfive_edax import HdfFiveEdaxOimAnalysisReader
 from pynxtools_em.parsers.hfive_emsoft import HdfFiveEmSoftReader
 from pynxtools_em.parsers.hfive_oxford import HdfFiveOxfordReader
+"""
 from pynxtools_em.utils.get_scan_points import (
     get_scan_point_axis_values,
     get_scan_point_coords,
@@ -68,6 +74,7 @@ from pynxtools_em.utils.hfive_web_constants import (
 from pynxtools_em.utils.hfive_web_utils import hfive_web_decorate_nxdata
 from pynxtools_em.utils.image_processing import thumbnail
 
+'''
 PROJECTION_VECTORS = [Vector3d.xvector(), Vector3d.yvector(), Vector3d.zvector()]
 PROJECTION_DIRECTIONS = [
     ("X", Vector3d.xvector().data.flatten()),
@@ -101,6 +108,7 @@ def get_ipfdir_legend(ipf_key):
     if os.path.exists("temporary.png"):
         os.remove("temporary.png")
     return img
+'''
 
 
 class NxEmNxsPyxemParser:
@@ -166,6 +174,7 @@ class NxEmNxsPyxemParser:
         # h5web to show the IPF color maps but deal with the fact that h5web has so far
         # not been designed to deal with images as large as several thousand pixels along
         # either dimension
+        """
         if hfive_parser_type == "oxford":
             oina = HdfFiveOxfordReader(self.file_path)
             oina.parse_and_normalize()
@@ -174,10 +183,12 @@ class NxEmNxsPyxemParser:
             bruker = HdfFiveBrukerEspritReader(self.file_path)
             bruker.parse_and_normalize()
             self.process_into_template(bruker.tmp, template)
-        elif hfive_parser_type == "apex":
+        """
+        if hfive_parser_type == "apex":
             apex = HdfFiveEdaxApexReader(self.file_path)
             apex.parse_and_normalize()
             self.process_into_template(apex.tmp, template)
+        """
         elif hfive_parser_type == "edax":
             edax = HdfFiveEdaxOimAnalysisReader(self.file_path)
             edax.parse_and_normalize()
@@ -196,6 +207,7 @@ class NxEmNxsPyxemParser:
             self.process_into_template(dreamthreed.tmp, template)
         else:  # none or something unsupported
             return template
+        """
         return template
 
     def identify_hfive_type(self):
@@ -206,15 +218,18 @@ class NxEmNxsPyxemParser:
             if magic != b"\x89HDF":
                 return None
         # tech partner formats used for measurement
+        """
         hdf = HdfFiveOxfordReader(self.file_path)
         if hdf.supported is True:
             return "oxford"
         hdf = HdfFiveEdaxOimAnalysisReader(self.file_path)
         if hdf.supported is True:
             return "edax"
+        """
         hdf = HdfFiveEdaxApexReader(self.file_path)
         if hdf.supported is True:
             return "apex"
+        """
         hdf = HdfFiveBrukerEspritReader(self.file_path)
         if hdf.supported is True:
             return "bruker"
@@ -228,6 +243,7 @@ class NxEmNxsPyxemParser:
         hdf = HdfFiveDreamThreedReader(self.file_path)
         if hdf.supported is True:
             return "dreamthreed"
+        """
         return None
 
     def process_into_template(self, inp: dict, template: dict) -> dict:
@@ -241,7 +257,9 @@ class NxEmNxsPyxemParser:
                     print(f"{key}, {val}")
 
         self.process_roi_overview(inp, template)
+        """
         self.process_roi_ebsd_maps(inp, template)
+        """
         self.process_roi_eds_spectra(inp, template)
         self.process_roi_eds_maps(inp, template)
 
@@ -265,15 +283,18 @@ class NxEmNxsPyxemParser:
 
     def process_roi_overview(self, inp: dict, template: dict) -> dict:
         for ckey in inp.keys():
+            """
             if ckey.startswith("ebsd") and inp[ckey] != {}:
                 self.process_roi_overview_ebsd_based(
                     inp[ckey], ckey.replace("ebsd", ""), template
                 )
                 # break  # only one roi for now
+            """
             if ckey.startswith("eds_roi") and inp[ckey] != {}:
                 self.process_roi_overview_eds_based(inp[ckey], template)
         return template
 
+    """
     def process_roi_overview_ebsd_based(
         self, inp: dict, roi_id: str, template: dict
     ) -> dict:
@@ -383,6 +404,7 @@ class NxEmNxsPyxemParser:
             )
             template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit}"
         return template
+    """
 
     def process_roi_overview_eds_based(self, inp, template: dict) -> dict:
         trg = (
@@ -417,6 +439,7 @@ class NxEmNxsPyxemParser:
         self.id_mgn["event"] += 1
         return template
 
+    '''
     def process_roi_ebsd_maps(self, inp: dict, template: dict) -> dict:
         for ckey in inp.keys():
             if ckey.startswith("ebsd") and inp[ckey] != {}:
@@ -805,6 +828,7 @@ class NxEmNxsPyxemParser:
                 )
                 template[f"{lgd}/AXISNAME[axis_{dim}]/@units"] = "px"
         return template
+    '''
 
     def process_roi_eds_spectra(self, inp: dict, template: dict) -> dict:
         for ckey in inp.keys():
