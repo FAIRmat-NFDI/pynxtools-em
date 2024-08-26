@@ -112,9 +112,7 @@ class HitachiTiffParser(TiffParser):
                 if len(tmp) == 2 and all(token != "" for token in tmp):
                     try:
                         self.flat_dict_meta[tmp[0]] = ureg.Quantity(tmp[1])
-                    except UndefinedUnitError:
-                        self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
-                    except TokenError:
+                    except (UndefinedUnitError, TokenError):
                         self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
 
             if self.verbose:
