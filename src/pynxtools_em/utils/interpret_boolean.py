@@ -17,6 +17,8 @@
 #
 """Interpret different human-readable forms of a boolean statement to boolean."""
 
+from typing import Any
+
 HUMAN_BOOLEAN_STATEMENT = {
     "0": False,
     "1": True,
@@ -29,10 +31,18 @@ HUMAN_BOOLEAN_STATEMENT = {
 }
 
 
-def try_interpret_as_boolean(arg: str) -> bool:
+def try_interpret_as_boolean(arg: Any) -> bool:
     """Try to interpret a human string statement if boolean be strict."""
-    if arg.lower() in HUMAN_BOOLEAN_STATEMENT:
-        return HUMAN_BOOLEAN_STATEMENT[arg.lower()]
-    raise KeyError(
-        f"try_to_interpret_as_boolean argument {arg} does not yield key even for {arg.lower()}!"
-    )
+    if isinstance(arg, bool):
+        return arg
+    elif isinstance(arg, str):
+        if arg.lower() in HUMAN_BOOLEAN_STATEMENT:
+            return HUMAN_BOOLEAN_STATEMENT[arg.lower()]
+        else:
+            raise KeyError(
+                f"try_to_interpret_as_boolean argument {arg} does not yield key even for {arg.lower()}!"
+            )
+    else:
+        raise ValueError(
+            f"try_to_interpret_as_boolean argument {arg} cannot be converted to bool !"
+        )

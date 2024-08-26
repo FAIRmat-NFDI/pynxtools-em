@@ -30,10 +30,8 @@ class TiffParser(ImgsBaseParser):
 
     def __init__(self, file_path: str = ""):
         super().__init__(file_path)
-        self.prfx = None
         self.tmp: Dict = {}
-        self.supported_version: Dict = {}
-        self.version: Dict = {}
+        self.version: Dict = {}  # trg target versions supported, src actual
         self.tags: Dict = {}
         self.supported = False
         self.check_if_tiff()
@@ -89,11 +87,3 @@ class TiffParser(ImgsBaseParser):
                 self.tags = {TAGS[key]: fp.tag[key] for key in fp.tag_v2}
                 for key, val in self.tags.items():
                     print(f"{key}, {val}")
-
-    def parse_and_normalize(self):
-        """Perform actual parsing filling cache self.tmp."""
-        if self.supported is True:
-            print(f"Parsing via TiffParser...")
-            self.get_tags()
-        else:
-            print(f"{self.file_path} is not a TIFF file this parser can process !")
