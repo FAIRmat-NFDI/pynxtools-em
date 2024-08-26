@@ -26,7 +26,6 @@ VALID_FILE_NAME_SUFFIX_DATA = [
     ".dm4",
     ".tiff",
     ".tif",
-    ".zip.axon",
     ".zip",
     ".nsproj",
     ".edaxh5",
@@ -36,6 +35,7 @@ VALID_FILE_NAME_SUFFIX_DATA = [
     ".mtex.h5",
     ".dream3d",
     ".txt",
+    ".hdr",
 ]
 
 

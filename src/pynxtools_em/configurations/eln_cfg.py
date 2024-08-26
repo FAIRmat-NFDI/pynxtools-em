@@ -17,63 +17,35 @@
 #
 """Dict mapping custom schema instances from eln_data.yaml file on concepts in NXem."""
 
-# mapping instructions as a dictionary
-#   prefix is the (variadic prefix to be add to every path on the target side)
-#   different modifiers are used
-#       "use": list of pair of trg, src endpoint, take the value in src copy into trg
-#       "load": list of single value or pair (trg, src)
-#           if single value this means that the endpoint of trg and src is the same
-#           e.g. in the example below "name" means
-#           ("/ENTRY[entry*]/USER[user*]/name, "load", "name")
-#           if pair load the value pointed to by src and copy into trg
-#       difference between load and map_to is that load assumes no e.g. string to real
-#       conversion is required while map_does not assume this
-#       and instead does the conversion also
+from typing import Any, Dict
 
-EM_ENTRY_TO_NEXUS = {
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
+
+OASISELN_EM_ENTRY_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]",
     "prefix_src": "entry/",
-    "map_to_str": [
-        "experiment_alias",
-        "start_time",
-        "end_time",
-        "experiment_description",
-    ],
+    "map": ["experiment_alias", "start_time", "end_time", "experiment_description"],
 }
 
 
-EM_SAMPLE_TO_NEXUS = {
+OASISELN_EM_SAMPLE_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/sample",
     "prefix_src": "sample/",
-    "map_to_str": [("thickness/@units", "thickness/unit")],
-    "map": [
-        "method",
-        "name",
-        "atom_types",
-        "preparation_date",
-        ("thickness", "thickness/value"),
-    ],
+    "map": ["method", "name", "atom_types", "preparation_date"],
+    "map_to_f8": [("thickness", ureg.meter, "thickness/value", "thickness/unit")],
 }
 
 
-EM_USER_TO_NEXUS = {
+OASISELN_EM_USER_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/USER[user*]",
-    "map": [
-        "name",
-        "affiliation",
-        "address",
-        "email",
-        "telephone_number",
-        "role",
-    ],
+    "prefix_src": "",
+    "map": ["name", "affiliation", "address", "email", "telephone_number", "role"],
 }
 
 
-EM_USER_IDENTIFIER_TO_NEXUS = {
+OASISELN_EM_USER_IDENTIFIER_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/USER[user*]",
-    "use": [
-        ("IDENTIFIER[identifier]/identifier", "orcid"),
-        ("IDENTIFIER[identifier]/service", "orcid"),
-        ("IDENTIFIER[identifier]/is_persistent", True),
-    ],
+    "prefix_src": "",
+    "use": [("identifier/service", "orcid"), ("identifier/is_persistent", True)],
+    "map": [("identifier/identifier", "orcid")],
 }

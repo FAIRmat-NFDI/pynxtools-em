@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Subparser for harmonizing Zeiss-specific content in TIFF files."""
+"""Parser for harmonizing Zeiss-specific content in TIFF files."""
 
 import mmap
 import re
@@ -29,8 +29,9 @@ from PIL.TiffTags import TAGS
 from pint import UndefinedUnitError
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_zeiss_cfg import (
-    ZEISS_VARIOUS_DYNAMIC_TO_NX_EM,
-    ZEISS_VARIOUS_STATIC_TO_NX_EM,
+    ZEISS_DYNAMIC_STAGE_NX,
+    ZEISS_DYNAMIC_VARIOUS_NX,
+    ZEISS_STATIC_VARIOUS_NX,
 )
 from pynxtools_em.parsers.image_tiff import TiffParser
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
@@ -45,20 +46,16 @@ class ZeissTiffParser(TiffParser):
         self.entry_id = entry_id
         self.event_id = 1
         self.verbose = verbose
-        self.prfx = None
-        self.tmp: Dict = {"data": None, "flat_dict_meta": fd.FlatDict({})}
-        self.supported_version: Dict = {}
-        self.version: Dict = {}
-        self.tags: Dict = {}
+        self.flat_dict_meta = fd.FlatDict({}, "/")
+        self.version: Dict = {
+            "trg": {
+                "tech_partner": ["Zeiss"],
+                "schema_name": ["Zeiss"],
+                "schema_version": ["V06.03.00.00 : 15-Dec-17"],
+            }
+        }
         self.supported = False
-        self.init_support()
         self.check_if_tiff_zeiss()
-
-    def init_support(self):
-        """Init supported versions."""
-        self.supported_version["tech_partner"] = ["Zeiss"]
-        self.supported_version["schema_name"] = ["Zeiss"]
-        self.supported_version["schema_version"] = ["V06.03.00.00 : 15-Dec-17"]
 
     def get_metadata(self, payload: str):
         """Extract metadata in Zeiss-specific tags if present, return version if success."""
@@ -70,85 +67,65 @@ class ZeissTiffParser(TiffParser):
         while not txt[idx].startswith(ZEISS_CONCEPT_PREFIXES):
             idx += 1
 
-        self.tmp["flat_dict_meta"] = fd.FlatDict({}, "/")
+        self.flat_dict_meta = fd.FlatDict({}, "/")
         for line in txt[idx : len(txt) - 1]:
             match = re.search(r"^(\w{2})_", line)
             if (
                 match
                 and line.startswith(ZEISS_CONCEPT_PREFIXES)
-                and line not in self.tmp["flat_dict_meta"]
+                and line not in self.flat_dict_meta
             ):
                 token = [value.strip() for value in txt[idx + 1].strip().split("=")]
                 if len(token) == 1:
                     if token[0].startswith("Time :"):
                         if token[0].replace("Time :", ""):
-                            self.tmp["flat_dict_meta"][line] = token[0].replace(
-                                "Time :", ""
-                            )
+                            self.flat_dict_meta[line] = token[0].replace("Time :", "")
                     elif token[0].startswith("Date :"):
                         if token[0].replace("Date :", ""):
-                            self.tmp["flat_dict_meta"][line] = token[0].replace(
-                                "Date :", ""
-                            )
+                            self.flat_dict_meta[line] = token[0].replace("Date :", "")
                     else:
                         print(f"WARNING::Ignoring line {line} token {token} !")
                 else:
                     tmp = [value.strip() for value in token[1].split()]
                     if len(tmp) == 1 and tmp[0] in ["On", "Yes"]:
-                        self.tmp["flat_dict_meta"][line] = True
+                        self.flat_dict_meta[line] = True
                     elif len(tmp) == 1 and tmp[0] in ["Off", "No"]:
-                        self.tmp["flat_dict_meta"][line] = False
+                        self.flat_dict_meta[line] = False
                     elif len(tmp) == 2 and tmp[1] == "°C":
-                        self.tmp["flat_dict_meta"][line] = ureg.Quantity(
-                            tmp[0], ureg.degC
-                        )
+                        self.flat_dict_meta[line] = ureg.Quantity(tmp[0], ureg.degC)
                     elif len(tmp) == 2 and tmp[1] == "X":
-                        self.tmp["flat_dict_meta"][line] = ureg.Quantity(tmp[0])
+                        self.flat_dict_meta[line] = ureg.Quantity(tmp[0])
                     elif len(tmp) == 3 and tmp[1] == "K" and tmp[2] == "X":
-                        self.tmp["flat_dict_meta"][line] = (
-                            ureg.Quantity(tmp[0]) * 1000.0
-                        )
+                        self.flat_dict_meta[line] = ureg.Quantity(tmp[0]) * 1000.0
                     else:
                         try:
-                            self.tmp["flat_dict_meta"][line] = ureg.Quantity(token[1])
-                        except UndefinedUnitError:
+                            self.flat_dict_meta[line] = ureg.Quantity(token[1])
+                        except (
+                            UndefinedUnitError,
+                            TokenError,
+                            ValueError,
+                            AttributeError,
+                        ):
                             if token[1]:
-                                self.tmp["flat_dict_meta"][line] = string_to_number(
-                                    token[1]
-                                )
-                        except TokenError:
-                            if token[1]:
-                                self.tmp["flat_dict_meta"][line] = string_to_number(
-                                    token[1]
-                                )
-                        except ValueError:
-                            if token[1]:
-                                self.tmp["flat_dict_meta"][line] = string_to_number(
-                                    token[1]
-                                )
-                        except AttributeError:
-                            if token[1]:
-                                self.tmp["flat_dict_meta"][line] = string_to_number(
-                                    token[1]
-                                )
+                                self.flat_dict_meta[line] = string_to_number(token[1])
             idx += 1
         if self.verbose:
-            for key, value in self.tmp["flat_dict_meta"].items():
-                if isinstance(value, ureg.Quantity):
-                    # try:
-                    #     if not value.dimensionless:
-                    #         print(f"{value}, {type(value)}, {key}")
-                    # except:
-                    #     print(f"{value}, {type(value)}, {key}")
-                    continue
-                else:
-                    print(f"{value}, {type(value)}, {key}")
-        if "SV_VERSION" in self.tmp["flat_dict_meta"]:
-            return self.tmp["flat_dict_meta"]["SV_VERSION"]
+            for key, value in self.flat_dict_meta.items():
+                # if isinstance(value, ureg.Quantity):
+                # try:
+                #     if not value.dimensionless:
+                #         print(f"{value}, {type(value)}, {key}")
+                # except:
+                #     print(f"{value}, {type(value)}, {key}")
+                # continue
+                # else:
+                print(f"{key}____{type(value)}____{value}")
+        if "SV_VERSION" in self.flat_dict_meta:
+            return self.flat_dict_meta["SV_VERSION"]
 
     def check_if_tiff_zeiss(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file."""
-        self.supported = False  # try to falsify
+        self.supported = False
         with open(self.file_path, "rb", 0) as file:
             s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
             magic = s.read(4)
@@ -164,29 +141,26 @@ class ZeissTiffParser(TiffParser):
                 if zeiss_key in fp.tag_v2:
                     this_version = self.get_metadata(fp.tag_v2[zeiss_key])
 
-                    if this_version not in self.supported_version["schema_version"]:
+                    if this_version not in self.version["trg"]["schema_version"]:
                         print(
                             f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
                         )
                         return
+                    else:
+                        self.supported = True
 
-        self.supported = True
-
-    def parse_and_normalize(self):
+    def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache self.tmp."""
         if self.supported is True:
             print(f"Parsing via Zeiss-specific metadata...")
             # metadata have at this point already been collected into an fd.FlatDict
+            self.process_event_data_em_metadata(template)
+            self.process_event_data_em_data(template)
         else:
             print(
                 f"{self.file_path} is not a Zeiss-specific "
                 f"TIFF file that this parser can process !"
             )
-
-    def process_into_template(self, template: dict) -> dict:
-        if self.supported is True:
-            self.process_event_data_em_metadata(template)
-            self.process_event_data_em_data(template)
         return template
 
     def process_event_data_em_data(self, template: dict) -> dict:
@@ -221,16 +195,21 @@ class ZeissTiffParser(TiffParser):
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Signal"
 
-                sxy = {"i": 1.0, "j": 1.0}
-                scan_unit = {"i": "m", "j": "m"}
-                if "APImagePixelSize" in self.tmp["flat_dict_meta"]:
-                    pixel_size = (
-                        self.tmp["flat_dict_meta"]["APImagePixelSize"]
-                        .to(ureg.meter)
-                        .magnitude
-                    )
-                    sxy = {"i": pixel_size, "j": pixel_size}
-                else:
+                sxy = {
+                    "i": ureg.Quantity(1.0, ureg.meter),
+                    "j": ureg.Quantity(1.0, ureg.meter),
+                }
+                found = False
+                for key in ["AP_PIXEL_SIZE", "APImagePixelSize"]:
+                    if key in self.flat_dict_meta:
+                        sxy = {
+                            "i": self.flat_dict_meta[key],
+                            "j": self.flat_dict_meta[key],
+                        }
+                        # to(ureg.meter).magnitude
+                        found = True
+                        break
+                if not found:
                     print("WARNING: Assuming pixel width and height unit is meter!")
                 nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
                 # TODO::be careful we assume here a very specific coordinate system
@@ -240,15 +219,15 @@ class ZeissTiffParser(TiffParser):
                     template[f"{trg}/AXISNAME[axis_{dim}]"] = {
                         "compress": np.asarray(
                             np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
-                            * sxy[dim],
+                            * sxy[dim].magnitude,
                             np.float64,
                         ),
                         "strength": 1,
                     }
                     template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                        f"Coordinate along {dim}-axis ({scan_unit[dim]})"
+                        f"Coordinate along {dim}-axis ({sxy[dim].units})"
                     )
-                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit[dim]}"
+                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
                 image_identifier += 1
         return template
 
@@ -257,11 +236,17 @@ class ZeissTiffParser(TiffParser):
         # contextualization to understand how the image relates to the EM session
         print(f"Mapping some of the Zeiss metadata on respective NeXus concepts...")
         identifier = [self.entry_id, self.event_id, 1]
-        for cfg in [ZEISS_VARIOUS_DYNAMIC_TO_NX_EM, ZEISS_VARIOUS_STATIC_TO_NX_EM]:
+        for cfg in [
+            ZEISS_DYNAMIC_VARIOUS_NX,
+            ZEISS_STATIC_VARIOUS_NX,
+        ]:
             add_specific_metadata_pint(
                 cfg,
-                self.tmp["flat_dict_meta"],
+                self.flat_dict_meta,
                 identifier,
                 template,
             )
+        add_specific_metadata_pint(
+            ZEISS_DYNAMIC_STAGE_NX, self.flat_dict_meta, identifier, template
+        )
         return template
