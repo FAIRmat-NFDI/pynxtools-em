@@ -444,28 +444,28 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         self.tmp[ckey] = NxImageRealSpaceSet()
         self.tmp[ckey].tmp["source"] = f"{src}/FOVIMAGE"
         nyx = {
-            "y": fp[f"{src}/FOVIMAGE"].attrs["PixelHeight"][0],
-            "x": fp[f"{src}/FOVIMAGE"].attrs["PixelWidth"][0],
+            "j": fp[f"{src}/FOVIMAGE"].attrs["PixelHeight"][0],
+            "i": fp[f"{src}/FOVIMAGE"].attrs["PixelWidth"][0],
         }
         syx = {
-            "x": fp[f"{src}/FOVIPR"]["MicronsPerPixelX"][0],
-            "y": fp[f"{src}/FOVIPR"]["MicronsPerPixelY"][0],
+            "j": fp[f"{src}/FOVIPR"]["MicronsPerPixelY"][0],
+            "i": fp[f"{src}/FOVIPR"]["MicronsPerPixelX"][0],
         }
-        scan_unit = {"x": "µm", "y": "µm"}
+        scan_unit = {"i": "µm", "j": "µm"}
         # is micron because MicronsPerPixel{dim} used by EDAX
-        self.tmp[ckey].tmp["image_twod/intensity"].value = np.reshape(
-            np.asarray(fp[f"{src}/FOVIMAGE"]), (nyx["y"], nyx["x"])
+        self.tmp[ckey].tmp["image_2d/real"].value = np.reshape(
+            np.asarray(fp[f"{src}/FOVIMAGE"]), (nyx["j"], nyx["i"])
         )
-        dims = ["y", "x"]
+        dims = ["j", "i"]
         for dim in dims:
-            self.tmp[ckey].tmp[f"image_twod/axis_{dim}"].value = np.asarray(
+            self.tmp[ckey].tmp[f"image_2d/axis_{dim}"].value = np.asarray(
                 0.0
                 + np.linspace(0.0, nyx[dim] - 1, num=nyx[dim], endpoint=True)
                 * syx[dim],
-                syx["x"].dtype,
+                syx[dim].dtype,
             )
             self.tmp[ckey].tmp[
-                f"image_twod/axis_{dim}@long_name"
+                f"image_2d/axis_{dim}@long_name"
             ].value = f"Position along {dim} ({scan_unit[dim]})"
         self.cache_id += 1
 
@@ -499,7 +499,7 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         e_zero = fp[f"{src}/SPC"]["eVOffset"][0]
         e_delta = fp[f"{src}/SPC"]["evPch"][0]
         e_n = fp[f"{src}/SPC"]["NumberOfPoints"][0]
-        self.tmp[ckey].tmp["spectrum_zerod/axis_energy"].value = (
+        self.tmp[ckey].tmp["spectrum_0d/axis_energy"].value = (
             e_zero
             + np.asarray(
                 e_delta * np.linspace(0.0, int(e_n) - 1, num=int(e_n), endpoint=True),
@@ -507,13 +507,11 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
             )
             / 1000.0
         )  # keV
-        self.tmp[ckey].tmp[
-            "spectrum_zerod/axis_energy@long_name"
-        ].value = "Energy (keV)"
-        self.tmp[ckey].tmp["spectrum_zerod/intensity"].value = np.asarray(
+        self.tmp[ckey].tmp["spectrum_0d/axis_energy@long_name"].value = "Energy (keV)"
+        self.tmp[ckey].tmp["spectrum_0d/real"].value = np.asarray(
             fp[f"{src}/SPC"]["SpectrumCounts"][0], np.int32
         )
-        self.tmp[ckey].tmp["spectrum_zerod/intensity@long_name"].value = f"Count (1)"
+        self.tmp[ckey].tmp["spectrum_0d/real@long_name"].value = f"Count (1)"
         self.cache_id += 1
 
         for key, obj in self.tmp[ckey].tmp.items():
@@ -657,7 +655,7 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         ckey = self.init_named_cache(f"eds_map{self.cache_id}")
         self.tmp[ckey] = NxEmEdsIndexing()
         self.tmp[ckey].tmp["source"] = f"{src}/ROIs"
-        self.tmp[ckey].tmp["IMAGE_R_SET"] = []
+        self.tmp[ckey].tmp["IMAGE_SET"] = []
 
         e_zero = fp[f"{src}/SPC"]["eVOffset"][0]
         e_delta = fp[f"{src}/SPC"]["evPch"][0]
@@ -667,13 +665,13 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
             e_zero.dtype,
         )  # eV, as xraydb demands
         nxy = {
-            "x": fp[f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["ResolutionX"],
-            "y": fp[f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["ResolutionY"],
-            "lx": fp[f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["mmFieldWidth"],
-            "ly": fp[f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["mmFieldHeight"],
+            "i": fp[f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["ResolutionX"],
+            "j": fp[f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["ResolutionY"],
+            "li": fp[f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["mmFieldWidth"],
+            "lj": fp[f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["mmFieldHeight"],
         }
-        sxy = {"x": nxy["lx"] / nxy["x"], "y": nxy["ly"] / nxy["y"]}
-        scan_unit = {"x": "µm", "y": "µm"}
+        sxy = {"i": nxy["li"] / nxy["i"], "j": nxy["lj"] / nxy["j"]}
+        scan_unit = {"i": "µm", "j": "µm"}
         for entry in uniq:
             eds_map = NxImageRealSpaceSet()
             eds_map.tmp["source"] = f"{src}/ROIs/{entry}"
@@ -690,24 +688,24 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
             eds_map.tmp["iupac_line_candidates"] = ", ".join(
                 get_xrayline_candidates(e_channels[e_roi_s], e_channels[e_roi_e + 1])
             )
-            for dim in ["x", "y"]:
-                eds_map.tmp[f"image_twod/axis_{dim}"].value = np.asarray(
+            for dim in ["i", "j"]:
+                eds_map.tmp[f"image_2d/axis_{dim}"].value = np.asarray(
                     0.0
                     + sxy[dim]
                     * np.linspace(0.0, nxy[dim] - 1, num=int(nxy[dim]), endpoint=True),
                     np.float32,
                 )
                 eds_map.tmp[
-                    f"image_twod/axis_{dim}@long_name"
+                    f"image_2d/axis_{dim}@long_name"
                 ].value = f"{dim}-axis pixel coordinate ({scan_unit[dim]})"
-                eds_map.tmp["image_twod/intensity"].value = np.asarray(
+                eds_map.tmp["image_2d/real"].value = np.asarray(
                     fp[f"{src}/ROIs/{entry}.dat"]
                 )
-            self.tmp[ckey].tmp["IMAGE_R_SET"].append(eds_map)  # copy
+            self.tmp[ckey].tmp["IMAGE_SET"].append(eds_map)  # copy
         self.cache_id += 1
 
         for key, val in self.tmp[ckey].tmp.items():
-            if key.startswith("IMAGE_R_SET"):
+            if key.startswith("IMAGE_SET"):
                 for img in val:
                     for kkey, vval in img.tmp.items():
                         print(f"\t\timg, key: {kkey}, val: {vval}")
@@ -765,11 +763,11 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         e_zero = 0.0  # strong assumption based on VInP_108_L2 example from IKZ
         e_delta = fp[f"{src}/SPC"].attrs["eVPCh"][0]
         e_n = fp[f"{src}/LSD"].attrs["NumberofChannels"][0]
-        self.tmp[ckey].tmp["spectrum_oned/axis_energy"].value = e_zero + np.asarray(
+        self.tmp[ckey].tmp["spectrum_1d/axis_energy"].value = e_zero + np.asarray(
             e_delta * np.linspace(0.0, int(e_n) - 1, num=int(e_n), endpoint=True),
             e_zero.dtype,
         )
-        self.tmp[ckey].tmp["spectrum_oned/axis_energy@long_name"].value = "Energy (eV)"
+        self.tmp[ckey].tmp["spectrum_1d/axis_energy@long_name"].value = "Energy (eV)"
 
         # vector representation of the line's physical length from mm to µm
         line = np.asarray(
@@ -791,21 +789,21 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         i_n = fp[f"{src}/LSD"].attrs["NumberOfSpectra"][0]
         line_length = np.sqrt(line[0] ** 2 + line[1] ** 2)
         line_incr = line_length / i_n
-        self.tmp[ckey].tmp["spectrum_oned/axis_x"].value = np.asarray(
+        self.tmp[ckey].tmp["spectrum_1d/axis_i"].value = np.asarray(
             np.linspace(0.5 * line_incr, line_length, num=i_n, endpoint=True),
             fp[f"{src}/REGION"].attrs["X2"][0].dtype,
         )
-        self.tmp[ckey].tmp["spectrum_oned/axis_x@long_name"] = (
+        self.tmp[ckey].tmp["spectrum_1d/axis_i@long_name"] = (
             "Coordinate along x-axis (µm)"
         )
-        self.tmp[ckey].tmp["spectrum_oned/intensity"].value = np.asarray(
+        self.tmp[ckey].tmp["spectrum_1d/real"].value = np.asarray(
             fp[f"{src}/LSD"][0], np.int32
         )
-        self.tmp[ckey].tmp["spectrum_oned/intensity@long_name"].value = f"Count (1)"
+        self.tmp[ckey].tmp["spectrum_1d/real@long_name"].value = f"Count (1)"
         self.cache_id += 1
 
         for key, val in self.tmp[ckey].tmp.items():
-            print(f"ckey: {ckey}, spectrum_oned, key: {key}, val: {val}")
+            print(f"ckey: {ckey}, spectrum_1d, key: {key}, val: {val}")
 
     def parse_and_normalize_eds_line_rois(self, fp):
         """Normalize and scale APEX-specific EDS element emission line maps to NeXus."""
