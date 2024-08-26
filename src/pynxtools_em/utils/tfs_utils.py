@@ -15,18 +15,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Parser mapping content of specific image files on NeXus."""
+"""Utility functions for working with ThermoFisher content and concepts."""
+
+from typing import List
+
+from pynxtools_em.configurations.image_tiff_tfs_cfg import TIFF_TFS_ALL_CONCEPTS
 
 
-class NxEmImagesParser:
-    """Map content from different type of image files on an instance of NXem."""
-
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
-        """Overwrite constructor of the generic reader."""
-        self.file_path = file_path
-        if entry_id > 0:
-            self.entry_id = entry_id
-        else:
-            self.entry_id = 1
-        self.verbose = verbose
-        self.cache = {"is_filled": False}
+def get_fei_childs(parent_concept: str) -> List:
+    """Get all children of FEI parent concept."""
+    child_concepts = set()
+    for entry in TIFF_TFS_ALL_CONCEPTS:
+        if isinstance(entry, str) and entry.count("/") == 1:
+            if entry.startswith(f"{parent_concept}/") is True:
+                child_concepts.add(entry.split("/")[1])
+    return list(child_concepts)

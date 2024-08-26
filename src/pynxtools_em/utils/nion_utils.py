@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Utility function for mapping nionswift identifier to suffix used for identifying files in project."""
+"""Utility functions for working with Nion Co. content and concepts."""
 
 import uuid
 
@@ -38,7 +38,7 @@ def uuid_to_file_name(data_item_uuid_str: str) -> str:
     # 25 character results
 
 
-def image_spectrum_or_generic_nxdata(list_of_dict) -> str:
+def nion_image_spectrum_or_generic_nxdata(list_of_dict) -> str:
     """Encode sequence of units to tell whether NXimage_set, NXspectrum_set, NXdata."""
     if len(list_of_dict) >= 1:
         token = []

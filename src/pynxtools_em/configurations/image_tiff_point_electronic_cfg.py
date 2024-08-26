@@ -17,22 +17,24 @@
 #
 """Configuration of the image_tiff_point_electronic EBIC parser."""
 
+from typing import Any, Dict
+
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-DISS_VARIOUS_DYNAMIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]",
+DISS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "",
     "map_to_f8": [
         ("em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/magnification", "Mag"),
         (
             "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/working_distance",
-            ureg.centimeter,
+            ureg.meter,
             "WD/value",
             "WD/Unit",
         ),
         (
             "em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage",
-            ureg.picovolt,
+            ureg.volt,
             "HV/value",
             "HV/Unit",
         ),

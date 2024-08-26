@@ -20,6 +20,16 @@
 import numpy as np
 
 
+def all_req_keywords_in_dict(dct: dict, keywords: list) -> bool:
+    """Check if dict dct has all keywords in keywords as keys from."""
+    # falsifiable?
+    for key in keywords:
+        if key in dct:
+            continue
+        return False
+    return True
+
+
 def get_named_axis(axes_metadata, dim_name):
     """Return numpy array with tuple (axis pos, unit) along dim_name or None."""
     retval = None
