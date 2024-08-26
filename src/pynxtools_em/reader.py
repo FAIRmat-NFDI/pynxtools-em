@@ -18,7 +18,7 @@
 """Parser for loading generic orientation microscopy data based on ."""
 
 from time import perf_counter_ns
-from typing import Any, Tuple
+from typing import Any, List, Tuple
 
 import numpy as np
 from pynxtools.dataconverter.readers.base.reader import BaseReader
@@ -105,7 +105,7 @@ class EMReader(BaseReader):
 
         print("Parse and map pieces of information within files from tech partners...")
         if len(case.dat) == 1:  # no sidecar file
-            for parser in [
+            parsers: List[type] = [
                 TfsTiffParser,
                 ZeissTiffParser,
                 PointElectronicTiffParser,
@@ -115,8 +115,9 @@ class EMReader(BaseReader):
                 NxEmNxsMTexParser,
                 NxEmNxsPyxemParser,
                 NionProjectParser,
-            ]:
-                parser = parser(case.dat[0], entry_id, verbose=False)
+            ]
+            for parser_type in parsers:
+                parser = parser_type(case.dat[0], entry_id, verbose=False)
                 parser.parse(template)
 
             # zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id, verbose=False)
@@ -126,8 +127,8 @@ class EMReader(BaseReader):
             tescan.parse(template)
 
         if len(case.dat) == 2:  # for sure with sidecar file
-            for parser in [JeolTiffParser, HitachiTiffParser]:
-                parser = parser(case.dat, entry_id, verbose=False)
+            for parser_type in [JeolTiffParser, HitachiTiffParser]:
+                parser = parser_type(case.dat, entry_id, verbose=False)
                 parser.parse(template)
 
         nxplt = NxEmDefaultPlotResolver()

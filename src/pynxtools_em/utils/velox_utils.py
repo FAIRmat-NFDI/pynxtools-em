@@ -17,6 +17,8 @@
 #
 """Utility function for working with mapping of Velox content."""
 
+from typing import Dict
+
 import pint
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
@@ -49,7 +51,7 @@ def velox_image_spectrum_or_generic_nxdata(list_of_dict) -> str:
                 if unit != "unitless":
                     try:
                         q = ureg.Quantity(unit)
-                        base_unit_map: dict[str, str] = {
+                        base_unit_map: Dict[str, str] = {
                             "1/meter": "1/m",
                             "meter": "m",
                             "kilogram * meter ** 2 / second ** 2": "eV",

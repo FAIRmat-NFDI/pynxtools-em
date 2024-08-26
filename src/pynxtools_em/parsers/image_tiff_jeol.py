@@ -213,6 +213,7 @@ class JeolTiffParser(TiffParser):
         return template
 
     def add_various_dynamic(self, template: dict) -> dict:
+        """Add several event-based concepts with similar template path prefixes dynamic."""
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata_pint(
             JEOL_DYNAMIC_VARIOUS_NX,
@@ -223,6 +224,7 @@ class JeolTiffParser(TiffParser):
         return template
 
     def add_various_static(self, template: dict) -> dict:
+        """Add several event-based concepts with similar template path prefixes static."""
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata_pint(
             JEOL_STATIC_VARIOUS_NX,
