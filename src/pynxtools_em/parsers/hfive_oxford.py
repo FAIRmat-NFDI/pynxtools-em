@@ -17,7 +17,7 @@
 #
 """(Sub-)parser mapping concepts and content from Oxford Instruments *.h5oina files on NXem."""
 
-from typing import Dict
+from typing import Dict, List
 
 import h5py
 import numpy as np
@@ -47,69 +47,67 @@ class HdfFiveOxfordReader(HdfFiveBaseParser):
         # this design effectively avoids that different specialized hfive readers need to
         # duplicate the code of the base hfive parser for generating NeXus default plots
         self.supported_version: Dict = {}
-        self.version: Dict = {}
+        self.version: Dict = {  # Dict[str, Dict[str, List[str]]]
+            "trg": {
+                "tech_partner": ["Oxford Instruments"],
+                "schema_name": ["H5OINA"],
+                "schema_version": ["2.0", "3.0", "4.0", "5.0"],
+                "writer_name": ["AZTec"],
+                "writer_version": [
+                    "4.4.7495.1",
+                    "5.0.7643.1",
+                    "5.1.7829.1",
+                    "6.0.8014.1",
+                    "6.0.8196.1",
+                    "6.1.8451.1",
+                ],
+            },
+            "src": {
+                "tech_partner": None,
+                "schema_name": None,
+                "schema_version": None,
+                "writer_name": None,
+                "writer_version": None,
+            },
+        }
         self.supported = False
-        if self.is_hdf is True:
-            self.init_support()
+        if self.is_hdf:
             self.check_if_supported()
-
-    def init_support(self):
-        """Init supported versions."""
-        self.supported_version["tech_partner"] = ["Oxford Instruments"]
-        self.supported_version["schema_name"] = ["H5OINA"]
-        self.supported_version["schema_version"] = ["2.0", "3.0", "4.0", "5.0"]
-        self.supported_version["writer_name"] = ["AZTec"]
-        self.supported_version["writer_version"] = [
-            "4.4.7495.1",
-            "5.0.7643.1",
-            "5.1.7829.1",
-            "6.0.8014.1",
-            "6.0.8196.1",
-            "6.1.8451.1",
-        ]
 
     def check_if_supported(self):
         """Check if instance matches all constraints to qualify as supported H5OINA"""
-        self.supported = 0  # voting-based
+        self.supported = False
+        votes_for_support = 0
         with h5py.File(self.file_path, "r") as h5r:
             req_fields = ["Manufacturer", "Software Version", "Format Version"]
             for req_field in req_fields:
                 if f"/{req_field}" not in h5r:
-                    self.supported = False
                     return
 
-            self.version["tech_partner"] = read_strings_from_dataset(
-                h5r["/Manufacturer"][()]
-            )
-            if self.version["tech_partner"] in self.supported_version["tech_partner"]:
-                # print(f"{self.version['tech_partner']} is not {self.version['tech_partner']} !")
-                self.supported += 1
+            partner = read_strings_from_dataset(h5r["/Manufacturer"][()])
+            if partner in self.version["trg"]["tech_partner"]:
+                self.version["src"]["tech_partner"] = partner
+                votes_for_support += 1
             # only because we know (thanks to Philippe Pinard who wrote the H5OINA writer) that different
             # writer versions should implement the different HDF version correctly we can lift the
             # constraint on the writer_version for which we had examples available
-            self.version["writer_version"] = read_strings_from_dataset(
-                h5r["/Software Version"][()]
-            )
-            if (
-                self.version["writer_version"]
-                in self.supported_version["writer_version"]
-            ):
-                self.supported += 1
-            self.version["schema_version"] = read_strings_from_dataset(
-                h5r["/Format Version"][()]
-            )
-            if (
-                self.version["schema_version"]
-                in self.supported_version["schema_version"]
-            ):
-                self.supported += 1
+            wversion = read_strings_from_dataset(h5r["/Software Version"][()])
+            if wversion in self.supported_version["trg"]["writer_version"]:
+                self.version["src"]["writer_version"] = wversion
+                votes_for_support += 1
+            sversion = read_strings_from_dataset(h5r["/Format Version"][()])
+            if sversion in self.supported_version["trg"]["schema_version"]:
+                self.version["src"]["schema_version"] = sversion
+                votes_for_support += 1
 
-            if self.supported == 3:
-                self.version["schema_name"] = self.supported_version["schema_name"]
-                self.version["writer_name"] = self.supported_version["writer_name"]
+            if votes_for_support == 3:
+                self.version["src"]["schema_name"] = self.version["trg"]["schema_name"][
+                    0
+                ]
+                self.version["src"]["writer_name"] = self.version["trg"]["writer_name"][
+                    0
+                ]
                 self.supported = True
-            else:
-                self.supported = False
 
     def parse_and_normalize(self):
         """Read and normalize away Oxford-specific formatting with an equivalent in NXem."""
@@ -132,6 +130,8 @@ class HdfFiveOxfordReader(HdfFiveBaseParser):
                     self.parse_and_normalize_slice_ebsd_data(h5r, ckey)
                     # add more information to pass to hfive parser
                     cache_id += 1
+
+                # TODO:Vitesh example
 
     def parse_and_normalize_slice_ebsd_header(self, fp, ckey: str):
         grp_name = f"{self.prfx}/EBSD/Header"

@@ -48,32 +48,26 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
         self.prfx = None
         self.tmp = {}
         self.cache_id = 1
-        self.supported_version: Dict = {}
-        self.version: Dict = {}
+        self.version: Dict = {
+            "trg": {  # supported ones
+                "tech_partner": ["EDAX, LLC"],
+                "schema_name": ["EDAXH5"],
+                "schema_version": ["2.1.0009.0001", "2.2.0001.0001", "2.5.1001.0001"],
+            },
+            "src": {  # actual one for instance resolved by file path
+                "tech_partner": None,
+                "schema_name": None,
+                "schema_version": None,
+            },
+        }
         self.supported = False
-        if self.is_hdf is True:
-            self.init_support()
+        if self.is_hdf:
             self.check_if_supported()
-
-    def init_support(self):
-        """Init supported versions."""
-        self.supported_version["tech_partner"] = ["EDAX, LLC"]
-        self.supported_version["schema_name"] = ["EDAXH5"]
-        self.supported_version["schema_version"] = [
-            "2.1.0009.0001",
-            "2.2.0001.0001",
-            "2.5.1001.0001",
-        ]
-        self.supported_version["writer_name"] = ["APEX"]
-        self.supported_version["writer_version"] = [
-            "2.1.0009.0001",
-            "2.2.0001.0001",
-            "2.5.1001.0001",
-        ]
 
     def check_if_supported(self):
         """Check if instance matches all constraints to qualify as supported H5OINA"""
-        self.supported = 0  # voting-based
+        self.supported = False
+        votes_for_support = 0
         with h5py.File(self.file_path, "r") as h5r:
             # parse Company and PRODUCT_VERSION attribute values from the first group below
             # but these are not scalar but single value lists
@@ -83,27 +77,25 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
             grp_names = list(h5r["/"])
             if len(grp_names) == 1:
                 if "Company" in h5r[grp_names[0]].attrs:
-                    if (
-                        read_strings_from_dataset(h5r[grp_names[0]].attrs["Company"][0])
-                        in self.supported_version["tech_partner"]
-                    ):
-                        self.supported += 1
+                    partner = read_strings_from_dataset(
+                        h5r[grp_names[0]].attrs["Company"][0]
+                    )
+                    if partner in self.version["trg"]["tech_partner"]:
+                        self.version["src"]["tech_partner"] = partner
+                        votes_for_support += 1
                 if "PRODUCT_VERSION" in h5r[grp_names[0]].attrs:
-                    if (
-                        read_strings_from_dataset(
-                            h5r[grp_names[0]].attrs["PRODUCT_VERSION"][0]
-                        )
-                        in self.supported_version["schema_version"]
-                    ):
-                        self.supported += 1
-            if self.supported >= 1:
+                    version = read_strings_from_dataset(
+                        h5r[grp_names[0]].attrs["PRODUCT_VERSION"][0]
+                    )
+                    if version in self.version["trg"]["schema_version"]:
+                        self.version["src"]["schema_version"] = version
+                        votes_for_support += 1
+            if votes_for_support >= 1:
                 # this is not as strict because IKZ example does not contain Company EDAX, LLC
                 # but what if there are HDF5 files whose PRODUCT_VERSION is one of Apex but the file
-                # is not an APEX file, in this case be behavior is undefined but likely will fail
-                self.version = self.supported_version.copy()
+                # is not an APEX file, in this case be behavior is undefined, therefore strict
+                # would be cleaner
                 self.supported = True
-            else:
-                self.supported = False
 
     def parse_and_normalize(self):
         """Read and normalize away EDAX/APEX-specific formatting with an equivalent in NXem."""
