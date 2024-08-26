@@ -7,23 +7,24 @@ env:
 jobs:
   linting:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python_version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python 3.10
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: Set up Python ${{ matrix.python_version }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: ${{ matrix.python_version }}
       - name: Install dependencies
         run: |
-          git submodule sync --recursive
-          git submodule update --init --recursive --jobs=4
           curl -LsSf https://astral.sh/uv/install.sh | sh
-      - name: Install package
-        run: |
-          uv pip install --no-deps .
-      - name: Install dev requirements
-        run: |
-          uv pip install -r dev-requirements.txt
+          uv pip install ".[dev,docs]"
       - name: ruff check
         run: |
           ruff check src/pynxtools_em tests

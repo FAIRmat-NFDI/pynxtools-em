@@ -17,9 +17,9 @@
 #
 """NXobject (element of a labelled property graph) to store instance data."""
 
-from typing import Dict
-
 import numpy as np
+
+# Deprecated should be refactored and removed in future releases
 
 
 class NxObject:
@@ -31,26 +31,19 @@ class NxObject:
     eqv_hdf: node type in HDF5 serialization, group, dset/field, attribute
     """
 
-    def __init__(self, name: str, unit: str, dtype, value, **kwargs):
-        if (name is not None) and (name == ""):
-            raise ValueError(
-                f"Value for argument name needs to be a non-empty string !"
-            )
-        if (unit is not None) and (unit == ""):
-            raise ValueError(
-                f"Value for argument unit needs to be a non-empty string !"
-            )
-        if (dtype is not None) and isinstance(dtype, type) is False:
-            raise ValueError(
-                f"Value of argument dtype must not be None "
-                f" and a valid, ideally a numpy datatype !"
-            )
-        self.name = name
-        self.unit = unit
-        self.dtype = dtype
-        if value is None or isinstance(dtype, str):
-            self.unit = "unitless"
-        self.value = value
+    def __init__(self, **kwargs):
+        self.name = None
+        self.value = None
+        self.unit = None
+        self.dtype = None
+        if "name" in kwargs:
+            self.name = kwargs["name"]
+        if "unit" in kwargs:
+            self.unit = kwargs["unit"]
+        if "dtype" in kwargs:
+            self.dtype = kwargs["dtype"]
+        if "value" in kwargs:
+            self.value = kwargs["value"]
         self.eqv_hdf = None
         if "eqv_hdf" in kwargs:
             if kwargs["eqv_hdf"] in ["group", "dataset", "attribute"]:

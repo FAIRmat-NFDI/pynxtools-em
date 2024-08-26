@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Subparser for exemplar reading of raw PNG files collected on a TEM with Protochip heating_chip."""
+"""Parser for exemplar reading of raw PNG files collected on a TEM with Protochip heating_chip."""
 
 import datetime
 import mmap
@@ -27,17 +27,17 @@ import flatdict as fd
 import numpy as np
 import xmltodict
 from PIL import Image
-from pynxtools_em.concepts.mapping_functors import (
-    add_specific_metadata,
-    variadic_path_to_specific_path,
+from pynxtools_em.concepts.mapping_functors_pint import (
+    add_specific_metadata_pint,
+    var_path_to_spcfc_path,
 )
 from pynxtools_em.configurations.image_png_protochips_cfg import (
-    AXON_AUX_DYNAMIC_TO_NX_EM,
-    AXON_CHIP_DYNAMIC_TO_NX_EM,
-    AXON_DETECTOR_STATIC_TO_NX_EM,
-    AXON_STAGE_DYNAMIC_TO_NX_EM,
-    AXON_STAGE_STATIC_TO_NX_EM,
-    AXON_VARIOUS_DYNAMIC_TO_NX_EM,
+    AXON_DYNAMIC_AUX_NX,
+    AXON_DYNAMIC_CHIP_NX,
+    AXON_DYNAMIC_STAGE_NX,
+    AXON_DYNAMIC_VARIOUS_NX,
+    AXON_STATIC_DETECTOR_NX,
+    AXON_STATIC_STAGE_NX,
     specific_to_variadic,
 )
 from pynxtools_em.parsers.image_base import ImgsBaseParser
@@ -45,7 +45,9 @@ from pynxtools_em.utils.get_file_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.sorting import sort_ascendingly_by_second_argument_iso8601
+from pynxtools_em.utils.string_conversions import string_to_number
 from pynxtools_em.utils.xml_utils import flatten_xml_to_dict
 
 
@@ -54,9 +56,7 @@ class ProtochipsPngSetParser(ImgsBaseParser):
         super().__init__(file_path)
         self.entry_id = entry_id
         self.event_id = 1
-        self.prfx = None
-        self.tmp: Dict = {"data": None, "meta": {}}
-        self.supported_version: Dict = {}
+        self.dict_meta: Dict[str, fd.FlatDict] = {}
         self.version: Dict = {}
         self.png_info: Dict = {}
         self.supported = False
@@ -73,6 +73,7 @@ class ProtochipsPngSetParser(ImgsBaseParser):
         # all tests have to be passed before the input self.file_path
         # can at all be processed with this parser
         # test 1: check if file is a zipfile
+        self.supported = False
         with open(self.file_path, "rb", 0) as file:
             s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
             magic = s.read(8)
@@ -134,6 +135,7 @@ class ProtochipsPngSetParser(ImgsBaseParser):
         self.supported = True
 
     def get_xml_metadata(self, file, fp):
+        """Parse content from the XML payload that PNGs from AXON Studio have."""
         try:
             fp.seek(0)
             with Image.open(fp) as png:
@@ -157,7 +159,7 @@ class ProtochipsPngSetParser(ImgsBaseParser):
                         else:
                             grpnm_lookup[concept] = value
                     # second phase, evaluate each concept instance symbol wrt to its prefix coming from the unique concept
-                    self.tmp["meta"][file] = fd.FlatDict({})
+                    self.dict_meta[file] = fd.FlatDict({}, "/")
                     for k, v in meta.items():
                         grpnms = None
                         idxs = re.finditer(r".\[[0-9]+\].", k)
@@ -176,8 +178,10 @@ class ProtochipsPngSetParser(ImgsBaseParser):
                                         key = specific_to_variadic(
                                             f"{grpnms[0]}.{grpnms[1]}.{k[k.rfind('.') + 1:]}"
                                         )
-                                        if key not in self.tmp["meta"][file]:
-                                            self.tmp["meta"][file][key] = v
+                                        if key not in self.dict_meta[file]:
+                                            self.dict_meta[file][key] = (
+                                                string_to_number(v)
+                                            )
                                         else:
                                             raise KeyError(
                                                 "Trying to register a duplicated key {key}"
@@ -186,29 +190,32 @@ class ProtochipsPngSetParser(ImgsBaseParser):
                                         key = specific_to_variadic(
                                             f"{grpnms[0]}.{grpnms[1]}"
                                         )
-                                        if key not in self.tmp["meta"][file]:
-                                            self.tmp["meta"][file][key] = v
+                                        if key not in self.dict_meta[file]:
+                                            self.dict_meta[file][key] = (
+                                                string_to_number(v)
+                                            )
                                         else:
                                             print(
                                                 f"Trying to register duplicated key {key}"
                                             )
                         else:
                             key = f"{k}"
-                            if key not in self.tmp["meta"][file]:
-                                self.tmp["meta"][file][key] = v
+                            if key not in self.dict_meta[file]:
+                                self.dict_meta[file][key] = string_to_number(v)
                             else:
                                 print(f"Trying to register duplicated key {key}")
-                        # TODO::simplify and check that metadata end up correctly in self.tmp["meta"][file]
-                    # for key, value in self.tmp["meta"][file].items():
-                    #     print(f"{type(key)}: {key}\t\t{type(value)}:{value}")
+                        # TODO::simplify and check that metadata end up correctly in self.dict_meta[file]
+                    if self.verbose:
+                        for key, value in self.dict_meta[file].items():
+                            print(f"{key}____{type(value)}____{type(value)}")
         except ValueError:
             print(f"Flattening XML metadata content {self.file_path}:{file} failed !")
 
     def get_file_hash(self, file, fp):
-        self.tmp["meta"][file]["sha256"] = get_sha256_of_file_content(fp)
+        self.dict_meta[file]["sha256"] = get_sha256_of_file_content(fp)
 
-    def parse_and_normalize(self):
-        """Perform actual parsing filling cache self.tmp."""
+    def parse(self, template: dict) -> dict:
+        """Perform actual parsing filling cache."""
         if self.supported is True:
             print(f"Parsing via Protochips-specific metadata...")
             # may need to set self.supported = False on error
@@ -218,28 +225,26 @@ class ProtochipsPngSetParser(ImgsBaseParser):
                         self.get_xml_metadata(file, fp)
                         self.get_file_hash(file, fp)
                         # print(f"Debugging self.tmp.file.items {file}")
-                        # for k, v in self.tmp["meta"][file].items():
+                        # for k, v in self.dict_meta[file].items():
                         #     if k == "MicroscopeControlImageMetadata.MicroscopeDateTime":
                         #     print(f"{k}: {v}")
             print(
                 f"{self.file_path} metadata within PNG collection processed "
-                f"successfully ({len(self.tmp['meta'].keys())} PNGs evaluated)."
+                f"successfully ({len(self.dict_meta)} PNGs evaluated)."
             )
+            self.process_event_data_em_metadata(template)
+            self.process_event_data_em_data(template)
         else:
             print(
                 f"{self.file_path} is not a Protochips-specific "
                 f"PNG file that this parser can process !"
             )
-
-    def process_into_template(self, template: dict) -> dict:
-        if self.supported is True:
-            self.process_event_data_em_metadata(template)
-            self.process_event_data_em_data(template)
         return template
 
     def sort_event_data_em(self) -> List:
+        """Sort event data by datetime."""
         events: List = []
-        for file_name, mdata in self.tmp["meta"].items():
+        for file_name, mdata in self.dict_meta.items():
             key = f"MicroscopeControlImageMetadata.MicroscopeDateTime"
             if isinstance(mdata, fd.FlatDict):
                 if key in mdata:
@@ -265,66 +270,6 @@ class ProtochipsPngSetParser(ImgsBaseParser):
         )
         return events_sorted
 
-    def add_detector_static_metadata(self, file_name: str, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            AXON_DETECTOR_STATIC_TO_NX_EM,
-            self.tmp["meta"][file_name],
-            identifier,
-            template,
-        )
-        return template
-
-    def add_stage_static_metadata(self, file_name: str, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            AXON_STAGE_STATIC_TO_NX_EM,
-            self.tmp["meta"][file_name],
-            identifier,
-            template,
-        )
-        return template
-
-    def add_stage_dynamic_metadata(self, file_name: str, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            AXON_STAGE_DYNAMIC_TO_NX_EM,
-            self.tmp["meta"][file_name],
-            identifier,
-            template,
-        )
-        return template
-
-    def add_chip_dynamic_metadata(self, file_name: str, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            AXON_CHIP_DYNAMIC_TO_NX_EM,
-            self.tmp["meta"][file_name],
-            identifier,
-            template,
-        )
-        return template
-
-    def add_aux_dynamic_metadata(self, file_name: str, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            AXON_AUX_DYNAMIC_TO_NX_EM,
-            self.tmp["meta"][file_name],
-            identifier,
-            template,
-        )
-        return template
-
-    def add_various_dynamic_metadata(self, file_name: str, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata(
-            AXON_VARIOUS_DYNAMIC_TO_NX_EM,
-            self.tmp["meta"][file_name],
-            identifier,
-            template,
-        )
-        return template
-
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
@@ -335,24 +280,50 @@ class ProtochipsPngSetParser(ImgsBaseParser):
         # surplus eventually AXON-specific identifier it seems useful though to sort these
         # PNGs based on time stamped information directly from the AXON metadata
         # here we sort ascendingly in time the events and associate new event ids
+        # static instrument data
+
         self.event_sequence = self.sort_event_data_em()
         event_id = self.event_id
+        toggle = True
         for file_name, iso8601 in self.event_sequence:
             identifier = [self.entry_id, event_id, 1]
-            trg = variadic_path_to_specific_path(
-                f"/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET"
-                f"[event_data_em_set]/EVENT_DATA_EM[event_data_em*]"
-                f"/start_time",
+            trg = var_path_to_spcfc_path(
+                f"/ENTRY[entry*]/measurement/event_data_em_set/"
+                f"EVENT_DATA_EM[event_data_em*]/start_time",
                 identifier,
             )
             template[trg] = f"{iso8601}".replace(" ", "T")
             # AXON reports "yyyy-mm-dd hh-mm-ss*" but NeXus requires yyyy-mm-ddThh-mm-ss*"
-            self.add_detector_static_metadata(file_name, template)
-            self.add_stage_static_metadata(file_name, template)
-            # self.add_stage_dynamic_metadata(file_name, template)  # TODO::unit for stage positions unclear
-            self.add_chip_dynamic_metadata(file_name, template)
-            self.add_aux_dynamic_metadata(file_name, template)
-            self.add_various_dynamic_metadata(file_name, template)
+
+            # static
+            if toggle:
+                for cfg in [AXON_STATIC_DETECTOR_NX, AXON_STATIC_STAGE_NX]:
+                    add_specific_metadata_pint(
+                        cfg,
+                        self.dict_meta[file_name],
+                        [1, 1],
+                        template,
+                    )
+                toggle = False
+            # dynamic
+            for cfg in [
+                AXON_DYNAMIC_CHIP_NX,
+                AXON_DYNAMIC_AUX_NX,
+                AXON_DYNAMIC_VARIOUS_NX,
+            ]:
+                add_specific_metadata_pint(
+                    cfg,
+                    self.dict_meta[file_name],
+                    identifier,
+                    template,
+                )
+            # additional dynamic data with currently different formatting
+            add_specific_metadata_pint(
+                AXON_DYNAMIC_STAGE_NX,
+                self.dict_meta[file_name],
+                identifier,
+                template,
+            )
             event_id += 1
         return template
 
@@ -372,14 +343,14 @@ class ProtochipsPngSetParser(ImgsBaseParser):
                         nparr = np.array(png)
                         image_identifier = 1
                         trg = (
-                            f"/ENTRY[entry{self.entry_id}]/measurement/EVENT_DATA_EM_SET"
-                            f"[event_data_em_set]/EVENT_DATA_EM[event_data_em{event_id}]"
-                            f"/IMAGE_R_SET[image_r_set{image_identifier}]/image_twod"
+                            f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set"
+                            f"/EVENT_DATA_EM[event_data_em{event_id}]"
+                            f"/IMAGE_SET[image_set{image_identifier}]/image_2d"
                         )
                         # TODO::writer should decorate automatically!
                         template[f"{trg}/title"] = f"Image"
-                        template[f"{trg}/@signal"] = "intensity"
-                        dims = ["x", "y"]
+                        template[f"{trg}/@signal"] = "real"
+                        dims = ["i", "j"]
                         idx = 0
                         for dim in dims:
                             template[f"{trg}/@AXISNAME_indices[axis_{dim}_indices]"] = (
@@ -389,39 +360,49 @@ class ProtochipsPngSetParser(ImgsBaseParser):
                         template[f"{trg}/@axes"] = []
                         for dim in dims[::-1]:
                             template[f"{trg}/@axes"].append(f"axis_{dim}")
-                        template[f"{trg}/intensity"] = {
-                            "compress": nparr,
-                            "strength": 1,
-                        }
+                        template[f"{trg}/real"] = {"compress": nparr, "strength": 1}
                         #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
-                        template[f"{trg}/intensity/@long_name"] = f"Signal"
+                        template[f"{trg}/real/@long_name"] = f"Signal"
 
-                        sxy = {"x": 1.0, "y": 1.0}
-                        scan_unit = {"x": "px", "y": "px"}
-                        # TODO::get AXON image calibration
-                        # "ImagerSettings.ImagePhysicalSize.X" / "ImagerSettings.ImagePixels.X"
-                        # "ImagerSettings.ImagePhysicalSize.Y" / "ImagerSettings.ImagePixels.Y"
-                        nxy = {"x": np.shape(nparr)[1], "y": np.shape(nparr)[0]}
+                        sxy = {
+                            "i": ureg.Quantity(1.0, ureg.meter),
+                            "j": ureg.Quantity(1.0, ureg.meter),
+                        }
+                        abbrev = "MicroscopeControlImageMetadata.ImagerSettings.ImagePhysicalSize"
+                        if (
+                            f"{abbrev}.X" in self.dict_meta[file_name]
+                            and f"{abbrev}.Y" in self.dict_meta[file_name]
+                        ):
+                            sxy = {
+                                "i": ureg.Quantity(
+                                    self.dict_meta[file_name][f"{abbrev}.X"],
+                                    ureg.nanometer,
+                                ),
+                                "j": ureg.Quantity(
+                                    self.dict_meta[file_name][f"{abbrev}.Y"],
+                                    ureg.nanometer,
+                                ),
+                            }
+                        nxy = {"i": np.shape(nparr)[1], "j": np.shape(nparr)[0]}
                         del nparr
-                        # TODO::we assume here a very specific coordinate system
-                        # see image_tiff_tfs.py parser for further details of the limitations
-                        # of this approach
+                        # TODO::we assume here a very specific coordinate system see image_tiff_tfs.py
+                        # parser for further details of the limitations of this approach
                         for dim in dims:
                             template[f"{trg}/AXISNAME[axis_{dim}]"] = {
                                 "compress": np.asarray(
                                     np.linspace(
                                         0, nxy[dim] - 1, num=nxy[dim], endpoint=True
                                     )
-                                    * sxy[dim],
+                                    * sxy[dim].magnitude,
                                     np.float64,
                                 ),
                                 "strength": 1,
                             }
                             template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                                f"Coordinate along {dim}-axis ({scan_unit[dim]})"
+                                f"Coordinate along {dim}-axis ({sxy[dim].units})"
                             )
                             template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = (
-                                f"{scan_unit[dim]}"
+                                f"{sxy[dim].units}"
                             )
                 event_id += 1
         return template

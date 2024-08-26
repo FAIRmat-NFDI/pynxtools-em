@@ -50,14 +50,14 @@ def hfive_to_template(payload):
 class NxEmNxsMTexParser:
     """Map content from *.nxs.mtex files on an instance of NXem."""
 
-    def __init__(self, entry_id: int = 1, file_path: str = "", verbose: bool = False):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+        self.file_path = file_path
         if entry_id > 0:
             self.entry_id = entry_id
         else:
             self.entry_id = 1
-        self.file_path = file_path
-        self.supported = False
         self.verbose = verbose
+        self.supported = False
         self.check_if_mtex_nxs()
 
     def check_if_mtex_nxs(self):
