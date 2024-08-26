@@ -97,7 +97,7 @@ NION_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
         "metadata/scan_detector/autostem/ImageScanned/",
     ],
     "map_to_f8": [
-        ("ebeam_column/electron_source/voltage", ureg.kilovolt, "EHT", ureg.volt),
+        ("ebeam_column/electron_source/voltage", ureg.volt, "EHT", ureg.volt),
         (
             "ebeam_column/BEAM[beam]/diameter",
             ureg.meter,
