@@ -28,7 +28,7 @@ from pynxtools_em.configurations.oasis_cfg import (
 )
 
 
-class NxEmNomadOasisConfigurationParser:
+class NxEmNomadOasisConfigParser:
     """Parse deployment specific configuration."""
 
     def __init__(self, file_path: str, entry_id: int, verbose: bool = False):

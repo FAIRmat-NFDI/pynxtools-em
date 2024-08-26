@@ -17,6 +17,8 @@
 #
 """Utility function for working with mapping of Velox content."""
 
+from typing import Dict
+
 import pint
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
@@ -49,18 +51,18 @@ def velox_image_spectrum_or_generic_nxdata(list_of_dict) -> str:
                 if unit != "unitless":
                     try:
                         q = ureg.Quantity(unit)
-                        base_unit = q.to_base_units().units
-                        if base_unit == "1/meter":
-                            unit_categories.append("1/m")
-                        elif base_unit == "meter":
-                            unit_categories.append("m")
-                        elif base_unit == "kilogram * meter ** 2 / second ** 2":
-                            unit_categories.append("eV")
-                        elif base_unit == "second":
-                            unit_categories.append("s")
+                        base_unit_map: Dict[str, str] = {
+                            "1/meter": "1/m",
+                            "meter": "m",
+                            "kilogram * meter ** 2 / second ** 2": "eV",
+                            "second": "s",
+                        }
+                        base_unit = base_unit_map.get(q.to_base_units().units)
+                        if base_unit:
+                            unit_categories.append(base_unit)
                         else:
                             raise ValueError(
-                                f"Hitting an undefined case for base_unit {base_unit} !"
+                                f"Hitting an undefined case for base_unit {q.to_base_units().units} !"
                             )
                     except pint.UndefinedUnitError:
                         return ""

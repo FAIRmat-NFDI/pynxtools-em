@@ -100,16 +100,12 @@ class ZeissTiffParser(TiffParser):
                     else:
                         try:
                             self.flat_dict_meta[line] = ureg.Quantity(token[1])
-                        except UndefinedUnitError:
-                            if token[1]:
-                                self.flat_dict_meta[line] = string_to_number(token[1])
-                        except TokenError:
-                            if token[1]:
-                                self.flat_dict_meta[line] = string_to_number(token[1])
-                        except ValueError:
-                            if token[1]:
-                                self.flat_dict_meta[line] = string_to_number(token[1])
-                        except AttributeError:
+                        except (
+                            UndefinedUnitError,
+                            TokenError,
+                            ValueError,
+                            AttributeError,
+                        ):
                             if token[1]:
                                 self.flat_dict_meta[line] = string_to_number(token[1])
             idx += 1

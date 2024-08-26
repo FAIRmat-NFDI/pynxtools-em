@@ -37,7 +37,7 @@ class PointElectronicTiffParser(TiffParser):
         self.entry_id = entry_id
         self.event_id = 1
         self.verbose = verbose
-        self.tmp: Dict = {"data": None, "flat_dict_meta": fd.FlatDict({})}
+        self.flat_metadata = fd.FlatDict({}, "/")
         self.version: Dict = {
             "trg": {
                 "tech_partner": ["point electronic"],
@@ -59,16 +59,13 @@ class PointElectronicTiffParser(TiffParser):
                             lst = fd.FlatDict(dct, "/")
                             for kkey, kobj in lst.items():
                                 if isinstance(kobj, str) and kobj != "":
-                                    if (
-                                        f"{key}/{kkey}"
-                                        not in self.tmp["flat_dict_meta"]
-                                    ):
-                                        self.tmp["flat_dict_meta"][f"{key}/{kkey}"] = (
+                                    if f"{key}/{kkey}" not in self.flat_metadata:
+                                        self.flat_metadata[f"{key}/{kkey}"] = (
                                             string_to_number(kobj)
                                         )
-                if isinstance(obj, str) and obj != "":
-                    if key not in self.tmp["flat_dict_meta"]:
-                        self.tmp["flat_dict_meta"][key] = string_to_number(obj)
+                elif isinstance(obj, str) and obj != "":
+                    if key not in self.flat_metadata:
+                        self.flat_metadata[key] = string_to_number(obj)
                     else:
                         raise KeyError(f"Duplicated key {key} !")
 
@@ -98,10 +95,10 @@ class PointElectronicTiffParser(TiffParser):
                 if "xmpmeta/xmptk" in meta:
                     if meta["xmpmeta/xmptk"] == "XMP Core 5.1.2":
                         # load the metadata
-                        self.tmp["flat_dict_meta"] = fd.FlatDict({}, "/")
+                        self.flat_metadata = fd.FlatDict({}, "/")
                         self.xmpmeta_to_flat_dict(meta)
 
-                        for key, value in self.tmp["flat_dict_meta"].items():
+                        for key, value in self.flat_metadata.items():
                             print(f"{key}____{type(value)}____{value}")
 
                         # check if written about with supported DISS version
@@ -111,10 +108,7 @@ class PointElectronicTiffParser(TiffParser):
                             for val in self.version["trg"]["schema_version"]
                         ]
                         print(supported_versions)
-                        if (
-                            self.tmp["flat_dict_meta"]["CreatorTool"]
-                            in supported_versions
-                        ):
+                        if self.flat_metadata["CreatorTool"] in supported_versions:
                             self.supported += 1  # found specific XMP metadata
         if self.supported == 2:
             self.supported = True
@@ -176,12 +170,12 @@ class PointElectronicTiffParser(TiffParser):
 
                 sxy = {"i": 1.0, "j": 1.0}
                 scan_unit = {"i": "m", "j": "m"}
-                if ("PixelSizeX" in self.tmp["flat_dict_meta"]) and (
-                    "PixelSizeY" in self.tmp["flat_dict_meta"]
+                if ("PixelSizeX" in self.flat_metadata) and (
+                    "PixelSizeY" in self.flat_metadata
                 ):
                     sxy = {
-                        "i": self.tmp["flat_dict_meta"]["PixelSizeX"],
-                        "j": self.tmp["flat_dict_meta"]["PixelSizeY"],
+                        "i": self.flat_metadata["PixelSizeX"],
+                        "j": self.flat_metadata["PixelSizeY"],
                     }
                 else:
                     print("WARNING: Assuming pixel width and height unit is meter!")
@@ -205,22 +199,17 @@ class PointElectronicTiffParser(TiffParser):
                 image_identifier += 1
         return template
 
-    def add_various_dynamic(self, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        add_specific_metadata_pint(
-            DISS_DYNAMIC_VARIOUS_NX,
-            self.tmp["flat_dict_meta"],
-            identifier,
-            template,
-        )
-        return template
-
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
         print(
             f"Mapping some of the point electronic DISS metadata on respective NeXus concepts..."
         )
-        self.add_various_dynamic(template)
-        # ... add more as required ...
+        identifier = [self.entry_id, self.event_id, 1]
+        add_specific_metadata_pint(
+            DISS_DYNAMIC_VARIOUS_NX,
+            self.flat_metadata,
+            identifier,
+            template,
+        )
         return template

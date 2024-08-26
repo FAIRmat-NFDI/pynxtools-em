@@ -18,7 +18,7 @@
 """Utilities for working with NeXus concepts encoded as Python dicts in the concepts dir."""
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Dict
 
 import flatdict as fd
 import numpy as np
@@ -29,7 +29,7 @@ from pynxtools_em.utils.pint_custom_unit_registry import is_not_special_unit, ur
 from pynxtools_em.utils.string_conversions import rchop
 
 # best practice is use np.ndarray or np.generic as magnitude within that ureg.Quantity!
-MAP_TO_DTYPES = {
+MAP_TO_DTYPES: Dict[str, type] = {
     "u1": np.uint8,
     "i1": np.int8,
     "u2": np.uint16,
@@ -128,59 +128,26 @@ def map_to_dtype(trg_dtype: str, value: Any) -> Any:
     # error: Argument 1 has incompatible type "generic | bool | int | float | complex |
     #      str | bytes | memoryview"; expected "str | bytes | SupportsIndex"  [arg-type]
     if np.shape(value) != ():
-        if trg_dtype == "u1":
-            return np.asarray(value, np.uint8)
-        elif trg_dtype == "i1":
-            return np.asarray(value, np.int8)
-        elif trg_dtype == "u2":
-            return np.asarray(value, np.uint16)
-        elif trg_dtype == "i2":
-            return np.asarray(value, np.int16)
-        # elif trg_dtype == "f2":
-        #     return np.asarray(value, np.float16)
-        elif trg_dtype == "u4":
-            return np.asarray(value, np.uint32)
-        elif trg_dtype == "i4":
-            return np.asarray(value, np.int32)
-        elif trg_dtype == "f4":
-            return np.asarray(value, np.float32)
-        elif trg_dtype == "u8":
-            return np.asarray(value, np.uint64)
-        elif trg_dtype == "i8":
-            return np.asarray(value, np.int64)
-        elif trg_dtype == "f8":
-            return np.asarray(value, np.float64)
-        elif trg_dtype == "bool":
-            if hasattr(value, "dtype"):
-                if value.dtype is bool:
-                    return np.asarray(value, bool)
+        if trg_dtype in MAP_TO_DTYPES:
+            if trg_dtype != "bool":
+                return np.asarray(value, MAP_TO_DTYPES[trg_dtype])
+            else:
+                if hasattr(value, "dtype"):
+                    if value.dtype is bool:
+                        return np.asarray(value, bool)
+                else:
+                    raise TypeError(
+                        f"map_to_dtype, hitting unexpected case for array bool !"
+                    )
         else:
             raise ValueError(f"map_to_dtype, hitting unexpected case for array !")
     else:
-        if trg_dtype == "u1":
-            return np.uint8(value)
-        elif trg_dtype == "i1":
-            return np.int8(value)
-        elif trg_dtype == "u2":
-            return np.uint16(value)
-        elif trg_dtype == "i2":
-            return np.int16(value)
-        # elif trg_dtype == "f2":
-        #     return np.float16(value)
-        elif trg_dtype == "u4":
-            return np.uint32(value)
-        elif trg_dtype == "i4":
-            return np.int32(value)
-        elif trg_dtype == "f4":
-            return np.float32(value)
-        elif trg_dtype == "u8":
-            return np.uint64(value)
-        elif trg_dtype == "i8":
-            return np.int64(value)
-        elif trg_dtype == "f8":
-            return np.float64(value)
-        elif trg_dtype == "bool":
-            return try_interpret_as_boolean(value)
+        if trg_dtype in MAP_TO_DTYPES:
+            if trg_dtype != "bool":
+                that_type = MAP_TO_DTYPES[trg_dtype]
+                return that_type(value)
+            else:
+                return try_interpret_as_boolean(value)
         else:
             raise ValueError(f"map_to_dtype, hitting unexpected case for scalar !")
 
@@ -294,21 +261,15 @@ def map_functor(
     for cmd in cmds:
         case = get_case(cmd)
         if case == "case_one":  # str
-            if f"{prfx_src}{cmd}" not in mdata:
-                continue
-            src_val = mdata[f"{prfx_src}{cmd}"]
-            if not src_val:
-                continue
-            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd}", ids)
-            set_value(template, trg, src_val, trg_dtype_key)
+            src_val = mdata.get(f"{prfx_src}{cmd}")
+            if src_val:
+                trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd}", ids)
+                set_value(template, trg, src_val, trg_dtype_key)
         elif case == "case_two_str":  # str, str
-            if f"{prfx_src}{cmd[1]}" not in mdata:
-                continue
-            src_val = mdata[f"{prfx_src}{cmd[1]}"]
-            if not src_val:
-                continue
-            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-            set_value(template, trg, src_val, trg_dtype_key)
+            src_val = mdata.get(f"{prfx_src}{cmd[1]}")
+            if src_val:
+                trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+                set_value(template, trg, src_val, trg_dtype_key)
         elif case == "case_two_list":
             # ignore empty list, all src paths str, all src_val have to exist of same type
             if len(cmd[1]) == 0:
@@ -327,9 +288,7 @@ def map_functor(
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             set_value(template, trg, src_values, trg_dtype_key)
         elif case == "case_three_str":  # str, ureg.Unit, str
-            if f"{prfx_src}{cmd[2]}" not in mdata:
-                continue
-            src_val = mdata[f"{prfx_src}{cmd[2]}"]
+            src_val = mdata.get(f"{prfx_src}{cmd[2]}")
             if not src_val:
                 continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
@@ -380,9 +339,7 @@ def map_functor(
                 f"that values on the src side are pint.Quantities already!"
             )
         elif case == "case_five_str":
-            if f"{prfx_src}{cmd[2]}" not in mdata:
-                continue
-            src_val = mdata[f"{prfx_src}{cmd[2]}"]
+            src_val = mdata.get(f"{prfx_src}{cmd[2]}")
             if not src_val:
                 continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)

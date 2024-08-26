@@ -17,9 +17,8 @@
 #
 """Parser for loading generic orientation microscopy data based on ."""
 
-from os import getcwd
 from time import perf_counter_ns
-from typing import Any, Tuple
+from typing import Any, List, Tuple
 
 import numpy as np
 from pynxtools.dataconverter.readers.base.reader import BaseReader
@@ -36,9 +35,7 @@ from pynxtools_em.parsers.image_tiff_zeiss import ZeissTiffParser
 from pynxtools_em.parsers.nxs_mtex import NxEmNxsMTexParser
 from pynxtools_em.parsers.nxs_nion import NionProjectParser
 from pynxtools_em.parsers.nxs_pyxem import NxEmNxsPyxemParser
-from pynxtools_em.parsers.oasis_config_reader import (
-    NxEmNomadOasisConfigurationParser,
-)
+from pynxtools_em.parsers.oasis_config_reader import NxEmNomadOasisConfigParser
 from pynxtools_em.parsers.oasis_eln_reader import NxEmNomadOasisElnSchemaParser
 from pynxtools_em.parsers.rsciio_gatan import RsciioGatanParser
 from pynxtools_em.parsers.rsciio_velox import RsciioVeloxParser
@@ -88,7 +85,7 @@ class EMReader(BaseReader):
         if len(case.cfg) == 1:
             print("Parse (meta)data coming from a configuration of an RDM...")
             # having or using a deployment-specific configuration is optional
-            nx_em_cfg = NxEmNomadOasisConfigurationParser(case.cfg[0], entry_id)
+            nx_em_cfg = NxEmNomadOasisConfigParser(case.cfg[0], entry_id)
             nx_em_cfg.report(template)
 
         if len(case.eln) == 1:
@@ -108,32 +105,20 @@ class EMReader(BaseReader):
 
         print("Parse and map pieces of information within files from tech partners...")
         if len(case.dat) == 1:  # no sidecar file
-            tfs = TfsTiffParser(case.dat[0], entry_id, verbose=False)
-            tfs.parse(template)
-
-            zeiss = ZeissTiffParser(case.dat[0], entry_id, verbose=False)
-            zeiss.parse(template)
-
-            point = PointElectronicTiffParser(case.dat[0], entry_id, verbose=False)
-            point.parse(template)
-
-            axon = ProtochipsPngSetParser(case.dat[0], entry_id, verbose=False)
-            axon.parse(template)
-
-            velox = RsciioVeloxParser(case.dat[0], entry_id, verbose=False)
-            velox.parse(template)
-
-            gatan = RsciioGatanParser(case.dat[0], entry_id, verbose=False)
-            gatan.parse(template)
-
-            nxs_mtex = NxEmNxsMTexParser(case.dat[0], entry_id, verbose=False)
-            nxs_mtex.parse(template)
-
-            nxs_pyxem = NxEmNxsPyxemParser(case.dat[0], entry_id, verbose=False)
-            nxs_pyxem.parse(template)
-
-            nxs_nion = NionProjectParser(case.dat[0], entry_id, verbose=False)
-            nxs_nion.parse(template)
+            parsers: List[type] = [
+                TfsTiffParser,
+                ZeissTiffParser,
+                PointElectronicTiffParser,
+                ProtochipsPngSetParser,
+                RsciioVeloxParser,
+                RsciioGatanParser,
+                NxEmNxsMTexParser,
+                NxEmNxsPyxemParser,
+                NionProjectParser,
+            ]
+            for parser_type in parsers:
+                parser = parser_type(case.dat[0], entry_id, verbose=False)
+                parser.parse(template)
 
             # zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id, verbose=False)
             # zip_parser.parse(template)
@@ -141,12 +126,10 @@ class EMReader(BaseReader):
             tescan = TescanTiffParser(case.dat, entry_id, verbose=False)
             tescan.parse(template)
 
-        if len(case.dat) == 2:  # for sure sidecar file
-            jeol = JeolTiffParser(case.dat, entry_id, verbose=False)
-            jeol.parse(template)
-
-            hitachi = HitachiTiffParser(case.dat, entry_id, verbose=False)
-            hitachi.parse(template)
+        if len(case.dat) == 2:  # for sure with sidecar file
+            for parser_type in [JeolTiffParser, HitachiTiffParser]:
+                parser = parser_type(case.dat, entry_id, verbose=False)
+                parser.parse(template)
 
         nxplt = NxEmDefaultPlotResolver()
         nxplt.priority_select(template)
