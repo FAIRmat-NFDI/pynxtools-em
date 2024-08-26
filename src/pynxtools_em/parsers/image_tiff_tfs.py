@@ -36,6 +36,7 @@ from pynxtools_em.configurations.image_tiff_tfs_cfg import (
     TFS_STATIC_APERTURE_NX,
     TFS_STATIC_DETECTOR_NX,
     TFS_STATIC_VARIOUS_NX,
+    TIFF_TFS_PARENT_CONCEPTS,
 )
 from pynxtools_em.parsers.image_tiff import TiffParser
 from pynxtools_em.utils.image_utils import (
@@ -43,7 +44,7 @@ from pynxtools_em.utils.image_utils import (
     sort_ascendingly_by_second_argument,
 )
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
-from pynxtools_em.utils.tfs_utils import get_fei_childs, get_fei_parent_concepts
+from pynxtools_em.utils.tfs_utils import get_fei_childs
 
 
 class TfsTiffParser(TiffParser):
@@ -88,13 +89,12 @@ class TfsTiffParser(TiffParser):
     def get_metadata(self):
         """Extract metadata in TFS specific tags if present."""
         print("Parsing TIFF tags...")
-        tfs_parent_concepts = get_fei_parent_concepts()
         tfs_parent_concepts_byte_offset = {}
-        for concept in tfs_parent_concepts:
+        for concept in TIFF_TFS_PARENT_CONCEPTS:
             tfs_parent_concepts_byte_offset[concept] = None
         with open(self.file_path, "rb", 0) as fp:
             s = mmap.mmap(fp.fileno(), 0, access=mmap.ACCESS_READ)
-            for concept in tfs_parent_concepts:
+            for concept in TIFF_TFS_PARENT_CONCEPTS:
                 pos = s.find(bytes(f"[{concept}]", "utf8"))  # != -1
                 if pos != -1:
                     tfs_parent_concepts_byte_offset[concept] = pos
