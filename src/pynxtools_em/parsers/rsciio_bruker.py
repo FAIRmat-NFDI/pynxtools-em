@@ -28,15 +28,14 @@ class RsciioBrukerParser(RsciioBaseParser):
 
     def __init__(self, file_path: str = ""):
         super().__init__(file_path)
-        self.prfx = None
         self.tmp: Dict = {}
         self.objs: List = []
-        self.supported_version: Dict = {}
         self.version: Dict = {}
         self.supported = False
         self.check_if_supported()
 
     def check_if_supported(self):
+        """Check if provided content matches Bruker concepts."""
         try:
             self.objs = bruker.file_reader(self.file_path)
             # TODO::what to do if the content of the file is larger than the available
@@ -46,38 +45,40 @@ class RsciioBrukerParser(RsciioBaseParser):
             # in the template and stream out accordingly
             self.supported = True
         except IOError:
-            print(f"Loading {self.file_path} using {self.__name__} is not supported !")
+            print(f"Loading {self.file_path} using Bruker is not supported !")
 
-    def parse_and_normalize(self):
-        """Perform actual parsing filling cache self.tmp."""
+    def parse_and_normalize(self, template: dict) -> dict:
+        """Perform actual parsing filling cache."""
         if self.supported is True:
-            print(f"Parsing with {self.__name__}...")
-            self.tech_partner_to_nexus_normalization()
+            print(f"Parsing via Bruker...")
+            self.normalize_eds_content(template)
+            self.normalize_eels_content(template)
         else:
             print(
                 f"{self.file_path} is not a Bruker-specific "
                 f"BCF file that this parser can process !"
             )
+        return template
 
-    def tech_partner_to_nexus_normalization(self):
-        """Translate tech partner concepts to NeXus concepts."""
-        self.normalize_eds_content()
-        self.normalize_eels_content()
+    def normalize_eds_content(self, template: dict) -> dict:
+        """TODO implementation."""
+        return template
 
-    def normalize_eds_content(self):
-        pass
-
-    def normalize_eels_content(self):
-        pass
+    def normalize_eels_content(self, template: dict) -> dict:
+        """TODO implementation."""
+        return template
 
     def process_into_template(self, template: dict) -> dict:
+        """TODO implementation."""
         if self.supported is True:
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:
+        """TODO implementation."""
         return template
 
     def process_event_data_em_data(self, template: dict) -> dict:
+        """TODO implementation."""
         return template

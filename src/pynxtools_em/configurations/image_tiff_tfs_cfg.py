@@ -17,79 +17,389 @@
 #
 """Configuration of the image_tiff_tfs parser."""
 
-from numpy import pi
+from typing import Any, Dict
 
-RAD2DEG = 180.0 / pi
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-
-TFS_DETECTOR_STATIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/DETECTOR[detector*]",
-    "map": [
-        ("local_name", "Detectors/Name"),
-    ],
+TFS_STATIC_DETECTOR_NX: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/detectorID[detector*]",
+    "prefix_src": "",
+    "map": [("local_name", "Detectors/Name")],
 }
 
 
-TFS_APERTURE_STATIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/EBEAM_COLUMN[ebeam_column]/APERTURE_EM[aperture_em*]",
-    "use": [("value/@units", "m")],
-    "map": [
-        ("description", "Beam/Aperture"),
-        ("value", "EBeam/ApertureDiameter"),
-    ],
+TFS_STATIC_APERTURE_NX: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/ebeam_column/apertureID[aperture*]",
+    "prefix_src": "",
+    "map": [("description", "Beam/Aperture")],
+    "map_to_f8": [("value", ureg.meter, "EBeam/ApertureDiameter", ureg.meter)],
 }
 
 
-TFS_VARIOUS_STATIC_TO_NX_EM = {
+TFS_STATIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab",
-    "use": [("FABRICATION[fabrication]/vendor", "FEI")],
+    "prefix_src": "",
+    "use": [("fabrication/vendor", "FEI")],
     "map": [
-        ("FABRICATION[fabrication]/model", "System/SystemType"),
-        ("FABRICATION[fabrication]/identifier", "System/BuildNr"),
-        ("EBEAM_COLUMN[ebeam_column]/electron_source/emitter_type", "System/Source"),
+        ("fabrication/model", "System/SystemType"),
+        ("fabrication/identifier", "System/BuildNr"),
+        ("ebeam_column/electron_source/emitter_type", "System/Source"),
     ],
 }
 
 
-TFS_OPTICS_DYNAMIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]",
-    "use": [("beam_current/@units", "A"), ("working_distance/@units", "m")],
+TFS_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]",
+    "prefix_src": "",
+    "map_to_f8": [
+        ("beam_current", ureg.ampere, "EBeam/BeamCurrent", ureg.ampere),
+        ("working_distance", ureg.meter, "EBeam/WD", ureg.meter),
+    ],
+}
+
+
+TFS_DYNAMIC_STAGE_NX: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
+    "prefix_src": "",
+    "map_to_f8": [
+        ("rotation", ureg.radian, "Stage/StageR", ureg.radian),
+        ("tilt1", ureg.radian, "Stage/StageTa", ureg.radian),
+        ("tilt2", ureg.radian, "Stage/StageTb", ureg.radian),
+        (
+            "position",
+            ureg.meter,
+            ["Stage/StageX", "Stage/StageY", "Stage/StageZ"],
+            ureg.meter,
+        ),
+    ],
+}
+
+
+TFS_DYNAMIC_STIGMATOR_NX: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column/corrector_ax",
+    "prefix_src": "",
+    "map_to_f8": [("value_x", "Beam/StigmatorX"), ("value_y", "Beam/StigmatorY")],
+}
+
+
+TFS_DYNAMIC_SCAN_NX: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
+    "prefix_src": "",
+    "map": [("scan_schema", "System/Scan")],
+    "map_to_f8": [("dwell_time", ureg.second, "Scan/Dwelltime", ureg.second)],
+}
+
+
+TFS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
+    "prefix_src": "",
     "map": [
-        ("beam_current", "EBeam/BeamCurrent"),
-        ("working_distance", "EBeam/WD"),
-    ],
-}
-
-
-TFS_STAGE_DYNAMIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
-    "use": [("tilt1/@units", "deg"), ("tilt2/@units", "deg")],
-    "map_to_real_and_multiply": [
-        ("tilt1", "EBeam/StageTa", RAD2DEG),
-        ("tilt2", "EBeam/StageTb", RAD2DEG),
-    ],
-}
-
-
-TFS_SCAN_DYNAMIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]/em_lab/SCANBOX_EM[scanbox_em]",
-    "use": [
-        ("dwell_time/@units", "s"),
-    ],
-    "map": [("dwell_time", "Scan/Dwelltime"), ("scan_schema", "System/Scan")],
-}
-
-
-TFS_VARIOUS_DYNAMIC_TO_NX_EM = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM_SET[event_data_em_set]/EVENT_DATA_EM[event_data_em*]",
-    "use": [("em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage/@units", "V")],
-    "map": [
-        ("em_lab/DETECTOR[detector*]/mode", "Detectors/Mode"),
-        ("em_lab/EBEAM_COLUMN[ebeam_column]/operation_mode", "EBeam/UseCase"),
-        ("em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage", "EBeam/HV"),
+        ("em_lab/detectorID[detector*]/mode", "Detectors/Mode"),
+        ("em_lab/ebeam_column/operation_mode", "EBeam/UseCase"),
+        ("em_lab/ebeam_column/BEAM[beam]/image_mode", "Beam/ImageMode"),
+        ("em_lab/ebeam_column/BEAM[beam]/mode", "EBeam/BeamMode"),
+        ("em_lab/ebeam_column/apertureID[aperture1]/name", "EBeam/Aperture"),
         ("event_type", "T1/Signal"),
         ("event_type", "T2/Signal"),
         ("event_type", "T3/Signal"),
         ("event_type", "ETD/Signal"),
     ],
+    "map_to_bool": [
+        (
+            "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/dynamic_focus",
+            "EBeam/DynamicFocusIsOn",
+        )
+    ],
+    "map_to_u2": [("em_lab/ebeam_column/BEAM[beam]/value", "Beam/Spot")],
+    "map_to_f8": [
+        (
+            "em_lab/ebeam_column/electron_source/voltage",
+            ureg.volt,
+            "EBeam/HV",
+            ureg.volt,
+        ),
+        (
+            "em_lab/ebeam_column/electron_source/emission_current",
+            ureg.ampere,
+            "EBeam/EmissionCurrent",
+            ureg.ampere,
+        ),
+        (
+            "em_lab/ebeam_column/apertureID[aperture1]/diameter",
+            ureg.meter,
+            "EBeam/ApertureDiameter",
+            ureg.meter,
+        ),
+        (
+            "em_lab/ebeam_column/BEAM[beam]/current",
+            ureg.ampere,
+            "EBeam/BeamCurrent",
+            ureg.ampere,
+        ),
+    ],
 }
+
+
+# this example exemplifies the situation for the TFS/FEI SEM Apreo from the IKZ of Prof. Martin Albrecht
+# thanks to Robert Kernke it was clarified the microscope has several detectors and imaging modes
+# these imaging modes control the specific TFS/FEI concept instances stored in the respective TIFF file
+# we here use a glossary of all concepts which we were able to parse out from an example image
+# taken for each detector and imaging mode
+# we then assume that one can work with the joint set of these concepts
+
+TIFF_TFS_PARENT_CONCEPTS = [
+    "Accessories",
+    "Beam",
+    "ColdStage",
+    "CompoundLensFilter",
+    "Detectors",
+    "EBeam",
+    "EBeamDeceleration",
+    "EScan",
+    "ETD",
+    "EasyLift",
+    "GIS",
+    "HiResIllumination",
+    "HotStage",
+    "HotStageHVHS",
+    "HotStageMEMS",
+    "IRBeam",
+    "Image",
+    "Nav-Cam",
+    "PrivateFei",
+    "Scan",
+    "Specimen",
+    "Stage",
+    "System",
+    "T1",
+    "T2",
+    "T3",
+    "User",
+    "Vacuum",
+]
+
+TIFF_TFS_ALL_CONCEPTS = [
+    "Accessories/Number",
+    "Beam/Beam",
+    "Beam/BeamShiftX",
+    "Beam/BeamShiftY",
+    "Beam/FineStageBias",
+    "Beam/HV",
+    "Beam/ImageMode",
+    "Beam/Scan",
+    "Beam/ScanRotation",
+    "Beam/Spot",
+    "Beam/StigmatorX",
+    "Beam/StigmatorY",
+    "ColdStage/ActualTemperature",
+    "ColdStage/Humidity",
+    "ColdStage/SampleBias",
+    "ColdStage/TargetTemperature",
+    "CompoundLensFilter/IsOn",
+    "CompoundLensFilter/ThresholdEnergy",
+    "Detectors/Mode",
+    "Detectors/Name",
+    "Detectors/Number",
+    "EasyLift/Rotation",
+    "EBeam/Acq",
+    "EBeam/Aperture",
+    "EBeam/ApertureDiameter",
+    "EBeam/ATubeVoltage",
+    "EBeam/BeamCurrent",
+    "EBeam/BeamMode",
+    "EBeam/BeamShiftX",
+    "EBeam/BeamShiftY",
+    "EBeam/ColumnType",
+    "EBeam/DynamicFocusIsOn",
+    "EBeam/DynamicWDIsOn",
+    "EBeam/EmissionCurrent",
+    "EBeam/EucWD",
+    "EBeam/FinalLens",
+    "EBeam/HFW",
+    "EBeam/HV",
+    "EBeam/ImageMode",
+    "EBeam/LensMode",
+    "EBeam/LensModeA",
+    "EBeam/MagnificationCorrection",
+    "EBeam/PreTilt",
+    "EBeam/ScanRotation",
+    "EBeam/SemOpticalMode",
+    "EBeam/Source",
+    "EBeam/SourceTiltX",
+    "EBeam/SourceTiltY",
+    "EBeam/StageR",
+    "EBeam/StageTa",
+    "EBeam/StageTb",
+    "EBeam/StageX",
+    "EBeam/StageY",
+    "EBeam/StageZ",
+    "EBeam/StigmatorX",
+    "EBeam/StigmatorY",
+    "EBeam/TiltCorrectionAngle",
+    "EBeam/TiltCorrectionIsOn",
+    "EBeam/UseCase",
+    "EBeam/VFW",
+    "EBeam/WD",
+    "EBeam/WehneltBias",
+    "EBeamDeceleration/ImmersionRatio",
+    "EBeamDeceleration/LandingEnergy",
+    "EBeamDeceleration/ModeOn",
+    "EBeamDeceleration/StageBias",
+    "EScan/Dwell",
+    "EScan/FrameTime",
+    "EScan/HorFieldsize",
+    "EScan/InternalScan",
+    "EScan/LineIntegration",
+    "EScan/LineTime",
+    "EScan/Mainslock",
+    "EScan/PixelHeight",
+    "EScan/PixelWidth",
+    "EScan/Scan",
+    "EScan/ScanInterlacing",
+    "EScan/VerFieldsize",
+    "ETD/Brightness",
+    "ETD/BrightnessDB",
+    "ETD/Contrast",
+    "ETD/ContrastDB",
+    "ETD/Grid",
+    "ETD/MinimumDwellTime",
+    "ETD/Mix",
+    "ETD/Setting",
+    "ETD/Signal",
+    "GIS/Number",
+    "HiResIllumination/BrightFieldIsOn",
+    "HiResIllumination/BrightFieldValue",
+    "HiResIllumination/DarkFieldIsOn",
+    "HiResIllumination/DarkFieldValue",
+    "HotStage/ActualTemperature",
+    "HotStage/SampleBias",
+    "HotStage/ShieldBias",
+    "HotStage/TargetTemperature",
+    "HotStageHVHS/ActualTemperature",
+    "HotStageHVHS/SampleBias",
+    "HotStageHVHS/ShieldBias",
+    "HotStageHVHS/TargetTemperature",
+    "HotStageMEMS/ActualTemperature",
+    "HotStageMEMS/HeatingCurrent",
+    "HotStageMEMS/HeatingPower",
+    "HotStageMEMS/HeatingVoltage",
+    "HotStageMEMS/SampleBias",
+    "HotStageMEMS/SampleResistance",
+    "HotStageMEMS/TargetTemperature",
+    "Image/Average",
+    "Image/DigitalBrightness",
+    "Image/DigitalContrast",
+    "Image/DigitalGamma",
+    "Image/DriftCorrected",
+    "Image/Integrate",
+    "Image/MagCanvasRealWidth",
+    "Image/MagnificationMode",
+    "Image/PostProcessing",
+    "Image/ResolutionX",
+    "Image/ResolutionY",
+    "Image/ScreenMagCanvasRealWidth",
+    "Image/ScreenMagnificationMode",
+    "Image/Transformation",
+    "Image/ZoomFactor",
+    "Image/ZoomPanX",
+    "Image/ZoomPanY",
+    "IRBeam/HFW",
+    "IRBeam/n",
+    "IRBeam/ScanRotation",
+    "IRBeam/SiDepth",
+    "IRBeam/StageR",
+    "IRBeam/StageTa",
+    "IRBeam/StageTb",
+    "IRBeam/StageX",
+    "IRBeam/StageY",
+    "IRBeam/StageZ",
+    "IRBeam/VFW",
+    "IRBeam/WD",
+    "PrivateFei/BitShift",
+    "PrivateFei/DataBarAvailable",
+    "PrivateFei/DatabarHeight",
+    "PrivateFei/DataBarSelected",
+    "PrivateFei/TimeOfCreation",
+    "Scan/Average",
+    "Scan/Dwelltime",
+    "Scan/FrameTime",
+    "Scan/HorFieldsize",
+    "Scan/Integrate",
+    "Scan/InternalScan",
+    "Scan/PixelHeight",
+    "Scan/PixelWidth",
+    "Scan/VerFieldsize",
+    "Specimen/SpecimenCurrent",
+    "Specimen/Temperature",
+    "Stage/ActiveStage",
+    "Stage/SpecTilt",
+    "Stage/StageR",
+    "Stage/StageT",
+    "Stage/StageTb",
+    "Stage/StageX",
+    "Stage/StageY",
+    "Stage/StageZ",
+    "Stage/WorkingDistance",
+    "System/Acq",
+    "System/Aperture",
+    "System/BuildNr",
+    "System/Chamber",
+    "System/Column",
+    "System/DisplayHeight",
+    "System/DisplayWidth",
+    "System/Dnumber",
+    "System/ESEM",
+    "System/EucWD",
+    "System/FinalLens",
+    "System/Pump",
+    "System/Scan",
+    "System/Software",
+    "System/Source",
+    "System/Stage",
+    "System/SystemType",
+    "System/Type",
+    "T1/Brightness",
+    "T1/BrightnessDB",
+    "T1/Contrast",
+    "T1/ContrastDB",
+    "T1/MinimumDwellTime",
+    "T1/Setting",
+    "T1/Signal",
+    "T2/Brightness",
+    "T2/BrightnessDB",
+    "T2/Contrast",
+    "T2/ContrastDB",
+    "T2/MinimumDwellTime",
+    "T2/Setting",
+    "T2/Signal",
+    "T3/Brightness",
+    "T3/BrightnessDB",
+    "T3/Contrast",
+    "T3/ContrastDB",
+    "T3/MinimumDwellTime",
+    "T3/Signal",
+    "User/Date",
+    "User/Time",
+    "User/User",
+    "User/UserText",
+    "User/UserTextUnicode",
+    "Vacuum/ChPressure",
+    "Vacuum/Gas",
+    "Vacuum/Humidity",
+    "Vacuum/UserMode",
+]
+
+# there is more to know and understand than just knowing TFS/FEI uses
+# the above-mentioned concepts in their taxonomy:
+# take the example of System/Source for which an example file (instance) has the
+# value "FEG"
+# similar like in NeXus "System/Source" labels a concept for which (assumption!) there
+# is a controlled enumeration of symbols possible (as the example shows "FEG" is one such
+# allowed symbol of the enumeration.
+# The key issue is that the symbols for the leaf (here "FEG") means nothing eventually
+# when one has another semantic world-view, like in NOMAD metainfo or NeXus
+# (only us) humans understand that what TFS/FEI likely means with the symbol
+# "FEG" is exactly the same as what we mean in NeXus when setting emitter_type of
+# NXebeam_column to "cold_cathode_field_emitter"
+# world with the controlled enumeration value "other" because we do not know
+# if FEG means really a filament or a cold_cathode_field_emitter

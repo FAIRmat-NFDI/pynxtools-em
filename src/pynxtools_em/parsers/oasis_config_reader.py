@@ -17,25 +17,18 @@
 #
 """Parser NOMAD-Oasis-specific configuration serialized as oasis.yaml to NeXus NXem."""
 
-# mapping instructions as a dictionary
-#   prefix is the (variadic prefix to be add to every path on the target side)
-#   different modifiers are used
-#       "use": list of pair of trg, src endpoint, take the value in src copy into trg
-#       "load": list of single value or pair (trg, src)
-#           if single value this means that the endpoint of trg and src is the same
-#           e.g. in the example below "name" means
-#           ("/ENTRY[entry*]/USER[user*]/name, "load", "name")
-#           if pair load the value pointed to by src and copy into trg
-
 import pathlib
 
 import flatdict as fd
 import yaml
-from pynxtools_em.concepts.mapping_functors import add_specific_metadata
-from pynxtools_em.configurations.oasis_cfg import EM_CITATION_TO_NEXUS, EM_CSYS_TO_NEXUS
+from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
+from pynxtools_em.configurations.oasis_cfg import (
+    OASISCFG_EM_CITATION_TO_NEXUS,
+    OASISCFG_EM_CSYS_TO_NEXUS,
+)
 
 
-class NxEmNomadOasisConfigurationParser:
+class NxEmNomadOasisConfigParser:
     """Parse deployment specific configuration."""
 
     def __init__(self, file_path: str, entry_id: int, verbose: bool = False):
@@ -46,33 +39,33 @@ class NxEmNomadOasisConfigurationParser:
             pathlib.Path(file_path).name.endswith(".oasis.specific.yaml")
             or pathlib.Path(file_path).name.endswith(".oasis.specific.yml")
         ) and entry_id > 0:
-            self.entry_id = entry_id
             self.file_path = file_path
             with open(self.file_path, "r", encoding="utf-8") as stream:
-                self.yml = fd.FlatDict(yaml.safe_load(stream), delimiter="/")
+                self.flat_metadata = fd.FlatDict(yaml.safe_load(stream), "/")
                 if verbose:
-                    for key, val in self.yml.items():
+                    for key, val in self.flat_metadata.items():
                         print(f"key: {key}, val: {val}")
+            self.entry_id = entry_id
         else:
-            self.entry_id = 1
             self.file_path = ""
-            self.yml = {}
+            self.entry_id = 1
+            self.flat_metadata = fd.FlatDict({}, "/")
 
     def parse_reference_frames(self, template: dict) -> dict:
         """Copy details about frames of reference into template."""
         src = "coordinate_system_set"
-        if src in self.yml:
-            if isinstance(self.yml[src], list):
-                if all(isinstance(entry, dict) for entry in self.yml[src]):
+        if src in self.flat_metadata:
+            if isinstance(self.flat_metadata[src], list):
+                if all(isinstance(entry, dict) for entry in self.flat_metadata[src]):
                     csys_id = 1
                     # custom schema delivers a list of dictionaries...
-                    for csys_dict in self.yml[src]:
-                        if csys_dict == {}:
+                    for csys_dict in self.flat_metadata[src]:
+                        if len(csys_dict) == 0:
                             continue
                         identifier = [self.entry_id, csys_id]
-                        add_specific_metadata(
-                            EM_CSYS_TO_NEXUS,
-                            fd.FlatDict(csys_dict),
+                        add_specific_metadata_pint(
+                            OASISCFG_EM_CSYS_TO_NEXUS,
+                            csys_dict,
                             identifier,
                             template,
                         )
@@ -82,18 +75,21 @@ class NxEmNomadOasisConfigurationParser:
     def parse_example(self, template: dict) -> dict:
         """Copy data from example-specific section into template."""
         src = "citation"
-        if src in self.yml:
-            if isinstance(self.yml[src], list):
-                if all(isinstance(entry, dict) for entry in self.yml[src]) is True:
+        if src in self.flat_metadata:
+            if isinstance(self.flat_metadata[src], list):
+                if (
+                    all(isinstance(entry, dict) for entry in self.flat_metadata[src])
+                    is True
+                ):
                     cite_id = 1
                     # custom schema delivers a list of dictionaries...
-                    for cite_dict in self.yml[src]:
-                        if cite_dict == {}:
+                    for cite_dict in self.flat_metadata[src]:
+                        if len(cite_dict) == 0:
                             continue
                         identifier = [self.entry_id, cite_id]
-                        add_specific_metadata(
-                            EM_CITATION_TO_NEXUS,
-                            fd.FlatDict(cite_dict),
+                        add_specific_metadata_pint(
+                            OASISCFG_EM_CITATION_TO_NEXUS,
+                            cite_dict,
                             identifier,
                             template,
                         )

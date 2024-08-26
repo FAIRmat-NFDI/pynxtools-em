@@ -66,11 +66,13 @@ class NxEmDefaultPlotResolver:
 
         dtyp_vote = [
             ("IMAGE_SET", "image", 1),
+            ("IMAGE_SET", "stack", 1),
             ("SPECTRUM_SET", "spectrum", 2),
+            ("SPECTRUM_SET", "stack", 2),
         ]
         for key in template.keys():
             for tpl in dtyp_vote:
-                for dimensionality in ["zerod", "oned", "twod", "threed"]:
+                for dimensionality in ["0d", "1d", "2d", "3d"]:
                     head = f"{tpl[0]}["
                     idx_head = key.find(head)
                     tail = f"]/{tpl[1]}_{dimensionality}"
