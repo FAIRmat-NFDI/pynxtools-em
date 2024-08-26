@@ -21,24 +21,16 @@ import pathlib
 
 import flatdict as fd
 import yaml
-from pynxtools_em.concepts.mapping_functors import (
-    add_specific_metadata,
-    variadic_path_to_specific_path,
-)
+from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.conventions_cfg import (
-    DETECTOR_CSYS_TO_NEXUS,
-    GNOMONIC_CSYS_TO_NEXUS,
-    PATTERN_CSYS_TO_NEXUS,
-    PROCESSING_CSYS_TO_NEXUS,
-    ROTATIONS_TO_NEXUS,
-    SAMPLE_CSYS_TO_NEXUS,
+    CONV_DETECTOR_CSYS_TO_NEXUS,
+    CONV_GNOMONIC_CSYS_TO_NEXUS,
+    CONV_PATTERN_CSYS_TO_NEXUS,
+    CONV_PROCESSING_CSYS_TO_NEXUS,
+    CONV_ROTATIONS_TO_NEXUS,
+    CONV_SAMPLE_CSYS_TO_NEXUS,
 )
-from pynxtools_em.geometries.euler_angle_convention import euler_convention
-from pynxtools_em.geometries.handed_cartesian import (
-    AXIS_DIRECTIONS,
-    REFERENCE_FRAMES,
-    is_cartesian_cs_well_defined,
-)
+from pynxtools_em.geometries.handed_cartesian import is_cartesian_cs_well_defined
 from pynxtools_em.geometries.msmse_convention import is_consistent_with_msmse_convention
 
 
@@ -52,31 +44,31 @@ class NxEmConventionParser:
             pathlib.Path(file_path).name.endswith("conventions.yaml")
             or pathlib.Path(file_path).name.endswith("conventions.yml")
         ) and entry_id > 0:
-            self.entry_id = entry_id
             self.file_path = file_path
             with open(self.file_path, "r", encoding="utf-8") as stream:
-                self.yml = fd.FlatDict(yaml.safe_load(stream), delimiter="/")
+                self.flat_metadata = fd.FlatDict(yaml.safe_load(stream), delimiter="/")
                 if verbose:
-                    for key, val in self.yml.items():
+                    for key, val in self.flat_metadata.items():
                         print(f"key: {key}, value: {val}")
+            self.entry_id = entry_id
         else:
-            self.entry_id = 1
             self.file_path = ""
-            self.yml = {}
+            self.entry_id = 1
+            self.flat_metadata = fd.FlatDict({}, "/")
 
     def parse(self, template) -> dict:
         """Extract metadata from generic ELN text file to respective NeXus objects."""
         print("Parsing conventions...")
         identifier = [self.entry_id, 1]
         for cfg in [
-            ROTATIONS_TO_NEXUS,
-            PROCESSING_CSYS_TO_NEXUS,
-            SAMPLE_CSYS_TO_NEXUS,
-            DETECTOR_CSYS_TO_NEXUS,
-            GNOMONIC_CSYS_TO_NEXUS,
-            PATTERN_CSYS_TO_NEXUS,
+            CONV_ROTATIONS_TO_NEXUS,
+            CONV_PROCESSING_CSYS_TO_NEXUS,
+            CONV_SAMPLE_CSYS_TO_NEXUS,
+            CONV_DETECTOR_CSYS_TO_NEXUS,
+            CONV_GNOMONIC_CSYS_TO_NEXUS,
+            CONV_PATTERN_CSYS_TO_NEXUS,
         ]:
-            add_specific_metadata(cfg, self.yml, identifier, template)
+            add_specific_metadata_pint(cfg, self.flat_metadata, identifier, template)
 
         # check is used convention follows EBSD community suggestions by Rowenhorst et al.
         prfx = f"/ENTRY[entry{self.entry_id}]/coordinate_system_set"

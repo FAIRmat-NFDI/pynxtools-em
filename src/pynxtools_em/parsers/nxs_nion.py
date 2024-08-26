@@ -31,16 +31,16 @@ import numpy as np
 import yaml
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.nion_cfg import (
-    NION_DYNAMIC_ABERRATION_TO_NX_EM,
-    NION_DYNAMIC_DETECTOR_TO_NX_EM,
-    NION_DYNAMIC_LENS_TO_NX_EM,
-    NION_DYNAMIC_MAGBOARDS_TO_NX_EM,
-    NION_DYNAMIC_SCAN_TO_NX_EM,
-    NION_DYNAMIC_STAGE_TO_NX_EM,
-    NION_DYNAMIC_VARIOUS_TO_NX_EM,
-    NION_PINPOINT_EVENT_TIME,
-    NION_STATIC_DETECTOR_TO_NX_EM,
-    NION_STATIC_LENS_TO_NX_EM,
+    NION_DYNAMIC_ABERRATION_NX,
+    NION_DYNAMIC_DETECTOR_NX,
+    NION_DYNAMIC_EVENT_TIME,
+    NION_DYNAMIC_LENS_NX,
+    NION_DYNAMIC_MAGBOARDS_NX,
+    NION_DYNAMIC_SCAN_NX,
+    NION_DYNAMIC_STAGE_NX,
+    NION_DYNAMIC_VARIOUS_NX,
+    NION_STATIC_DETECTOR_NX,
+    NION_STATIC_LENS_NX,
     NION_WHICH_IMAGE,
     NION_WHICH_SPECTRUM,
 )
@@ -391,14 +391,14 @@ class NionProjectParser:
         # we assume for now dynamic quantities can just be repeated
         identifier = [self.entry_id, self.event_id, 1]
         for cfg in [
-            NION_DYNAMIC_ABERRATION_TO_NX_EM,
-            NION_DYNAMIC_DETECTOR_TO_NX_EM,
-            NION_DYNAMIC_LENS_TO_NX_EM,
-            NION_DYNAMIC_MAGBOARDS_TO_NX_EM,
-            NION_DYNAMIC_SCAN_TO_NX_EM,
-            NION_DYNAMIC_STAGE_TO_NX_EM,
-            NION_DYNAMIC_VARIOUS_TO_NX_EM,
-            NION_PINPOINT_EVENT_TIME,
+            NION_DYNAMIC_ABERRATION_NX,
+            NION_DYNAMIC_DETECTOR_NX,
+            NION_DYNAMIC_LENS_NX,
+            NION_DYNAMIC_MAGBOARDS_NX,
+            NION_DYNAMIC_SCAN_NX,
+            NION_DYNAMIC_STAGE_NX,
+            NION_DYNAMIC_VARIOUS_NX,
+            NION_DYNAMIC_EVENT_TIME,
         ]:
             add_specific_metadata_pint(cfg, flat_metadata, identifier, template)
         # but not so static quantities, for these we ideally need to check if
@@ -411,10 +411,10 @@ class NionProjectParser:
         # nasty assume there is only one e.g. direct electron detector
         identifier = [self.entry_id, 1]
         add_specific_metadata_pint(
-            NION_STATIC_DETECTOR_TO_NX_EM, flat_metadata, identifier, template
+            NION_STATIC_DETECTOR_NX, flat_metadata, identifier, template
         )
         add_specific_metadata_pint(
-            NION_STATIC_LENS_TO_NX_EM, flat_metadata, identifier, template
+            NION_STATIC_LENS_NX, flat_metadata, identifier, template
         )
         return template
 

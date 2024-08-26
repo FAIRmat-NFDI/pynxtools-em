@@ -56,19 +56,22 @@ for the respective file formats of technology partners of the electron microscop
 
 - [How to map pieces of information to NeXus](reference/contextualization.md)
 
+- [Conventions collected with a text file or ELN](reference/conventions.md)
+- [Metadata collected with an ELN and RDM-specific configurations](reference/eln_and_cfg.md)
+
 - [AXON Protochips Portable Network Graphics PNG](reference/png_axon.md)
 - [EDAX APEX](reference/apex.md)
 - [Gatan DigitalMicrograph DM3/DM4](reference/gatan.md)
 - [Hitachi Tagged Image File Format TIFF](reference/tiff_hitachi.md)
 - [JEOL Tagged Image File Format TIFF](reference/tiff_jeol.md)
 - [Nion Co. projects with NDATA and HDF5 files](reference/nion.md)
-- [Point Electronic DISS Portable Network Graphics PNG](reference/png_point.md)
+- [Point Electronic DISS Tagged Image File Format TIFF](reference/tiff_point.md)
 - [TESCAN Tagged Image File Format TIFF](reference/tiff_tescan.md)
 - [ThermoFisher Tagged Image File Format TIFF](reference/tiff_tfs.md)
 - [ThermoFisher Velox EMD](reference/velox.md)
 - [Zeiss Tagged Image File Format TIFF](reference/tiff_zeiss.md)
-- [EBSD-centric content for the parsing route via MTex](mtex.md)
-- [EBSD-centric content for the parsing route via pyxem](pyxem.md)
+- [EBSD-centric content for the parsing route via MTex](how-tos/mtex.md)
+- [EBSD-centric content for the parsing route via pyxem](how-tos/pyxem.md)
 
 </div>
 </div>

@@ -388,30 +388,30 @@ class NxEmNxsPyxemParser:
         trg = (
             f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
             f"EVENT_DATA_EM[event_data_em{self.id_mgn['event']}]/"
-            f"IMAGE_R_SET[image_r_set{self.id_mgn['event_img']}]/image_twod"
+            f"IMAGE_SET[image_set{self.id_mgn['event_img']}]/image_2d"
         )
         template[f"{trg}/description"] = inp.tmp["source"]
         template[f"{trg}/title"] = f"Region-of-interest overview image"
-        template[f"{trg}/@signal"] = "intensity"
-        dims = [("x", 0), ("y", 1)]
+        template[f"{trg}/@signal"] = "real"
+        dims = [("i", 0), ("j", 1)]
         template[f"{trg}/@axes"] = []
         for dim in dims[::-1]:
             template[f"{trg}/@axes"].append(f"axis_{dim[0]}")
-        template[f"{trg}/intensity"] = {
-            "compress": inp.tmp["image_twod/intensity"].value,
+        template[f"{trg}/real"] = {
+            "compress": inp.tmp["image_2d/real"].value,
             "strength": 1,
         }
-        template[f"{trg}/intensity/@long_name"] = f"Signal"
+        template[f"{trg}/real/@long_name"] = f"Signal"
         for dim in dims:
             template[f"{trg}/@AXISNAME_indices[axis_{dim[0]}_indices]"] = np.uint32(
                 dim[1]
             )
             template[f"{trg}/AXISNAME[axis_{dim[0]}]"] = {
-                "compress": inp.tmp[f"image_twod/axis_{dim[0]}"].value,
+                "compress": inp.tmp[f"image_2d/axis_{dim[0]}"].value,
                 "strength": 1,
             }
             template[f"{trg}/AXISNAME[axis_{dim[0]}]/@long_name"] = inp.tmp[
-                f"image_twod/axis_{dim[0]}@long_name"
+                f"image_2d/axis_{dim[0]}@long_name"
             ].value
         self.id_mgn["event_img"] += 1
         self.id_mgn["event"] += 1
@@ -812,26 +812,26 @@ class NxEmNxsPyxemParser:
                 trg = (
                     f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
                     f"EVENT_DATA_EM[event_data_em{self.id_mgn['event']}]/SPECTRUM_SET"
-                    f"[spectrum_set{self.id_mgn['event_spc']}]/spectrum_zerod"
+                    f"[spectrum_set{self.id_mgn['event_spc']}]/spectrum_0d"
                 )
                 template[f"{trg}/description"] = inp[ckey].tmp["source"]
                 template[f"{trg}/title"] = f"Region-of-interest overview image"
-                template[f"{trg}/@signal"] = "intensity"
+                template[f"{trg}/@signal"] = "real"
                 template[f"{trg}/@axes"] = ["axis_energy"]
-                template[f"{trg}/intensity"] = {
-                    "compress": inp[ckey].tmp["spectrum_zerod/intensity"].value,
+                template[f"{trg}/real"] = {
+                    "compress": inp[ckey].tmp["spectrum_0d/real"].value,
                     "strength": 1,
                 }
-                template[f"{trg}/intensity/@long_name"] = (
-                    inp[ckey].tmp["spectrum_zerod/intensity@long_name"].value
+                template[f"{trg}/real/@long_name"] = (
+                    inp[ckey].tmp["spectrum_0d/real@long_name"].value
                 )
                 template[f"{trg}/@AXISNAME_indices[axis_energy_indices]"] = np.uint32(0)
                 template[f"{trg}/AXISNAME[axis_energy]"] = {
-                    "compress": inp[ckey].tmp[f"spectrum_zerod/axis_energy"].value,
+                    "compress": inp[ckey].tmp[f"spectrum_0d/axis_energy"].value,
                     "strength": 1,
                 }
                 template[f"{trg}/AXISNAME[axis_energy]/@long_name"] = (
-                    inp[ckey].tmp[f"spectrum_zerod/axis_energy@long_name"].value
+                    inp[ckey].tmp[f"spectrum_0d/axis_energy@long_name"].value
                 )
                 self.id_mgn["event_spc"] += 1
                 self.id_mgn["event"] += 1
@@ -845,12 +845,12 @@ class NxEmNxsPyxemParser:
                     f"eds/indexing"
                 )
                 template[f"{trg}/source"] = inp[ckey].tmp["source"]
-                for img in inp[ckey].tmp["IMAGE_R_SET"]:
+                for img in inp[ckey].tmp["IMAGE_SET"]:
                     if not isinstance(img, NxImageRealSpaceSet):
                         continue
                     trg = (
                         f"/ENTRY[entry{self.entry_id}]/ROI[roi{self.id_mgn['roi']}]/eds/"
-                        f"indexing/IMAGE_R_SET[image_r_set{self.id_mgn['eds_img']}]"
+                        f"indexing/IMAGE_SET[image_set{self.id_mgn['eds_img']}]"
                     )
                     template[f"{trg}/source"] = img.tmp["source"]
                     template[f"{trg}/description"] = img.tmp["description"]
@@ -861,28 +861,28 @@ class NxEmNxsPyxemParser:
                     template[f"{trg}/iupac_line_candidates"] = img.tmp[
                         "iupac_line_candidates"
                     ]
-                    template[f"{trg}/image_twod/@signal"] = "intensity"
-                    template[f"{trg}/image_twod/@axes"] = ["axis_y", "axis_x"]
-                    template[f"{trg}/image_twod/title"] = (
+                    template[f"{trg}/image_2d/@signal"] = "real"
+                    template[f"{trg}/image_2d/@axes"] = ["axis_j", "axis_i"]
+                    template[f"{trg}/image_2d/title"] = (
                         f"EDS map {img.tmp['description']}"
                     )
-                    template[f"{trg}/image_twod/intensity"] = {
-                        "compress": img.tmp["image_twod/intensity"].value,
+                    template[f"{trg}/image_2d/real"] = {
+                        "compress": img.tmp["image_2d/real"].value,
                         "strength": 1,
                     }
-                    template[f"{trg}/image_twod/intensity/@long_name"] = f"Signal"
-                    dims = [("x", 0), ("y", 1)]
+                    template[f"{trg}/image_2d/real/@long_name"] = f"Signal"
+                    dims = [("i", 0), ("j", 1)]
                     for dim in dims:
                         template[
-                            f"{trg}/image_twod/@AXISNAME_indices[axis_{dim[0]}_indices]"
+                            f"{trg}/image_2d/@AXISNAME_indices[axis_{dim[0]}_indices]"
                         ] = np.uint32(dim[1])
-                        template[f"{trg}/image_twod/AXISNAME[axis_{dim[0]}]"] = {
-                            "compress": img.tmp[f"image_twod/axis_{dim[0]}"].value,
+                        template[f"{trg}/image_2d/AXISNAME[axis_{dim[0]}]"] = {
+                            "compress": img.tmp[f"image_2d/axis_{dim[0]}"].value,
                             "strength": 1,
                         }
                         template[
-                            f"{trg}/image_twod/AXISNAME[axis_{dim[0]}]/@long_name"
-                        ] = img.tmp[f"image_twod/axis_{dim[0]}@long_name"].value
+                            f"{trg}/image_2d/AXISNAME[axis_{dim[0]}]/@long_name"
+                        ] = img.tmp[f"image_2d/axis_{dim[0]}@long_name"].value
                     self.id_mgn["eds_img"] += 1
                 self.id_mgn["roi"] += 1
 

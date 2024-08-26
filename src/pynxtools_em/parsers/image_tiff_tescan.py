@@ -25,17 +25,19 @@ import numpy as np
 from PIL import Image, ImageSequence
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_tescan_cfg import (
-    TESCAN_STAGE_DYNAMIC_TO_NX_EM,
-    TESCAN_STIGMATOR_DYNAMIC_TO_NX_EM,
-    TESCAN_VARIOUS_DYNAMIC_TO_NX_EM,
-    TESCAN_VARIOUS_STATIC_TO_NX_EM,
+    TESCAN_DYNAMIC_STAGE_NX,
+    TESCAN_DYNAMIC_STIGMATOR_NX,
+    TESCAN_DYNAMIC_VARIOUS_NX,
+    TESCAN_STATIC_VARIOUS_NX,
 )
 from pynxtools_em.parsers.image_tiff import TiffParser
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
 
 
 class TescanTiffParser(TiffParser):
     def __init__(self, file_paths: List[str], entry_id: int = 1, verbose: bool = False):
+        # file and sidecar file may not come in a specific order need to find which is which if any supported
         tif_hdr = ["", ""]
         if len(file_paths) == 1 and file_paths[0].lower().endswith((".tif", ".tiff")):
             tif_hdr[0] = file_paths[0]
@@ -45,23 +47,23 @@ class TescanTiffParser(TiffParser):
             == file_paths[1][0 : file_paths[0].rfind(".")]
         ):
             for entry in file_paths:
-                if entry.lower().endswith((".tif", ".tiff")):
+                if entry.lower().endswith((".tif", ".tiff")) and entry != "":
                     tif_hdr[0] = entry
-                elif entry.lower().endswith((".hdr")):
+                elif entry.lower().endswith((".hdr")) and entry != "":
                     tif_hdr[1] = entry
+
         if tif_hdr[0] != "":
             super().__init__(tif_hdr[0])
-            if tif_hdr[1] != "":
-                self.hdr_file_path = tif_hdr[1]
-            else:
-                self.hdr_file_path = ""
             self.entry_id = entry_id
             self.event_id = 1
             self.verbose = verbose
             self.flat_dict_meta = fd.FlatDict({}, "/")
             self.version: Dict = {}
             self.supported = False
+            self.hdr_file_path = tif_hdr[1]
             self.check_if_tiff_tescan()
+        else:
+            self.supported = False
 
     def check_if_tiff_tescan(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file.
@@ -70,6 +72,11 @@ class TescanTiffParser(TiffParser):
         about which software was used to process the image data, e.g. DISS software.
         """
         self.supported = False
+        if not hasattr(self, "file_path"):
+            print(
+                f"... is not a TESCAN-specific TIFF/(HDR) file (set) that this parser can process !"
+            )
+            return
         with open(self.file_path, "rb", 0) as file:
             s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
             magic = s.read(4)
@@ -86,7 +93,16 @@ class TescanTiffParser(TiffParser):
                 if tescan_key in fp.tag_v2:
                     payload = fp.tag_v2[tescan_key]
                     pos = payload.find(bytes("Description", "utf8"))
-                    txt = payload[pos:].decode("utf8")
+                    try:
+                        txt = payload[pos:].decode("utf8")
+                    except UnicodeDecodeError:
+                        print(
+                            f"WARNING::{self.file_path} TESCAN TIFF tag {tescan_key} cannot be decoded using UTF8, trying to use sidecar file instead if available !"
+                        )
+                        if hasattr(self, "hdr_file_path"):
+                            continue
+                        else:
+                            return
                     del payload
 
                     for line in txt.split():
@@ -135,7 +151,7 @@ class TescanTiffParser(TiffParser):
                 print(f"{key}____{type(value)}____{value}")
 
         # check if written about with supported DISS version
-        supported_versions = ["TIMA"]
+        supported_versions = ["TIMA", "MIRA3 LMH"]
         if "Device" in self.flat_dict_meta:
             if self.flat_dict_meta["Device"] in supported_versions:
                 self.supported = True
@@ -149,10 +165,6 @@ class TescanTiffParser(TiffParser):
             # metadata have at this point already been collected into an fd.FlatDict
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
-        else:
-            print(
-                f"{self.file_path} is not a TESCAN-specific TIFF file that this parser can process !"
-            )
         return template
 
     def process_event_data_em_data(self, template: dict) -> dict:
@@ -187,15 +199,22 @@ class TescanTiffParser(TiffParser):
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Signal"
 
-                sxy = {"i": 1.0, "j": 1.0}
-                scan_unit = {"i": "m", "j": "m"}
+                sxy = {
+                    "i": ureg.Quantity(1.0, ureg.meter),
+                    "j": ureg.Quantity(1.0, ureg.meter),
+                }
+                abbrev = "PixelSize"
                 if all(
                     value in self.flat_dict_meta
                     for value in ["PixelSizeX", "PixelSizeY"]
                 ):
                     sxy = {
-                        "i": self.flat_dict_meta["PixelSizeX"],
-                        "j": self.flat_dict_meta["PixelSizeY"],
+                        "i": ureg.Quantity(
+                            self.flat_dict_meta["PixelSizeX"], ureg.meter
+                        ),
+                        "j": ureg.Quantity(
+                            self.flat_dict_meta["PixelSizeY"], ureg.meter
+                        ),
                     }
                 else:
                     print("WARNING: Assuming pixel width and height unit is meter!")
@@ -207,15 +226,15 @@ class TescanTiffParser(TiffParser):
                     template[f"{trg}/AXISNAME[axis_{dim}]"] = {
                         "compress": np.asarray(
                             np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
-                            * sxy[dim],
+                            * sxy[dim].magnitude,
                             np.float64,
                         ),
                         "strength": 1,
                     }
                     template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                        f"Coordinate along {dim}-axis ({scan_unit[dim]})"
+                        f"Coordinate along {dim}-axis ({sxy[dim].units})"
                     )
-                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit[dim]}"
+                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
                 image_identifier += 1
         return template
 
@@ -225,10 +244,10 @@ class TescanTiffParser(TiffParser):
         print(f"Mapping some of the TESCAN metadata on respective NeXus concepts...")
         identifier = [self.entry_id, self.event_id, 1]
         for cfg in [
-            TESCAN_STIGMATOR_DYNAMIC_TO_NX_EM,
-            TESCAN_VARIOUS_STATIC_TO_NX_EM,
-            TESCAN_VARIOUS_DYNAMIC_TO_NX_EM,
-            TESCAN_STAGE_DYNAMIC_TO_NX_EM,
+            TESCAN_DYNAMIC_STIGMATOR_NX,
+            TESCAN_STATIC_VARIOUS_NX,
+            TESCAN_DYNAMIC_VARIOUS_NX,
+            TESCAN_DYNAMIC_STAGE_NX,
         ]:
             add_specific_metadata_pint(cfg, self.flat_dict_meta, identifier, template)
         return template
