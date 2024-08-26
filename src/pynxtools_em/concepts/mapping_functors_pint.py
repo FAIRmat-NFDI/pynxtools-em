@@ -294,21 +294,15 @@ def map_functor(
     for cmd in cmds:
         case = get_case(cmd)
         if case == "case_one":  # str
-            if f"{prfx_src}{cmd}" not in mdata:
-                continue
-            src_val = mdata[f"{prfx_src}{cmd}"]
-            if not src_val:
-                continue
-            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd}", ids)
-            set_value(template, trg, src_val, trg_dtype_key)
+            src_val = mdata.get(f"{prfx_src}{cmd}")
+            if src_val:
+                trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd}", ids)
+                set_value(template, trg, src_val, trg_dtype_key)
         elif case == "case_two_str":  # str, str
-            if f"{prfx_src}{cmd[1]}" not in mdata:
-                continue
-            src_val = mdata[f"{prfx_src}{cmd[1]}"]
-            if not src_val:
-                continue
-            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-            set_value(template, trg, src_val, trg_dtype_key)
+            src_val = mdata.get(f"{prfx_src}{cmd[1]}")
+            if src_val:
+                trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+                set_value(template, trg, src_val, trg_dtype_key)
         elif case == "case_two_list":
             # ignore empty list, all src paths str, all src_val have to exist of same type
             if len(cmd[1]) == 0:
@@ -327,9 +321,7 @@ def map_functor(
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             set_value(template, trg, src_values, trg_dtype_key)
         elif case == "case_three_str":  # str, ureg.Unit, str
-            if f"{prfx_src}{cmd[2]}" not in mdata:
-                continue
-            src_val = mdata[f"{prfx_src}{cmd[2]}"]
+            src_val = mdata.get(f"{prfx_src}{cmd[2]}")
             if not src_val:
                 continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
@@ -380,9 +372,7 @@ def map_functor(
                 f"that values on the src side are pint.Quantities already!"
             )
         elif case == "case_five_str":
-            if f"{prfx_src}{cmd[2]}" not in mdata:
-                continue
-            src_val = mdata[f"{prfx_src}{cmd[2]}"]
+            src_val = mdata.get(f"{prfx_src}{cmd[2]}")
             if not src_val:
                 continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
