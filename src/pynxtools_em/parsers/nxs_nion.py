@@ -21,7 +21,7 @@
 import glob
 import json
 import mmap
-from typing import Dict
+from typing import Dict, List
 from zipfile import ZipFile
 
 import flatdict as fd
@@ -29,39 +29,49 @@ import h5py
 import nion.swift.model.NDataHandler as nsnd
 import numpy as np
 import yaml
-
-# from pynxtools_em.utils.swift_generate_dimscale_axes \
-#     import get_list_of_dimension_scale_axes
-# from pynxtools_em.utils.swift_display_items_to_nx \
-#     import nexus_concept_dict, identify_nexus_concept_key
-# from pynxtools_em.concepts.concept_mapper \
-#    import apply_modifier, variadic_path_to_specific_path
-# from pynxtools_em.swift_to_nx_image_real_space \
-#    import NxImageRealSpaceDict
+from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
+from pynxtools_em.configurations.nion_cfg import (
+    NION_DYNAMIC_ABERRATION_NX,
+    NION_DYNAMIC_DETECTOR_NX,
+    NION_DYNAMIC_EVENT_TIME,
+    NION_DYNAMIC_LENS_NX,
+    NION_DYNAMIC_MAGBOARDS_NX,
+    NION_DYNAMIC_SCAN_NX,
+    NION_DYNAMIC_STAGE_NX,
+    NION_DYNAMIC_VARIOUS_NX,
+    NION_STATIC_DETECTOR_NX,
+    NION_STATIC_LENS_NX,
+    NION_WHICH_IMAGE,
+    NION_WHICH_SPECTRUM,
+)
 from pynxtools_em.utils.get_file_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )
-from pynxtools_em.utils.nion_utils import uuid_to_file_name
+from pynxtools_em.utils.nion_utils import (
+    nion_image_spectrum_or_generic_nxdata,
+    uuid_to_file_name,
+)
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 
 class NionProjectParser:
     """Parse (zip-compressed archive of a) nionswift project with its content."""
 
-    def __init__(
-        self, entry_id: int = 1, input_file_path: str = "", verbose: bool = True
-    ):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         """Class wrapping swift parser."""
-        if input_file_path is not None and input_file_path != "":
-            self.file_path = input_file_path
+        if file_path is not None and file_path != "":
+            self.file_path = file_path
         if entry_id > 0:
             self.entry_id = entry_id
         else:
             self.entry_id = 1
+        self.event_id = 1
+        self.verbose = verbose
         # counters which keep track of how many instances of NXevent_data_em have
         # been instantiated, this implementation currently maps each display_items
         # onto an own NXevent_data_em instance
-        self.prfx = None
+        self.file_path_sha256 = None
         self.tmp: Dict = {}
         self.proj_file_dict: Dict = {}
         # assure that there is exactly one *.nsproj file only to parse from
@@ -69,23 +79,15 @@ class NionProjectParser:
         # just get the *.ndata files irrespective whether parsed later or not
         self.hfive_file_dict: Dict = {}
         # just get the *.h5 files irrespective whether parsed later or not
-        self.configure()
         self.supported = False
-        self.verbose = verbose
         self.is_zipped = False
         self.check_if_nionswift_project()
-
-    def configure(self):
-        self.tmp["cfg"]: Dict = {}
-        self.tmp["cfg"]["event_data_written"] = False
-        self.tmp["cfg"]["event_data_em_id"] = 1
-        self.tmp["cfg"]["image_id"] = 1
-        self.tmp["cfg"]["spectrum_id"] = 1
-        self.tmp["flat_dict_meta"] = fd.FlatDict({})
+        # eventually allow https://github.com/miurahr/py7zr/ to work with 7z directly
 
     def check_if_nionswift_project(self):
         """Inspect the content of the compressed project file to check if supported."""
-        if self.file_path.endswith(".zip.nion"):
+        self.supported = False
+        if self.file_path.endswith(".zip"):
             self.is_zipped = True
         elif self.file_path.endswith(".nsproj"):
             self.is_zipped = False
@@ -204,142 +206,94 @@ class NionProjectParser:
             for key, val in self.hfive_file_dict.items():
                 print(f"hfive: ___{key}___{val}___")
 
-    def update_event_identifier(self):
-        """Advance and reset bookkeeping of event data em and data instances."""
-        if self.tmp["cfg"]["event_data_written"] is True:
-            self.tmp["cfg"]["event_data_em_id"] += 1
-            self.tmp["cfg"]["event_data_written"] = False
-        self.tmp["cfg"]["image_id"] = 1
-        self.tmp["cfg"]["spectrum_id"] = 1
-
-    def add_nx_image_real_space(self, meta, arr, template):
-        """Create instance of NXimage_r_set"""
-        # TODO::
-        return template
-
-    def map_to_nexus(self, meta, arr, concept_name, template):
-        """Create the actual instance of a specific set of NeXus concepts in template."""
-        # TODO::
-        return template
-
-    def process_ndata(self, file_hdl, full_path, template):
+    def process_ndata(self, file_hdl, full_path, template) -> dict:
         """Handle reading and processing of opened *.ndata inside the ZIP file."""
         # assure that we start reading that file_hdl/pointer from the beginning...
         file_hdl.seek(0)
         local_files, dir_files, eocd = nsnd.parse_zip(file_hdl)
-        flat_metadata_dict = {}
-        """
-        data_arr = None
-        nx_concept_name = ""
-        """
+        flat_metadata = fd.FlatDict({}, "/")
         print(
             f"Inspecting {full_path} with len(local_files.keys()) ___{len(local_files.keys())}___"
         )
         for offset, tpl in local_files.items():
-            print(f"{offset}___{tpl}")
+            if self.verbose:
+                print(f"{offset}___{tpl}")
             # report to know there are more than metadata.json files in the ndata swift container format
             if tpl[0] == b"metadata.json":
-                print(
-                    f"Extract metadata.json from ___{full_path}___ at offset ___{offset}___"
-                )
+                if self.verbose:
+                    print(
+                        f"Extract metadata.json from ___{full_path}___ at offset ___{offset}___"
+                    )
                 # ... explicit jump back to beginning of the file
                 file_hdl.seek(0)
-                metadata_dict = nsnd.read_json(
-                    file_hdl, local_files, dir_files, b"metadata.json"
+                flat_metadata = fd.FlatDict(
+                    nsnd.read_json(file_hdl, local_files, dir_files, b"metadata.json"),
+                    "/",
                 )
-                """
-                nx_concept_key = identify_nexus_concept_key(metadata_dict)
-                nx_concept_name = nexus_concept_dict[nx_concept_key]
-                print(f"Display_item {full_path}, concept {nx_concept_key}, maps {nx_concept_name}")
-                """
 
-                flat_metadata_dict = fd.FlatDict(metadata_dict, delimiter="/")
                 if self.verbose:
                     print(f"Flattened content of this metadata.json")
-                    for key, value in flat_metadata_dict.items():
+                    for key, value in flat_metadata.items():
                         print(f"ndata, metadata.json, flat: ___{key}___{value}___")
-                # no break here, because we would like to inspect all content
-                # expect (based on Benedikt's example) to find only one json file
-                # in that *.ndata file pointed to by file_hdl
-        if flat_metadata_dict == {}:  # only continue if some metadata were retrieved
+                else:
+                    break
+                # previously no break here because we used verbose == True to log the analysis
+                # of all datasets that were collected in the last 5years on the NionHermes
+                # within the HU EM group lead by C. Koch and team, specifically we exported the
+                # metadata to learn about a much larger usage variety to guide the
+                # implementation of this parser, we expected though always to find only
+                # one file named metadata.json in that *.ndata file pointed to by file_hdl
+        if len(flat_metadata) == 0:
             return template
 
         for offset, tpl in local_files.items():
-            # print(f"{tpl}")
             if tpl[0] == b"data.npy":
-                print(
-                    f"Extract data.npy from ___{full_path}___ at offset ___{offset}___"
-                )
-                file_hdl.seek(0)
-                data_arr = nsnd.read_data(file_hdl, local_files, dir_files, b"data.npy")
-                if isinstance(data_arr, np.ndarray):
+                if self.verbose:
                     print(
-                        f"ndata, data.npy, type, shape, dtype: ___{type(data_arr)}___{np.shape(data_arr)}___{data_arr.dtype}___"
+                        f"Extract data.npy from ___{full_path}___ at offset ___{offset}___"
                     )
+                file_hdl.seek(0)
+                nparr = nsnd.read_data(file_hdl, local_files, dir_files, b"data.npy")
+                if isinstance(nparr, np.ndarray):
+                    print(
+                        f"ndata, data.npy, type, shape, dtype: ___{type(nparr)}___{np.shape(nparr)}___{nparr.dtype}___"
+                    )
+                # because we expect (based on Benedikt's example) to find only one npy
+                # file in that *.ndata file pointed to by file_hdl and only one matching
+                # metadata.json we can now write the data and its metadata into template
+                self.process_event_data_em_metadata(flat_metadata, template)
+                self.process_event_data_em_data(nparr, flat_metadata, template)
                 break
-                # because we expect (based on Benedikt's example) to find only one npy file
-                # in that *.ndata file pointed to by file_hdl
-
-        # check on the integriety of the data_arr array that it is not None or empty
-        # this should be done more elegantly by just writing the
-        # data directly into the template and not creating another copy
-        # TODO::only during inspection
-        """
-        self.map_to_nexus(flat_metadata_dict, data_arr, nx_concept_name, template)
-        del flat_metadata_dict
-        del data_arr
-        del nx_concept_name
-        """
         return template
 
-    def process_hfive(self, file_hdl, full_path, template: dict):
+    def process_hfive(self, file_hdl, full_path, template: dict) -> dict:
         """Handle reading and processing of opened *.h5 inside the ZIP file."""
-        flat_metadata_dict = {}
-        """
-        data_arr = None
-        nx_concept_name = ""
-        """
+        flat_metadata = fd.FlatDict({}, "/")
         file_hdl.seek(0)
         with h5py.File(file_hdl, "r") as h5r:
             print(
                 f"Inspecting {full_path} with len(h5r.keys()) ___{len(h5r.keys())}___"
             )
             print(f"{h5r.keys()}")
-            metadata_dict = json.loads(h5r["data"].attrs["properties"])
-
-            """
-            nx_concept_key = identify_nexus_concept_key(metadata_dict)
-            nx_concept_name = nexus_concept_dict[nx_concept_key]
-            print(f"Display_item {full_path}, concept {nx_concept_key}, maps {nx_concept_name}")
-            """
-
-            flat_metadata_dict = fd.FlatDict(metadata_dict, delimiter="/")
+            flat_metadata = fd.FlatDict(
+                json.loads(h5r["data"].attrs["properties"]), "/"
+            )
             if self.verbose:
                 print(f"Flattened content of this metadata.json")
-                for key, value in flat_metadata_dict.items():
+                for key, value in flat_metadata.items():
                     print(f"hfive, data, flat: ___{key}___{value}___")
 
-            if (
-                flat_metadata_dict == {}
-            ):  # only continue if some metadata were retrieved
+            if len(flat_metadata) == 0:
                 return template
 
-            data_arr = h5r["data"][()]
+            self.process_event_data_em_metadata(flat_metadata, template)
 
-            if isinstance(data_arr, np.ndarray):
+            nparr = h5r["data"][()]
+            if isinstance(nparr, np.ndarray):
                 print(
-                    f"hfive, data, type, shape, dtype: ___{type(data_arr)}___{np.shape(data_arr)}___{data_arr.dtype}___"
+                    f"hfive, data, type, shape, dtype: ___{type(nparr)}___{np.shape(nparr)}___{nparr.dtype}___"
                 )
-            """
-            print(f"data_arr type {data_arr.dtype}, shape {np.shape(data_arr)}")
-            # check on the integriety of the data_arr array that it is not None or empty
-            # this should be done more elegantly by just writing the
-            # data directly into the template and not creating another copy
-            self.map_to_nexus(flat_metadata_dict, data_arr, nx_concept_name, template)
-            del flat_metadata_dict
-            del data_arr
-            del nx_concept_name
-            """
+            self.process_event_data_em_data(nparr, flat_metadata, template)
         return template
 
     def parse_project_file(self, template: dict) -> dict:
@@ -350,13 +304,11 @@ class NionProjectParser:
                 for pkey, proj_file_name in self.proj_file_dict.items():
                     with zip_file_hdl.open(proj_file_name) as file_hdl:
                         nionswift_proj_mdata = fd.FlatDict(
-                            yaml.safe_load(file_hdl), delimiter="/"
+                            yaml.safe_load(file_hdl), "/"
                         )
         else:
             with open(self.file_path) as file_hdl:
-                nionswift_proj_mdata = fd.FlatDict(
-                    yaml.safe_load(file_hdl), delimiter="/"
-                )
+                nionswift_proj_mdata = fd.FlatDict(yaml.safe_load(file_hdl), "/")
         # TODO::inspection phase, maybe with yaml to file?
         if self.verbose:
             if self.is_zipped:
@@ -430,4 +382,149 @@ class NionProjectParser:
             else:
                 print("Parsing in-place nionswift project (nsproj + data)...")
             self.parse_project_file(template)
+        return template
+
+    def process_event_data_em_metadata(
+        self, flat_metadata: fd.FlatDict, template: dict
+    ) -> dict:
+        print(f"Mapping some of the Nion metadata on respective NeXus concepts...")
+        # we assume for now dynamic quantities can just be repeated
+        identifier = [self.entry_id, self.event_id, 1]
+        for cfg in [
+            NION_DYNAMIC_ABERRATION_NX,
+            NION_DYNAMIC_DETECTOR_NX,
+            NION_DYNAMIC_LENS_NX,
+            NION_DYNAMIC_MAGBOARDS_NX,
+            NION_DYNAMIC_SCAN_NX,
+            NION_DYNAMIC_STAGE_NX,
+            NION_DYNAMIC_VARIOUS_NX,
+            NION_DYNAMIC_EVENT_TIME,
+        ]:
+            add_specific_metadata_pint(cfg, flat_metadata, identifier, template)
+        # but not so static quantities, for these we ideally need to check if
+        # exactly the same data havent already been written in an effort to avoid
+        # redundancies
+        # most use cases simply avoid this complication as they assume well these
+        # metadata are delivered by the ELN and thus a different serialization code
+        # is used, like oasis_cfg or eln_cfg parsing as also pynxtools-em offers
+
+        # nasty assume there is only one e.g. direct electron detector
+        identifier = [self.entry_id, 1]
+        add_specific_metadata_pint(
+            NION_STATIC_DETECTOR_NX, flat_metadata, identifier, template
+        )
+        add_specific_metadata_pint(
+            NION_STATIC_LENS_NX, flat_metadata, identifier, template
+        )
+        return template
+
+    def process_event_data_em_data(
+        self, nparr: np.ndarray, flat_metadata: fd.FlatDict, template: dict
+    ) -> dict:
+        """Map Nion-specifically formatted data arrays on NeXus NXdata/NXimage/NXspectrum."""
+        axes = flat_metadata["dimensional_calibrations"]
+        unit_combination = nion_image_spectrum_or_generic_nxdata(axes)
+        print(f"{unit_combination}, {np.shape(nparr)}")
+        print(axes)
+        print(f"entry_id {self.entry_id}, event_id {self.event_id}")
+        if unit_combination == "":
+            return template
+
+        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.event_id}]"
+        self.event_id += 1
+
+        # this is the place when you want to skip individually the writing of NXdata
+        # return template
+
+        axis_names = None
+        if unit_combination in NION_WHICH_SPECTRUM:
+            trg = f"{prfx}/SPECTRUM_SET[spectrum_set1]/{NION_WHICH_SPECTRUM[unit_combination][0]}"
+            template[f"{trg}/title"] = f"{flat_metadata['title']}"
+            template[f"{trg}/@signal"] = f"intensity"
+            template[f"{trg}/intensity"] = {"compress": nparr, "strength": 1}
+            axis_names = NION_WHICH_SPECTRUM[unit_combination][1]
+        elif unit_combination in NION_WHICH_IMAGE:
+            trg = (
+                f"{prfx}/IMAGE_SET[image_set1]/{NION_WHICH_IMAGE[unit_combination][0]}"
+            )
+            template[f"{trg}/title"] = f"{flat_metadata['title']}"
+            template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
+            template[f"{trg}/real"] = {"compress": nparr, "strength": 1}
+            axis_names = NION_WHICH_IMAGE[unit_combination][1]
+        elif not any(
+            (value in ["1/", "iteration"]) for value in unit_combination.split(";")
+        ):
+            trg = f"{prfx}/DATA[data1]"
+            template[f"{trg}/title"] = f"{flat_metadata['title']}"
+            template[f"{trg}/@NX_class"] = f"NXdata"
+            template[f"{trg}/@signal"] = f"data"
+            template[f"{trg}/data"] = {"compress": nparr, "strength": 1}
+            axis_names = ["axis_i", "axis_j", "axis_k", "axis_l", "axis_m"][
+                0 : len(unit_combination.split("_"))
+            ][::-1]
+        else:
+            print(f"WARNING::{unit_combination} unsupported unit_combination !")
+            return template
+
+        if len(axis_names) >= 1:
+            # arrays axis_names and dimensional_calibrations are aligned in order
+            # but that order is reversed wrt to AXISNAME_indices !
+            for idx, axis_name in enumerate(axis_names):
+                template[f"{trg}/@AXISNAME_indices[{axis_name}_indices]"] = np.uint32(
+                    len(axis_names) - 1 - idx
+                )
+            template[f"{trg}/@axes"] = axis_names
+
+            for idx, axis in enumerate(axes):
+                axis_name = axis_names[idx]
+                offset = axis["offset"]
+                step = axis["scale"]
+                units = axis["units"]
+                count = np.shape(nparr)[idx]
+                if units == "":
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.float32(offset) + (
+                        np.float32(step)
+                        * np.asarray(
+                            np.linspace(
+                                start=0, stop=count - 1, num=count, endpoint=True
+                            ),
+                            np.float32,
+                        )
+                    )
+                    if unit_combination in NION_WHICH_SPECTRUM:
+                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
+                            f"Spectrum identifier"
+                        )
+                    elif unit_combination in NION_WHICH_IMAGE:
+                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
+                            f"Image identifier"
+                        )
+                    else:
+                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
+                            f"{axis_name}"
+                            # unitless | dimensionless i.e. no unit in longname
+                        )
+                else:
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.float32(offset) + (
+                        np.float32(step)
+                        * np.asarray(
+                            np.linspace(
+                                start=0, stop=count - 1, num=count, endpoint=True
+                            ),
+                            np.float32,
+                        )
+                    )
+                    template[f"{trg}/AXISNAME[{axis_name}]/@units"] = (
+                        f"{ureg.Unit(units)}"
+                    )
+                    if units == "eV":
+                        # TODO::this is only robust if Nion reports always as eV and not with other prefix like kilo etc.
+                        # in such case the solution from the gatan parser is required, i.e. conversion to base units
+                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
+                            f"Energy ({ureg.Unit(units)})"  # eV
+                        )
+                    else:
+                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
+                            f"Point coordinate along {axis_name} ({ureg.Unit(units)})"
+                        )
         return template

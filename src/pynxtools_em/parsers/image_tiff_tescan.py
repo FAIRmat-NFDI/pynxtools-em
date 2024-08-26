@@ -15,36 +15,55 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Subparser for harmonizing TESCAN-specific content in TIFF files."""
+"""Parser for harmonizing TESCAN-specific content in TIFF files."""
 
 import mmap
-from typing import Dict
+from typing import Dict, List
 
 import flatdict as fd
 import numpy as np
 from PIL import Image, ImageSequence
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
-
-# from pynxtools_em.configurations.image_tiff_tescan_cfg import (
-#     TESCAN_VARIOUS_DYNAMIC_TO_NX_EM,
-#     TESCAN_VARIOUS_STATIC_TO_NX_EM
-# )
+from pynxtools_em.configurations.image_tiff_tescan_cfg import (
+    TESCAN_DYNAMIC_STAGE_NX,
+    TESCAN_DYNAMIC_STIGMATOR_NX,
+    TESCAN_DYNAMIC_VARIOUS_NX,
+    TESCAN_STATIC_VARIOUS_NX,
+)
 from pynxtools_em.parsers.image_tiff import TiffParser
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
 
 
 class TescanTiffParser(TiffParser):
-    def __init__(self, file_path: str = "", entry_id: int = 1):
-        super().__init__(file_path)
-        self.entry_id = entry_id
-        self.event_id = 1
-        self.prfx = None
-        self.tmp: Dict = {"data": None, "flat_dict_meta": fd.FlatDict({})}
-        self.supported_version: Dict = {}
-        self.version: Dict = {}
-        self.tags: Dict = {}
-        self.supported = False
-        self.check_if_tiff_tescan()
+    def __init__(self, file_paths: List[str], entry_id: int = 1, verbose: bool = False):
+        # file and sidecar file may not come in a specific order need to find which is which if any supported
+        tif_hdr = ["", ""]
+        if len(file_paths) == 1 and file_paths[0].lower().endswith((".tif", ".tiff")):
+            tif_hdr[0] = file_paths[0]
+        elif (
+            len(file_paths) == 2
+            and file_paths[0][0 : file_paths[0].rfind(".")]
+            == file_paths[1][0 : file_paths[0].rfind(".")]
+        ):
+            for entry in file_paths:
+                if entry.lower().endswith((".tif", ".tiff")) and entry != "":
+                    tif_hdr[0] = entry
+                elif entry.lower().endswith((".hdr")) and entry != "":
+                    tif_hdr[1] = entry
+
+        if tif_hdr[0] != "":
+            super().__init__(tif_hdr[0])
+            self.entry_id = entry_id
+            self.event_id = 1
+            self.verbose = verbose
+            self.flat_dict_meta = fd.FlatDict({}, "/")
+            self.version: Dict = {}
+            self.supported = False
+            self.hdr_file_path = tif_hdr[1]
+            self.check_if_tiff_tescan()
+        else:
+            self.supported = False
 
     def check_if_tiff_tescan(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file.
@@ -52,80 +71,105 @@ class TescanTiffParser(TiffParser):
         This also loads the metadata first if possible as these contain details
         about which software was used to process the image data, e.g. DISS software.
         """
-        self.supported = 0  # voting-based
+        self.supported = False
+        if not hasattr(self, "file_path"):
+            print(
+                f"... is not a TESCAN-specific TIFF/(HDR) file (set) that this parser can process !"
+            )
+            return
         with open(self.file_path, "rb", 0) as file:
             s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
             magic = s.read(4)
-            if magic == b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
-                self.supported += 1
-            else:
-                self.supported = False
+            if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                 print(
                     f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
                 )
                 return
+
+        self.flat_dict_meta = fd.FlatDict({}, "/")
         with Image.open(self.file_path, mode="r") as fp:
             tescan_keys = [50431]
             for tescan_key in tescan_keys:
                 if tescan_key in fp.tag_v2:
                     payload = fp.tag_v2[tescan_key]
                     pos = payload.find(bytes("Description", "utf8"))
-                    txt = payload[pos:].decode("utf8")
+                    try:
+                        txt = payload[pos:].decode("utf8")
+                    except UnicodeDecodeError:
+                        print(
+                            f"WARNING::{self.file_path} TESCAN TIFF tag {tescan_key} cannot be decoded using UTF8, trying to use sidecar file instead if available !"
+                        )
+                        if hasattr(self, "hdr_file_path"):
+                            continue
+                        else:
+                            return
                     del payload
 
-                    self.tmp["flat_dict_meta"] = fd.FlatDict({}, "/")
                     for line in txt.split():
                         tmp = [value.strip() for value in line.split("=")]
                         if len(tmp) == 1:
                             print(f"Ignore line {line} !")
                         elif len(tmp) == 2:
-                            if tmp[0] and tmp[0] not in self.tmp["flat_dict_meta"]:
-                                self.tmp["flat_dict_meta"][tmp[0]] = string_to_number(
-                                    tmp[1]
-                                )
+                            if tmp[0] and tmp[0] not in self.flat_dict_meta:
+                                self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
                         else:
                             print(f"Ignore line {line} !")
+        # very frequently using sidecar files create ambiguities: are the metadata in the
+        # image and the sidecar file exactly the same, a subset, which information to
+        # give preference in case of inconsistencies, system time when the sidecar file
+        # is written differs from system time when the image was written, which time
+        # to take for the event data?
+        if len(self.flat_dict_meta) == 0:
+            if self.hdr_file_path != "":
+                with open(self.hdr_file_path, mode="r", encoding="utf8") as fp:
+                    txt = fp.read()
+                    txt = txt.replace("\r\n", "\n")  # windows to unix EOL conversion
+                    txt = [
+                        line.strip()
+                        for line in txt.split("\n")
+                        if line.strip() != "" and line.startswith("#") is False
+                    ]
+                    if not all(value in txt for value in ["[MAIN]", "[SEM]"]):
+                        print(
+                            f"WARNING::TESCAN HDR sidecar file exists but does not contain expected section headers !"
+                        )
+                    txt = [line for line in txt if line not in ["[MAIN]", "[SEM]"]]
+                    for line in txt:
+                        tmp = [value.strip() for value in line.split("=")]
+                        if len(tmp) == 1:
+                            print(f"Ignore line {line} !")
+                        elif len(tmp) == 2:
+                            if tmp[0] and (tmp[0] not in self.flat_dict_meta):
+                                self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
+                        else:
+                            print(f"Ignore line {line} !")
+            else:
+                print(f"WARNING::Potential TESCAN TIF without metadata !")
 
         if self.verbose:
-            for key, value in self.tmp["flat_dict_meta"].items():
+            for key, value in self.flat_dict_meta.items():
                 print(f"{key}____{type(value)}____{value}")
 
         # check if written about with supported DISS version
-        supported_versions = ["TIMA"]
-        if "Device" in self.tmp["flat_dict_meta"]:
-            if self.tmp["flat_dict_meta"]["Device"] in supported_versions:
-                self.supported += 1
-            # but this is quite a weak test, more instance data are required
-            # with TESCAN-specific concept names to make this here more robust
-        if self.supported == 2:
-            self.supported = True
-        else:
-            self.supported = False
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
-            )
+        supported_versions = ["TIMA", "MIRA3 LMH"]
+        if "Device" in self.flat_dict_meta:
+            if self.flat_dict_meta["Device"] in supported_versions:
+                self.supported = True
+                # but this is quite a weak test, more instance data are required
+                # with TESCAN-specific concept names to make this here more robust
 
-    def parse_and_normalize(self):
-        """Perform actual parsing filling cache self.tmp."""
+    def parse(self, template: dict) -> dict:
+        """Perform actual parsing filling cache."""
         if self.supported is True:
-            print(f"Parsing via TESCAN-specific metadata...")
+            print(f"Parsing via TESCAN...")
             # metadata have at this point already been collected into an fd.FlatDict
-        else:
-            print(
-                f"{self.file_path} is not a TESCAN-specific TIFF file that this parser can process !"
-            )
-
-    def process_into_template(self, template: dict) -> dict:
-        if self.supported is True:
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
         return template
 
     def process_event_data_em_data(self, template: dict) -> dict:
         """Add respective heavy data."""
-        # default display of the image(s) representing the data collected in this event
         print(f"Writing TESCAN image data to the respective NeXus concept instances...")
-        # read image in-place
         image_identifier = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
@@ -137,7 +181,7 @@ class TescanTiffParser(TiffParser):
                 trg = (
                     f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
                     f"EVENT_DATA_EM[event_data_em{self.event_id}]/"
-                    f"IMAGE_SET[image_set{image_identifier}]/image_twod"
+                    f"IMAGE_SET[image_set{image_identifier}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
                 template[f"{trg}/@signal"] = "real"
@@ -155,14 +199,22 @@ class TescanTiffParser(TiffParser):
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Signal"
 
-                sxy = {"i": 1.0, "j": 1.0}
-                scan_unit = {"i": "m", "j": "m"}
-                if ("PixelSizeX" in self.tmp["flat_dict_meta"]) and (
-                    "PixelSizeY" in self.tmp["flat_dict_meta"]
+                sxy = {
+                    "i": ureg.Quantity(1.0, ureg.meter),
+                    "j": ureg.Quantity(1.0, ureg.meter),
+                }
+                abbrev = "PixelSize"
+                if all(
+                    value in self.flat_dict_meta
+                    for value in ["PixelSizeX", "PixelSizeY"]
                 ):
                     sxy = {
-                        "i": self.tmp["flat_dict_meta"]["PixelSizeX"],
-                        "j": self.tmp["flat_dict_meta"]["PixelSizeY"],
+                        "i": ureg.Quantity(
+                            self.flat_dict_meta["PixelSizeX"], ureg.meter
+                        ),
+                        "j": ureg.Quantity(
+                            self.flat_dict_meta["PixelSizeY"], ureg.meter
+                        ),
                     }
                 else:
                     print("WARNING: Assuming pixel width and height unit is meter!")
@@ -174,49 +226,28 @@ class TescanTiffParser(TiffParser):
                     template[f"{trg}/AXISNAME[axis_{dim}]"] = {
                         "compress": np.asarray(
                             np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
-                            * sxy[dim],
+                            * sxy[dim].magnitude,
                             np.float64,
                         ),
                         "strength": 1,
                     }
                     template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                        f"Coordinate along {dim}-axis ({scan_unit[dim]})"
+                        f"Coordinate along {dim}-axis ({sxy[dim].units})"
                     )
-                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit[dim]}"
+                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
                 image_identifier += 1
-        return template
-
-    def add_various_dynamic(self, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        """
-        add_specific_metadata_pint(
-            TESCAN_VARIOUS_DYNAMIC_TO_NX_EM,
-            self.tmp["flat_dict_meta"],
-            identifier,
-            template,
-        )
-        """
-        return template
-
-    def add_various_static(self, template: dict) -> dict:
-        identifier = [self.entry_id, self.event_id, 1]
-        """
-        add_specific_metadata_pint(
-            TESCAN_VARIOUS_STATIC_TO_NX_EM,
-            self.tmp["flat_dict_meta"],
-            identifier,
-            template,
-        )
-        """
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
-        print(
-            f"Mapping some of the point electronic DISS metadata on respective NeXus concepts..."
-        )
-        self.add_various_dynamic(template)
-        self.add_various_static(template)
-        # ... add more as required ...
+        print(f"Mapping some of the TESCAN metadata on respective NeXus concepts...")
+        identifier = [self.entry_id, self.event_id, 1]
+        for cfg in [
+            TESCAN_DYNAMIC_STIGMATOR_NX,
+            TESCAN_STATIC_VARIOUS_NX,
+            TESCAN_DYNAMIC_VARIOUS_NX,
+            TESCAN_DYNAMIC_STAGE_NX,
+        ]:
+            add_specific_metadata_pint(cfg, self.flat_dict_meta, identifier, template)
         return template

@@ -21,20 +21,19 @@ from typing import Dict, List
 
 from pynxtools_em.concepts.nxs_object import NxObject
 
-
 NX_EM_EDS_INDEXING_HDF_PATH = [
     "indexing/element_names-field",
-    "indexing/IMAGE_R_SET/PROCESS-group",
-    "indexing/IMAGE_R_SET/PROCESS/peaks-field",
-    "indexing/IMAGE_R_SET/description-field",
-    "indexing/IMAGE_R_SET/iupac_line_candidates-field",
-    "indexing/IMAGE_R_SET/PROCESS/weights-field",
-    "indexing/IMAGE_R_SET/PROCESS/weights-field",
-    "indexing/IMAGE_R_SET/image_twod/axis_x-field",
-    "indexing/IMAGE_R_SET/image_twod/axis_x@long_name-attribute",
-    "indexing/IMAGE_R_SET/image_twod/axis_y-field",
-    "indexing/IMAGE_R_SET/image_twod/axis_y@long_name-attribute",
-    "indexing/IMAGE_R_SET/image_twod/intensity-field",
+    "indexing/IMAGE_SET/PROCESS-group",
+    "indexing/IMAGE_SET/PROCESS/peaks-field",
+    "indexing/IMAGE_SET/description-field",
+    "indexing/IMAGE_SET/iupac_line_candidates-field",
+    "indexing/IMAGE_SET/PROCESS/weights-field",
+    "indexing/IMAGE_SET/PROCESS/weights-field",
+    "indexing/IMAGE_SET/image_2d/axis_i-field",
+    "indexing/IMAGE_SET/image_2d/axis_i@long_name-attribute",
+    "indexing/IMAGE_SET/image_2d/axis_j-field",
+    "indexing/IMAGE_SET/image_2d/axis_j@long_name-attribute",
+    "indexing/IMAGE_SET/image_2d/real-field",
     "indexing/PEAK/ION/energy-field",
     "indexing/PEAK/ION/energy_range-field",
     "indexing/PEAK/ION/iupac_line_names-field",
