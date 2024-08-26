@@ -18,34 +18,23 @@
 """Utilities for working with NeXus concepts encoded as Python dicts in the concepts dir."""
 
 from datetime import datetime
+from typing import Any, Dict
 
 import flatdict as fd
 import numpy as np
 import pytz
-import pint
-from pint import UnitRegistry
-from typing import Any
-
 from pynxtools_em.utils.get_file_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.interpret_boolean import try_interpret_as_boolean
-from pynxtools_em.utils.string_conversions import rchop, string_to_number
+from pynxtools_em.utils.pint_custom_unit_registry import is_not_special_unit, ureg
+from pynxtools_em.utils.string_conversions import rchop
 
-ureg = UnitRegistry()
-ureg.define("nx_unitless = 1")
-ureg.define("nx_dimensionless = 1")
-ureg.define("nx_any = 1")
-NX_UNITLESS = pint.Quantity(1, ureg.nx_unitless)
-NX_DIMENSIONLESS = pint.Quantity(1, ureg.nx_dimensionless)
-NX_ANY = pint.Quantity(1, ureg.nx_any)
-
-
-# best practice is use np.ndarray or np.generic as magnitude within that pint.Quantity!
-MAP_TO_DTYPES = {
+# best practice is use np.ndarray or np.generic as magnitude within that ureg.Quantity!
+MAP_TO_DTYPES: Dict[str, type] = {
     "u1": np.uint8,
     "i1": np.int8,
     "u2": np.uint16,
     "i2": np.int16,
-    "f2": np.float16,
+    # "f2": np.float16, not supported yet with all HDF5 h5py versions
     "u4": np.uint32,
     "i4": np.int32,
     "f4": np.float32,
@@ -56,12 +45,12 @@ MAP_TO_DTYPES = {
 }
 
 # general conversion workflow
-# 1. Normalize src data to str, bool, or pint.Quantity
-#    These pint.Quantities should use numpy scalar or array for the dtype of the magnitude.
+# 1. Normalize src data to str, bool, or ureg.Quantity
+#    These ureg.Quantities should use numpy scalar or array for the dtype of the magnitude.
 #    Use special NeXus unit categories unitless, dimensionless, and any.
-# 2. Map on specific trg path, pint.Unit, eventually with conversions, and dtype conversion
+# 2. Map on specific trg path, ureg.Unit, eventually with conversions, and dtype conversion
 #    Later this could include endianness
-# 3. Store pint.Quantity magnitude and if non-special also correctly converted @units
+# 3. Store ureg.Quantity magnitude and if non-special also correctly converted @units
 #    attribute
 
 
@@ -84,15 +73,10 @@ def var_path_to_spcfc_path(path: str, instance_identifier: list):
                 return nx_specific_path
 
 
-def is_not_special_unit(units: pint.Unit) -> bool:
-    """True if not a special NeXus unit category."""
-    for special_units in [NX_UNITLESS.units, NX_DIMENSIONLESS.units, NX_ANY.units]:
-        if units == special_units:
-            return False
-    return True
-
-
 def get_case(arg):
+    """Identify which case an instruction from the configuration belongs to.
+    Each case comes with specific instructions to resolve that are detailed
+    in the README.md in this source code directory."""
     if isinstance(arg, str):  # str
         return "case_one"
     elif isinstance(arg, tuple):
@@ -102,123 +86,163 @@ def get_case(arg):
                     return "case_two_str"
                 elif isinstance(arg[1], list):
                     return "case_two_list"
-        elif len(arg) == 3:  # str, str | list, pint.Unit or str, pint.Unit, str | list
+        elif len(arg) == 3:  # str, str | list, ureg.Unit or str, ureg.Unit, str | list
             if isinstance(arg[0], str):
-                if isinstance(arg[1], pint.Unit):
+                if isinstance(arg[1], ureg.Unit):
                     if isinstance(arg[2], str):
                         return "case_three_str"
                     elif isinstance(arg[2], list):
                         return "case_three_list"
-                elif (arg[2], pint.Unit):
+                elif (arg[2], ureg.Unit):
                     if isinstance(arg[1], str):
                         return "case_four_str"
                     elif isinstance(arg[1], list):
                         return "case_four_list"
-        elif len(arg) == 4:  # str, pint.Unit, str | list, pint.Unit
+        elif len(arg) == 4:
+            # str, ureg.Unit, str | list, ureg.Unit
+            # str, ureg.Unit, str, str
+            # last string points to unit string for situations where e.g. tech partner
+            # report HV/value, HV/Unit and these two pieces of information should be
+            # fused into a ureg.Quantity with target ureg.Unit given as second argument
             if (
                 isinstance(arg[0], str)
-                and isinstance(arg[1], pint.Unit)
-                and isinstance(arg[3], pint.Unit)
+                and isinstance(arg[1], ureg.Unit)
+                and isinstance(arg[3], ureg.Unit)
             ):
                 if isinstance(arg[2], str):
                     return "case_five_str"
                 elif isinstance(arg[2], list):
                     return "case_five_list"
+            elif (
+                isinstance(arg[0], str)
+                and isinstance(arg[1], ureg.Unit)
+                and isinstance(arg[2], str)
+                and isinstance(arg[3], str)
+            ):
+                return "case_six"
+
+
+def map_to_dtype(trg_dtype: str, value: Any) -> Any:
+    # can this be done more elegantly, i.e. written more compact?
+    # yes I already tried MAP_TO_DTYPE[trg_dtype](value) but mypy does not like it
+    # error: Argument 1 has incompatible type "generic | bool | int | float | complex |
+    #      str | bytes | memoryview"; expected "str | bytes | SupportsIndex"  [arg-type]
+    if np.shape(value) != ():
+        if trg_dtype in MAP_TO_DTYPES:
+            if trg_dtype != "bool":
+                return np.asarray(value, MAP_TO_DTYPES[trg_dtype])
+            else:
+                if hasattr(value, "dtype"):
+                    if value.dtype is bool:
+                        return np.asarray(value, bool)
+                else:
+                    raise TypeError(
+                        f"map_to_dtype, hitting unexpected case for array bool !"
+                    )
+        else:
+            raise ValueError(f"map_to_dtype, hitting unexpected case for array !")
+    else:
+        if trg_dtype in MAP_TO_DTYPES:
+            if trg_dtype != "bool":
+                that_type = MAP_TO_DTYPES[trg_dtype]
+                return that_type(value)
+            else:
+                return try_interpret_as_boolean(value)
+        else:
+            raise ValueError(f"map_to_dtype, hitting unexpected case for scalar !")
 
 
 def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> dict:
     """Set value in the template using trg.
 
-    src_val can be a single value, an array, or a pint.Quantity (scalar or array)
+    src_val can be a single value, an array, or a ureg.Quantity (scalar or array)
     """
     # np.issubdtype(np.uint32, np.signedinteger)
-    if src_val:  # covering not None, not "", ...
-        if not trg_dtype:  # go with existent dtype
-            if isinstance(src_val, str):
-                # TODO this is not rigorous need to check for null-term also and str arrays
-                template[f"{trg}"] = src_val
-                # assumes I/O to HDF5 will write specific encoding, typically variable, null-term, utf8
-            elif isinstance(src_val, pint.Quantity):
-                if isinstance(
-                    src_val.magnitude, (np.ndarray, np.generic)
-                ) or np.isscalar(
-                    src_val.magnitude
-                ):  # bool case typically not expected!
-                    template[f"{trg}"] = src_val.magnitude
-                    if is_not_special_unit(src_val.units):
-                        template[f"{trg}/@units"] = src_val.units
-                    print(
-                        f"WARNING::Assuming writing to HDF5 will auto-convert Python types to numpy type, trg {trg} !"
-                    )
-                else:
-                    raise TypeError(
-                        f"pint.Quantity magnitude should use in-build, bool, or np !"
-                    )
-            elif (
-                isinstance(src_val, (np.ndarray, np.generic))
-                or np.isscalar(src_val)
-                or isinstance(src_val, bool)
-            ):
-                template[f"{trg}"] = src_val
-                # units may be required, need to be set explicitly elsewhere in the source code!
+    if not trg_dtype:  # go with existent dtype
+        if isinstance(src_val, str):
+            # TODO this is not rigorous need to check for null-term also and str arrays
+            template[f"{trg}"] = src_val
+            # assumes I/O to HDF5 will write specific encoding, typically variable, null-term, utf8
+        elif isinstance(src_val, ureg.Quantity):
+            if isinstance(src_val.magnitude, (np.ndarray, np.generic)) or np.isscalar(
+                src_val.magnitude
+            ):  # bool case typically not expected!
+                template[f"{trg}"] = src_val.magnitude
+                if is_not_special_unit(src_val.units):
+                    template[f"{trg}/@units"] = f"{src_val.units}"
                 print(
-                    f"WARNING::Assuming writing to HDF5 will auto-convert Python types to numpy type, trg: {trg} !"
+                    f"WARNING::Assuming writing to HDF5 will auto-convert Python types to numpy type, trg {trg} !"
                 )
             else:
                 raise TypeError(
-                    f"Unexpected type {type(src_val)} found for not trg_dtype case !"
+                    f"ureg.Quantity magnitude should use in-build, bool, or np !"
                 )
-        else:  # do an explicit type conversion
-            # e.g. in cases when tech partner writes float32 but e.g. NeXus assumes float64
-            if isinstance(src_val, str):
-                raise TypeError(
-                    f"Unexpected type str found when calling set_value, trg {trg} !"
-                )
-            elif isinstance(src_val, pint.Quantity):
-                if isinstance(src_val.magnitude, (np.ndarray, np.generic)):
-                    template[f"{trg}"] = np.asarray(
-                        src_val.magnitude, MAP_TO_DTYPES[trg_dtype]
-                    )
-                    if is_not_special_unit(src_val.units):
-                        template[f"{trg}/@units"] = src_val.units
-                elif np.isscalar(src_val.magnitude):  # bool typically not expected
-                    template[f"{trg}"] = MAP_TO_DTYPES[trg_dtype](src_val.magnitude)
-                    if is_not_special_unit(src_val.units):
-                        template[f"{trg}/@units"] = src_val.units
-                else:
-                    raise TypeError(
-                        f"Unexpected type for explicit src_val.magnitude, set_value, trg {trg} !"
-                    )
-            elif isinstance(src_val, (np.ndarray, np.generic)):
-                template[f"{trg}"] = np.asarray(src_val, MAP_TO_DTYPES[trg_dtype])
-                # units may be required, need to be set explicitly elsewhere in the source code!
-                print(
-                    f"WARNING::Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
-                )
-            elif np.isscalar(src_val):
-                template[f"{trg}"] = MAP_TO_DTYPES[trg_dtype](src_val)
-                print(
-                    f"WARNING::Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
-                )
+        elif isinstance(src_val, list):
+            if all(isinstance(val, str) for val in src_val):
+                template[f"{trg}"] = ", ".join(src_val)
             else:
                 raise TypeError(
-                    f"Unexpected type for explicit type conversion, set_value, trg {trg} !"
+                    f"Not List[str] {type(src_val)} found for not trg_dtype case !"
                 )
+        elif (
+            isinstance(src_val, (np.ndarray, np.generic))
+            or np.isscalar(src_val)
+            or isinstance(src_val, bool)
+        ):
+            template[f"{trg}"] = np.asarray(src_val)
+            # units may be required, need to be set explicitly elsewhere in the source code!
+            print(
+                f"WARNING::Assuming writing to HDF5 will auto-convert Python types to numpy type, trg: {trg} !"
+            )
+        else:
+            raise TypeError(
+                f"Unexpected type {type(src_val)} found for not trg_dtype case !"
+            )
+    else:  # do an explicit type conversion
+        # e.g. in cases when tech partner writes float32 but e.g. NeXus assumes float64
+        if isinstance(src_val, (str, bool)):
+            template[f"{trg}"] = try_interpret_as_boolean(src_val)
+        elif isinstance(src_val, ureg.Quantity):
+            if isinstance(src_val.magnitude, (np.ndarray, np.generic)):
+                template[f"{trg}"] = map_to_dtype(trg_dtype, src_val.magnitude)
+                if is_not_special_unit(src_val.units):
+                    template[f"{trg}/@units"] = f"{src_val.units}"
+            elif np.isscalar(src_val.magnitude):  # bool typically not expected
+                template[f"{trg}"] = map_to_dtype(trg_dtype, src_val.magnitude)
+                if is_not_special_unit(src_val.units):
+                    template[f"{trg}/@units"] = f"{src_val.units}"
+            else:
+                raise TypeError(
+                    f"Unexpected type for explicit src_val.magnitude, set_value, trg {trg} !"
+                )
+        elif isinstance(src_val, (list, np.ndarray, np.generic)):
+            template[f"{trg}"] = map_to_dtype(trg_dtype, np.asarray(src_val))
+            # units may be required, need to be set explicitly elsewhere in the source code!
+            print(
+                f"WARNING::Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
+            )
+        elif np.isscalar(src_val):
+            template[f"{trg}"] = map_to_dtype(trg_dtype, src_val)
+            print(
+                f"WARNING::Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
+            )
+        else:
+            raise TypeError(
+                f"Unexpected type for explicit type conversion, set_value, trg {trg} !"
+            )
     return template
 
 
 def use_functor(
     cmds: list, mdata: fd.FlatDict, prfx_trg: str, ids: list, template: dict
 ) -> dict:
-    """Process the use functor."""
+    """Process concept mapping for simple predefined strings and pint quantities."""
     for cmd in cmds:
         if isinstance(cmd, tuple):
             if len(cmd) == 2:
                 if isinstance(cmd[0], str):
-                    if isinstance(cmd[1], str):  # str, str
-                        trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-                        set_value(template, trg, cmd[1])
-                    elif isinstance(cmd[1], pint.Quantity):  # str, pint.Quantity
+                    if isinstance(cmd[1], (str, ureg.Quantity, bool)):
+                        # str, str or str, ureg or str, bool
                         trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
                         set_value(template, trg, cmd[1])
     return template
@@ -231,25 +255,21 @@ def map_functor(
     prfx_trg: str,
     ids: list,
     template: dict,
-    **kwargs,
+    trg_dtype_key: str = "",
 ) -> dict:
-    if "trg_dtype_key" in kwargs:
-        trg_dtype = kwargs["trg_dtype"]
-        # this will force the conversion of all instance data from src to match trg_dtype
+    """Process concept mapping, datatype and unit conversion for quantities."""
     for cmd in cmds:
         case = get_case(cmd)
         if case == "case_one":  # str
-            if f"{prfx_src}{cmd}" not in mdata:
-                continue
-            src_val = mdata[f"{prfx_src}{cmd}"]
-            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd}", ids)
-            set_value(template, trg, src_val)
+            src_val = mdata.get(f"{prfx_src}{cmd}")
+            if src_val:
+                trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd}", ids)
+                set_value(template, trg, src_val, trg_dtype_key)
         elif case == "case_two_str":  # str, str
-            if f"{prfx_src}{cmd[1]}" not in mdata:
-                continue
-            src_val = mdata[f"{prfx_src}{cmd[1]}"]
-            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-            set_value(template, trg, src_val)
+            src_val = mdata.get(f"{prfx_src}{cmd[1]}")
+            if src_val:
+                trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+                set_value(template, trg, src_val, trg_dtype_key)
         elif case == "case_two_list":
             # ignore empty list, all src paths str, all src_val have to exist of same type
             if len(cmd[1]) == 0:
@@ -261,20 +281,24 @@ def map_functor(
             src_values = [mdata[f"{prfx_src}{val}"] for val in cmd[1]]
             if len(src_values) == 0:
                 continue
+            if not all(src_val for src_val in src_values):
+                continue
             if not all(type(val) is type(src_values[0]) for val in src_values):
                 continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-            set_value(template, trg, np.asarray(src_values))
-        elif case == "case_three_str":  # str, pint.Unit, str
-            if f"{prfx_src}{cmd[2]}" not in mdata:
+            set_value(template, trg, src_values, trg_dtype_key)
+        elif case == "case_three_str":  # str, ureg.Unit, str
+            src_val = mdata.get(f"{prfx_src}{cmd[2]}")
+            if not src_val:
                 continue
-            src_val = mdata[f"{prfx_src}{cmd[2]}"]
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-            if isinstance(src_val, pint.Quantity):
-                set_value(template, trg, src_val)
+            if isinstance(src_val, ureg.Quantity):
+                set_value(template, trg, src_val.to(cmd[1]), trg_dtype_key)
             else:
-                set_value(template, trg, pint.Quantity(src_val, cmd[1].units))
-        elif case == "case_three_list":  # str, pint.Unit, list
+                set_value(
+                    template, trg, ureg.Quantity(src_val, cmd[1].units), trg_dtype_key
+                )
+        elif case == "case_three_list":  # str, ureg.Unit, list
             if len(cmd[2]) == 0:
                 continue
             if not all(isinstance(val, str) for val in cmd[2]):
@@ -282,33 +306,48 @@ def map_functor(
             if not all(f"{prfx_src}{val}" in mdata for val in cmd[2]):
                 continue
             src_values = [mdata[f"{prfx_src}{val}"] for val in cmd[2]]
+            if not all(src_val for src_val in src_values):
+                continue
             if not all(type(val) is type(src_values[0]) for val in src_values):
                 # need to check whether content are scalars also
                 continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-            if isinstance(src_values, pint.Quantity):
-                set_value(template, trg, src_values)
+            if isinstance(src_values, ureg.Quantity):
+                set_value(template, trg, src_values, trg_dtype_key)
             else:
-                set_value(template, trg, pint.Quantity(src_values, cmd[1].units))
+                # potentially a list of ureg.Quantities with different scaling
+                normalize = []
+                for val in src_values:
+                    if isinstance(val, ureg.Quantity):
+                        normalize.append(val.to(cmd[1]).magnitude)
+                    else:
+                        raise TypeError(
+                            "Unimplemented case for {val} in case_three_list !"
+                        )
+                set_value(
+                    template,
+                    trg,
+                    ureg.Quantity(normalize, cmd[1]),
+                    trg_dtype_key,
+                )
         elif case.startswith("case_four"):
             # both of these cases can be avoided in an implementation when the
             # src quantity is already a pint quantity instead of some
             # pure python or numpy value or array respectively
-            print(
-                f"WARNING::Ignoring case_four, instead refactor implementation such"
+            raise ValueError(
+                f"Hitting unimplemented case_four, instead refactor implementation such"
                 f"that values on the src side are pint.Quantities already!"
             )
         elif case == "case_five_str":
-            if f"{prfx_src}{cmd[2]}" not in mdata:
+            src_val = mdata.get(f"{prfx_src}{cmd[2]}")
+            if not src_val:
                 continue
-            src_val = mdata[f"{prfx_src}{cmd[2]}"]
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-            if isinstance(src_val, pint.Quantity):
-                set_value(template, trg, src_val.units.to(cmd[1]))
+            if isinstance(src_val, ureg.Quantity):
+                set_value(template, trg, src_val.to(cmd[1]), trg_dtype_key)
             else:
-                pint_src = pint.Quantity(src_val, cmd[3])
-                # pint_trg = pint_src.units.to(cmd[1])
-                set_value(template, trg, pint_src.units.to(cmd[1]))
+                pint_src = ureg.Quantity(src_val, cmd[3])
+                set_value(template, trg, pint_src.to(cmd[1]), trg_dtype_key)
         elif case == "case_five_list":
             if len(cmd[2]) == 0:
                 continue
@@ -317,21 +356,33 @@ def map_functor(
             if not all(f"{prfx_src}{val}" in mdata for val in cmd[2]):
                 continue
             src_values = [mdata[f"{prfx_src}{val}"] for val in cmd[2]]
-            if isinstance(src_values[0], pint.Quantity):
+            if not all(src_val for src_val in src_values):
+                continue
+            if isinstance(src_values[0], ureg.Quantity):
                 raise ValueError(
-                    f"Hit unimplemented case that src_val is pint.Quantity"
+                    f"Hit unimplemented case that src_val is ureg.Quantity"
                 )
             if not all(type(val) is type(src_values[0]) for val in src_values):
                 continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-            if isinstance(src_values, pint.Quantity):
-                set_value(template, trg, src_values.units.to(cmd[1]))
+            if isinstance(src_values, ureg.Quantity):
+                set_value(template, trg, src_values.to(cmd[1]), trg_dtype_key)
             else:
-                pint_src = pint.Quantity(src_values, cmd[3])
-                set_value(template, trg, pint_src.units.to(cmd[1]))
-
-    # try_interpret_as_boolean(mdata[f"{prfx_src}{entry[1]}"])
-    # string_to_number(mdata[f"{prfx_src}{entry[1]}"])
+                pint_src = ureg.Quantity(src_values, cmd[3])
+                set_value(template, trg, pint_src.to(cmd[1]), trg_dtype_key)
+        elif case == "case_six":
+            if f"{prfx_src}{cmd[2]}" not in mdata or f"{prfx_src}{cmd[3]}" not in mdata:
+                continue
+            src_val = mdata[f"{prfx_src}{cmd[2]}"]
+            src_unit = mdata[f"{prfx_src}{cmd[3]}"]
+            if not src_val or not src_unit:
+                continue
+            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+            if isinstance(src_val, ureg.Quantity):
+                set_value(template, trg, src_val.units.to(cmd[1]), trg_dtype_key)
+            else:
+                pint_src = ureg.Quantity(src_val, ureg.Unit(src_unit))
+                set_value(template, trg, pint_src.to(cmd[1]), trg_dtype_key)
     return template
 
 
@@ -343,6 +394,7 @@ def timestamp_functor(
     ids: list,
     template: dict,
 ) -> dict:
+    """Process concept mapping and time format conversion."""
     for cmd in cmds:
         if isinstance(cmd, tuple):
             if 2 <= len(cmd) <= 3:  # trg, src, timestamp or empty string (meaning utc)
@@ -375,6 +427,7 @@ def filehash_functor(
     ids: list,
     template: dict,
 ) -> dict:
+    """Process concept mapping and checksums to add context from which file NeXus content was processed."""
     for cmd in cmds:
         if isinstance(cmd, tuple):
             if len(cmd) == 2:
@@ -408,11 +461,18 @@ def add_specific_metadata_pint(
     template: dictionary where to store mapped instance data using template paths
     """
     if "prefix_trg" in cfg:
-        prfx_trg = cfg["prefix_trg"]
+        prefix_trg = cfg["prefix_trg"]
     else:
         raise KeyError(f"prefix_trg not found in cfg!")
     if "prefix_src" in cfg:
-        prfx_src = cfg["prefix_src"]
+        if isinstance(cfg["prefix_src"], str):
+            prfx_src = [cfg["prefix_src"]]
+        elif isinstance(cfg["prefix_src"], list) and all(
+            isinstance(val, str) for val in cfg["prefix_src"]
+        ):
+            prfx_src = cfg["prefix_src"]
+        else:
+            raise ValueError(f"prefix_src needs to be a str or a list[str] !")
     else:
         raise KeyError(f"prefix_src not found in cfg!")
 
@@ -422,52 +482,36 @@ def add_specific_metadata_pint(
     # returns an output, given the mapping can be abstract, we call it a functor
 
     # https://numpy.org/doc/stable/reference/arrays.dtypes.html
-
-    for functor_key in cfg:
-        if functor_key == "use":
-            use_functor(cfg["use"], mdata, prfx_trg, ids, template)
-        if functor_key == "map":
-            map_functor(cfg[functor_key], mdata, prfx_src, prfx_trg, ids, template)
-        if functor_key.startswith("map_to_"):
-            dtype_key = functor_key.replace("map_to_", "")
-            print(f"dtype_key >>>> {dtype_key}")
-            if dtype_key in MAP_TO_DTYPES:
+    for prefix_src in prfx_src:
+        for functor_key in cfg:
+            if functor_key in ["prefix_trg", "prefix_src"]:
+                continue
+            if functor_key == "use":
+                use_functor(cfg["use"], mdata, prefix_trg, ids, template)
+            if functor_key == "map":
                 map_functor(
-                    cfg[functor_key],
-                    mdata,
-                    prfx_src,
-                    prfx_trg,
-                    ids,
-                    template,
-                    trg_dtype_key=dtype_key,
+                    cfg[functor_key], mdata, prefix_src, prefix_trg, ids, template
                 )
-            else:
-                raise KeyError(f"Unexpected dtype_key {dtype_key} !")
-        if functor_key == "unix_to_iso8601":
-            timestamp_functor(
-                cfg["unix_to_iso8601"], mdata, prfx_src, prfx_trg, ids, template
-            )
-        if functor_key == "sha256":
-            filehash_functor(cfg["sha256"], mdata, prfx_src, prfx_trg, ids, template)
+            if functor_key.startswith("map_to_"):
+                dtype_key = functor_key.replace("map_to_", "")
+                if dtype_key in MAP_TO_DTYPES:
+                    map_functor(
+                        cfg[functor_key],
+                        mdata,
+                        prefix_src,
+                        prefix_trg,
+                        ids,
+                        template,
+                        dtype_key,
+                    )
+                else:
+                    raise KeyError(f"Unexpected dtype_key {dtype_key} !")
+            if functor_key == "unix_to_iso8601":
+                timestamp_functor(
+                    cfg["unix_to_iso8601"], mdata, prefix_src, prefix_trg, ids, template
+                )
+            if functor_key == "sha256":
+                filehash_functor(
+                    cfg["sha256"], mdata, prefix_src, prefix_trg, ids, template
+                )
     return template
-
-
-PINT_MAPPING_TESTS = {
-    "use": [
-        ("str_str_01", ""),
-        ("str_str_02", "one"),
-        ("str_qnt_01", NX_UNITLESS),
-        ("str_qnt_02", NX_DIMENSIONLESS),
-        ("str_qnt_03", NX_ANY),
-        ("str_qnt_04", pint.Quantity(1, ureg.meter)),
-        ("str_qnt_05", pint.Quantity(1, ureg.nx_unitless)),
-        ("str_qnt_06", pint.Quantity(1, ureg.nx_dimensionless)),
-        ("str_qnt_07", pint.Quantity(1, ureg.nx_any)),
-        ("str_qnt_08", pint.Quantity(np.uint32(1), ureg.meter)),
-        ("str_qnt_09", pint.Quantity(np.uint32(1), ureg.nx_unitless)),
-        ("str_qnt_10", pint.Quantity(np.uint32(1), ureg.nx_dimensionless)),
-        ("str_qnt_11", pint.Quantity(np.uint32(1), ureg.nx_any)),
-        ("str_qnt_12", pint.Quantity(np.asarray([1, 2, 3], np.uint32), ureg.meter)),
-    ],
-    "map": [],
-}

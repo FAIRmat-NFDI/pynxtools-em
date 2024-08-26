@@ -5,7 +5,7 @@ The following diagram shows a comprehensive example how diverse datasets from Ki
 
 <img src="media/kikuchi.png" />
 
-[Further details to the parsing route via MTex](mtex.md)
-[Further details to the parsing route via pyxem](pyxem.md)
-[Further details to the NXem_ebsd base class](https://fairmat-nfdi.github.io/nexus_definitions/classes/contributed_definitions/NXem_ebsd.html#nxem-ebsd)
-[Further details to  the NXem application definition](https://fairmat-nfdi.github.io/nexus_definitions/classes/contributed_definitions/NXem.html#nxem)
+- [Further details to the parsing route via MTex](mtex.md)
+- [Further details to the parsing route via pyxem](pyxem.md)
+- [Further details to the NXem_ebsd base class](https://fairmat-nfdi.github.io/nexus_definitions/classes/contributed_definitions/NXem_ebsd.html#nxem-ebsd)
+- [Further details to  the NXem application definition](https://fairmat-nfdi.github.io/nexus_definitions/classes/contributed_definitions/NXem.html#nxem)
