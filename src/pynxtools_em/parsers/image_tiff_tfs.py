@@ -26,22 +26,25 @@ from PIL import Image, ImageSequence
 from PIL.TiffTags import TAGS
 
 # https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
-from pynxtools_em.concepts.mapping_functors import add_specific_metadata
+from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_tfs_cfg import (
-    TFS_APERTURE_STATIC_TO_NX_EM,
-    TFS_DETECTOR_STATIC_TO_NX_EM,
-    TFS_OPTICS_DYNAMIC_TO_NX_EM,
-    TFS_SCAN_DYNAMIC_TO_NX_EM,
-    TFS_STAGE_DYNAMIC_TO_NX_EM,
-    TFS_VARIOUS_DYNAMIC_TO_NX_EM,
-    TFS_VARIOUS_STATIC_TO_NX_EM,
+    TFS_DYNAMIC_OPTICS_NX,
+    TFS_DYNAMIC_SCAN_NX,
+    TFS_DYNAMIC_STAGE_NX,
+    TFS_DYNAMIC_STIGMATOR_NX,
+    TFS_DYNAMIC_VARIOUS_NX,
+    TFS_STATIC_APERTURE_NX,
+    TFS_STATIC_DETECTOR_NX,
+    TFS_STATIC_VARIOUS_NX,
+    TIFF_TFS_PARENT_CONCEPTS,
 )
 from pynxtools_em.parsers.image_tiff import TiffParser
 from pynxtools_em.utils.image_utils import (
     if_str_represents_float,
     sort_ascendingly_by_second_argument,
 )
-from pynxtools_em.utils.tfs_utils import get_fei_childs, get_fei_parent_concepts
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
+from pynxtools_em.utils.tfs_utils import get_fei_childs
 
 
 class TfsTiffParser(TiffParser):
@@ -73,7 +76,7 @@ class TfsTiffParser(TiffParser):
             tfs_keys = [34682]
             for tfs_key in tfs_keys:
                 if tfs_key in fp.tag_v2:
-                    if len(fp.tag_v2[tfs_key]) == 1:
+                    if len(fp.tag_v2[tfs_key]) >= 1:
                         self.supported += 1  # found TFS-specific tag
         if self.supported == 2:
             self.supported = True
@@ -86,13 +89,12 @@ class TfsTiffParser(TiffParser):
     def get_metadata(self):
         """Extract metadata in TFS specific tags if present."""
         print("Parsing TIFF tags...")
-        tfs_parent_concepts = get_fei_parent_concepts()
         tfs_parent_concepts_byte_offset = {}
-        for concept in tfs_parent_concepts:
+        for concept in TIFF_TFS_PARENT_CONCEPTS:
             tfs_parent_concepts_byte_offset[concept] = None
         with open(self.file_path, "rb", 0) as fp:
             s = mmap.mmap(fp.fileno(), 0, access=mmap.ACCESS_READ)
-            for concept in tfs_parent_concepts:
+            for concept in TIFF_TFS_PARENT_CONCEPTS:
                 pos = s.find(bytes(f"[{concept}]", "utf8"))  # != -1
                 if pos != -1:
                     tfs_parent_concepts_byte_offset[concept] = pos
@@ -153,6 +155,10 @@ class TfsTiffParser(TiffParser):
                             )
                     else:
                         break
+            if self.verbose:
+                for key, value in self.flat_dict_meta.items():
+                    if value:
+                        print(f"{key}____{type(value)}____{value}")
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache self.tmp."""
@@ -171,9 +177,7 @@ class TfsTiffParser(TiffParser):
     def process_event_data_em_data(self, template: dict) -> dict:
         """Add respective heavy data."""
         # default display of the image(s) representing the data collected in this event
-        print(
-            f"Writing TFS/FEI image data to the respective NeXus concept instances..."
-        )
+        print(f"Writing TFS/FEI image data to NeXus concept instances...")
         image_identifier = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
@@ -189,11 +193,11 @@ class TfsTiffParser(TiffParser):
                 trg = (
                     f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
                     f"EVENT_DATA_EM[event_data_em{self.event_id}]/"
-                    f"IMAGE_R_SET[image_r_set{image_identifier}]/image_2d"
+                    f"IMAGE_SET[image_set{image_identifier}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
-                template[f"{trg}/@signal"] = "intensity"
-                dims = ["x", "y"]
+                template[f"{trg}/@signal"] = "real"
+                dims = ["i", "j"]
                 idx = 0
                 for dim in dims:
                     template[f"{trg}/@AXISNAME_indices[axis_{dim}_indices]"] = (
@@ -203,23 +207,29 @@ class TfsTiffParser(TiffParser):
                 template[f"{trg}/@axes"] = []
                 for dim in dims[::-1]:
                     template[f"{trg}/@axes"].append(f"axis_{dim}")
-                template[f"{trg}/intensity"] = {"compress": np.array(fp), "strength": 1}
+                template[f"{trg}/real"] = {"compress": np.array(fp), "strength": 1}
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
-                template[f"{trg}/intensity/@long_name"] = f"Signal"
+                template[f"{trg}/real/@long_name"] = f"Signal"
 
-                sxy = {"x": 1.0, "y": 1.0}
-                scan_unit = {"x": "m", "y": "m"}  # assuming FEI reports SI units
-                # we may face the CCD overview camera for the chamber for which there might not be a calibration!
+                sxy = {
+                    "i": ureg.Quantity(1.0, ureg.meter),
+                    "j": ureg.Quantity(1.0, ureg.meter),
+                }
+                # may face CCD overview camera of chamber that has no calibration!
                 if ("EScan/PixelWidth" in self.flat_dict_meta) and (
                     "EScan/PixelHeight" in self.flat_dict_meta
                 ):
                     sxy = {
-                        "x": self.flat_dict_meta["EScan/PixelWidth"],
-                        "y": self.flat_dict_meta["EScan/PixelHeight"],
+                        "i": ureg.Quantity(
+                            self.flat_dict_meta["EScan/PixelWidth"], ureg.meter
+                        ),
+                        "j": ureg.Quantity(
+                            self.flat_dict_meta["EScan/PixelHeight"], ureg.meter
+                        ),
                     }
                 else:
                     print("WARNING: Assuming pixel width and height unit is meter!")
-                nxy = {"x": np.shape(np.array(fp))[1], "y": np.shape(np.array(fp))[0]}
+                nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # however the TIFF file gives no clue, TIFF just documents in which order
                 # it arranges a bunch of pixels that have stream in into a n-d tiling
@@ -237,15 +247,15 @@ class TfsTiffParser(TiffParser):
                     template[f"{trg}/AXISNAME[axis_{dim}]"] = {
                         "compress": np.asarray(
                             np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
-                            * sxy[dim],
+                            * sxy[dim].magnitude,
                             np.float64,
                         ),
                         "strength": 1,
                     }
                     template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                        f"Coordinate along {dim}-axis ({scan_unit[dim]})"
+                        f"Coordinate along {dim}-axis ({sxy[dim].units})"
                     )
-                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit[dim]}"
+                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
                 image_identifier += 1
         return template
 
@@ -255,15 +265,16 @@ class TfsTiffParser(TiffParser):
         print(f"Mapping some of the TFS/FEI metadata on respective NeXus concepts...")
         identifier = [self.entry_id, self.event_id, 1]
         for cfg in [
-            TFS_APERTURE_STATIC_TO_NX_EM,
-            TFS_DETECTOR_STATIC_TO_NX_EM,
-            TFS_VARIOUS_STATIC_TO_NX_EM,
-            TFS_OPTICS_DYNAMIC_TO_NX_EM,
-            TFS_SCAN_DYNAMIC_TO_NX_EM,
-            TFS_VARIOUS_DYNAMIC_TO_NX_EM,
-        ]:
-            add_specific_metadata(cfg, self.flat_dict_meta, identifier, template)
-        add_specific_metadata(
-            TFS_STAGE_DYNAMIC_TO_NX_EM, self.flat_dict_meta, identifier, template
+            TFS_STATIC_APERTURE_NX,
+            TFS_STATIC_DETECTOR_NX,
+            TFS_STATIC_VARIOUS_NX,
+            TFS_DYNAMIC_OPTICS_NX,
+            TFS_DYNAMIC_SCAN_NX,
+            TFS_DYNAMIC_VARIOUS_NX,
+            TFS_DYNAMIC_STIGMATOR_NX,
+        ]:  # TODO::static quantities may need to be splitted
+            add_specific_metadata_pint(cfg, self.flat_dict_meta, identifier, template)
+        add_specific_metadata_pint(
+            TFS_DYNAMIC_STAGE_NX, self.flat_dict_meta, identifier, template
         )
         return template

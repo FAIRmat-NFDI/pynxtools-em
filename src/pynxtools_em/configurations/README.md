@@ -58,7 +58,7 @@ takes place during consumption of the serialized NeXus artifact/file.
 The following example shows one typical such dictionary.
 
 ```python
-AXON_STAGE_STATIC_TO_NX_EM = {
+AXON_STATIC_STAGE_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/STAGE_LAB[stage_lab]",
     "prefix_src": "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.",
     "use": [("design", "heating_chip")],
@@ -74,7 +74,7 @@ pointed to by keyword f"{prefix_src}{map[0][1]}".
 
 Problems with the old algorithm can be exemplified with the following example
 ```
-VELOX_STAGE_TO_NX_EM = {
+VELOX_DYNAMIC_STAGE_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
     "use": [
         ("tilt1/@units", "rad"),
@@ -94,7 +94,7 @@ Keywords *use* and *map* were looped over. Therefore, template pathes like *tilt
 independently whether the corresponding value *tilt1* was found. The new approach solves this
 and makes the dictionary more compact:
 ```
-VELOX_STAGE_TO_NX_EM = {
+VELOX_DYNAMIC_STAGE_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
     "map": [("design", "Stage/HolderType")],
     "map_to_float64": [

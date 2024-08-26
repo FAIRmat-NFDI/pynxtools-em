@@ -25,8 +25,8 @@ import numpy as np
 from PIL import Image, ImageSequence
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_jeol_cfg import (
-    JEOL_VARIOUS_DYNAMIC_TO_NX_EM,
-    JEOL_VARIOUS_STATIC_TO_NX_EM,
+    JEOL_DYNAMIC_VARIOUS_NX,
+    JEOL_STATIC_VARIOUS_NX,
 )
 from pynxtools_em.parsers.image_tiff import TiffParser
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
@@ -67,6 +67,11 @@ class JeolTiffParser(TiffParser):
         information can be used to tell JEOL data apart from other data.
         """
         self.supported = False
+        if not hasattr(self, "file_path"):
+            print(
+                f"... is not a JEOL-specific TIFF file that this parser can process !"
+            )
+            return
         if self.txt_file_path is None:
             print(
                 f"Parser {self.__class__.__name__} does not work without a JEOL text file with the image metadata !"
@@ -129,10 +134,6 @@ class JeolTiffParser(TiffParser):
             # metadata have at this point already been collected into an fd.FlatDict
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
-        else:
-            print(
-                f"{self.file_path} is not a JEOL-specific TIFF file that this parser can process !"
-            )
         return template
 
     def process_event_data_em_data(self, template: dict) -> dict:
@@ -170,15 +171,17 @@ class JeolTiffParser(TiffParser):
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Signal"
 
-                sxy = {"i": 1.0, "j": 1.0}
-                scan_unit = {"i": "m", "j": "m"}
+                sxy = {
+                    "i": ureg.Quantity(1.0, ureg.meter),
+                    "j": ureg.Quantity(1.0, ureg.meter),
+                }
                 if ("SM_MICRON_BAR" in self.flat_dict_meta) and (
                     "SM_MICRON_MARKER" in self.flat_dict_meta
                 ):
                     # JEOL-specific conversion for micron bar pixel to physical length
                     resolution = int(self.flat_dict_meta["SM_MICRON_BAR"])
                     physical_length = (
-                        self.flat_dict_meta["SM_MICRON_MARKER"].to(ureg.meter).magnitude
+                        self.flat_dict_meta["SM_MICRON_MARKER"]  # .to(ureg.meter)
                     )
                     # resolution many pixel represent physical_length scanned surface
                     # assuming square pixel
@@ -197,22 +200,23 @@ class JeolTiffParser(TiffParser):
                     template[f"{trg}/AXISNAME[axis_{dim}]"] = {
                         "compress": np.asarray(
                             np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
-                            * sxy[dim],
+                            * sxy[dim].magnitude,
                             np.float64,
                         ),
                         "strength": 1,
                     }
                     template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                        f"Coordinate along {dim}-axis ({scan_unit[dim]})"
+                        f"Coordinate along {dim}-axis ({sxy[dim].units})"
                     )
-                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit[dim]}"
+                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
                 image_identifier += 1
         return template
 
     def add_various_dynamic(self, template: dict) -> dict:
+        """Add several event-based concepts with similar template path prefixes dynamic."""
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata_pint(
-            JEOL_VARIOUS_DYNAMIC_TO_NX_EM,
+            JEOL_DYNAMIC_VARIOUS_NX,
             self.flat_dict_meta,
             identifier,
             template,
@@ -220,9 +224,10 @@ class JeolTiffParser(TiffParser):
         return template
 
     def add_various_static(self, template: dict) -> dict:
+        """Add several event-based concepts with similar template path prefixes static."""
         identifier = [self.entry_id, self.event_id, 1]
         add_specific_metadata_pint(
-            JEOL_VARIOUS_STATIC_TO_NX_EM,
+            JEOL_STATIC_VARIOUS_NX,
             self.flat_dict_meta,
             identifier,
             template,

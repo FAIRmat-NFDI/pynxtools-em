@@ -37,7 +37,7 @@ GATAN_WHICH_IMAGE = {
 }
 
 
-GATAN_DYNAMIC_VARIOUS_TO_NX_EM: Dict[str, Any] = {
+GATAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab",
     "prefix_src": "ImageList/TagGroup0/ImageTags/Microscope Info/",
     "map_to_f8": [
@@ -78,7 +78,7 @@ GATAN_DYNAMIC_VARIOUS_TO_NX_EM: Dict[str, Any] = {
             ureg.meter,
             "STEM Camera Length",
             ureg.meter,
-        ),
+        ),  # meter?
         # Cs(mm), Indicated Magnification, Magnification Interpolated, Formatted Actual Mag, Formatted Indicated Mag
     ],
     "map": [
@@ -94,7 +94,7 @@ GATAN_DYNAMIC_VARIOUS_TO_NX_EM: Dict[str, Any] = {
     ],
 }
 
-GATAN_DYNAMIC_STAGE_TO_NX_EM: Dict[str, Any] = {
+GATAN_DYNAMIC_STAGE_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage]",
     "prefix_src": "ImageList/TagGroup0/ImageTags/Microscope Info/Stage Position/",
     "map_to_f8": [
@@ -104,7 +104,7 @@ GATAN_DYNAMIC_STAGE_TO_NX_EM: Dict[str, Any] = {
             "position",
             ureg.meter,
             ["Stage X", "Stage Y", "Stage Z"],
-            ureg.meter,
+            ureg.meter,  # really meter?
         ),
     ],
 }

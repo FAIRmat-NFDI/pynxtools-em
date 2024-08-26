@@ -29,8 +29,9 @@ from PIL.TiffTags import TAGS
 from pint import UndefinedUnitError
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_zeiss_cfg import (
-    ZEISS_VARIOUS_DYNAMIC_TO_NX_EM,
-    ZEISS_VARIOUS_STATIC_TO_NX_EM,
+    ZEISS_DYNAMIC_STAGE_NX,
+    ZEISS_DYNAMIC_VARIOUS_NX,
+    ZEISS_STATIC_VARIOUS_NX,
 )
 from pynxtools_em.parsers.image_tiff import TiffParser
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
@@ -99,36 +100,32 @@ class ZeissTiffParser(TiffParser):
                     else:
                         try:
                             self.flat_dict_meta[line] = ureg.Quantity(token[1])
-                        except UndefinedUnitError:
-                            if token[1]:
-                                self.flat_dict_meta[line] = string_to_number(token[1])
-                        except TokenError:
-                            if token[1]:
-                                self.flat_dict_meta[line] = string_to_number(token[1])
-                        except ValueError:
-                            if token[1]:
-                                self.flat_dict_meta[line] = string_to_number(token[1])
-                        except AttributeError:
+                        except (
+                            UndefinedUnitError,
+                            TokenError,
+                            ValueError,
+                            AttributeError,
+                        ):
                             if token[1]:
                                 self.flat_dict_meta[line] = string_to_number(token[1])
             idx += 1
         if self.verbose:
             for key, value in self.flat_dict_meta.items():
-                if isinstance(value, ureg.Quantity):
-                    # try:
-                    #     if not value.dimensionless:
-                    #         print(f"{value}, {type(value)}, {key}")
-                    # except:
-                    #     print(f"{value}, {type(value)}, {key}")
-                    continue
-                else:
-                    print(f"{value}, {type(value)}, {key}")
+                # if isinstance(value, ureg.Quantity):
+                # try:
+                #     if not value.dimensionless:
+                #         print(f"{value}, {type(value)}, {key}")
+                # except:
+                #     print(f"{value}, {type(value)}, {key}")
+                # continue
+                # else:
+                print(f"{key}____{type(value)}____{value}")
         if "SV_VERSION" in self.flat_dict_meta:
             return self.flat_dict_meta["SV_VERSION"]
 
     def check_if_tiff_zeiss(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file."""
-        self.supported = False  # try to falsify
+        self.supported = False
         with open(self.file_path, "rb", 0) as file:
             s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
             magic = s.read(4)
@@ -198,14 +195,21 @@ class ZeissTiffParser(TiffParser):
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Signal"
 
-                sxy = {"i": 1.0, "j": 1.0}
-                scan_unit = {"i": "m", "j": "m"}
-                if "APImagePixelSize" in self.flat_dict_meta:
-                    pixel_size = (
-                        self.flat_dict_meta["APImagePixelSize"].to(ureg.meter).magnitude
-                    )
-                    sxy = {"i": pixel_size, "j": pixel_size}
-                else:
+                sxy = {
+                    "i": ureg.Quantity(1.0, ureg.meter),
+                    "j": ureg.Quantity(1.0, ureg.meter),
+                }
+                found = False
+                for key in ["AP_PIXEL_SIZE", "APImagePixelSize"]:
+                    if key in self.flat_dict_meta:
+                        sxy = {
+                            "i": self.flat_dict_meta[key],
+                            "j": self.flat_dict_meta[key],
+                        }
+                        # to(ureg.meter).magnitude
+                        found = True
+                        break
+                if not found:
                     print("WARNING: Assuming pixel width and height unit is meter!")
                 nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
                 # TODO::be careful we assume here a very specific coordinate system
@@ -215,15 +219,15 @@ class ZeissTiffParser(TiffParser):
                     template[f"{trg}/AXISNAME[axis_{dim}]"] = {
                         "compress": np.asarray(
                             np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
-                            * sxy[dim],
+                            * sxy[dim].magnitude,
                             np.float64,
                         ),
                         "strength": 1,
                     }
                     template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                        f"Coordinate along {dim}-axis ({scan_unit[dim]})"
+                        f"Coordinate along {dim}-axis ({sxy[dim].units})"
                     )
-                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit[dim]}"
+                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
                 image_identifier += 1
         return template
 
@@ -232,11 +236,17 @@ class ZeissTiffParser(TiffParser):
         # contextualization to understand how the image relates to the EM session
         print(f"Mapping some of the Zeiss metadata on respective NeXus concepts...")
         identifier = [self.entry_id, self.event_id, 1]
-        for cfg in [ZEISS_VARIOUS_DYNAMIC_TO_NX_EM, ZEISS_VARIOUS_STATIC_TO_NX_EM]:
+        for cfg in [
+            ZEISS_DYNAMIC_VARIOUS_NX,
+            ZEISS_STATIC_VARIOUS_NX,
+        ]:
             add_specific_metadata_pint(
                 cfg,
                 self.flat_dict_meta,
                 identifier,
                 template,
             )
+        add_specific_metadata_pint(
+            ZEISS_DYNAMIC_STAGE_NX, self.flat_dict_meta, identifier, template
+        )
         return template

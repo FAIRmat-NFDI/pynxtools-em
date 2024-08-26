@@ -19,15 +19,7 @@
 
 from typing import List
 
-from pynxtools_em.configurations.image_tiff_tfs_cfg import (
-    TIFF_TFS_ALL_CONCEPTS,
-    TIFF_TFS_PARENT_CONCEPTS,
-)
-
-
-def get_fei_parent_concepts() -> List:
-    """Get list of unique FEI parent concepts."""
-    return TIFF_TFS_PARENT_CONCEPTS
+from pynxtools_em.configurations.image_tiff_tfs_cfg import TIFF_TFS_ALL_CONCEPTS
 
 
 def get_fei_childs(parent_concept: str) -> List:
