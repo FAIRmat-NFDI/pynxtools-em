@@ -28,6 +28,7 @@ ureg = UnitRegistry()
 # customizations for Zeiss
 ureg.define("Hours = 1 * h")
 ureg.define("Secs = 1 * s")
+ureg.define("Volt = 1 * V")
 
 # customizations for NeXus
 ureg.define("nx_unitless = 1")

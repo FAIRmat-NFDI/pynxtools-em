@@ -31,16 +31,16 @@ import numpy as np
 import yaml
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.nion_cfg import (
-    NION_DYNAMIC_ABERRATION_TO_NX_EM,
-    NION_DYNAMIC_DETECTOR_TO_NX_EM,
-    NION_DYNAMIC_LENS_TO_NX_EM,
-    NION_DYNAMIC_MAGBOARDS_TO_NX_EM,
-    NION_DYNAMIC_SCAN_TO_NX_EM,
-    NION_DYNAMIC_STAGE_TO_NX_EM,
-    NION_DYNAMIC_VARIOUS_TO_NX_EM,
-    NION_PINPOINT_EVENT_TIME,
-    NION_STATIC_DETECTOR_TO_NX_EM,
-    NION_STATIC_LENS_TO_NX_EM,
+    NION_DYNAMIC_ABERRATION_NX,
+    NION_DYNAMIC_DETECTOR_NX,
+    NION_DYNAMIC_EVENT_TIME,
+    NION_DYNAMIC_LENS_NX,
+    NION_DYNAMIC_MAGBOARDS_NX,
+    NION_DYNAMIC_SCAN_NX,
+    NION_DYNAMIC_STAGE_NX,
+    NION_DYNAMIC_VARIOUS_NX,
+    NION_STATIC_DETECTOR_NX,
+    NION_STATIC_LENS_NX,
     NION_WHICH_IMAGE,
     NION_WHICH_SPECTRUM,
 )
@@ -58,21 +58,20 @@ from pynxtools_em.utils.pint_custom_unit_registry import ureg
 class NionProjectParser:
     """Parse (zip-compressed archive of a) nionswift project with its content."""
 
-    def __init__(
-        self, entry_id: int = 1, input_file_path: str = "", verbose: bool = True
-    ):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         """Class wrapping swift parser."""
-        if input_file_path is not None and input_file_path != "":
-            self.file_path = input_file_path
+        if file_path is not None and file_path != "":
+            self.file_path = file_path
         if entry_id > 0:
             self.entry_id = entry_id
         else:
             self.entry_id = 1
         self.event_id = 1
+        self.verbose = verbose
         # counters which keep track of how many instances of NXevent_data_em have
         # been instantiated, this implementation currently maps each display_items
         # onto an own NXevent_data_em instance
-        self.prfx = None
+        self.file_path_sha256 = None
         self.tmp: Dict = {}
         self.proj_file_dict: Dict = {}
         # assure that there is exactly one *.nsproj file only to parse from
@@ -81,7 +80,6 @@ class NionProjectParser:
         self.hfive_file_dict: Dict = {}
         # just get the *.h5 files irrespective whether parsed later or not
         self.supported = False
-        self.verbose = verbose
         self.is_zipped = False
         self.check_if_nionswift_project()
         # eventually allow https://github.com/miurahr/py7zr/ to work with 7z directly
@@ -393,14 +391,14 @@ class NionProjectParser:
         # we assume for now dynamic quantities can just be repeated
         identifier = [self.entry_id, self.event_id, 1]
         for cfg in [
-            NION_DYNAMIC_ABERRATION_TO_NX_EM,
-            NION_DYNAMIC_DETECTOR_TO_NX_EM,
-            NION_DYNAMIC_LENS_TO_NX_EM,
-            NION_DYNAMIC_MAGBOARDS_TO_NX_EM,
-            NION_DYNAMIC_SCAN_TO_NX_EM,
-            NION_DYNAMIC_STAGE_TO_NX_EM,
-            NION_DYNAMIC_VARIOUS_TO_NX_EM,
-            NION_PINPOINT_EVENT_TIME,
+            NION_DYNAMIC_ABERRATION_NX,
+            NION_DYNAMIC_DETECTOR_NX,
+            NION_DYNAMIC_LENS_NX,
+            NION_DYNAMIC_MAGBOARDS_NX,
+            NION_DYNAMIC_SCAN_NX,
+            NION_DYNAMIC_STAGE_NX,
+            NION_DYNAMIC_VARIOUS_NX,
+            NION_DYNAMIC_EVENT_TIME,
         ]:
             add_specific_metadata_pint(cfg, flat_metadata, identifier, template)
         # but not so static quantities, for these we ideally need to check if
@@ -413,10 +411,10 @@ class NionProjectParser:
         # nasty assume there is only one e.g. direct electron detector
         identifier = [self.entry_id, 1]
         add_specific_metadata_pint(
-            NION_STATIC_DETECTOR_TO_NX_EM, flat_metadata, identifier, template
+            NION_STATIC_DETECTOR_NX, flat_metadata, identifier, template
         )
         add_specific_metadata_pint(
-            NION_STATIC_LENS_TO_NX_EM, flat_metadata, identifier, template
+            NION_STATIC_LENS_NX, flat_metadata, identifier, template
         )
         return template
 

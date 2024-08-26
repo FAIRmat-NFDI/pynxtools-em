@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Utility function for mapping nionswift identifier to suffix used for identifying files in project."""
+"""Utility functions for working with Nion Co. content and concepts."""
 
 import uuid
 

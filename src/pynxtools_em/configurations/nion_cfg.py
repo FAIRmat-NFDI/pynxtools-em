@@ -52,7 +52,7 @@ NION_WHICH_IMAGE = {
 
 
 MAG = "magnitude"
-NION_DYNAMIC_ABERRATION_TO_NX_EM: Dict[str, Any] = {
+NION_DYNAMIC_ABERRATION_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column/corrector_cs/tableauID[tableau1]",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
@@ -83,7 +83,7 @@ NION_DYNAMIC_ABERRATION_TO_NX_EM: Dict[str, Any] = {
 
 # more on metadata https://nionswift.readthedocs.io/en/stable/api/scripting.html#managing-session-metadata
 # TODO::check units currently using alibi units!
-NION_DYNAMIC_VARIOUS_TO_NX_EM: Dict[str, Any] = {
+NION_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
@@ -97,7 +97,7 @@ NION_DYNAMIC_VARIOUS_TO_NX_EM: Dict[str, Any] = {
         "metadata/scan_detector/autostem/ImageScanned/",
     ],
     "map_to_f8": [
-        ("ebeam_column/electron_source/voltage", ureg.kilovolt, "EHT", ureg.volt),
+        ("ebeam_column/electron_source/voltage", ureg.volt, "EHT", ureg.volt),
         (
             "ebeam_column/BEAM[beam]/diameter",
             ureg.meter,
@@ -127,7 +127,7 @@ NION_DYNAMIC_VARIOUS_TO_NX_EM: Dict[str, Any] = {
 }
 
 
-NION_DYNAMIC_STAGE_TO_NX_EM: Dict[str, Any] = {
+NION_DYNAMIC_STAGE_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage]",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
@@ -145,7 +145,7 @@ NION_DYNAMIC_STAGE_TO_NX_EM: Dict[str, Any] = {
         ("tilt2", ureg.radian, "StageOutB", ureg.radian),
         (
             "position",
-            ureg.picometer,
+            ureg.meter,
             ["StageOutX", "StageOutY", "StageOutZ"],
             ureg.meter,
         ),
@@ -158,7 +158,7 @@ NION_DYNAMIC_STAGE_TO_NX_EM: Dict[str, Any] = {
 # ordered always 1, 2, 3, 4 and worse, if e.g. only MajorOL is found we get a single
 # instance lens4 only in a NeXus file which might confuse people as they learn that
 # numbering should start from 1
-NION_DYNAMIC_LENS_TO_NX_EM: Dict[str, Any] = {
+NION_DYNAMIC_LENS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
@@ -188,7 +188,7 @@ NION_DYNAMIC_LENS_TO_NX_EM: Dict[str, Any] = {
 # https://nionswift-instrumentation.readthedocs.io/en/latest/scanning.html#how-does-scanning-work
 # according to this documentation ac_line_style should be boolean but datasets show
 # 1.0, 2.0, True and False !
-NION_DYNAMIC_SCAN_TO_NX_EM: Dict[str, Any] = {
+NION_DYNAMIC_SCAN_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
     "prefix_src": [
         "metadata/hardware_source/",
@@ -236,7 +236,7 @@ NION_DYNAMIC_SCAN_TO_NX_EM: Dict[str, Any] = {
 
 C0 = "CIRCUIT[magboard0]"
 C1 = "CIRCUIT[magboard1]"
-NION_DYNAMIC_MAGBOARDS_TO_NX_EM: Dict[str, Any] = {
+NION_DYNAMIC_MAGBOARDS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
     "prefix_src": [
         "metadata/scan/scan_device_properties/",
@@ -279,7 +279,7 @@ NION_DYNAMIC_MAGBOARDS_TO_NX_EM: Dict[str, Any] = {
 # here is the same issue, for C. Koch's group it is correct that there is only one
 # detector A so writing to detector1 works but not in cases when there are multiple
 # detectors
-NION_DYNAMIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
+NION_DYNAMIC_DETECTOR_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/detectorID[detector*]",
     "prefix_src": "metadata/hardware_source/detector_configuration/",
     "use": [
@@ -308,7 +308,7 @@ NION_DYNAMIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
 }
 
 
-NION_PINPOINT_EVENT_TIME = {
+NION_DYNAMIC_EVENT_TIME = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "metadata/hardware_source/detector_configuration/",
     "map": [("start_time", "data_collection_date")],
@@ -351,7 +351,7 @@ NION_PINPOINT_EVENT_TIME = {
 # the repetitive writing of detector data could be avoided and for the sake of
 # saving disk space just a reference added, currently there is no parser plugin that
 # deals with this complexity
-NION_STATIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
+NION_STATIC_DETECTOR_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/detectorID[detector*]",
     "prefix_src": "metadata/hardware_source/detector_configuration/",
     "map": [
@@ -376,7 +376,7 @@ NION_STATIC_DETECTOR_TO_NX_EM: Dict[str, Any] = {
     ],
 }
 
-NION_STATIC_LENS_TO_NX_EM: Dict[str, Any] = {
+NION_STATIC_LENS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/ebeam_column",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
