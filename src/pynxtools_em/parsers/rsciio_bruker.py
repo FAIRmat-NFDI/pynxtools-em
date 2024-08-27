@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""(Sub-)parser for reading content from Bruker *.BCF files via rosettasciio."""
+"""Parser for reading content from Bruker *.BCF files via rosettasciio."""
 
 from typing import Dict, List
 
@@ -49,7 +49,7 @@ class RsciioBrukerParser(RsciioBaseParser):
 
     def parse_and_normalize(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""
-        if self.supported is True:
+        if self.supported:
             print(f"Parsing via Bruker...")
             self.normalize_eds_content(template)
             self.normalize_eels_content(template)
@@ -70,7 +70,7 @@ class RsciioBrukerParser(RsciioBaseParser):
 
     def process_into_template(self, template: dict) -> dict:
         """TODO implementation."""
-        if self.supported is True:
+        if self.supported:
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
         return template

@@ -15,17 +15,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""(Sub-)parser mapping concepts and content from Marc deGraeff's EMsoft *.h5 files on NXem."""
+"""Parser mapping concepts and content from Marc deGraeff's EMsoft *.h5 files on NXem."""
 
 from typing import Dict
 
 import h5py
 import numpy as np
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
-from pynxtools_em.utils.hfive_utils import read_strings_from_dataset
+from pynxtools_em.utils.hfive_utils import read_strings
 
 
-class HdfFiveEmSoftReader(HdfFiveBaseParser):
+class HdfFiveEmSoftParser(HdfFiveBaseParser):
     """Read EMsoft H5 (Marc deGraeff Carnegie Mellon)"""
 
     def __init__(self, file_path: str = ""):
@@ -62,7 +62,7 @@ class HdfFiveEmSoftReader(HdfFiveBaseParser):
                 if f"/{req_group}" not in h5r:
                     self.supported = False
 
-            if self.supported is True:
+            if self.supported:
                 self.version = self.supported_version.copy()
 
     def parse_and_normalize(self):

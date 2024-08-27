@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""(Sub-)parser mapping concepts and content from EDAX/AMETEK *.edaxh5 (APEX) files on NXem."""
+"""Parser mapping concepts and content from EDAX/AMETEK *.edaxh5 (APEX) files on NXem."""
 
 from typing import Dict
 
@@ -37,10 +37,10 @@ from pynxtools_em.examples.ebsd_database import (
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.get_scan_points import get_scan_point_coords
 from pynxtools_em.utils.get_xrayline_iupac_names import get_xrayline_candidates
-from pynxtools_em.utils.hfive_utils import read_strings_from_dataset
+from pynxtools_em.utils.hfive_utils import read_strings
 
 
-class HdfFiveEdaxApexReader(HdfFiveBaseParser):
+class HdfFiveEdaxApexParser(HdfFiveBaseParser):
     """Read APEX edaxh5"""
 
     def __init__(self, file_path: str = ""):
@@ -77,14 +77,12 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
             grp_names = list(h5r["/"])
             if len(grp_names) == 1:
                 if "Company" in h5r[grp_names[0]].attrs:
-                    partner = read_strings_from_dataset(
-                        h5r[grp_names[0]].attrs["Company"][0]
-                    )
+                    partner = read_strings(h5r[grp_names[0]].attrs["Company"][0])
                     if partner in self.version["trg"]["tech_partner"]:
                         self.version["src"]["tech_partner"] = partner
                         votes_for_support += 1
                 if "PRODUCT_VERSION" in h5r[grp_names[0]].attrs:
-                    version = read_strings_from_dataset(
+                    version = read_strings(
                         h5r[grp_names[0]].attrs["PRODUCT_VERSION"][0]
                     )
                     if version in self.version["trg"]["schema_version"]:
@@ -215,7 +213,7 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
                 raise ValueError(f"Unable to parse {self.prfx}/Sample/{req_field} !")
 
         self.tmp[ckey]["dimensionality"] = 2
-        grid_type = read_strings_from_dataset(fp[f"{self.prfx}/Sample/Grid Type"][()])
+        grid_type = read_strings(fp[f"{self.prfx}/Sample/Grid Type"][()])
         if grid_type == "HexGrid":
             self.tmp[ckey]["grid_type"] = HEXAGONAL_FLAT_TOP_TILING
         elif grid_type == "SqrGrid":
@@ -250,9 +248,7 @@ class HdfFiveEdaxApexReader(HdfFiveBaseParser):
                 sub_grp_name = f"{grp_name}/{phase_id}"
                 # Name
                 if f"{sub_grp_name}/Material Name" in fp:
-                    phase_name = read_strings_from_dataset(
-                        fp[f"{sub_grp_name}/Material Name"][0]
-                    )
+                    phase_name = read_strings(fp[f"{sub_grp_name}/Material Name"][0])
                     self.tmp[ckey]["phases"][int(phase_id)]["phase_name"] = phase_name
                 else:
                     raise ValueError(f"Unable to parse {sub_grp_name}/Material Name !")

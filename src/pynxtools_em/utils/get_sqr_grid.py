@@ -15,17 +15,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Discretize point cloud in R^d (d=2, 3) with mark data to square/cube voxel grid."""
+"""Discretize point cloud in R^d (d=2, 3) with mark data to grid with square/cube bins."""
 
 import numpy as np
-from pynxtools_em.examples.ebsd_database import SQUARE_TILING
 from pynxtools_em.utils.get_scan_points import hexagonal_grid, square_grid, threed
 from scipy.spatial import KDTree
 
 
-def get_scan_points_with_mark_data_discretized_on_sqr_grid(
-    src_grid: dict, max_edge_length: int
-) -> dict:
+def regrid_onto_equisized_scan_points(src_grid: dict, max_edge_length: int) -> dict:
     """Inspect grid_type, dimensionality, point locations, and mark src_grid, map then."""
     is_threed = threed(src_grid)
     req_keys = ["grid_type", "tiling", "flight_plan"]

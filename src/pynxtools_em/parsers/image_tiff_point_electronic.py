@@ -120,8 +120,8 @@ class PointElectronicTiffParser(TiffParser):
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""
-        if self.supported is True:
-            print(f"Parsing via point electronic DISS-specific metadata...")
+        if self.supported:
+            print(f"Parsing via point electronic DISS parser...")
             # metadata have at this point already been collected into an fd.FlatDict
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)

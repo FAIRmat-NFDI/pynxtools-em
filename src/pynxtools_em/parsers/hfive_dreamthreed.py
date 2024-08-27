@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""(Sub-)parser mapping concepts and content from community *.dream3d files on NXem."""
+"""Parser mapping concepts and content from community *.dream3d files on NXem."""
 
 from typing import Dict
 
@@ -30,7 +30,7 @@ from pynxtools_em.examples.ebsd_database import (
 )
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.hfive_utils import (
-    read_strings_from_dataset,
+    read_strings,
 )
 
 # DREAM3D implements essentially a data analysis workflow with individual steps
@@ -85,7 +85,7 @@ DREAM_SPACEGROUPS_TO_REPRESENTATIVE_SPACEGROUP = {
 # UnknownCrystalStructure, 999, Undefined Crystal Structure
 
 
-class HdfFiveDreamThreedReader(HdfFiveBaseParser):
+class HdfFiveDreamThreedParser(HdfFiveBaseParser):
     """Read DREAM3D HDF5 files (from Bluequartz's DREAM3D)"""
 
     def __init__(self, file_path: str = ""):
@@ -138,12 +138,12 @@ class HdfFiveDreamThreedReader(HdfFiveBaseParser):
                     self.supported = False
                     return
             if (
-                read_strings_from_dataset(h5r["/"].attrs["DREAM3D Version"])
+                read_strings(h5r["/"].attrs["DREAM3D Version"])
                 in self.supported_version["writer_version"]
             ):
                 self.supported += 1
             if (
-                read_strings_from_dataset(h5r["/"].attrs["FileVersion"])
+                read_strings(h5r["/"].attrs["FileVersion"])
                 in self.supported_version["schema_version"]
             ):
                 self.supported += 1
@@ -360,7 +360,7 @@ class HdfFiveDreamThreedReader(HdfFiveBaseParser):
             print(f"csys {np.shape(idx)}, {idx}")
             nms = None
             if f"{self.path_registry['group_phases']}/MaterialName" in h5r:
-                nms = read_strings_from_dataset(
+                nms = read_strings(
                     h5r[f"{self.path_registry['group_phases']}/MaterialName"][:]
                 )
                 print(f"nms ---------> {nms}")
@@ -370,7 +370,7 @@ class HdfFiveDreamThreedReader(HdfFiveBaseParser):
                     )
             # alternatively
             if f"{self.path_registry['group_phases']}/PhaseName" in h5r:
-                nms = read_strings_from_dataset(
+                nms = read_strings(
                     h5r[f"{self.path_registry['group_phases']}/PhaseName"][:]
                 )
                 print(f"nms ---------> {nms}")

@@ -216,8 +216,10 @@ class ProtochipsPngSetParser(ImgsBaseParser):
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""
-        if self.supported is True:
-            print(f"Parsing via Protochips-specific metadata...")
+        if self.supported:
+            print(
+                f"Parsing via Protochips AXON Studio ZIP-compressed project parser..."
+            )
             # may need to set self.supported = False on error
             with ZipFile(self.file_path) as zip_file_hdl:
                 for file in self.png_info.keys():

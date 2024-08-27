@@ -122,7 +122,7 @@ class HitachiTiffParser(TiffParser):
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""
-        if self.supported is True:
+        if self.supported:
             print(f"Parsing via Hitachi...")
             # metadata have at this point already been collected into an fd.FlatDict
             self.process_event_data_em_metadata(template)

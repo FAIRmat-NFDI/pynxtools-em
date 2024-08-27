@@ -17,17 +17,11 @@
 #
 """Utility functions when working with parsing HDF5."""
 
-import os
-import glob
-import re
-import sys
-import h5py
-import yaml
-import json
-import numpy as np
 from itertools import groupby
-from typing import List, Dict
+from typing import Dict
 
+import numpy as np
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 EBSD_MAP_SPACEGROUP = {
     "P 6#sub3mc": 186,
@@ -42,11 +36,15 @@ EBSD_MAP_SPACEGROUP = {
 # see here for typical examples http://img.chem.ucl.ac.uk/sgp/large/186az1.htm
 
 DIRTY_FIX_SPACEGROUP: Dict = {}
-EULER_SPACE_SYMMETRY: List = [2.0 * np.pi, np.pi, 2.0 * np.pi]
+EULER_SPACE_SYMMETRY = [
+    ureg.Quantity(2.0 * np.pi, ureg.radian),
+    ureg.Quantity(1.0 * np.pi, ureg.radian),
+    ureg.Quantity(2.0 * np.pi, ureg.radian),
+]
 
 
-def format_euler_parameterization(triplet_set):
-    """Transform degrees to radiant and apply orientation space symmetry"""
+def apply_euler_space_symmetry(triplet_set):
+    """Apply orientation space symmetry"""
     # it is not robust in general to judge just from the collection of euler angles
     # whether they are reported in radiant or degree
     # indeed an EBSD map of a slightly deformed single crystal close to e.g. the cube ori
@@ -54,16 +52,22 @@ def format_euler_parameterization(triplet_set):
     # similarly there was an example in the data 229_2096.oh5 where 3 out of 20.27 mio
     # scan points where not reported in radiant but rather using 4pi as a marker to indicate
     # there was a problem with the scan point
+    if not isinstance(triplet_set, ureg.Quantity):
+        raise ValueError(
+            f"Argument triplet_set needs to be an ureg.Quantity with unit radian !"
+        )
+    if triplet_set.units != "radian":
+        raise ValueError(f"Argument triplet_set needs to be in radian !")
     for column_id in [0, 1, 2]:
-        here = np.where(triplet_set[:, column_id] < 0.0)
+        here = np.where(triplet_set[:, column_id].magnitude < 0.0)
         if len(here[0]) > 0:
-            triplet_set[here, column_id] = (
-                EULER_SPACE_SYMMETRY[column_id] + triplet_set[here, column_id]
-            )
+            triplet_set[here, column_id].magnitude += EULER_SPACE_SYMMETRY[
+                column_id
+            ].magnitude
     return triplet_set
 
 
-def read_strings_from_dataset(obj):
+def read_strings(obj):
     # print(f"type {type(obj)}, np.shape {np.shape(obj)}, obj {obj}")
     # if hasattr(obj, "dtype"):
     #     print(obj.dtype)
@@ -111,8 +115,3 @@ def read_first_scalar(obj):
 def all_equal(iterable):
     g = groupby(iterable)
     return next(g, True) and not next(g, False)
-
-
-# for dim in ["x", "y"]:
-#     print(f"{dim}min {np.min(self.tmp[ckey][f'scan_point_{dim}'])}")
-#    print(f"{dim}max {np.max(self.tmp[ckey][f'scan_point_{dim}'])}")

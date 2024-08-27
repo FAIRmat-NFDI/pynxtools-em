@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""(Sub-)parser mapping concepts and content from EDAX/AMETEK *.oh5/*.h5 (OIM Analysis) files on NXem."""
+"""Parser mapping concepts and content from EDAX/AMETEK *.oh5/*.h5 (OIM Analysis) files on NXem."""
 
 from typing import Dict
 
@@ -32,13 +32,13 @@ from pynxtools_em.examples.ebsd_database import (
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.hfive_utils import (
     EULER_SPACE_SYMMETRY,
-    format_euler_parameterization,
+    apply_euler_space_symmetry,
     read_first_scalar,
-    read_strings_from_dataset,
+    read_strings,
 )
 
 
-class HdfFiveEdaxOimAnalysisReader(HdfFiveBaseParser):
+class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
     """Read EDAX (O)H5"""
 
     def __init__(self, file_path: str = ""):
@@ -76,15 +76,11 @@ class HdfFiveEdaxOimAnalysisReader(HdfFiveBaseParser):
                     self.supported = False
                     return
 
-            self.version["tech_partner"] = read_strings_from_dataset(
-                h5r["/Manufacturer"][()]
-            )
+            self.version["tech_partner"] = read_strings(h5r["/Manufacturer"][()])
             # for 8.6.0050 but for 8.5.1002 it is a matrix, this is because how strings end up in HDF5 allowed for so much flexibility!
             if self.version["tech_partner"] in self.supported_version["tech_partner"]:
                 self.supported += 1
-            self.version["schema_version"] = read_strings_from_dataset(
-                h5r["/Version"][()]
-            )
+            self.version["schema_version"] = read_strings(h5r["/Version"][()])
             if (
                 self.version["schema_version"]
                 in self.supported_version["schema_version"]
@@ -128,7 +124,7 @@ class HdfFiveEdaxOimAnalysisReader(HdfFiveBaseParser):
                 raise ValueError(f"Unable to parse {grp_name}/{req_field} !")
 
         self.tmp[ckey]["dimensionality"] = 2
-        grid_type = read_strings_from_dataset(fp[f"{grp_name}/Grid Type"][()])
+        grid_type = read_strings(fp[f"{grp_name}/Grid Type"][()])
         if grid_type == "HexGrid":
             self.tmp[ckey]["grid_type"] = HEXAGONAL_FLAT_TOP_TILING
         elif grid_type == "SqrGrid":
@@ -164,9 +160,7 @@ class HdfFiveEdaxOimAnalysisReader(HdfFiveBaseParser):
                     sub_grp_name = f"{grp_name}/{phase_id}"
                     # Name
                     if f"{sub_grp_name}/MaterialName" in fp:
-                        phase_name = read_strings_from_dataset(
-                            fp[f"{sub_grp_name}/MaterialName"][0]
-                        )
+                        phase_name = read_strings(fp[f"{sub_grp_name}/MaterialName"][0])
                         self.tmp[ckey]["phases"][int(phase_id)]["phase_name"] = (
                             phase_name
                         )
@@ -280,7 +274,7 @@ class HdfFiveEdaxOimAnalysisReader(HdfFiveBaseParser):
             fp[f"{grp_name}/Phi2"][:], np.float32
         )
         # TODO::seems to be the situation in the example but there is no documentation
-        self.tmp[ckey]["euler"] = format_euler_parameterization(self.tmp[ckey]["euler"])
+        self.tmp[ckey]["euler"] = apply_euler_space_symmetry(self.tmp[ckey]["euler"])
 
         # given no official EDAX OimAnalysis spec we cannot define for sure if
         # phase_id == 0 means just all was indexed with the first/zeroth phase or nothing

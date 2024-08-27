@@ -162,8 +162,8 @@ class TfsTiffParser(TiffParser):
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache self.tmp."""
-        if self.supported is True:
-            print(f"Parsing via ThermoFisher-specific metadata...")
+        if self.supported:
+            print(f"Parsing via ThermoFisher TIFF parser...")
             self.get_metadata()
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)

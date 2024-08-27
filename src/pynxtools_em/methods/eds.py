@@ -43,13 +43,13 @@ from orix.quaternion.symmetry import get_point_group
 from orix.vector import Vector3d
 from PIL import Image as pil
 from pynxtools_em.concepts.nxs_image_set import NxImageRealSpaceSet
-from pynxtools_em.parsers.hfive_apex import HdfFiveEdaxApexReader
-from pynxtools_em.parsers.hfive_bruker import HdfFiveBrukerEspritReader
-from pynxtools_em.parsers.hfive_dreamthreed import HdfFiveDreamThreedReader
-from pynxtools_em.parsers.hfive_ebsd import HdfFiveCommunityReader
-from pynxtools_em.parsers.hfive_edax import HdfFiveEdaxOimAnalysisReader
-from pynxtools_em.parsers.hfive_emsoft import HdfFiveEmSoftReader
-from pynxtools_em.parsers.hfive_oxford import HdfFiveOxfordReader
+from pynxtools_em.parsers.hfive_apex import HdfFiveEdaxApexParser
+from pynxtools_em.parsers.hfive_bruker import HdfFiveBrukerEspritParser
+from pynxtools_em.parsers.hfive_dreamthreed import HdfFiveDreamThreedParser
+from pynxtools_em.parsers.hfive_ebsd import HdfFiveEbsdCommunityParser
+from pynxtools_em.parsers.hfive_edax import HdfFiveEdaxOimAnalysisParser
+from pynxtools_em.parsers.hfive_emsoft import HdfFiveEmSoftParser
+from pynxtools_em.parsers.hfive_oxford import HdfFiveOxfordInstrumentsParser
 from pynxtools_em.utils.get_scan_points import (
     get_scan_point_axis_values,
     get_scan_point_coords,
@@ -58,9 +58,9 @@ from pynxtools_em.utils.get_scan_points import (
     threed,
 )
 from pynxtools_em.utils.get_sqr_grid import (
-    get_scan_points_with_mark_data_discretized_on_sqr_grid,
+    regrid_onto_equisized_scan_points,
 )
-from pynxtools_em.utils.hfive_utils import read_strings_from_dataset
+from pynxtools_em.utils.hfive_utils import read_strings
 from pynxtools_em.utils.hfive_web_constants import (
     HFIVE_WEB_MAXIMUM_RGB,
     HFIVE_WEB_MAXIMUM_ROI,
@@ -167,31 +167,31 @@ class NxEmNxsPyxemParser:
         # not been designed to deal with images as large as several thousand pixels along
         # either dimension
         if hfive_parser_type == "oxford":
-            oina = HdfFiveOxfordReader(self.file_path)
+            oina = HdfFiveOxfordInstrumentsParser(self.file_path)
             oina.parse_and_normalize()
             self.process_into_template(oina.tmp, template)
         elif hfive_parser_type == "bruker":
-            bruker = HdfFiveBrukerEspritReader(self.file_path)
+            bruker = HdfFiveBrukerEspritParser(self.file_path)
             bruker.parse_and_normalize()
             self.process_into_template(bruker.tmp, template)
         elif hfive_parser_type == "apex":
-            apex = HdfFiveEdaxApexReader(self.file_path)
+            apex = HdfFiveEdaxApexParser(self.file_path)
             apex.parse_and_normalize()
             self.process_into_template(apex.tmp, template)
         elif hfive_parser_type == "edax":
-            edax = HdfFiveEdaxOimAnalysisReader(self.file_path)
+            edax = HdfFiveEdaxOimAnalysisParser(self.file_path)
             edax.parse_and_normalize()
             self.process_into_template(edax.tmp, template)
         elif hfive_parser_type == "hebsd":
-            ebsd = HdfFiveCommunityReader(self.file_path)
+            ebsd = HdfFiveEbsdCommunityParser(self.file_path)
             ebsd.parse_and_normalize()
             self.process_into_template(ebsd.tmp, template)
         elif hfive_parser_type == "emsoft":
-            emsoft = HdfFiveEmSoftReader(self.file_path)
+            emsoft = HdfFiveEmSoftParser(self.file_path)
             emsoft.parse_and_normalize()
             # self.process_into_template(emsoft.tmp, template)
         elif hfive_parser_type == "dreamthreed":
-            dreamthreed = HdfFiveDreamThreedReader(self.file_path)
+            dreamthreed = HdfFiveDreamThreedParser(self.file_path)
             dreamthreed.parse_and_normalize()
             self.process_into_template(dreamthreed.tmp, template)
         else:  # none or something unsupported
@@ -206,26 +206,26 @@ class NxEmNxsPyxemParser:
             if magic != b"\x89HDF":
                 return None
         # tech partner formats used for measurement
-        hdf = HdfFiveOxfordReader(self.file_path)
+        hdf = HdfFiveOxfordInstrumentsParser(self.file_path)
         if hdf.supported is True:
             return "oxford"
-        hdf = HdfFiveEdaxOimAnalysisReader(self.file_path)
+        hdf = HdfFiveEdaxOimAnalysisParser(self.file_path)
         if hdf.supported is True:
             return "edax"
-        hdf = HdfFiveEdaxApexReader(self.file_path)
+        hdf = HdfFiveEdaxApexParser(self.file_path)
         if hdf.supported is True:
             return "apex"
-        hdf = HdfFiveBrukerEspritReader(self.file_path)
+        hdf = HdfFiveBrukerEspritParser(self.file_path)
         if hdf.supported is True:
             return "bruker"
-        hdf = HdfFiveCommunityReader(self.file_path)
+        hdf = HdfFiveEbsdCommunityParser(self.file_path)
         if hdf.supported is True:
             return "hebsd"
         # computer simulation tools
-        hdf = HdfFiveEmSoftReader(self.file_path)
+        hdf = HdfFiveEmSoftParser(self.file_path)
         if hdf.supported is True:
             return "emsoft"
-        hdf = HdfFiveDreamThreedReader(self.file_path)
+        hdf = HdfFiveDreamThreedParser(self.file_path)
         if hdf.supported is True:
             return "dreamthreed"
         return None
@@ -292,9 +292,7 @@ class NxEmNxsPyxemParser:
         # of here h5web
         # TODO::implement rediscretization using a kdtree take n_x, n_y, and n_z as guides
 
-        trg_grid = get_scan_points_with_mark_data_discretized_on_sqr_grid(
-            inp, HFIVE_WEB_MAXIMUM_ROI
-        )
+        trg_grid = regrid_onto_equisized_scan_points(inp, HFIVE_WEB_MAXIMUM_ROI)
 
         contrast_modes = [
             (None, "n/a"),
@@ -498,9 +496,7 @@ class NxEmNxsPyxemParser:
         template: dict,
     ) -> dict:
         print(f"Generate 2D IPF maps for {nxem_phase_id}, {phase_name}...")
-        trg_grid = get_scan_points_with_mark_data_discretized_on_sqr_grid(
-            inp, HFIVE_WEB_MAXIMUM_RGB
-        )
+        trg_grid = regrid_onto_equisized_scan_points(inp, HFIVE_WEB_MAXIMUM_RGB)
 
         rotations = Rotation.from_euler(
             euler=trg_grid["euler"][trg_grid["phase_id"] == nxem_phase_id],

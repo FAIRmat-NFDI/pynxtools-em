@@ -151,8 +151,8 @@ class ZeissTiffParser(TiffParser):
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache self.tmp."""
-        if self.supported is True:
-            print(f"Parsing via Zeiss-specific metadata...")
+        if self.supported:
+            print(f"Parsing via Zeiss TIFF parser...")
             # metadata have at this point already been collected into an fd.FlatDict
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)

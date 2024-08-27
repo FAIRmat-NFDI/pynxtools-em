@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""(Sub-)parser for reading content from ThermoFisher Velox *.emd (HDF5) via rosettasciio."""
+"""Parser for reading content from ThermoFisher Velox *.emd (HDF5) via rosettasciio."""
 
 from typing import Dict, List
 

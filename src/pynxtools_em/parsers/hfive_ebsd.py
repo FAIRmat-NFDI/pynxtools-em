@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""(Sub-)parser mapping concepts and content from community *.h5/*.h5ebsd files on NXem."""
+"""Parser mapping concepts and content from community *.h5/*.h5ebsd files on NXem."""
 
 from typing import Dict
 
@@ -35,12 +35,12 @@ from pynxtools_em.utils.get_scan_points import get_scan_point_coords
 from pynxtools_em.utils.hfive_utils import (
     EBSD_MAP_SPACEGROUP,
     all_equal,
-    format_euler_parameterization,
-    read_strings_from_dataset,
+    apply_euler_space_symmetry,
+    read_strings,
 )
 
 
-class HdfFiveCommunityReader(HdfFiveBaseParser):
+class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
     """Read modified H5EBSD (likely from Britton group)"""
 
     def __init__(self, file_path: str = ""):
@@ -74,14 +74,10 @@ class HdfFiveCommunityReader(HdfFiveBaseParser):
                     self.supported = False
                     return
 
-            self.version["tech_partner"] = read_strings_from_dataset(
-                h5r["/Manufacturer"][()]
-            )
+            self.version["tech_partner"] = read_strings(h5r["/Manufacturer"][()])
             if self.version["tech_partner"] in self.supported_version["tech_partner"]:
                 self.supported += 1
-            self.version["schema_version"] = read_strings_from_dataset(
-                h5r["/Version"][()]
-            )
+            self.version["schema_version"] = read_strings(h5r["/Version"][()])
             if (
                 self.version["schema_version"]
                 in self.supported_version["schema_version"]
@@ -119,7 +115,7 @@ class HdfFiveCommunityReader(HdfFiveBaseParser):
             raise ValueError(f"Unable to parse {grp_name} !")
 
         self.tmp[ckey]["dimensionality"] = 2
-        if read_strings_from_dataset(fp[f"{grp_name}/Grid Type"][()]) == "isometric":
+        if read_strings(fp[f"{grp_name}/Grid Type"][()]) == "isometric":
             self.tmp[ckey]["grid_type"] = SQUARE_TILING
         else:
             raise ValueError(f"Unable to parse {grp_name}/Grid Type !")
@@ -163,7 +159,7 @@ class HdfFiveCommunityReader(HdfFiveBaseParser):
                             f"Unable to parse {sub_grp_name}/{req_field} !"
                         )
                 # Name
-                phase_name = read_strings_from_dataset(fp[f"{sub_grp_name}/Name"][()])
+                phase_name = read_strings(fp[f"{sub_grp_name}/Name"][()])
                 self.tmp[ckey]["phases"][int(phase_id)]["phase_name"] = phase_name
 
                 # Reference not available
@@ -181,9 +177,7 @@ class HdfFiveCommunityReader(HdfFiveBaseParser):
                 # The attribute Symbol contains the string representation, for example P m -3 m.
                 # formatting is a nightmare F m#ovl3m for F m 3bar m... but IT i.e.
                 # international table of crystallography identifier
-                spc_grp = read_strings_from_dataset(
-                    fp[f"{sub_grp_name}/SpaceGroup"][()]
-                )
+                spc_grp = read_strings(fp[f"{sub_grp_name}/SpaceGroup"][()])
                 if spc_grp in EBSD_MAP_SPACEGROUP.keys():
                     space_group = EBSD_MAP_SPACEGROUP[spc_grp]
                     self.tmp[ckey]["phases"][int(phase_id)]["space_group"] = space_group
@@ -259,7 +253,7 @@ class HdfFiveCommunityReader(HdfFiveBaseParser):
                     np.asarray(fp[f"{grp_name}/{angle}"][:], np.float32) / 180.0 * np.pi
                 )
                 column_id += 1
-            self.tmp[ckey]["euler"] = format_euler_parameterization(
+            self.tmp[ckey]["euler"] = apply_euler_space_symmetry(
                 self.tmp[ckey]["euler"]
             )
             n_pts = n_pts_probe[0]
