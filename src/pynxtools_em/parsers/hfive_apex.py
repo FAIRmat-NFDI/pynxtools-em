@@ -118,7 +118,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                                 if area_grp_nm.startswith("OIM Map"):
                                     self.prfx = f"/{grp_nm}/{sub_grp_nm}/{sub_sub_grp_nm}/{area_grp_nm}"
                                     print(f"Parsing {self.prfx}")
-                                    ckey = self.init_named_cache(f"ebsd{self.cache_id}")
+                                    ckey = self.init_cache(f"ebsd{self.cache_id}")
                                     self.parse_and_normalize_group_ebsd_header(
                                         h5r, ckey
                                     )
@@ -428,7 +428,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                     f"Required attribute named {req} not found in {src}/FOVIPR !"
                 )
 
-        ckey = self.init_named_cache(f"eds_roi{self.cache_id}")
+        ckey = self.init_cache(f"eds_roi{self.cache_id}")
         self.tmp[ckey] = NxImageRealSpaceSet()
         self.tmp[ckey].tmp["source"] = f"{src}/FOVIMAGE"
         nyx = {
@@ -481,7 +481,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                     f"Required attribute named {req} not found in {src}/SPC !"
                 )
 
-        ckey = self.init_named_cache(f"eds_spc{self.cache_id}")
+        ckey = self.init_cache(f"eds_spc{self.cache_id}")
         self.tmp[ckey] = NxSpectrumSet()
         self.tmp[ckey].tmp["source"] = f"{src}/SPC"
         e_zero = fp[f"{src}/SPC"]["eVOffset"][0]
@@ -530,7 +530,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                     f"Required attribute named {req} not found in {src}/SPD !"
                 )
 
-        ckey = self.init_named_cache(f"eds_spd{self.cache_id}")
+        ckey = self.init_cache(f"eds_spd{self.cache_id}")
         self.tmp[ckey] = NxSpectrumSet()
         self.tmp[ckey].tmp["source"] = f"{src}/SPD"
         nyxe = {
@@ -640,7 +640,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             ):
                 uniq.remove(entry)
 
-        ckey = self.init_named_cache(f"eds_map{self.cache_id}")
+        ckey = self.init_cache(f"eds_map{self.cache_id}")
         self.tmp[ckey] = NxEmEdsIndexing()
         self.tmp[ckey].tmp["source"] = f"{src}/ROIs"
         self.tmp[ckey].tmp["IMAGE_SET"] = []
@@ -745,7 +745,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                     f"in {src}/LINEMAPIMAGECOLLECTIONPARAMS !"
                 )
 
-        ckey = self.init_named_cache(f"eds_lsd{self.cache_id}")
+        ckey = self.init_cache(f"eds_lsd{self.cache_id}")
         self.tmp[ckey] = NxSpectrumSet()
         self.tmp[ckey].tmp["source"] = f"{src}/LSD"
         e_zero = 0.0  # strong assumption based on VInP_108_L2 example from IKZ

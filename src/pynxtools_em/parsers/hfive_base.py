@@ -78,7 +78,7 @@ class HdfFiveBaseParser:
         else:
             raise ValueError(f"{__name__} needs proper instantiation !")
 
-    def init_named_cache(self, ckey: str):
+    def init_cache(self, ckey: str) -> str:
         """Init a new cache for normalized EBSD data if not existent."""
         # purpose of the cache is to hold normalized information
         if ckey not in self.tmp:
@@ -86,6 +86,10 @@ class HdfFiveBaseParser:
             return ckey
         else:
             raise ValueError(f"Existent named cache {ckey} must not be overwritten !")
+
+    def clear_cache(self, ckey: str):
+        if ckey in self.tmp:
+            self.tmp.pop(ckey)
 
     def open(self):
         if self.h5r is None:

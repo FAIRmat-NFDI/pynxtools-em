@@ -105,7 +105,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
             for grp_name in grp_names:
                 if grp_name not in ["Version", "Manufacturer"]:
                     self.prfx = f"/{grp_name}"
-                    ckey = self.init_named_cache(f"ebsd{cache_id}")
+                    ckey = self.init_cache(f"ebsd{cache_id}")
                     self.parse_and_normalize_group_ebsd_header(h5r, ckey)
                     self.parse_and_normalize_group_ebsd_phases(h5r, ckey)
                     self.parse_and_normalize_group_ebsd_data(h5r, ckey)

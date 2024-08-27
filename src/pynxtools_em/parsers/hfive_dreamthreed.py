@@ -312,7 +312,7 @@ class HdfFiveDreamThreedParser(HdfFiveBaseParser):
     def parse_and_normalize(self):
         """Read and normalize away community-specific formatting with an equivalent in NXem."""
         cache_id = 1
-        ckey = self.init_named_cache(f"ebsd{cache_id}")
+        ckey = self.init_cache(f"ebsd{cache_id}")
         if self.search_normalizable_ebsd_content() is True:
             self.parse_and_normalize_ebsd_header(ckey)
             self.parse_and_normalize_ebsd_phases(ckey)

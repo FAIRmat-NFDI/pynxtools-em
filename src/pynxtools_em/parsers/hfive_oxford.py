@@ -28,7 +28,11 @@ from pynxtools_em.examples.ebsd_database import (
     REGULAR_TILING,
     SQUARE_TILING,
 )
-from pynxtools_em.methods.ebsd import has_hfive_magic_header
+from pynxtools_em.methods.ebsd import (
+    ebsd_roi_overview,
+    ebsd_roi_phase_ipf,
+    has_hfive_magic_header,
+)
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.hfive_utils import apply_euler_space_symmetry, read_strings
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
@@ -39,9 +43,8 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
 
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
         super().__init__(file_path)
-        self.entry_id = entry_id
+        self.id_mgn: Dict[str, int] = {"entry_id": entry_id, "roi_id": 1}
         self.verbose = verbose
-
         self.prfx = None  # template path handling
         self.tmp = {}
         self.version: Dict = {  # Dict[str, Dict[str, List[str]]]
@@ -124,15 +127,13 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                     if slice_id == "1" and f"/{slice_id}/EBSD" in h5r:
                         # non-negative int, parse for now only the first slice
                         self.prfx = f"/{slice_id}"
-                        ckey = self.init_named_cache(f"ebsd{cache_id}")
+                        ckey = self.init_cache(f"ebsd{cache_id}")
                         self.parse_and_normalize_slice_ebsd_header(h5r, ckey)
                         self.parse_and_normalize_slice_ebsd_phases(h5r, ckey)
                         self.parse_and_normalize_slice_ebsd_data(h5r, ckey)
-                        # add more information to pass to hfive parser
-                        cache_id += 1
-
-                        # TODO::process data in ckey
-                        # ###################### tapping from methods/ebsd
+                        ebsd_roi_overview(self.tmp[ckey], self.id_mgn, template)
+                        ebsd_roi_phase_ipf(self.tmp[ckey], self.id_mgn, template)
+                        self.clear_cache(ckey)
 
                     # TODO:Vitesh example
         return template
