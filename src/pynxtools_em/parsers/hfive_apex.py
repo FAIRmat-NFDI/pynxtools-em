@@ -126,7 +126,6 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                                         h5r, ckey
                                     )
                                     self.parse_and_normalize_group_ebsd_data(h5r, ckey)
-                                    self.parse_and_normalize_group_ebsd_check(ckey)
                                     self.cache_id += 1
 
                                 # EDAX, APEX distinguishes different concept/groups:
@@ -401,11 +400,6 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         # this is the non-harmonized content one is facing in the field of EBSD despite
         # almost two decades of commercialization of the technique now
         get_scan_point_coords(self.tmp[ckey])
-
-    def parse_and_normalize_group_ebsd_check(self, ckey: str):
-        """Check if all relevant data for EBSD are available, if not clear the cache."""
-        # TODO::implement check and clearing procedure
-        pass
 
     def parse_and_normalize_eds_fov(self, fp):
         """Normalize and scale APEX-specific FOV/ROI image to NeXus."""
