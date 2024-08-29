@@ -19,6 +19,7 @@
 
 import mmap
 import os
+from typing import Any, Dict
 
 import matplotlib.pyplot as plt  # in the hope that this closes figures with orix plot
 import numpy as np
@@ -27,16 +28,14 @@ from orix.quaternion import Rotation
 from orix.quaternion.symmetry import get_point_group
 from orix.vector import Vector3d
 from PIL import Image as pil
-from pynxtools_em.utils.get_scan_points import hexagonal_grid, square_grid, threed
-from pynxtools_em.utils.get_sqr_grid import (
-    regrid_onto_equisized_scan_points,
-)
-from pynxtools_em.utils.hfive_web_constants import (
+from pynxtools_em.utils.hfive_web import (
     HFIVE_WEB_MAXIMUM_RGB,
     HFIVE_WEB_MAXIMUM_ROI,
 )
 from pynxtools_em.utils.hfive_web_utils import hfive_web_decorate_nxdata
 from pynxtools_em.utils.image_processing import thumbnail
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
+from scipy.spatial import KDTree
 
 PROJECTION_VECTORS = [Vector3d.xvector(), Vector3d.yvector(), Vector3d.zvector()]
 PROJECTION_DIRECTIONS = [
@@ -44,6 +43,37 @@ PROJECTION_DIRECTIONS = [
     ("Y", Vector3d.yvector().data.flatten()),
     ("Z", Vector3d.zvector().data.flatten()),
 ]
+
+# typical scan schemes used for EBSD
+HEXAGONAL_FLAT_TOP_TILING = "hexagonal_flat_top_tiling"
+SQUARE_TILING = "square_tiling"
+REGULAR_TILING = "regular_tiling"
+DEFAULT_LENGTH_UNIT = ureg.micrometer
+
+# most frequently this is the sequence of set scan positions with actual positions
+# based on grid type, spacing, and tiling
+FLIGHT_PLAN = "start_top_left_stack_x_left_to_right_stack_x_line_along_end_bottom_right"
+
+
+class EbsdPointCloud:
+    """Cache for storing a single indexed EBSD point cloud with mark data."""
+
+    def __init__(self):
+        self.dimensionality: int = 0
+        self.grid_type = None
+        # the next two lines encode the typical assumption that is not reported in tech partner file!
+        self.n: Dict[str, Any] = {}  # number of grid points along "x", "y", "z"
+        self.s: Dict[str, Any] = {}  # scan step along "x", "y", "z"
+        self.phase = []  # collection of phase class instances in order of self.phases
+        self.space_group = []  # collection of space group in order of self.phases
+        self.phases = {}  #  named phases
+        self.euler = None  # Bunge-Euler ZXZ angle for each scan point np.nan otherwise
+        self.phase_id = None  # phase_id for best solution found for each scan point
+        self.pos: Dict[
+            str, Any
+        ] = {}  # "x", "y", "z" pos for each scan point unmodified/not rediscretized
+        self.descr_type = None  # NXem_ebsd/roi/descriptor (band contrast, CI, MAD)
+        self.descr_value = None
 
 
 def get_ipfdir_legend(ipf_key):
@@ -98,7 +128,174 @@ def get_named_axis(inp: dict, dim: str) -> np.ndarray:
     return None
 
 
-def ebsd_roi_overview(inp: dict, id_mgn: dict, template: dict) -> dict:
+def regrid_onto_equisized_scan_points(
+    src_grid: EbsdPointCloud, max_edge_discr: int
+) -> dict:
+    """Discretize point cloud in R^d (d=1, 2, 3) and mark data to grid with equisized bins."""
+
+    if src_grid.dimensionality not in [1, 2]:
+        print(
+            f"The 1D and 3D gridding is currently not implemented because we do not "
+            f"have a large enough dataset to test the 3D case with !"
+        )
+        return src_grid
+    # take discretization of the source grid as a guide for the target_grid
+    # optimization possible if square grid and matching maximum_extent
+
+    dims = ["x", "y", "z"][0 : src_grid.dimensionality]
+    tuples = []
+    for dim_idx, dim in enumerate(dims):
+        if dim in src_grid.n:
+            tuples.append((src_grid.n[dim], dim_idx))
+    max_extent, max_dim = sorted(tuples, key=lambda x: x[0])[::-1][0]  # descendingly
+
+    # too large grid needs to be capped when gridded
+    # cap to the maximum extent to comply with H5Web technical constraints
+    if max_extent >= max_edge_discr:
+        max_extent = max_edge_discr
+
+    # all non-square grids or too large square grids will be
+    # discretized onto a regular grid with square or cubic pixel/voxel
+    for dim in dims:
+        if dim in src_grid.pos:
+            if src_grid.pos[dim].units != ureg.Quantity(1.0, ureg.micrometer).units:
+                raise ValueError(f"Gridding demands values in micrometer !")
+
+    aabb = {}
+    for dim in dims:
+        aabb[f"{dim}"] = [
+            np.min(
+                src_grid.pos[f"{dim}"].magnitude - 0.5 * src_grid.s[f"{dim}"].magnitude
+            ),
+            np.max(
+                src_grid.pos[f"{dim}"].magnitude + 0.5 * src_grid.s[f"{dim}"].magnitude
+            ),
+        ]
+    print(f"{aabb}")
+
+    trg_s = {}
+    trg_n = {}
+    if src_grid.dimensionality == 1:
+        trg_s["x"] = (aabb["x"][1] - aabb["x"][0]) / max_extent
+        trg_n["x"] = max_extent
+    elif src_grid.dimensionality == 2:
+        if aabb["x"][1] - aabb["x"][0] >= aabb["y"][1] - aabb["y"][0]:
+            trg_s["x"] = (aabb["x"][1] - aabb["x"][0]) / max_extent
+            trg_s["y"] = (aabb["x"][1] - aabb["x"][0]) / max_extent
+            trg_n["x"] = max_extent
+            trg_n["y"] = int(np.ceil((aabb["y"][1] - aabb["y"][0]) / trg_s["x"]))
+        else:
+            trg_s["x"] = (aabb["y"][1] - aabb["y"][0]) / max_extent
+            trg_s["y"] = (aabb["y"][1] - aabb["y"][0]) / max_extent
+            trg_n["x"] = int(np.ceil((aabb["x"][1] - aabb["x"][0]) / trg_s["x"]))
+            trg_n["y"] = max_extent
+    elif src_grid.dimensionality == 3:
+        print("TODO !!!!")
+
+    print(f"H5Web default plot generation")
+    for dim in dims:
+        print(f"src_s {dim}: {src_grid.s[dim]} >>>> trg_s {dim}: {trg_s[dim]}")
+        print(f"src_n {dim}: {src_grid.n[dim]} >>>> trg_n {dim}: {trg_n[dim]}")
+    # the above estimate is not exactly correct (may create a slight real space shift)
+    # of the EBSD map TODO:: regrid the real world axis-aligned bounding box aabb with
+    # a regular tiling of squares or hexagons
+    # https://stackoverflow.com/questions/18982650/differences-between-matlab-and-numpy-and-pythons-round-function
+    # MTex/Matlab round not exactly the same as numpy round but reasonably close
+
+    # scan point positions were normalized by tech partner parsers such that they
+    # always build on pixel coordinates calibrated for step size not by giving absolute positions
+    # in the sample surface frame of reference as this is typically not yet consistently documented
+    # because we assume in addition that we always start at the top left corner the zeroth/first
+    # coordinate is always 0., 0. !
+    if src_grid.dimensionality == 1:
+        trg_pos = np.column_stack(
+            np.linspace(0, trg_n["x"] - 1, num=trg_n["x"], endpoint=True) * trg_s["x"],
+            1,
+        )
+    elif src_grid.dimensionality == 2:
+        trg_pos = np.column_stack(
+            (
+                np.tile(
+                    np.linspace(0, trg_n["x"] - 1, num=trg_n["x"], endpoint=True)
+                    * trg_s["x"],
+                    trg_n["y"],
+                ),
+                np.repeat(
+                    np.linspace(0, trg_n["y"] - 1, num=trg_n["y"], endpoint=True)
+                    * trg_s["y"],
+                    trg_n["x"],
+                ),
+            )
+        )
+    # TODO:: if scan_point_{dim} are calibrated this approach
+    # here would shift the origin to 0, 0 implicitly which may not be desired
+    if src_grid.dimensionality == 1:
+        tree = KDTree(np.column_stack((src_grid.pos["x"])))
+    elif src_grid.dimensionality == 2:
+        tree = KDTree(np.column_stack((src_grid.pos["x"], src_grid.pos["y"])))
+    d, idx = tree.query(trg_pos, k=1)
+    if np.sum(idx == tree.n) > 0:
+        raise ValueError(f"kdtree query left some query points without a neighbor!")
+    del d
+    del tree
+
+    # rebuild src_grid container with only the relevant src_grid selected from src_grid
+    trg_grid = EbsdPointCloud()
+    trg_grid.dimensionality = src_grid.dimensionality
+
+    for dim_idx, dim in enumerate(dims):
+        trg_grid.s[dim] = ureg.Quantity(trg_s[dim], ureg.micrometer)
+        trg_grid.n[dim] = trg_n[dim]
+        trg_grid.pos[dim] = ureg.Quantity(
+            np.asarray(trg_pos[dim_idx], np.float64), ureg.micrometer
+        )
+    if hasattr(src_grid, "euler"):
+        trg_grid.euler = np.empty((np.shape(trg_pos)[0], 3), np.float32)
+        trg_grid.euler.fill(np.nan)
+        trg_grid.euler = ureg.Quantity(
+            np.asarray(src_grid.euler.magnitude[idx, :], np.float32), ureg.radian
+        )
+        if np.isnan(trg_grid.euler).any():
+            raise ValueError(f"Gridding left scan points with incorrect euler !")
+    if hasattr(src_grid, "phase_id"):
+        trg_grid.phase_id = np.empty((np.shape(trg_pos)[0],), np.int32)
+        trg_grid.phase_id.fill(np.int32(-2))
+        # pyxem_id phase_id are at least as large -1
+        trg_grid.phase_id = np.asarray(src_grid.phase_id[idx], np.int32)
+        if np.sum(trg_grid.phase_id == -2) > 0:
+            raise ValueError(f"Gridding left scan points with incorrect phase_id !")
+    if src_grid.descr_type == "band_contrast":
+        # bc typically positive
+        trg_grid.descr_type = "band_contrast"
+        trg_grid.descr_value = np.empty((np.shape(trg_pos)[0]), np.uint32)
+        trg_grid.descr_value.fill(np.uint32(-1))
+        trg_grid.descr_value = ureg.Quantity(
+            np.asarray(src_grid.descr_value[idx], np.uint32)
+        )
+    elif src_grid.descr_type == "confidence_index":
+        trg_grid.descr_type = "confidence_index"
+        trg_grid.descr_value = np.empty((np.shape(trg_pos)[0]), np.float32)
+        trg_grid.descr_value.fill(np.nan)
+        trg_grid.descr_value = ureg.Quantity(
+            np.asarray(src_grid.descr_value[idx], np.float32)
+        )
+    elif src_grid.descr_type == "mean_angular_deviation":
+        trg_grid.descr_type = "mean_angular_deviation"
+        trg_grid.descr_value = np.empty((np.shape(trg_pos)[0]), np.float32)
+        trg_grid.descr_value.fill(np.nan)
+        trg_grid.descr_value = ureg.Quantity(
+            np.asarray(src_grid.descr_value[idx], np.float32), ureg.radian
+        )
+    else:
+        trg_grid.descr_type = None
+        trg_grid.descr_value = None
+    trg_grid.phase = src_grid.phase
+    trg_grid.space_group = src_grid.space_group
+    trg_grid.phases = src_grid.phases
+    return trg_grid
+
+
+def ebsd_roi_overview(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dict:
     """Create an H5Web-capable ENTRY[entry]/ROI[roi*]/ebsd/indexing/roi."""
     # EBSD maps are collected using different scan strategies but RDMs may not be
     # able to show all of them at the provided size and grid type
@@ -106,90 +303,63 @@ def ebsd_roi_overview(inp: dict, id_mgn: dict, template: dict) -> dict:
     # and regridding on a square_grid with the maximum resolution supported by H5Web
     # this is never an upsampled but may represent a downsampled representation of the
     # actual ROI using some regridding scheme
-    trg_grid = regrid_onto_equisized_scan_points(inp, HFIVE_WEB_MAXIMUM_ROI)
-
-    contrast_modes = [
-        (None, "n/a"),
-        ("bc", "normalized_band_contrast"),
-        ("ci", "normalized_confidence_index"),
-        ("mad", "normalized_mean_angular_deviation"),
-    ]
-    contrast_mode = None
-    for mode in contrast_modes:
-        if mode[0] in trg_grid and contrast_mode is None:
-            contrast_mode = mode
-            break
-    if contrast_mode is None:
-        print(
-            f"ebsd_roi_overview no plot entry{id_mgn['entry_id']} roi{id_mgn['roi_id']} !"
-        )
+    if inp.dimensionality not in [1, 2, 3]:
+        return template
+    trg_grid: EbsdPointCloud = regrid_onto_equisized_scan_points(
+        inp, HFIVE_WEB_MAXIMUM_ROI
+    )
+    if not trg_grid.descr_type:
         return template
 
     trg = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/ebsd/indexing/roi"
-    template[f"{trg}/title"] = f"Region-of-interest overview image"
+    template[f"{trg}/descriptor"] = trg_grid.descr_type
+    template[f"{trg}/title"] = (
+        f"Region-of-interest overview image ({trg_grid.descr_type})"
+    )
+    template[f"{trg}/data/@long_name"] = f"Signal"
+
     template[f"{trg}/@signal"] = "data"
-    dims = ["x", "y"]
-    if trg_grid["dimensionality"] == 3:
-        dims.append("z")
-    idx = 0
-    for dim in dims:
+    dims = ["x", "y", "z"][0 : trg_grid.dimensionality]
+    for idx, dim in enumerate(dims):
         template[f"{trg}/@AXISNAME_indices[axis_{dim}_indices]"] = np.uint32(idx)
         template[f"{trg}/AXISNAME[axis_{dim}]"] = {
-            "compress": get_named_axis(trg_grid, dim),
+            "compress": np.asarray(
+                np.linspace(0, trg_grid.n[dim] - 1, num=trg_grid.n[dim], endpoint=True)
+                * trg_grid.s[dim]
+            ),
             "strength": 1,
         }
         template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-            f"Coordinate along {dim}-axis ({trg_grid['s_{dim}'].units})"
+            f"Point coordinate along {dim}-axis ({trg_grid.pos[dim].units})"
         )
-        template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{trg_grid['s_{dim}'].units}"
-        idx += 1
+        template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{trg_grid.pos[dim].units}"
     template[f"{trg}/@axes"] = []
     for dim in dims[::-1]:
         template[f"{trg}/@axes"].append(f"axis_{dim}")
 
-    if trg_grid["dimensionality"] == 2:
+    if trg_grid.dimensionality == 1:
+        template[f"{trg}/data"] = {
+            "compress": trg_grid.descr_value.magnitude,
+            "strength": 1,
+        }
+    elif trg_grid.dimensionality == 2:
         template[f"{trg}/data"] = {
             "compress": np.reshape(
-                np.asarray(
-                    np.asarray(
-                        (
-                            trg_grid[contrast_mode[0]]
-                            / np.max(trg_grid[contrast_mode[0]])
-                            * 255.0
-                        ),
-                        np.uint32,
-                    ),
-                    np.uint8,
-                ),
-                (trg_grid["n_y"], trg_grid["n_x"]),
+                np.asarray(trg_grid.descr_value.magnitude),
+                (trg_grid.n["y"], trg_grid.n["x"]),
                 order="C",
             ),
             "strength": 1,
         }
-    elif trg_grid["dimensionality"] == 3:
+    else:  # 3d
         template[f"{trg}/data"] = {
-            "compress": np.squeeze(
-                np.asarray(
-                    np.asarray(
-                        (
-                            trg_grid[contrast_mode[0]]
-                            / np.max(trg_grid[contrast_mode[0]], axis=None)
-                            * 255.0
-                        ),
-                        np.uint32,
-                    ),
-                    np.uint8,
-                ),
-                axis=3,
+            "compress": np.reshape(
+                np.asarray(trg_grid.descr_value.magnitude),
+                (trg_grid.n["z"], trg_grid.n["y"], trg_grid.n["x"]),
+                order="C",
             ),
             "strength": 1,
         }
-    else:
-        raise ValueError(f"Hitting unimplemented case for ebsd_roi_overview !")
-    template[f"{trg}/descriptor"] = contrast_mode[1]
-    # 0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
-    template[f"{trg}/data/@long_name"] = f"Signal"
-    hfive_web_decorate_nxdata(f"{trg}/data", template)
     return template
 
 
@@ -392,3 +562,113 @@ def process_roi_phase_ipfs_twod(
                 f"Pixel coordinate along {dim[0]}-axis"
             )
     return template
+
+
+# considered as deprecated
+
+
+def get_scan_point_axis_values(inp: dict, dim_name: str):
+    is_threed = False
+    if "dimensionality" in inp.keys():
+        if inp["dimensionality"] == 3:
+            is_threed = True
+    req_keys = ["grid_type", f"n_{dim_name}", f"s_{dim_name}"]
+    for key in req_keys:
+        if key not in inp.keys():
+            raise ValueError(f"Unable to find required key {key} in inp !")
+
+    if inp["grid_type"] in [HEXAGONAL_FLAT_TOP_TILING, SQUARE_TILING]:
+        return np.asarray(
+            np.linspace(
+                0, inp[f"n_{dim_name}"] - 1, num=inp[f"n_{dim_name}"], endpoint=True
+            )
+            * inp[f"s_{dim_name}"],
+            np.float32,
+        )
+    else:
+        return None
+
+
+def threed(inp: dict):
+    """Identify if 3D triboolean."""
+    if "dimensionality" in inp.keys():
+        if inp["dimensionality"] == 3:
+            return True
+        return False
+    return None
+
+
+def square_grid(inp: dict):
+    """Identify if square grid with specific assumptions."""
+    if (
+        inp["grid_type"] == SQUARE_TILING
+        and inp["tiling"] == REGULAR_TILING
+        and inp["flight_plan"] == FLIGHT_PLAN
+    ):
+        return True
+    return False
+
+
+def hexagonal_grid(inp: dict):
+    """Identify if square grid with specific assumptions."""
+    if (
+        inp["grid_type"] == HEXAGONAL_FLAT_TOP_TILING
+        and inp["tiling"] == REGULAR_TILING
+        and inp["flight_plan"] == FLIGHT_PLAN
+    ):
+        return True
+    return False
+
+
+def get_scan_point_coords(inp: dict) -> dict:
+    """Add scan_point_dim array assuming top-left to bottom-right snake style scanning."""
+    is_threed = threed(inp)
+    req_keys = ["grid_type", "tiling", "flight_plan"]
+    dims = ["x", "y"]
+    if is_threed is True:
+        dims.append("z")
+    for dim in dims:
+        req_keys.append(f"n_{dim}")
+        req_keys.append(f"s_{dim}")
+
+    for key in req_keys:
+        if key not in inp.keys():
+            raise ValueError(f"Unable to find required key {key} in inp !")
+
+    if is_threed is False:
+        if square_grid(inp) is True:
+            for dim in dims:
+                if "scan_point_{dim}" in inp.keys():
+                    print("WARNING::Overwriting scan_point_{dim} !")
+            inp["scan_point_x"] = np.tile(
+                np.linspace(0, inp["n_x"] - 1, num=inp["n_x"], endpoint=True)
+                * inp["s_x"],
+                inp["n_y"],
+            )
+            inp["scan_point_y"] = np.repeat(
+                np.linspace(0, inp["n_y"] - 1, num=inp["n_y"], endpoint=True)
+                * inp["s_y"],
+                inp["n_x"],
+            )
+        elif hexagonal_grid(inp) is True:
+            for dim in dims:
+                if "scan_point_{dim}" in inp.keys():
+                    print("WARNING::Overwriting scan_point_{dim} !")
+            # the following code is only the same as for the sqrgrid because
+            # typically the tech partners already take into account and export scan step
+            # values such that for a hexagonal grid one s_{dim} (typically s_y) is sqrt(3)/2*s_{other_dim} !
+            inp["scan_point_x"] = np.tile(
+                np.linspace(0, inp["n_x"] - 1, num=inp["n_x"], endpoint=True)
+                * inp["s_x"],
+                inp["n_y"],
+            )
+            inp["scan_point_y"] = np.repeat(
+                np.linspace(0, inp["n_y"] - 1, num=inp["n_y"], endpoint=True)
+                * inp["s_y"],
+                inp["n_x"],
+            )
+        else:
+            print("WARNING::{__name__} facing an unknown scan strategy !")
+    else:
+        print("WARNING::{__name__} not implemented for 3D case !")
+    return inp

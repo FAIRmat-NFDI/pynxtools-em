@@ -27,15 +27,8 @@ from pynxtools_em.concepts.nxs_em_eds_indexing import NxEmEdsIndexing
 from pynxtools_em.concepts.nxs_image_set import NxImageRealSpaceSet
 from pynxtools_em.concepts.nxs_object import NxObject
 from pynxtools_em.concepts.nxs_spectrum_set import NxSpectrumSet
-from pynxtools_em.examples.ebsd_database import (
-    ASSUME_PHASE_NAME_TO_SPACE_GROUP,
-    FLIGHT_PLAN,
-    HEXAGONAL_FLAT_TOP_TILING,
-    REGULAR_TILING,
-    SQUARE_TILING,
-)
+from pynxtools_em.examples.ebsd_database import ASSUME_PHASE_NAME_TO_SPACE_GROUP
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
-from pynxtools_em.utils.get_scan_points import get_scan_point_coords
 from pynxtools_em.utils.get_xrayline_iupac_names import get_xrayline_candidates
 from pynxtools_em.utils.hfive_utils import read_strings
 

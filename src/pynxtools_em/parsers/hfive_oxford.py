@@ -17,18 +17,16 @@
 #
 """Parser mapping concepts and content from Oxford Instruments *.h5oina files on NXem."""
 
-import mmap
 from typing import Dict
 
 import h5py
 import numpy as np
 from diffpy.structure import Lattice, Structure
-from pynxtools_em.examples.ebsd_database import (
+from pynxtools_em.methods.ebsd import (
     FLIGHT_PLAN,
     REGULAR_TILING,
     SQUARE_TILING,
-)
-from pynxtools_em.methods.ebsd import (
+    EbsdPointCloud,
     ebsd_roi_overview,
     ebsd_roi_phase_ipf,
     has_hfive_magic_header,
@@ -46,7 +44,6 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
         self.id_mgn: Dict[str, int] = {"entry_id": entry_id, "roi_id": 1}
         self.verbose = verbose
         self.prfx = None  # template path handling
-        self.tmp = {}
         self.version: Dict = {  # Dict[str, Dict[str, List[str]]]
             "trg": {
                 "tech_partner": ["Oxford Instruments"],
@@ -121,43 +118,38 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
         if self.supported:
             print(f"Parsing via Oxford Instrument HDF5/H5OINA parser...")
             with h5py.File(f"{self.file_path}", "r") as h5r:
-                cache_id = 1
                 slice_ids = sorted(list(h5r["/"]))
                 for slice_id in slice_ids:
                     if slice_id == "1" and f"/{slice_id}/EBSD" in h5r:
                         # non-negative int, parse for now only the first slice
                         self.prfx = f"/{slice_id}"
-                        ckey = self.init_cache(f"ebsd{cache_id}")
-                        self.parse_and_normalize_slice_ebsd_header(h5r, ckey)
-                        self.parse_and_normalize_slice_ebsd_phases(h5r, ckey)
-                        self.parse_and_normalize_slice_ebsd_data(h5r, ckey)
-                        ebsd_roi_overview(self.tmp[ckey], self.id_mgn, template)
-                        ebsd_roi_phase_ipf(self.tmp[ckey], self.id_mgn, template)
-                        self.clear_cache(ckey)
+                        self.ebsd = EbsdPointCloud()
+                        self.parse_and_normalize_slice_ebsd_header(h5r)
+                        self.parse_and_normalize_slice_ebsd_phases(h5r)
+                        self.parse_and_normalize_slice_ebsd_data(h5r)
+                        ebsd_roi_overview(self.ebsd, self.id_mgn, template)
+                        # ebsd_roi_phase_ipf(self.ebsd, self.id_mgn, template)
 
                     # TODO:Vitesh example
         return template
 
-    def parse_and_normalize_slice_ebsd_header(self, fp, ckey: str):
+    def parse_and_normalize_slice_ebsd_header(self, fp):
         grp_name = f"{self.prfx}/EBSD/Header"
         if f"{grp_name}" not in fp:
             print(f"Unable to parse {grp_name} !")
-            self.tmp[ckey] = {}
+            self.ebsd = EbsdPointCloud()
             return
 
-        # TODO::check if Oxford Instruments always uses SquareGrid like assumed here
-        self.tmp[ckey]["dimensionality"] = 2
-        self.tmp[ckey]["grid_type"] = SQUARE_TILING
+        # self.grid_type TODO::check if Oxford Instruments always uses SquareGrid like assumed here
+        self.ebsd.dimensionality = 2
         # the next two lines encode the typical assumption that is not reported in tech partner file!
-        self.tmp[ckey]["tiling"] = REGULAR_TILING
-        self.tmp[ckey]["flight_plan"] = FLIGHT_PLAN
 
         dims = ["X", "Y"]
         for dim in dims:
             for req_field in [f"{dim} Cells", f"{dim} Step"]:
                 if f"{grp_name}/{req_field}" not in fp:
                     print(f"Unable to parse {grp_name}/{req_field} !")
-                    self.tmp[ckey] = {}
+                    self.ebsd = EbsdPointCloud()
                     return
         # X Cells, yes, H5T_NATIVE_INT32, (1, 1), Map: Width in pixels, Line scan: Length in pixels.
         # Y Cells, yes, H5T_NATIVE_INT32, (1, 1), Map: Height in pixels. Line scan: Always set to 1.
@@ -166,36 +158,34 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
         # Y Step, yes, H5T_NATIVE_FLOAT, (1, 1), Map: Step size along y-axis in micrometers.
         #   Line scan: Always set to 0.
         for dim in dims:
-            self.tmp[ckey][f"n_{dim.lower()}"] = fp[f"{grp_name}/{dim} Cells"][0]
+            self.ebsd.n[f"{dim.lower()}"] = fp[f"{grp_name}/{dim} Cells"][0]
             if read_strings(fp[f"{grp_name}/{dim} Step"].attrs["Unit"]) == "um":
-                self.tmp[ckey][f"s_{dim.lower()}"] = ureg.Quantity(
+                self.ebsd.s[f"{dim.lower()}"] = ureg.Quantity(
                     fp[f"{grp_name}/{dim} Step"][0], ureg.micrometer
                 )
             else:
                 print(f"Unexpected {dim} Step Unit attribute !")
-                self.tmp[ckey] = {}
+                self.ebsd = EbsdPointCloud()
                 return
         # TODO::check that all data in the self.oina are consistent
 
-    def parse_and_normalize_slice_ebsd_phases(self, fp, ckey: str):
+    def parse_and_normalize_slice_ebsd_phases(self, fp):
         """Parse EBSD header section for specific slice."""
         grp_name = f"{self.prfx}/EBSD/Header/Phases"
         if f"{grp_name}" not in fp:
             print(f"Unable to parse {grp_name} !")
-            self.tmp[ckey] = {}
+            self.ebsd = EbsdPointCloud()
             return
 
         # Phases, yes, contains a subgroup for each phase where the name
         # of each subgroup is the index of the phase starting at 1.
         phase_ids = sorted(list(fp[f"{grp_name}"]), key=int)
-        self.tmp[ckey]["phase"] = []
-        self.tmp[ckey]["space_group"] = []
-        self.tmp[ckey]["phases"] = {}
         for phase_id in phase_ids:
             if not phase_id.isdigit():
                 continue
-            self.tmp[ckey]["phases"][int(phase_id)] = {}
-            sub_grp_name = f"/{grp_name}/{phase_id}"
+            phase_idx = int(phase_id)
+            self.ebsd.phases[phase_idx] = {}
+            sub_grp_name = f"{grp_name}/{phase_id}"
 
             req_fields = [
                 "Phase Name",
@@ -207,15 +197,15 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
             for req_field in req_fields:
                 if f"{sub_grp_name}/{req_field}" not in fp:
                     print(f"Unable to parse {sub_grp_name}/{req_field} !")
-                    self.tmp[ckey] = {}
+                    self.ebsd = EbsdPointCloud()
                     return
 
             # Phase Name, yes, H5T_STRING, (1, 1)
             phase_name = read_strings(fp[f"{sub_grp_name}/Phase Name"][()])
-            self.tmp[ckey]["phases"][int(phase_id)]["phase_name"] = phase_name
+            self.ebsd.phases[phase_idx]["phase_name"] = phase_name
 
             # Reference, yes, H5T_STRING, (1, 1), Changed in version 2.0 to mandatory
-            self.tmp[ckey]["phases"][int(phase_id)]["reference"] = read_strings(
+            self.ebsd.phases[phase_idx]["reference"] = read_strings(
                 fp[f"{sub_grp_name}/Reference"][()]
             )
 
@@ -224,75 +214,69 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                 read_strings(fp[f"{sub_grp_name}/Lattice Angles"].attrs["Unit"])
                 == "rad"
             ):
-                alpha_beta_gamma = np.asarray(
-                    fp[f"{sub_grp_name}/Lattice Angles"][:].flatten()
-                )
-                self.tmp[ckey]["phases"][int(phase_id)]["alpha_beta_gamma"] = (
-                    ureg.Quantity(alpha_beta_gamma, ureg.radian)
+                angles = np.asarray(fp[f"{sub_grp_name}/Lattice Angles"][:].flatten())
+                self.ebsd.phases[phase_idx]["alpha_beta_gamma"] = ureg.Quantity(
+                    angles, ureg.radian
                 )
             else:
                 print(f"Unexpected case that Lattice Angles are not reported in rad !")
-                self.tmp[ckey] = {}
+                self.ebsd = EbsdPointCloud()
                 return
             # Lattice Dimensions, yes, H5T_NATIVE_FLOAT, (1, 3), Three columns for a, b and c dimensions in Angstroms
             if (
                 read_strings(fp[f"{sub_grp_name}/Lattice Dimensions"].attrs["Unit"])
                 == "angstrom"
             ):
-                a_b_c = np.asarray(
-                    fp[f"{sub_grp_name}/Lattice Dimensions"][:].flatten()
-                )
-                self.tmp[ckey]["phases"][int(phase_id)]["a_b_c"] = ureg.Quantity(
-                    a_b_c, ureg.angstrom
-                )
+                abc = np.asarray(fp[f"{sub_grp_name}/Lattice Dimensions"][:].flatten())
+                self.ebsd.phases[phase_idx]["a_b_c"] = ureg.Quantity(abc, ureg.angstrom)
             else:
                 print(
                     f"Unexpected case that Lattice Dimensions are not reported in angstrom !"
                 )
-                self.tmp[ckey] = {}
+                self.ebsd = EbsdPointCloud()
                 return
 
             # Space Group, no, H5T_NATIVE_INT32, (1, 1), Space group index.
             # The attribute Symbol contains the string representation, for example P m -3 m.
             space_group = int(fp[f"{sub_grp_name}/Space Group"][0])
-            self.tmp[ckey]["phases"][int(phase_id)]["space_group"] = space_group
-            if len(self.tmp[ckey]["space_group"]) > 0:
-                self.tmp[ckey]["space_group"].append(space_group)
+            self.ebsd.phases[phase_idx]["space_group"] = space_group
+            if len(self.ebsd.space_group) > 0:
+                self.ebsd.space_group.append(space_group)
             else:
-                self.tmp[ckey]["space_group"] = [space_group]
+                self.ebsd.space_group = [space_group]
 
-            if len(self.tmp[ckey]["phase"]) > 0:
-                self.tmp[ckey]["phase"].append(
+            if len(self.ebsd.phase) > 0:
+                self.ebsd.phase.append(
                     Structure(
                         title=phase_name,
                         atoms=None,
                         lattice=Lattice(
-                            a_b_c[0],
-                            a_b_c[1],
-                            a_b_c[2],
-                            alpha_beta_gamma[0],
-                            alpha_beta_gamma[1],
-                            alpha_beta_gamma[2],
+                            abc[0],
+                            abc[1],
+                            abc[2],
+                            angles[0],
+                            angles[1],
+                            angles[2],
                         ),
                     )
                 )
             else:
-                self.tmp[ckey]["phase"] = [
+                self.ebsd.phase = [
                     Structure(
                         title=phase_name,
                         atoms=None,
                         lattice=Lattice(
-                            a_b_c[0],
-                            a_b_c[1],
-                            a_b_c[2],
-                            alpha_beta_gamma[0],
-                            alpha_beta_gamma[1],
-                            alpha_beta_gamma[2],
+                            abc[0],
+                            abc[1],
+                            abc[2],
+                            angles[0],
+                            angles[1],
+                            angles[2],
                         ),
                     )
                 ]
 
-    def parse_and_normalize_slice_ebsd_data(self, fp, ckey: str):
+    def parse_and_normalize_slice_ebsd_data(self, fp):
         # https://github.com/oinanoanalysis/h5oina/blob/master/H5OINAFile.md
         grp_name = f"{self.prfx}/EBSD/Data"
         if f"{grp_name}" not in fp:
@@ -302,32 +286,28 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
         for req_field in req_fields:
             if f"{grp_name}/{req_field}" not in fp:
                 print(f"Unable to parse {grp_name}/{req_field} !")
-                self.tmp[ckey] = {}
+                self.ebsd = EbsdPointCloud()
                 return
 
         # Euler, yes, H5T_NATIVE_FLOAT, (size, 3), Orientation of Crystal (CS2) to Sample-Surface (CS1).
         if read_strings(fp[f"{grp_name}/Euler"].attrs["Unit"]) == "rad":
-            self.tmp[ckey]["euler"] = ureg.Quantity(
+            self.ebsd.euler = ureg.Quantity(
                 np.asarray(fp[f"{grp_name}/Euler"]), ureg.radian
             )
         else:
             print(f"Unexpected case that Euler angle are not reported in rad !")
-            self.tmp[ckey] = {}
+            self.ebsd = EbsdPointCloud()
             return
 
-        self.tmp[ckey]["euler"] = apply_euler_space_symmetry(self.tmp[ckey]["euler"])
+        self.ebsd.euler = apply_euler_space_symmetry(self.ebsd.euler)
 
         # no normalization needed, also in NXem the null model notIndexed is phase_identifier 0
-        self.tmp[ckey]["phase_id"] = np.asarray(fp[f"{grp_name}/Phase"], np.int32)
+        self.ebsd.phase_id = np.asarray(fp[f"{grp_name}/Phase"], np.int32)
 
         # normalize pixel coordinates to physical positions even though the origin can still dangle somewhere
         # expected is order on x is first all possible x values while y == 0
         # followed by as many copies of this linear sequence for each y increment
         # no action needed Oxford reports already the pixel coordinate multiplied by step
-        if self.tmp[ckey]["grid_type"] != SQUARE_TILING:
-            print(
-                f"WARNING: Check carefully correct interpretation of scan_point coords!"
-            )
         # Phase, yes, H5T_NATIVE_INT32, (size, 1), Index of phase, 0 if not indexed
         # X, no, H5T_NATIVE_FLOAT, (size, 1), X position of each pixel in micrometers (origin: top left corner)
         # Y, no, H5T_NATIVE_FLOAT, (size, 1), Y position of each pixel in micrometers (origin: top left corner)
@@ -336,10 +316,11 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
         # inconsistency f32 in file although specification states float
         dims = ["X", "Y"]
         for dim in dims:
-            self.tmp[ckey][f"scan_point_{dim.lower()}"] = np.asarray(
-                fp[f"{grp_name}/{dim}"]
+            self.ebsd.pos[f"{dim.lower()}"] = ureg.Quantity(
+                np.asarray(fp[f"{grp_name}/{dim}"]), ureg.micrometer
             )
 
-        self.tmp[ckey]["bc"] = np.asarray(fp[f"{grp_name}/Band Contrast"], np.int32)
+        self.ebsd.descr_type = "band_contrast"
+        self.ebsd.descr_value = np.asarray(fp[f"{grp_name}/Band Contrast"], np.int32)
         # inconsistency uint8 in file although specification states should be int32
         # promoting uint8 to int32 no problem

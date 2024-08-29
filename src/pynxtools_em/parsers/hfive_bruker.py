@@ -22,16 +22,10 @@ from typing import Dict
 import h5py
 import numpy as np
 from diffpy.structure import Lattice, Structure
-from pynxtools_em.examples.ebsd_database import (
-    ASSUME_PHASE_NAME_TO_SPACE_GROUP,
-    FLIGHT_PLAN,
-    REGULAR_TILING,
-    SQUARE_TILING,
-)
+from pynxtools_em.examples.ebsd_database import ASSUME_PHASE_NAME_TO_SPACE_GROUP
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 
 # HEXAGONAL_GRID
-from pynxtools_em.utils.get_scan_points import get_scan_point_coords
 from pynxtools_em.utils.hfive_utils import (
     EBSD_MAP_SPACEGROUP,
     all_equal,

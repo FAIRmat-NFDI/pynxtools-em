@@ -31,7 +31,6 @@ from pynxtools_em.examples.ebsd_database import (
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 
 # HEXAGONAL_GRID
-from pynxtools_em.utils.get_scan_points import get_scan_point_coords
 from pynxtools_em.utils.hfive_utils import (
     EBSD_MAP_SPACEGROUP,
     all_equal,
