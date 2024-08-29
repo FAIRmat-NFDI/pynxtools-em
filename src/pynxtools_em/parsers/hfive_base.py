@@ -56,10 +56,10 @@ class HdfFiveBaseParser:
         #   was written e.g. Oxford Instruments AZTec software in some version may generate
         #   an instance of a file whose schema belongs to the H5OINA family of HDF5 container formats
         #   specifically using version 5
-        self.prfx = None
+        self.prfx: str = ""
         self.tmp: Dict = {}
-        self.source = None
-        self.file_path = None
+        self.source: str = ""
+        self.file_path: str = ""
         # collection of instance path
         self.groups: Dict = {}
         self.datasets: Dict = {}

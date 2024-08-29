@@ -43,7 +43,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
         super().__init__(file_path)
         self.id_mgn: Dict[str, int] = {"entry_id": entry_id, "roi_id": 1}
         self.verbose = verbose
-        self.prfx = None  # template path handling
+        self.prfx = ""  # template path handling
         self.version: Dict = {  # Dict[str, Dict[str, List[str]]]
             "trg": {
                 "tech_partner": ["Oxford Instruments"],
@@ -128,7 +128,8 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                         self.parse_and_normalize_slice_ebsd_phases(h5r)
                         self.parse_and_normalize_slice_ebsd_data(h5r)
                         ebsd_roi_overview(self.ebsd, self.id_mgn, template)
-                        # ebsd_roi_phase_ipf(self.ebsd, self.id_mgn, template)
+                        ebsd_roi_phase_ipf(self.ebsd, self.id_mgn, template)
+                        self.id_mgn["roi_id"] += 1
 
                     # TODO:Vitesh example
         return template
