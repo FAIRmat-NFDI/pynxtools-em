@@ -25,8 +25,8 @@ from pynxtools.dataconverter.readers.base.reader import BaseReader
 
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 from pynxtools_em.parsers.conventions import NxEmConventionParser
+from pynxtools_em.parsers.hfive_apex import HdfFiveEdaxApexParser
 
-# from pynxtools_em.parsers.hfive_apex import HdfFiveEdaxApexParser
 # from pynxtools_em.parsers.hfive_bruker import HdfFiveBrukerEspritParser
 # from pynxtools_em.parsers.hfive_dreamthreed import HdfFiveDreamThreedParser
 # from pynxtools_em.parsers.hfive_ebsd import HdfFiveEbsdCommunityParser
@@ -113,7 +113,7 @@ class EMReader(BaseReader):
         print("Parse and map pieces of information within files from tech partners...")
         if len(case.dat) == 1:  # no sidecar file
             parsers: List[type] = [
-                # HdfFiveEdaxApexParser,
+                HdfFiveEdaxApexParser,
                 # HdfFiveBrukerEspritParser,
                 # HdfFiveDreamThreedParser,
                 # HdfFiveEbsdCommunityParser,

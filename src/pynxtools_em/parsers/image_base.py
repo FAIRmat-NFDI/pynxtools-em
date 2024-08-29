@@ -31,7 +31,8 @@ class ImgsBaseParser:
         if file_path is not None and file_path != "":
             self.file_path = file_path
         else:
-            raise ValueError(f"{__name__} needs proper instantiation !")
+            print(f"{__name__} needs proper instantiation !")
+            return
         self.tmp: Dict = {}
         self.verbose = verbose
         self.file_path_sha256 = None
@@ -43,4 +44,5 @@ class ImgsBaseParser:
             self.tmp[ckey] = {}
             return ckey
         else:
-            raise ValueError(f"Existent named cache {ckey} must not be overwritten !")
+            print(f"Existent named cache {ckey} must not be overwritten !")
+            return

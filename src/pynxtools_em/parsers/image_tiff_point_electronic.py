@@ -67,7 +67,7 @@ class PointElectronicTiffParser(TiffParser):
                     if key not in self.flat_metadata:
                         self.flat_metadata[key] = string_to_number(obj)
                     else:
-                        raise KeyError(f"Duplicated key {key} !")
+                        print(f"Duplicated key {key} !")
 
     def check_if_tiff_point_electronic(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file.

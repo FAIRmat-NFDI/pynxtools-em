@@ -82,8 +82,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
             return
 
         with h5py.File(self.file_path, "r") as h5r:
-            req_fields = ["Manufacturer", "Software Version", "Format Version"]
-            for req_field in req_fields:
+            for req_field in ["Manufacturer", "Software Version", "Format Version"]:
                 if f"/{req_field}" not in h5r:
                     return
 
@@ -130,6 +129,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                         ebsd_roi_overview(self.ebsd, self.id_mgn, template)
                         ebsd_roi_phase_ipf(self.ebsd, self.id_mgn, template)
                         self.id_mgn["roi_id"] += 1
+                        self.ebsd = EbsdPointCloud()
 
                     # TODO:Vitesh example
         return template
@@ -145,7 +145,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
         self.ebsd.dimensionality = 2
         # the next two lines encode the typical assumption that is not reported in tech partner file!
 
-        dims = ["X", "Y"]
+        dims = ["X", "Y"]  # TODO::1d example
         for dim in dims:
             for req_field in [f"{dim} Cells", f"{dim} Step"]:
                 if f"{grp_name}/{req_field}" not in fp:
@@ -188,14 +188,13 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
             self.ebsd.phases[phase_idx] = {}
             sub_grp_name = f"{grp_name}/{phase_id}"
 
-            req_fields = [
+            for req_field in [
                 "Phase Name",
                 "Reference",
                 "Lattice Angles",
                 "Lattice Dimensions",
                 "Space Group",
-            ]
-            for req_field in req_fields:
+            ]:
                 if f"{sub_grp_name}/{req_field}" not in fp:
                     print(f"Unable to parse {sub_grp_name}/{req_field} !")
                     self.ebsd = EbsdPointCloud()
@@ -236,6 +235,14 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                 )
                 self.ebsd = EbsdPointCloud()
                 return
+            latt = Lattice(
+                abc[0].magnitude,
+                abc[1].magnitude,
+                abc[2].magnitude,
+                angles[0].magnitude,
+                angles[1].magnitude,
+                angles[2].magnitude,
+            )
 
             # Space Group, no, H5T_NATIVE_INT32, (1, 1), Space group index.
             # The attribute Symbol contains the string representation, for example P m -3 m.
@@ -246,45 +253,21 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
             else:
                 self.ebsd.space_group = [space_group]
 
+            strct = Structure(title=phase_name, atoms=None, lattice=latt)
             if len(self.ebsd.phase) > 0:
-                self.ebsd.phase.append(
-                    Structure(
-                        title=phase_name,
-                        atoms=None,
-                        lattice=Lattice(
-                            abc[0],
-                            abc[1],
-                            abc[2],
-                            angles[0],
-                            angles[1],
-                            angles[2],
-                        ),
-                    )
-                )
+                self.ebsd.phase.append(strct)
             else:
-                self.ebsd.phase = [
-                    Structure(
-                        title=phase_name,
-                        atoms=None,
-                        lattice=Lattice(
-                            abc[0],
-                            abc[1],
-                            abc[2],
-                            angles[0],
-                            angles[1],
-                            angles[2],
-                        ),
-                    )
-                ]
+                self.ebsd.phase = [strct]
 
     def parse_and_normalize_slice_ebsd_data(self, fp):
         # https://github.com/oinanoanalysis/h5oina/blob/master/H5OINAFile.md
         grp_name = f"{self.prfx}/EBSD/Data"
         if f"{grp_name}" not in fp:
-            raise ValueError(f"Unable to parse {grp_name} !")
+            print(f"Unable to parse {grp_name} !")
+            self.ebsd = EbsdPointCloud()
+            return
 
-        req_fields = ["Euler", "Phase", "X", "Y", "Band Contrast"]
-        for req_field in req_fields:
+        for req_field in ["Euler", "Phase", "X", "Y", "Band Contrast"]:
             if f"{grp_name}/{req_field}" not in fp:
                 print(f"Unable to parse {grp_name}/{req_field} !")
                 self.ebsd = EbsdPointCloud()

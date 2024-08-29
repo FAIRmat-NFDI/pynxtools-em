@@ -107,7 +107,7 @@ class JeolTiffParser(TiffParser):
                         else:
                             self.flat_dict_meta[tmp[0]] = ureg.Quantity(tmp[1])
                     else:
-                        raise KeyError(f"Found duplicated key {tmp[0]} !")
+                        print(f"Found duplicated key {tmp[0]} !")
                 else:
                     print(f"WARNING::{line} is currently ignored !")
 

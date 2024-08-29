@@ -123,7 +123,7 @@ class TfsTiffParser(TiffParser):
                     # TODO::better use official convention to not read beyond the end of file
                 idx += 1
                 if pos_s is None or pos_e is None:
-                    raise ValueError(
+                    print(
                         f"Definition of byte boundaries for reading childs of [{parent}] was unsuccessful !"
                     )
                 # print(f"Search for [{parent}] in between byte offsets {pos_s} and {pos_e}")
@@ -150,7 +150,7 @@ class TfsTiffParser(TiffParser):
                                 else:
                                     self.flat_dict_meta[f"{parent}/{term}"] = value
                         else:
-                            raise ValueError(
+                            print(
                                 f"Detected an unexpected case {parent}/{term}, type: {type(value)} !"
                             )
                     else:

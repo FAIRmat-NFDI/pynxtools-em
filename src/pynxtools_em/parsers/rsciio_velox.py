@@ -157,9 +157,7 @@ class RsciioVeloxParser(RsciioBaseParser):
         flat_orig_meta = fd.FlatDict(obj["original_metadata"], "/")
 
         if (len(identifier) != 3) or (not all(isinstance(x, int) for x in identifier)):
-            raise ValueError(
-                f"Argument identifier {identifier} needs three int values!"
-            )
+            print(f"Argument identifier {identifier} needs three int values!")
         trg = (
             f"/ENTRY[entry{identifier[0]}]/measurement/event_data_em_set/EVENT_DATA_EM"
             f"[event_data_em{identifier[1]}]/em_lab/ebeam_column"

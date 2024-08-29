@@ -38,12 +38,12 @@ def get_named_axis(axes_metadata, dim_name):
             if isinstance(axis, dict):
                 if "name" in axis:
                     if axis["name"] == dim_name:
-                        reqs = ["offset", "scale", "size", "units"]
                         # "index_in_array" and "navigate" are currently not required
                         # and ignored but might become important
-                        for req in reqs:
+                        for req in ["offset", "scale", "size", "units"]:
                             if req not in axis:
-                                raise ValueError(f"{req} not in {axis}!")
+                                print(f"{req} not in {axis}!")
+                                return None
                         retval = (
                             np.asarray(
                                 axis["offset"]

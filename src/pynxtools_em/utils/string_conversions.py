@@ -35,7 +35,7 @@ def string_to_number(arg: str):
         raise TypeError(f"Input argument arg needs to be a string!")
 
 
-def rchop(s, suffix):
+def rchop(s: str, suffix: str) -> str:
     if suffix and s.endswith(suffix):
         return s[: -len(suffix)]
     return s

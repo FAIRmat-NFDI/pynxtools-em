@@ -183,7 +183,7 @@ class ProtochipsPngSetParser(ImgsBaseParser):
                                                 string_to_number(v)
                                             )
                                         else:
-                                            raise KeyError(
+                                            print(
                                                 "Trying to register a duplicated key {key}"
                                             )
                                     if k.endswith(".Value"):

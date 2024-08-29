@@ -39,11 +39,9 @@ def velox_image_spectrum_or_generic_nxdata(list_of_dict) -> str:
                     else:
                         token.append(obj["units"])
                 else:
-                    raise ValueError(
-                        f"{obj.keys()} are not exactly the expected keywords!"
-                    )
+                    print(f"{obj.keys()} are not exactly the expected keywords!")
             else:
-                raise ValueError(f"{obj} is not a dict!")
+                print(f"{obj} is not a dict!")
         if len(token) >= 1:
             print("_".join(token))
             unit_categories = []
