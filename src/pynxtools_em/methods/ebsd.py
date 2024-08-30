@@ -222,10 +222,12 @@ def regrid_onto_equisized_scan_points(
     # TODO:: if scan_point_{dim} are calibrated this approach
     # here would shift the origin to 0, 0 implicitly which may not be desired
     if src_grid.dimensionality == 1:
-        tree = KDTree(np.column_stack((src_grid.pos["x"])))
+        tree = KDTree(np.column_stack((src_grid.pos["x"].magnitude)))
         d, idx = tree.query(trg_pos, k=1)
     elif src_grid.dimensionality == 2:
-        tree = KDTree(np.column_stack((src_grid.pos["x"], src_grid.pos["y"])))
+        tree = KDTree(
+            np.column_stack((src_grid.pos["x"].magnitude, src_grid.pos["y"].magnitude))
+        )
         d, idx = tree.query(trg_pos, k=1)
     if np.sum(idx == tree.n) > 0:
         raise ValueError(f"kdtree query left some query points without a neighbor!")

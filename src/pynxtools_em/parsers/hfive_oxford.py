@@ -234,12 +234,12 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                 self.ebsd = EbsdPointCloud()
                 return
             latt = Lattice(
-                abc[0].magnitude,
-                abc[1].magnitude,
-                abc[2].magnitude,
-                angles[0].magnitude,
-                angles[1].magnitude,
-                angles[2].magnitude,
+                abc[0],
+                abc[1],
+                abc[2],
+                angles[0],
+                angles[1],
+                angles[2],
             )  # TODO:: lattice passed to kikuchipy I think needs to be in degree!
 
             # Space Group, no, H5T_NATIVE_INT32, (1, 1), Space group index.
