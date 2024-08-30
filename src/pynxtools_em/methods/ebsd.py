@@ -308,7 +308,7 @@ def ebsd_roi_overview(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dict
     if not trg_grid.descr_type:
         return template
 
-    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/ebsd/indexing/roi"
+    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/ebsd/indexing/roi"
     template[f"{trg}/descriptor"] = trg_grid.descr_type
     template[f"{trg}/title"] = (
         f"Region-of-interest overview image ({trg_grid.descr_type})"
@@ -365,7 +365,9 @@ def ebsd_roi_overview(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dict
 def ebsd_roi_phase_ipf(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dict:
     """Create for each phase three inverse pole figures (IPF) maps projected along X, Y using for each map only the respective scan points that were indexed for this phase."""
     nxem_phase_id = 0
-    prfx = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/ebsd/indexing"
+    prfx = (
+        f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/ebsd/indexing"
+    )
     # bookkeeping for how many scan points solutions were found is always for src_grid
     # because the eventual discretization for h5web is solely
     # for the purpose of showing users a readily consumable default plot
@@ -479,7 +481,7 @@ def process_roi_phase_ipf(
         # 2D, 0 > y, 1 > x
         # 1D, 0 > x
         trg = (
-            f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/ebsd/indexing"
+            f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/ebsd/indexing"
             f"/phaseID[phase{nxem_phase_id}]/ipfID[ipf{idx + 1}]"
         )
         template[f"{trg}/projection_direction"] = np.asarray(

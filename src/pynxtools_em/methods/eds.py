@@ -20,45 +20,10 @@
 import numpy as np
 from pynxtools_em.concepts.nxs_image_set import NxImageRealSpaceSet
 
-# process_roi_eds_spectra(inp, template)
-# process_roi_eds_maps(inp, template)
-# if ckey.startswith("eds_roi") and inp[ckey] != {}:
-# self.process_roi_overview_eds_based(inp[ckey], template)
+# TODO::all functions here are work in progress
 
 
-def process_roi_overview_eds_based(self, inp, template: dict) -> dict:
-    trg = (
-        f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
-        f"EVENT_DATA_EM[event_data_em{self.id_mgn['event']}]/"
-        f"IMAGE_SET[image_set{self.id_mgn['event_img']}]/image_2d"
-    )
-    template[f"{trg}/description"] = inp.tmp["source"]
-    template[f"{trg}/title"] = f"Region-of-interest overview image"
-    template[f"{trg}/@signal"] = "real"
-    dims = [("i", 0), ("j", 1)]
-    template[f"{trg}/@axes"] = []
-    for dim in dims[::-1]:
-        template[f"{trg}/@axes"].append(f"axis_{dim[0]}")
-    template[f"{trg}/real"] = {
-        "compress": inp.tmp["image_2d/real"].value,
-        "strength": 1,
-    }
-    template[f"{trg}/real/@long_name"] = f"Signal"
-    for dim in dims:
-        template[f"{trg}/@AXISNAME_indices[axis_{dim[0]}_indices]"] = np.uint32(dim[1])
-        template[f"{trg}/AXISNAME[axis_{dim[0]}]"] = {
-            "compress": inp.tmp[f"image_2d/axis_{dim[0]}"].value,
-            "strength": 1,
-        }
-        template[f"{trg}/AXISNAME[axis_{dim[0]}]/@long_name"] = inp.tmp[
-            f"image_2d/axis_{dim[0]}@long_name"
-        ].value
-    self.id_mgn["event_img"] += 1
-    self.id_mgn["event"] += 1
-    return template
-
-
-def process_roi_eds_spectra(self, inp: dict, template: dict) -> dict:
+def eds_roi_summary(self, inp: dict, template: dict) -> dict:
     for ckey in inp.keys():
         if ckey.startswith("eds_spc") and inp[ckey] != {}:
             trg = (
@@ -90,11 +55,11 @@ def process_roi_eds_spectra(self, inp: dict, template: dict) -> dict:
     return template
 
 
-def process_roi_eds_maps(self, inp: dict, template: dict) -> dict:
+def eds_roi_eds_map(self, inp: dict, template: dict) -> dict:
     for ckey in inp.keys():
         if ckey.startswith("eds_map") and inp[ckey] != {}:
             trg = (
-                f"/ENTRY[entry{self.entry_id}]/ROI[roi{self.id_mgn['roi']}]/"
+                f"/ENTRY[entry{self.entry_id}]/roiID[roi{self.id_mgn['roi']}]/"
                 f"eds/indexing"
             )
             template[f"{trg}/source"] = inp[ckey].tmp["source"]
@@ -102,7 +67,7 @@ def process_roi_eds_maps(self, inp: dict, template: dict) -> dict:
                 if not isinstance(img, NxImageRealSpaceSet):
                     continue
                 trg = (
-                    f"/ENTRY[entry{self.entry_id}]/ROI[roi{self.id_mgn['roi']}]/eds/"
+                    f"/ENTRY[entry{self.entry_id}]/roiID[roi{self.id_mgn['roi']}]/eds/"
                     f"indexing/IMAGE_SET[image_set{self.id_mgn['eds_img']}]"
                 )
                 template[f"{trg}/source"] = img.tmp["source"]
