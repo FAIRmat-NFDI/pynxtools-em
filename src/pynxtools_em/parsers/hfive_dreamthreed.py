@@ -21,17 +21,13 @@ from typing import Dict
 
 import h5py
 import numpy as np
-
-# EBSD_MAP_SPACEGROUP
-from pynxtools_em.examples.ebsd_database import (
-    FLIGHT_PLAN,
-    REGULAR_TILING,
+from pynxtools_em.methods.ebsd import (
     SQUARE_TILING,
+    EbsdPointCloud,
+    has_hfive_magic_header,
 )
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
-from pynxtools_em.utils.hfive_utils import (
-    read_strings,
-)
+from pynxtools_em.utils.hfive_utils import read_strings
 
 # DREAM3D implements essentially a data analysis workflow with individual steps
 # in the DREAM3D jargon each step is referred to as a filter, filters have well-defined
@@ -83,76 +79,76 @@ DREAM_SPACEGROUPS_TO_REPRESENTATIVE_SPACEGROUP = {
     10: 162,
 }
 # UnknownCrystalStructure, 999, Undefined Crystal Structure
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 
 class HdfFiveDreamThreedParser(HdfFiveBaseParser):
     """Read DREAM3D HDF5 files (from Bluequartz's DREAM3D)"""
 
-    def __init__(self, file_path: str = ""):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
         super().__init__(file_path)
-        self.prfx = None
-        self.tmp = {}
-        self.path_registry: Dict = {}
-        self.supported_version: Dict = {}
-        self.version: Dict = {}
-        self.supported = False
-        if self.is_hdf is True:
-            self.init_support()
-            self.check_if_supported()
-
-    def init_support(self):
-        """Init supported versions."""
-        self.supported_version = {}
-        self.version = {}
-        self.supported_version["tech_partner"] = ["Bluequartz"]
-        self.supported_version["schema_name"] = ["DREAM3D"]
-        self.supported_version["schema_version"] = ["6.0", "7.0"]
+        self.id_mgn: Dict[str, int] = {"entry_id": entry_id, "roi_id": 1}
+        self.verbose = verbose
+        self.prfx = ""  # template path handling
         # strictly speaking Bluequartz refers the above-mentioned here as File Version
         # but content is expected adaptive depends on filters used, their versions, and
         # the sequence in which the execution of these filters was instructed
-        self.supported_version["writer_name"] = ["DREAM3D"]
-        self.supported_version["writer_version"] = [
-            "1.2.812.508bf5f37",
-            "2.0.170.4eecce207",
-            "1.0.107.2080f4e",
-            "2014.03.05",
-            "2014.03.13",
-            "2014.03.15",
-            "2014.03.16",
-            "4.3.6052.263064d",
-            "1.2.828.f45085c83",
-            "2.0.170.4eecce207",
-            "1.2.826.7c66a0e77",
-        ]
+        self.version: Dict = {  # Dict[str, Dict[str, List[str]]]
+            "trg": {
+                "tech_partner": ["Bluequartz"],
+                "schema_name": ["DREAM3D"],
+                "schema_version": ["6.0", "7.0"],
+                "writer_name": ["DREAM3D"],
+                "writer_version": [
+                    "1.2.812.508bf5f37",
+                    "2.0.170.4eecce207",
+                    "1.0.107.2080f4e",
+                    "2014.03.05",
+                    "2014.03.13",
+                    "2014.03.15",
+                    "2014.03.16",
+                    "4.3.6052.263064d",
+                    "1.2.828.f45085c83",
+                    "2.0.170.4eecce207",
+                    "1.2.826.7c66a0e77",
+                ],
+            },
+            "src": {},
+        }
+        self.path_registry: Dict = {}
+        self.supported = False
+        if self.is_hdf:
+            self.check_if_supported()
+        if not self.supported:
+            print(
+                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+            )
 
     def check_if_supported(self):
         # check if instance to process matches any of these constraints
-        self.supported = 0  # voting-based
+        self.supported = False
+        if not has_hfive_magic_header(self.file_path):
+            return
+
         with h5py.File(self.file_path, "r") as h5r:
-            if len(h5r["/"].attrs.keys()) < 2:
-                self.supported = False
+            if len(h5r["/"].attrs) < 2:
                 return
-            req_fields = ["DREAM3D Version", "FileVersion"]
-            for req_field in req_fields:
-                if f"{req_field}" not in h5r["/"].attrs.keys():
-                    self.supported = False
+
+            for req_field in ["DREAM3D Version", "FileVersion"]:
+                if f"{req_field}" not in h5r["/"].attrs:
                     return
-            if (
-                read_strings(h5r["/"].attrs["DREAM3D Version"])
-                in self.supported_version["writer_version"]
-            ):
-                self.supported += 1
-            if (
-                read_strings(h5r["/"].attrs["FileVersion"])
-                in self.supported_version["schema_version"]
-            ):
-                self.supported += 1
+
+            votes_for_support = 0
+            dream_version = read_strings(h5r["/"].attrs["DREAM3D Version"])
+            if dream_version in self.version["trg"]["writer_version"]:
+                votes_for_support += 1
+            file_version = read_strings(h5r["/"].attrs["FileVersion"])
+            if file_version in self.version["trg"]["schema_version"]:
+                votes_for_support += 1
 
             if self.supported == 2:
                 self.supported = True
-                self.version = self.supported_version.copy()
-            else:
-                self.supported = False
+                # TODO::instantiate self.version["src"]
 
     def search_normalizable_ebsd_content(self):
         """Check if that highly customizable DREAM3D file has supported content or not."""
@@ -186,9 +182,8 @@ class HdfFiveDreamThreedParser(HdfFiveBaseParser):
             head = path_idx[0][0 : path_idx[1]]
             tail = path_idx[0][path_idx[1] :]
             found = 0
-            req_fields = ["DIMENSIONS", "ORIGIN", "SPACING"]
-            for req_field in req_fields:
-                if f"{head}/_SIMPL_GEOMETRY/{req_field}" in self.datasets.keys():
+            for req_field in ["DIMENSIONS", "ORIGIN", "SPACING"]:
+                if f"{head}/_SIMPL_GEOMETRY/{req_field}" in self.datasets:
                     found += 1
             if found == 3:
                 group_geometry.append(head)
@@ -203,7 +198,7 @@ class HdfFiveDreamThreedParser(HdfFiveBaseParser):
         found = 0
         i_j_k = (None, None, None)
         group_data = None
-        for entry in self.datasets.keys():
+        for entry in self.datasets:
             if (
                 entry.startswith(f"{group_geometry}") is True
                 and entry.endswith(f"EulerAngles") is True
@@ -232,15 +227,15 @@ class HdfFiveDreamThreedParser(HdfFiveBaseParser):
             "Mean Angular Deviation": "mad",
             "MeanAngularDeviation": "mad",
         }
-        for key in one_key_required.keys():
-            if f"{group_data}/{key}" in self.datasets.keys():
+        for key in one_key_required:
+            if f"{group_data}/{key}" in self.datasets:
                 shp = self.datasets[f"{group_data}/{key}"][2]
                 if isinstance(shp, tuple) and len(shp) == 4:
                     if (shp[0], shp[1], shp[2]) == i_j_k:
                         roi_info = (f"{group_data}/{key}", one_key_required[key])
                         break
         #       which has a dset named Phases shape 4d (i, j, k, 1) +
-        if f"{group_data}/Phases" in self.datasets.keys():
+        if f"{group_data}/Phases" in self.datasets:
             shp = self.datasets[f"{group_data}/Phases"][2]
             if isinstance(shp, tuple) and len(shp) == 4:
                 if (shp[0], shp[1], shp[2]) == i_j_k:
@@ -261,18 +256,16 @@ class HdfFiveDreamThreedParser(HdfFiveBaseParser):
         if group_data.find("SyntheticVolumeDataContainer") > -1:
             is_simulated = True
             # hunt CrystalStructures
-            for entry in self.datasets.keys():
+            for entry in self.datasets:
                 if entry.find("CrystalStructures") > -1:
                     if group_phases is None:
                         group_phases = entry[0:-18]  # remove trailing fwslash
         else:
             is_simulated = False
-            possible_locs = [
-                "Phase Data",
-                "CellEnsembleData",
-            ]  # these locations found in the examples but likely they can be changed depending on how the filters are set
+            # these locations found in the examples but likely can be changed
+            # depending on how the filters were configured ...
             for loc in ["Phase Data", "CellEnsembleData"]:
-                if f"{group_geometry}/{loc}/CrystalStructures" in self.datasets.keys():
+                if f"{group_geometry}/{loc}/CrystalStructures" in self.datasets:
                     group_phases = f"{group_geometry}/{loc}"
                     found = 0
                     for req_field in [
@@ -303,164 +296,145 @@ class HdfFiveDreamThreedParser(HdfFiveBaseParser):
         # normalization and assuring that content from other data providers (like DREAM3D)
         # is understood before being normalized so that results in the RDMS are really
         # useful and comparable
+        # after this initial version of the parser was written DREAM3D became DREAM3NX
 
         # this is one approach how to find relevant groups
         # another would be to interpret really the filters applied and hunt
         # for the output within the parameters of a specific filter
         return True
 
-    def parse_and_normalize(self):
+    def parse(self, template: dict) -> dict:
         """Read and normalize away community-specific formatting with an equivalent in NXem."""
-        cache_id = 1
-        ckey = self.init_cache(f"ebsd{cache_id}")
-        if self.search_normalizable_ebsd_content() is True:
-            self.parse_and_normalize_ebsd_header(ckey)
-            self.parse_and_normalize_ebsd_phases(ckey)
-            self.parse_and_normalize_ebsd_data(ckey)
+        if self.supported:
+            print(f"Parsing via (legacy) DREAM3D parser...")
+            if self.search_normalizable_ebsd_content():
+                with h5py.File(self.file_path, "r") as h5r:
+                    self.ebsd = EbsdPointCloud()
+                    self.parse_and_normalize_ebsd_header(h5r)
+                    self.parse_and_normalize_ebsd_phases(h5r)
+                    self.parse_and_normalize_ebsd_data(h5r)
+                    # TODO::write back
+                    self.id_mgn["roi_id"] += 1
+                    self.ebsd = EbsdPointCloud()
+            # TODO::more testing, more examples using DREAM3DNX
+        return template
 
-    def parse_and_normalize_ebsd_header(self, ckey: str):
-        with h5py.File(self.file_path, "r") as h5r:
-            dims = h5r[
-                f"{self.path_registry['group_geometry']}" f"/_SIMPL_GEOMETRY/DIMENSIONS"
-            ][:].flatten()
-            org = h5r[
-                f"{self.path_registry['group_geometry']}" f"/_SIMPL_GEOMETRY/ORIGIN"
-            ][:].flatten()
-            spc = h5r[
-                f"{self.path_registry['group_geometry']}" f"/_SIMPL_GEOMETRY/SPACING"
-            ][:].flatten()
-            idx = 0
+    def parse_and_normalize_ebsd_header(self, fp):
+        smpl = "/_SIMPL_GEOMETRY/"
+        grpnm = "group_geometry"
+        dims = fp[f"{self.path_registry[{grpnm}]}{smpl}DIMENSIONS"][:].flatten()
+        org = fp[f"{self.path_registry[{grpnm}]}{smpl}ORIGIN"][:].flatten()
+        spc = fp[f"{self.path_registry[{grpnm}]}{smpl}SPACING"][:].flatten()
 
-            # TODO::is it correct an assumption that DREAM3D regrids using square voxel
-            self.tmp[ckey]["dimensionality"] = 3
-            self.tmp[ckey]["grid_type"] = SQUARE_TILING
-            # the next two lines encode the typical assumption that is not reported in tech partner file!
-            self.tmp[ckey]["tiling"] = REGULAR_TILING
-            self.tmp[ckey]["flight_plan"] = FLIGHT_PLAN
-            for dim in ["x", "y", "z"]:
-                self.tmp[ckey][f"n_{dim}"] = dims[idx]
-                self.tmp[ckey][f"s_{dim}"] = spc[idx]
-                self.tmp[ckey][f"o_{dim}"] = org[idx]
-                idx += 1
-            self.tmp[ckey]["s_unit"] = "um"  # "µm"   #TODO::where is this documented
-            for key, val in self.tmp[ckey].items():
-                print(f"{key}, {np.shape(val)}, {val}")
+        # TODO::is it correct an assumption that DREAM3D regrids using square voxel
+        self.ebsd.dimensionality = 3
+        self.ebsd.grid_type = SQUARE_TILING
+        # the next two lines encode the typical assumption that is not reported in tech partner file!
+        for dim_idx, dim in enumerate(["x", "y", "z"]):
+            self.ebsd.n[dim] = dims[dim_idx]
+            self.ebsd.s[dim] = ureg.Quantity(spc[dim_idx], ureg.micrometer)
+            self.ebsd.o[dim] = ureg.Quantity(org[dim_idx], ureg.micrometer)
+        # TODO::where is the length scale documented? always micron?
 
-    def parse_and_normalize_ebsd_phases(self, ckey: str):
-        self.tmp[ckey]["phase"] = []
-        self.tmp[ckey]["space_group"] = []
-        self.tmp[ckey]["phases"] = {}
-        with h5py.File(self.file_path, "r") as h5r:
-            idx = np.asarray(
-                h5r[f"{self.path_registry['group_phases']}/CrystalStructures"][
-                    :
-                ].flatten(),
-                np.uint32,
+    def parse_and_normalize_ebsd_phases(self, fp):
+        self.ebsd.phase = []
+        self.ebsd.space_group = []
+        self.ebsd.phases = {}
+        idx = np.asarray(
+            fp[f"{self.path_registry['group_phases']}/CrystalStructures"][:].flatten(),
+            np.uint32,
+        )
+        print(f"csys {np.shape(idx)}, {idx}")
+        nms = None
+        if f"{self.path_registry['group_phases']}/MaterialName" in fp:
+            nms = read_strings(
+                fp[f"{self.path_registry['group_phases']}/MaterialName"][:]
             )
-            print(f"csys {np.shape(idx)}, {idx}")
-            nms = None
-            if f"{self.path_registry['group_phases']}/MaterialName" in h5r:
-                nms = read_strings(
-                    h5r[f"{self.path_registry['group_phases']}/MaterialName"][:]
-                )
-                print(f"nms ---------> {nms}")
-                if len(idx) != len(nms):
-                    raise ValueError(
-                        f"{__name__} MaterialName was recoverable but array has different length than for CrystalStructures!"
-                    )
-            # alternatively
-            if f"{self.path_registry['group_phases']}/PhaseName" in h5r:
-                nms = read_strings(
-                    h5r[f"{self.path_registry['group_phases']}/PhaseName"][:]
-                )
-                print(f"nms ---------> {nms}")
-                if len(idx) != len(nms):
-                    raise ValueError(
-                        f"{__name__} PhaseName was recoverable but array has different length than for CrystalStructures!"
-                    )
-            ijk = 0
-            for entry in idx:
-                if entry != 999:
-                    self.tmp[ckey]["phases"][ijk] = {}
-                    self.tmp[ckey]["phases"][ijk]["space_group"] = (
-                        DREAM_SPACEGROUPS_TO_REPRESENTATIVE_SPACEGROUP[entry]
-                    )
-                    self.tmp[ckey]["phases"][ijk]["phase_name"] = nms[ijk]
-                ijk += 1
-                # TODO::need to do a reindexing of the phase ids as they
-                # might not be stored in asc. order!
-
-                # LatticeAngles are implicitly defined for each space group
-                # LatticeDimensions essentially provides scaling information
-                # but indeed for simulating a crystal with a computer simulation
-                # at a length scale larger than atoms (mesoscale and macroscale)
-                # one can argue the exact spacing is not needed except when
-                # one wishes to compute the diffraction pattern but as most results
-                # from DREAM3D implicitly rely on information from a previous workflow
-                # where these atomistic details have been abstracted away it is
-                # factually true that there is not really a need for documenting
-                # the lattice dimensions from a DREAM3D analysis.
-        for key, dct in self.tmp[ckey]["phases"].items():
-            print(f"{key}, {dct}")
-
-    def parse_and_normalize_ebsd_data(self, ckey: str):
-        with h5py.File(self.file_path, "r") as h5r:
-            self.tmp[ckey]["euler"] = np.asarray(
-                h5r[f"{self.path_registry['group_data']}/EulerAngles"], np.float32
-            )
-            old_shp = np.shape(self.tmp[ckey]["euler"])
-            self.tmp[ckey]["euler"] = np.reshape(
-                self.tmp[ckey]["euler"],
-                (int(np.prod(old_shp[0:3])), int(old_shp[3])),
-                order="C",
-            )
-            # TODO::DREAM3D uses Rowenhorst et. al. conventions
-            # so we are already in positive halfspace, and radiants
-
-            self.tmp[ckey]["phase_id"] = np.asarray(
-                h5r[f"{self.path_registry['group_data']}/Phases"], np.int32
-            )
-            old_shp = np.shape(self.tmp[ckey]["phase_id"])
-            self.tmp[ckey]["phase_id"] = np.reshape(
-                self.tmp[ckey]["phase_id"], (int(np.prod(old_shp[0:3])),), order="C"
-            )
-            print(np.unique(self.tmp[ckey]["phase_id"]))
-            # Phases here stores C-style index which Phase of the possible ones
-            # we are facing, the marker 999 is equivalent to the null-model notIndexed
-            # in all examples 999 was the first (0th) entry in the list of possible ones
-            # in effect, the phase_id == 0 rightly so marks position indexed with the null-model
-
-            # normalize pixel coordinates to physical positions even though the origin can still dangle somewhere
-            if self.tmp[ckey]["grid_type"] != SQUARE_TILING:
+            print(f"nms ---------> {nms}")
+            if len(idx) != len(nms):
                 print(
-                    f"WARNING: Check carefully correct interpretation of scan_point coords!"
+                    f"{__name__} MaterialName was recoverable but array has different length than for CrystalStructures!"
                 )
-            # TODO::all other hfive parsers normalize scan_point_{dim} arrays into
-            # tiled and repeated coordinate tuples and not like below
-            # only the dimension scale axes values!
-            for dim in ["x", "y", "z"]:
-                self.tmp[ckey][f"scan_point_{dim}"] = np.asarray(
-                    0.5 * self.tmp[ckey][f"s_{dim}"]
-                    + np.linspace(
-                        0,
-                        self.tmp[ckey][f"n_{dim}"] - 1,
-                        num=self.tmp[ckey][f"n_{dim}"],
-                        endpoint=True,
-                    )
-                    * self.tmp[ckey][f"s_{dim}"],
-                    dtype=np.float32,
+                self.ebsd = EbsdPointCloud()
+                return
+        # alternatively
+        if f"{self.path_registry['group_phases']}/PhaseName" in fp:
+            nms = read_strings(fp[f"{self.path_registry['group_phases']}/PhaseName"][:])
+            print(f"nms ---------> {nms}")
+            if len(idx) != len(nms):
+                print(
+                    f"{__name__} PhaseName was recoverable but array has different length than for CrystalStructures!"
                 )
-            # ROI overviewed rendered from either bc, ci, or mad
-            if (
-                isinstance(self.path_registry["roi_info"], tuple)
-                and len(self.path_registry["roi_info"]) == 2
-            ):
-                if (
-                    isinstance(self.path_registry["roi_info"][0], str) is True
-                    and isinstance(self.path_registry["roi_info"][1], str) is True
-                ):
-                    self.tmp[ckey][self.path_registry["roi_info"][1]] = np.asarray(
-                        h5r[f"{self.path_registry['roi_info'][0]}"], np.float32
-                    )
-            for key, val in self.tmp[ckey].items():
-                print(f"{key}, {np.shape(val)}")
+                self.ebsd = EbsdPointCloud()
+                return
+        ijk = 0
+        for entry in idx:
+            if entry != 999:
+                self.ebsd.phases[ijk] = {}
+                self.ebsd.phases[ijk]["space_group"] = (
+                    DREAM_SPACEGROUPS_TO_REPRESENTATIVE_SPACEGROUP[entry]
+                )
+                self.ebsd.phases[ijk]["phase_name"] = nms[ijk]
+            ijk += 1
+            # TODO::need to do a reindexing of the phase ids as they
+            # might not be stored in asc. order!
+
+            # LatticeAngles are implicitly defined for each space group
+            # LatticeDimensions essentially provides scaling information
+            # but indeed for simulating a crystal with a computer simulation
+            # at a length scale larger than atoms (mesoscale and macroscale)
+            # one can argue the exact spacing is not needed except when
+            # one wishes to compute the diffraction pattern but as most results
+            # from DREAM3D implicitly rely on information from a previous workflow
+            # where these atomistic details have been abstracted away it is
+            # factually true that there is not really a need for documenting
+            # the lattice dimensions from a DREAM3D analysis.
+
+    def parse_and_normalize_ebsd_data(self, fp):
+        self.ebsd.euler = np.asarray(
+            fp[f"{self.path_registry['group_data']}/EulerAngles"], np.float32
+        )
+        old_shp = np.shape(self.ebsd.euler)
+        self.ebsd.euler = np.reshape(
+            self.ebsd.euler,
+            (int(np.prod(old_shp[0:3])), int(old_shp[3])),
+            order="C",
+        )
+        self.ebsd.euler = ureg.Quantity(self.ebsd.euler, ureg.radian)
+        # TODO::DREAM3D uses Rowenhorst et. al. conventions
+        # so we are already in positive halfspace, and radiants
+
+        self.ebsd.phase_id = np.asarray(
+            fp[f"{self.path_registry['group_data']}/Phases"], np.int32
+        )
+        old_shp = np.shape(self.ebsd.phase_id)
+        self.ebsd.phase_id = np.reshape(
+            self.ebsd.phase_id, (int(np.prod(old_shp[0:3])),), order="C"
+        )
+        print(np.unique(self.ebsd.phase_id))
+        # Phases here stores C-style index which Phase of the possible ones
+        # we are facing, the marker 999 is equivalent to the null-model notIndexed
+        # in all examples 999 was the first (0th) entry in the list of possible ones
+        # in effect, the phase_id == 0 rightly so marks position indexed with the null-model
+
+        # normalize pixel coordinates to physical positions even though the origin can still dangle somewhere
+        if self.ebsd.grid_type != SQUARE_TILING:
+            print(
+                f"WARNING: Check carefully correct interpretation of scan_point coords!"
+            )
+        # TODO::all other hfive parsers normalize scan_point_{dim} arrays into
+        # tiled and repeated coordinate tuples and not like below
+        # only the dimension scale axes values!
+        for dim in ["x", "y", "z"]:
+            self.ebsd.pos[dim] = np.asarray(
+                0.5 * self.ebsd.s[dim].magnitude
+                + np.linspace(
+                    0,
+                    self.ebsd.n[dim] - 1,
+                    num=self.ebsd.n[dim],
+                    endpoint=True,
+                )
+                * self.ebsd.s[dim].magnitude,
+                dtype=np.float32,
+            )
+        # TODO::ROI overview rendered from one of these possibilities bc, ci, or mad
