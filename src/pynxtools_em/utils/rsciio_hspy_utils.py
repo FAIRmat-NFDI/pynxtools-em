@@ -47,16 +47,14 @@ def get_named_axis(axes_metadata, dim_name):
                         retval = (
                             np.asarray(
                                 axis["offset"]
-                                + (
-                                    np.linspace(
-                                        0.0,
-                                        axis["size"] - 1.0,
-                                        num=int(axis["size"]),
-                                        endpoint=True,
-                                    )
-                                    * axis["scale"]
-                                ),
-                                np.float64,
+                                + np.linspace(
+                                    0.0,
+                                    axis["size"] - 1.0,
+                                    num=int(axis["size"]),
+                                    endpoint=True,
+                                )
+                                * axis["scale"],
+                                dtype=np.float32,
                             ),
                             axis["units"],
                         )

@@ -161,18 +161,20 @@ def regrid_onto_equisized_scan_points(
     trg_s = {}
     trg_n = {}
     if src_grid.dimensionality == 1:
-        trg_s["x"] = (aabb["x"][1] - aabb["x"][0]) / max_extent
+        trg_s["x"] = (aabb["x"][1] - aabb["x"][0]) / max_extent  # square step
         trg_n["x"] = max_extent
     elif src_grid.dimensionality == 2:
         if aabb["x"][1] - aabb["x"][0] >= aabb["y"][1] - aabb["y"][0]:
-            trg_s["x"] = (aabb["x"][1] - aabb["x"][0]) / max_extent
-            trg_s["y"] = (aabb["x"][1] - aabb["x"][0]) / max_extent
+            step = (aabb["x"][1] - aabb["x"][0]) / max_extent  # square step
+            trg_s["x"] = step
+            trg_s["y"] = step
             trg_n["x"] = max_extent
-            trg_n["y"] = int(np.ceil((aabb["y"][1] - aabb["y"][0]) / trg_s["x"]))
+            trg_n["y"] = int(np.ceil((aabb["y"][1] - aabb["y"][0]) / step))
         else:
-            trg_s["x"] = (aabb["y"][1] - aabb["y"][0]) / max_extent
-            trg_s["y"] = (aabb["y"][1] - aabb["y"][0]) / max_extent
-            trg_n["x"] = int(np.ceil((aabb["x"][1] - aabb["x"][0]) / trg_s["x"]))
+            step = (aabb["y"][1] - aabb["y"][0]) / max_extent  # square step
+            trg_s["x"] = step
+            trg_s["y"] = step
+            trg_n["x"] = int(np.ceil((aabb["x"][1] - aabb["x"][0]) / step))
             trg_n["y"] = max_extent
     elif src_grid.dimensionality == 3:
         print("TODO !!!!")
@@ -194,42 +196,30 @@ def regrid_onto_equisized_scan_points(
     # coordinate is always 0., 0. !
     if src_grid.dimensionality == 1:
         trg_pos = np.column_stack(
-            np.linspace(
-                0,
-                trg_n["x"] - 1,
-                num=trg_n["x"],
-                endpoint=True,
-                retstep=False,
+            np.asarray(
+                np.linspace(0, trg_n["x"] - 1, num=trg_n["x"], endpoint=True)
+                * trg_s["x"],
                 dtype=np.float32,
-            )
-            * trg_s["x"],
+            ),
             1,
         )
     elif src_grid.dimensionality == 2:
         trg_pos = np.column_stack(
             (
                 np.tile(
-                    np.linspace(
-                        0,
-                        trg_n["x"] - 1,
-                        num=trg_n["x"],
-                        endpoint=True,
-                        retstep=False,
+                    np.asarray(
+                        np.linspace(0, trg_n["x"] - 1, num=trg_n["x"], endpoint=True)
+                        * trg_s["x"],
                         dtype=np.float32,
-                    )
-                    * trg_s["x"],
+                    ),
                     trg_n["y"],
                 ),
                 np.repeat(
-                    np.linspace(
-                        0,
-                        trg_n["y"] - 1,
-                        num=trg_n["y"],
-                        endpoint=True,
-                        retstep=False,
+                    np.asarray(
+                        np.linspace(0, trg_n["y"] - 1, num=trg_n["y"], endpoint=True)
+                        * trg_s["y"],
                         dtype=np.float32,
-                    )
-                    * trg_s["y"],
+                    ),
                     trg_n["x"],
                 ),
             )
@@ -332,7 +322,8 @@ def ebsd_roi_overview(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dict
         template[f"{trg}/AXISNAME[axis_{dim}]"] = {
             "compress": np.asarray(
                 np.linspace(0, trg_grid.n[dim] - 1, num=trg_grid.n[dim], endpoint=True)
-                * trg_grid.s[dim].magnitude
+                * trg_grid.s[dim].magnitude,
+                dtype=np.float32,
             ),
             "strength": 1,
         }
@@ -521,7 +512,7 @@ def process_roi_phase_ipf(
                         0, trg_grid.n[dim] - 1, num=trg_grid.n[dim], endpoint=True
                     )
                     * trg_grid.s[dim].magnitude,
-                    np.float32,
+                    dtype=np.float32,
                 ),
                 "strength": 1,
             }
@@ -551,12 +542,13 @@ def process_roi_phase_ipf(
         dims_idxs = {"x": 1, "y": 0}
         for dim, dim_idx in dims_idxs.items():
             template[f"{lgd}/AXISNAME[axis_{dim}]"] = {
-                "compress": np.linspace(
-                    0,
-                    np.shape(img)[dim_idx] - 1,
-                    num=np.shape(img)[dim_idx],
-                    endpoint=True,
-                    retstep=False,
+                "compress": np.asarray(
+                    np.linspace(
+                        0,
+                        np.shape(img)[dim_idx] - 1,
+                        num=np.shape(img)[dim_idx],
+                        endpoint=True,
+                    ),
                     dtype=np.uint32,
                 ),
                 "strength": 1,

@@ -440,15 +440,15 @@ class HdfFiveDreamThreedParser(HdfFiveBaseParser):
             # only the dimension scale axes values!
             for dim in ["x", "y", "z"]:
                 self.tmp[ckey][f"scan_point_{dim}"] = np.asarray(
-                    np.linspace(
+                    0.5 * self.tmp[ckey][f"s_{dim}"]
+                    + np.linspace(
                         0,
                         self.tmp[ckey][f"n_{dim}"] - 1,
                         num=self.tmp[ckey][f"n_{dim}"],
                         endpoint=True,
                     )
-                    * self.tmp[ckey][f"s_{dim}"]
-                    + 0.5 * self.tmp[ckey][f"s_{dim}"],
-                    np.float32,
+                    * self.tmp[ckey][f"s_{dim}"],
+                    dtype=np.float32,
                 )
             # ROI overviewed rendered from either bc, ci, or mad
             if (

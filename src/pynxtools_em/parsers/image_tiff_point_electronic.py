@@ -188,7 +188,7 @@ class PointElectronicTiffParser(TiffParser):
                         "compress": np.asarray(
                             np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
                             * sxy[dim],
-                            np.float64,
+                            dtype=np.float32,
                         ),
                         "strength": 1,
                     }

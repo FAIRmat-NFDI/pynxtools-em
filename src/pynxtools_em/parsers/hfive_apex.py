@@ -364,6 +364,8 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             print(f"Conversion of om2eu unexpectedly resulted in NaN !")
             self.ebsd = EbsdPointCloud()
             return
+        else:
+            self.ebsd.euler = ureg.Quantity(self.ebsd.euler, ureg.radian)
         # TODO::convert orientation matrix to Euler angles via om_eu but what are conventions !
         # orix based transformation ends up in positive half space and with degrees=False
         # as radiants but the from_matrix command above might miss one rotation
@@ -372,7 +374,33 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         # edaxh5 file not necessarily store the scan_point_{dim} positions
         # assume how tech partners write out scan_point positions implicitly
         # no absolute coordinates on the specimen surface, only coordinates w/o offset
-        self.ebsd.pos = 1  # TODO::####### square grid, with self.ebsd.s and self.ebsd.n
+        # TODO::square grid, with self.ebsd.s and self.ebsd.n
+        self.ebsd.pos["x"] = ureg.Quantity(
+            np.tile(
+                np.asarray(
+                    np.linspace(
+                        0, self.ebsd.n["x"] - 1, num=self.ebsd.n["x"], endpoint=True
+                    )
+                    * self.ebsd.s["x"].magnitude,
+                    dtype=np.float32,
+                ),
+                self.ebsd.n["y"],
+            ),
+            ureg.micrometer,
+        )
+        self.ebsd.pos["y"] = ureg.Quantity(
+            np.repeat(
+                np.asarray(
+                    np.linspace(
+                        0, self.ebsd.n["y"] - 1, num=self.ebsd.n["y"], endpoint=True
+                    )
+                    * self.ebsd.s["y"].magnitude,
+                    dtype=np.float32,
+                ),
+                self.ebsd.n["x"],
+            ),
+            ureg.micrometer,
+        )
 
     def parse_and_normalize_eds_fov(self, fp):
         """Normalize and scale APEX-specific FOV/ROI image to NeXus."""
@@ -411,10 +439,8 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         dims = ["j", "i"]
         for dim in dims:
             self.tmp[ckey].tmp[f"image_2d/axis_{dim}"].value = np.asarray(
-                0.0
-                + np.linspace(0.0, nyx[dim] - 1, num=nyx[dim], endpoint=True)
-                * syx[dim],
-                syx[dim].dtype,
+                np.linspace(0, nyx[dim] - 1, num=nyx[dim], endpoint=True) * syx[dim],
+                dtype=syx[dim].dtype,
             )
             self.tmp[ckey].tmp[
                 f"image_2d/axis_{dim}@long_name"
@@ -450,13 +476,13 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         e_zero = fp[f"{src}/SPC"]["eVOffset"][0]
         e_delta = fp[f"{src}/SPC"]["evPch"][0]
         e_n = fp[f"{src}/SPC"]["NumberOfPoints"][0]
-        self.tmp[ckey].tmp["spectrum_0d/axis_energy"].value = (
-            e_zero
-            + np.asarray(
-                e_delta * np.linspace(0.0, int(e_n) - 1, num=int(e_n), endpoint=True),
-                e_zero.dtype,
+        self.tmp[ckey].tmp["spectrum_0d/axis_energy"].value = np.asarray(
+            (
+                e_zero
+                + np.linspace(0, int(e_n) - 1, num=int(e_n), endpoint=True) * e_delta
             )
-            / 1000.0
+            / 1000.0,
+            dtype=e_zero.dtype,
         )  # keV
         self.tmp[ckey].tmp["spectrum_0d/axis_energy@long_name"].value = "Energy (keV)"
         self.tmp[ckey].tmp["spectrum_0d/real"].value = np.asarray(
@@ -607,9 +633,9 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         e_zero = fp[f"{src}/SPC"]["eVOffset"][0]
         e_delta = fp[f"{src}/SPC"]["evPch"][0]
         e_n = fp[f"{src}/SPC"]["NumberOfPoints"][0]
-        e_channels = e_zero + np.asarray(
-            e_delta * np.linspace(0.0, e_n - 1.0, num=int(e_n), endpoint=True),
-            e_zero.dtype,
+        e_channels = np.asarray(
+            e_zero + np.linspace(0, e_n - 1, num=int(e_n), endpoint=True) * e_delta,
+            dtype=e_zero.dtype,
         )  # eV, as xraydb demands
         nxy = {
             "i": fp[f"{src}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["ResolutionX"],
@@ -638,9 +664,9 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             for dim in ["i", "j"]:
                 eds_map.tmp[f"image_2d/axis_{dim}"].value = np.asarray(
                     0.0
-                    + sxy[dim]
-                    * np.linspace(0.0, nxy[dim] - 1, num=int(nxy[dim]), endpoint=True),
-                    np.float32,
+                    + np.linspace(0, nxy[dim] - 1, num=int(nxy[dim]), endpoint=True)
+                    * sxy[dim],
+                    dtype=np.float32,
                 )
                 eds_map.tmp[
                     f"image_2d/axis_{dim}@long_name"
@@ -705,9 +731,10 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         e_zero = 0.0  # strong assumption based on VInP_108_L2 example from IKZ
         e_delta = fp[f"{src}/SPC"].attrs["eVPCh"][0]
         e_n = fp[f"{src}/LSD"].attrs["NumberofChannels"][0]
-        self.tmp[ckey].tmp["spectrum_1d/axis_energy"].value = e_zero + np.asarray(
-            e_delta * np.linspace(0.0, int(e_n) - 1, num=int(e_n), endpoint=True),
-            e_zero.dtype,
+        self.tmp[ckey].tmp["spectrum_1d/axis_energy"].value = np.asarray(
+            e_zero
+            + np.linspace(0, int(e_n) - 1, num=int(e_n), endpoint=True) * e_delta,
+            dtype=e_zero.dtype,
         )
         self.tmp[ckey].tmp["spectrum_1d/axis_energy@long_name"].value = "Energy (eV)"
 
@@ -733,7 +760,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         line_incr = line_length / i_n
         self.tmp[ckey].tmp["spectrum_1d/axis_i"].value = np.asarray(
             np.linspace(0.5 * line_incr, line_length, num=i_n, endpoint=True),
-            fp[f"{src}/REGION"].attrs["X2"][0].dtype,
+            dtype=fp[f"{src}/REGION"].attrs["X2"][0].dtype,
         )
         self.tmp[ckey].tmp["spectrum_1d/axis_i@long_name"] = (
             "Coordinate along x-axis (µm)"

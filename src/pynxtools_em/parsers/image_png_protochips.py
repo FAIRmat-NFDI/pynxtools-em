@@ -396,7 +396,7 @@ class ProtochipsPngSetParser(ImgsBaseParser):
                                         0, nxy[dim] - 1, num=nxy[dim], endpoint=True
                                     )
                                     * sxy[dim].magnitude,
-                                    np.float64,
+                                    dtype=np.float32,
                                 ),
                                 "strength": 1,
                             }
