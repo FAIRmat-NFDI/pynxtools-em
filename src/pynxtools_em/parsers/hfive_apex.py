@@ -202,6 +202,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                                     self.prfx = f"/{grp_nm}/{sub_grp_nm}/{sub_sub_grp_nm}/{area_grp_nm}"
                                     self.parse_and_normalize_eds_line_lsd(h5r)
                                     self.parse_and_normalize_eds_line_rois(h5r)
+        return template
 
     def parse_and_normalize_group_ebsd_header(self, fp):
         # no official documentation yet from EDAX/APEX, deeply nested, chunking, virtual ds

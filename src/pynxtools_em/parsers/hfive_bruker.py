@@ -161,7 +161,7 @@ class HdfFiveBrukerEspritParser(HdfFiveBaseParser):
                 self.ebsd.phases[phase_idx]["phase_name"] = phase_name
 
                 # Reference not available
-                # self.tmp[ckey]["phases"][int(phase_id)]["reference"] = "n/a"
+                # self.ebsd.phases[phase_idx]["reference"] = "n/a"
 
                 # LatticeConstants
                 # TODO::check assumptions that
@@ -211,7 +211,7 @@ class HdfFiveBrukerEspritParser(HdfFiveBaseParser):
                 else:
                     self.ebsd.phase = [strct]
 
-    def parse_and_normalize_group_ebsd_data(self, fp, ckey: str):
+    def parse_and_normalize_group_ebsd_data(self, fp):
         # no official documentation yet from Bruker but seems inspired by H5EBSD
         grp_name = f"{self.prfx}/EBSD/Data"
         if f"{grp_name}" not in fp:
@@ -265,7 +265,7 @@ class HdfFiveBrukerEspritParser(HdfFiveBaseParser):
         # there is X SAMPLE and Y SAMPLE but these are not defined somewhere instead
         # here adding x and y assuming that we scan first lines along positive x and then
         # moving downwards along +y
-        # TODO::calculation below x/y only valid if self.tmp[ckey]["grid_type"] == SQUARE_GRID
+        # TODO::check validity for square and hexagon tiling
         self.ebsd.pos["x"] = ureg.Quantity(
             np.tile(
                 np.asarray(
@@ -296,9 +296,12 @@ class HdfFiveBrukerEspritParser(HdfFiveBaseParser):
         # Band Contrast is not stored in Bruker but Radon Quality or MAD
         # but this is s.th. different as it is the mean angular deviation between
         # indexed with simulated and measured pattern
+        # TODO::MAD as degree?
         if np.shape(fp[f"{grp_name}/MAD"][:])[0] == n_pts:
             self.ebsd.descr_type = "mean_angular_deviation"
-            self.ebsd.descr_value = np.asarray(fp[f"{grp_name}/MAD"][:], np.float32)
+            self.ebsd.descr_value = ureg.Quantity(
+                np.asarray(fp[f"{grp_name}/MAD"][:], np.float32), ureg.radian
+            )
         else:
             print(f"{grp_name}/MAD has unexpected shape !")
             self.ebsd = EbsdPointCloud()

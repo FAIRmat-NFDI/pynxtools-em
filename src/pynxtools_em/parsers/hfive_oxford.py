@@ -259,6 +259,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
 
     def parse_and_normalize_slice_ebsd_data(self, fp):
         # https://github.com/oinanoanalysis/h5oina/blob/master/H5OINAFile.md
+        # TODO add shape checks
         grp_name = f"{self.prfx}/EBSD/Data"
         if f"{grp_name}" not in fp:
             print(f"Unable to parse {grp_name} !")
@@ -296,8 +297,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
         # Band Contrast, no, H5T_NATIVE_INT32, (size, 1)
         # for Oxford instrument this is already the required tile and repeated array of shape (size, 1)
         # inconsistency f32 in file although specification states float
-        dims = ["X", "Y"]
-        for dim in dims:
+        for dim in ["X", "Y"]:
             self.ebsd.pos[f"{dim.lower()}"] = ureg.Quantity(
                 np.asarray(fp[f"{grp_name}/{dim}"]), ureg.micrometer
             )

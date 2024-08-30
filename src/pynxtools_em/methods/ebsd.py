@@ -160,9 +160,11 @@ def regrid_onto_equisized_scan_points(
 
     trg_s = {}
     trg_n = {}
+    n_pts = 1
     if src_grid.dimensionality == 1:
         trg_s["x"] = (aabb["x"][1] - aabb["x"][0]) / max_extent  # square step
         trg_n["x"] = max_extent
+        n_pts = trg_n["x"]
     elif src_grid.dimensionality == 2:
         if aabb["x"][1] - aabb["x"][0] >= aabb["y"][1] - aabb["y"][0]:
             step = (aabb["x"][1] - aabb["x"][0]) / max_extent  # square step
@@ -170,12 +172,14 @@ def regrid_onto_equisized_scan_points(
             trg_s["y"] = step
             trg_n["x"] = max_extent
             trg_n["y"] = int(np.ceil((aabb["y"][1] - aabb["y"][0]) / step))
+            n_pts = trg_n["x"] * trg_n["y"]
         else:
             step = (aabb["y"][1] - aabb["y"][0]) / max_extent  # square step
             trg_s["x"] = step
             trg_s["y"] = step
             trg_n["x"] = int(np.ceil((aabb["x"][1] - aabb["x"][0]) / step))
             trg_n["y"] = max_extent
+            n_pts = trg_n["x"] * trg_n["y"]
     elif src_grid.dimensionality == 3:
         print("TODO !!!!")
 
@@ -195,42 +199,37 @@ def regrid_onto_equisized_scan_points(
     # because we assume in addition that we always start at the top left corner the zeroth/first
     # coordinate is always 0., 0. !
     if src_grid.dimensionality == 1:
-        trg_pos = np.column_stack(
+        trg_pos = np.empty((n_pts,), dtype=np.float32)
+        trg_pos[:] = np.asarray(
+            np.linspace(0, trg_n["x"] - 1, num=trg_n["x"], endpoint=True) * trg_s["x"],
+            dtype=np.float32,
+        )
+    elif src_grid.dimensionality == 2:
+        trg_pos = np.empty((n_pts, 2), dtype=np.float32)
+        trg_pos[:, 0] = np.tile(
             np.asarray(
                 np.linspace(0, trg_n["x"] - 1, num=trg_n["x"], endpoint=True)
                 * trg_s["x"],
                 dtype=np.float32,
             ),
-            1,
+            trg_n["y"],
         )
-    elif src_grid.dimensionality == 2:
-        trg_pos = np.column_stack(
-            (
-                np.tile(
-                    np.asarray(
-                        np.linspace(0, trg_n["x"] - 1, num=trg_n["x"], endpoint=True)
-                        * trg_s["x"],
-                        dtype=np.float32,
-                    ),
-                    trg_n["y"],
-                ),
-                np.repeat(
-                    np.asarray(
-                        np.linspace(0, trg_n["y"] - 1, num=trg_n["y"], endpoint=True)
-                        * trg_s["y"],
-                        dtype=np.float32,
-                    ),
-                    trg_n["x"],
-                ),
-            )
+        trg_pos[:, 1] = np.repeat(
+            np.asarray(
+                np.linspace(0, trg_n["y"] - 1, num=trg_n["y"], endpoint=True)
+                * trg_s["y"],
+                dtype=np.float32,
+            ),
+            trg_n["x"],
         )
     # TODO:: if scan_point_{dim} are calibrated this approach
     # here would shift the origin to 0, 0 implicitly which may not be desired
     if src_grid.dimensionality == 1:
         tree = KDTree(np.column_stack((src_grid.pos["x"])))
+        d, idx = tree.query(trg_pos, k=1)
     elif src_grid.dimensionality == 2:
         tree = KDTree(np.column_stack((src_grid.pos["x"], src_grid.pos["y"])))
-    d, idx = tree.query(trg_pos, k=1)
+        d, idx = tree.query(trg_pos, k=1)
     if np.sum(idx == tree.n) > 0:
         raise ValueError(f"kdtree query left some query points without a neighbor!")
     del d
@@ -243,11 +242,10 @@ def regrid_onto_equisized_scan_points(
     for dim_idx, dim in enumerate(dims):
         trg_grid.s[dim] = ureg.Quantity(trg_s[dim], ureg.micrometer)
         trg_grid.n[dim] = trg_n[dim]
-        trg_grid.pos[dim] = ureg.Quantity(
-            np.asarray(trg_pos[dim_idx], np.float64), ureg.micrometer
-        )
+    trg_grid.pos = ureg.Quantity(trg_pos, ureg.micrometer)
+    del trg_pos
     if hasattr(src_grid, "euler"):
-        trg_grid.euler = np.empty((np.shape(trg_pos)[0], 3), np.float32)
+        trg_grid.euler = np.empty((n_pts, 3), np.float32)
         trg_grid.euler.fill(np.nan)
         trg_grid.euler = ureg.Quantity(
             np.asarray(src_grid.euler.magnitude[idx, :], np.float32), ureg.radian
@@ -255,7 +253,7 @@ def regrid_onto_equisized_scan_points(
         if np.isnan(trg_grid.euler).any():
             raise ValueError(f"Gridding left scan points with incorrect euler !")
     if hasattr(src_grid, "phase_id"):
-        trg_grid.phase_id = np.empty((np.shape(trg_pos)[0],), np.int32)
+        trg_grid.phase_id = np.empty((n_pts,), np.int32)
         trg_grid.phase_id.fill(np.int32(-2))
         # pyxem_id phase_id are at least as large -1
         trg_grid.phase_id = np.asarray(src_grid.phase_id[idx], np.int32)
@@ -264,21 +262,21 @@ def regrid_onto_equisized_scan_points(
     if src_grid.descr_type == "band_contrast":
         # bc typically positive
         trg_grid.descr_type = "band_contrast"
-        trg_grid.descr_value = np.empty((np.shape(trg_pos)[0]), np.uint32)
+        trg_grid.descr_value = np.empty((n_pts,), np.uint32)
         trg_grid.descr_value.fill(np.uint32(-1))
         trg_grid.descr_value = ureg.Quantity(
             np.asarray(src_grid.descr_value[idx], np.uint32)
         )
     elif src_grid.descr_type == "confidence_index":
         trg_grid.descr_type = "confidence_index"
-        trg_grid.descr_value = np.empty((np.shape(trg_pos)[0]), np.float32)
+        trg_grid.descr_value = np.empty((n_pts,), np.float32)
         trg_grid.descr_value.fill(np.nan)
         trg_grid.descr_value = ureg.Quantity(
             np.asarray(src_grid.descr_value[idx], np.float32)
         )
     elif src_grid.descr_type == "mean_angular_deviation":
         trg_grid.descr_type = "mean_angular_deviation"
-        trg_grid.descr_value = np.empty((np.shape(trg_pos)[0]), np.float32)
+        trg_grid.descr_value = np.empty((n_pts,), np.float32)
         trg_grid.descr_value.fill(np.nan)
         trg_grid.descr_value = ureg.Quantity(
             np.asarray(src_grid.descr_value[idx], np.float32), ureg.radian
