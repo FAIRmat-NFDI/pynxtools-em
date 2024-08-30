@@ -19,6 +19,7 @@
 
 import numpy as np
 from pynxtools_em.concepts.nxs_image_set import NxImageRealSpaceSet
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 # TODO::all functions here are work in progress
 

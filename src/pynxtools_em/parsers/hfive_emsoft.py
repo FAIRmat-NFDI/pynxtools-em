@@ -20,50 +20,64 @@
 from typing import Dict
 
 import h5py
-import numpy as np
+from pynxtools_em.methods.ebsd import has_hfive_magic_header
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
-from pynxtools_em.utils.hfive_utils import read_strings
 
 
 class HdfFiveEmSoftParser(HdfFiveBaseParser):
     """Read EMsoft H5 (Marc deGraeff Carnegie Mellon)"""
 
-    def __init__(self, file_path: str = ""):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
         super().__init__(file_path)
-        self.prfx = None
-        self.tmp = {}
-        self.supported_version: Dict = {}
-        self.version: Dict = {}
+        self.id_mgn: Dict[str, int] = {"entry_id": entry_id, "roi_id": 1}
+        self.verbose = verbose
+        self.prfx = ""  # template path handling
+        self.version: Dict = {
+            "trg": {
+                "tech_partner": ["EMsoft"],
+                "schema_name": ["EMsoft"],
+                "schema_version": ["EMsoft"],
+                "writer_name": ["EMsoft"],
+                "writer_version": ["EMsoft"],
+            },
+            "src": {},
+        }
         self.supported = False
-        if self.is_hdf is True:
-            self.init_support()
+        if self.is_hdf:
             self.check_if_supported()
-
-    def init_support(self):
-        """Init supported versions."""
-        self.supported_version["tech_partner"] = ["EMsoft"]
-        self.supported_version["schema_name"] = ["EMsoft"]
-        self.supported_version["schema_version"] = ["EMsoft"]
-        self.supported_version["writer_name"] = ["EMsoft"]
-        self.supported_version["writer_version"] = ["EMsoft"]
+        if not self.supported:
+            print(
+                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+            )
 
     def check_if_supported(self):
         """Check if instance matches all constraints to EMsoft"""
-        self.supported = True
+        self.supported = False
+        if not has_hfive_magic_header(self.file_path):
+            return
+
         with h5py.File(self.file_path, "r") as h5r:
-            req_groups = [
+            for req_group in [
                 "CrystalData",
                 "EMData",
                 "EMheader",
                 "NMLfiles",
                 "NMLparameters",
-            ]
-            for req_group in req_groups:
+            ]:
                 if f"/{req_group}" not in h5r:
-                    self.supported = False
+                    return
+            self.supported = True
+            for keyword in [
+                "tech_partner",
+                "schema_name",
+                "schema_version",
+                "writer_name",
+                "writer_version",
+            ]:
+                self.version["src"][keyword] = self.version["trg"][keyword]
 
-            if self.supported:
-                self.version = self.supported_version.copy()
-
-    def parse_and_normalize(self):
-        pass
+    def parse(self, template: dict) -> dict:
+        if self.supported:
+            print(f"Parsing via Carnegie/Mellon EMsoft parser...")
+            # TODO::add functionality
+        return template

@@ -23,9 +23,6 @@ import h5py
 import numpy as np
 from diffpy.structure import Lattice, Structure
 from pynxtools_em.methods.ebsd import (
-    FLIGHT_PLAN,
-    REGULAR_TILING,
-    SQUARE_TILING,
     EbsdPointCloud,
     ebsd_roi_overview,
     ebsd_roi_phase_ipf,
@@ -132,6 +129,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                         self.ebsd = EbsdPointCloud()
 
                     # TODO:Vitesh example
+                    # TODO::parsing of information from other imaging modalities
         return template
 
     def parse_and_normalize_slice_ebsd_header(self, fp):
@@ -242,7 +240,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                 angles[0].magnitude,
                 angles[1].magnitude,
                 angles[2].magnitude,
-            )
+            )  # TODO:: lattice passed to kikuchipy I think needs to be in degree!
 
             # Space Group, no, H5T_NATIVE_INT32, (1, 1), Space group index.
             # The attribute Symbol contains the string representation, for example P m -3 m.

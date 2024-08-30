@@ -17,7 +17,7 @@
 #
 """Parser mapping concepts and content from EDAX/AMETEK *.edaxh5 (APEX) files on NXem."""
 
-from typing import Any, Dict, List
+from typing import Dict
 
 import h5py
 import numpy as np

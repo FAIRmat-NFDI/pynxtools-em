@@ -46,6 +46,7 @@ dev = [
     "pytest",
     "pytest-cov",
     "pytest-timeout",
+    "pytest-cov",
     "structlog",
     "types-pyyaml",
     "types-pytz",
@@ -62,8 +63,8 @@ docs = [
     "mkdocs-material",
     "mkdocs-material-extensions",
     "mkdocs-macros-plugin",
-    "pymdown-extensions",
-    "mkdocs-click"
+    "mkdocs-click",
+    "markdown-include"
 ]
 
 [project.entry-points."pynxtools.reader"]
