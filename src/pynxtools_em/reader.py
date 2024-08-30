@@ -29,9 +29,10 @@ from pynxtools_em.parsers.hfive_apex import HdfFiveEdaxApexParser
 from pynxtools_em.parsers.hfive_bruker import HdfFiveBrukerEspritParser
 
 # from pynxtools_em.parsers.hfive_dreamthreed import HdfFiveDreamThreedParser
-# from pynxtools_em.parsers.hfive_ebsd import HdfFiveEbsdCommunityParser
-# from pynxtools_em.parsers.hfive_edax import HdfFiveEdaxOimAnalysisParser
-from pynxtools_em.parsers.hfive_emsoft import HdfFiveEmSoftParser
+from pynxtools_em.parsers.hfive_ebsd import HdfFiveEbsdCommunityParser
+from pynxtools_em.parsers.hfive_edax import HdfFiveEdaxOimAnalysisParser
+
+# from pynxtools_em.parsers.hfive_emsoft import HdfFiveEmSoftParser
 from pynxtools_em.parsers.hfive_oxford import HdfFiveOxfordInstrumentsParser
 from pynxtools_em.parsers.image_png_protochips import ProtochipsPngSetParser
 from pynxtools_em.parsers.image_tiff_hitachi import HitachiTiffParser

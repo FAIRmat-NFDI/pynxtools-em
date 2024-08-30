@@ -119,10 +119,7 @@ def regrid_onto_equisized_scan_points(
     """Discretize point cloud in R^d (d=1, 2, 3) and mark data to grid with equisized bins."""
 
     if src_grid.dimensionality not in [1, 2]:
-        print(
-            f"The 1D and 3D gridding is currently not implemented because we do not "
-            f"have a large enough dataset to test the 3D case with !"
-        )
+        print(f"Facing unsupported dimensionality !")
         return src_grid
     # take discretization of the source grid as a guide for the target_grid
     # optimization possible if square grid and matching maximum_extent
@@ -362,6 +359,9 @@ def ebsd_roi_overview(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dict
 
 def ebsd_roi_phase_ipf(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dict:
     """Create for each phase three inverse pole figures (IPF) maps projected along X, Y using for each map only the respective scan points that were indexed for this phase."""
+    if inp.dimensionality not in [1, 2, 3]:
+        return template
+
     nxem_phase_id = 0
     prfx = (
         f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/ebsd/indexing"
