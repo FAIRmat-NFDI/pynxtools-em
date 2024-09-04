@@ -167,11 +167,6 @@ class TfsTiffParser(TiffParser):
             self.get_metadata()
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
-        else:
-            print(
-                f"{self.file_path} is not a ThermoFisher-specific "
-                f"TIFF file that this parser can process !"
-            )
         return template
 
     def process_event_data_em_data(self, template: dict) -> dict:

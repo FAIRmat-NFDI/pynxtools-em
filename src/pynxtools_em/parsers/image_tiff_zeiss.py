@@ -56,6 +56,10 @@ class ZeissTiffParser(TiffParser):
         }
         self.supported = False
         self.check_if_tiff_zeiss()
+        if not self.supported:
+            print(
+                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+            )
 
     def get_metadata(self, payload: str):
         """Extract metadata in Zeiss-specific tags if present, return version if success."""
@@ -130,9 +134,6 @@ class ZeissTiffParser(TiffParser):
             s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
             magic = s.read(4)
             if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
-                print(
-                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
-                )
                 return
 
         with Image.open(self.file_path, mode="r") as fp:
@@ -142,9 +143,6 @@ class ZeissTiffParser(TiffParser):
                     this_version = self.get_metadata(fp.tag_v2[zeiss_key])
 
                     if this_version not in self.version["trg"]["schema_version"]:
-                        print(
-                            f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
-                        )
                         return
                     else:
                         self.supported = True
@@ -156,11 +154,6 @@ class ZeissTiffParser(TiffParser):
             # metadata have at this point already been collected into an fd.FlatDict
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
-        else:
-            print(
-                f"{self.file_path} is not a Zeiss-specific "
-                f"TIFF file that this parser can process !"
-            )
         return template
 
     def process_event_data_em_data(self, template: dict) -> dict:

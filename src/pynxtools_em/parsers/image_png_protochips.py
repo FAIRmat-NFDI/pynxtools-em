@@ -236,11 +236,6 @@ class ProtochipsPngSetParser(ImgsBaseParser):
             )
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
-        else:
-            print(
-                f"{self.file_path} is not a Protochips-specific "
-                f"PNG file that this parser can process !"
-            )
         return template
 
     def sort_event_data_em(self) -> List:

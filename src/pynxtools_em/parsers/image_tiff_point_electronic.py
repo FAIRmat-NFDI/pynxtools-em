@@ -47,6 +47,10 @@ class PointElectronicTiffParser(TiffParser):
         }
         self.supported = False
         self.check_if_tiff_point_electronic()
+        if not self.supported:
+            print(
+                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+            )
 
     def xmpmeta_to_flat_dict(self, meta: fd.FlatDict):
         """Flatten point-electronic formatting of XMPMeta data."""
@@ -75,18 +79,14 @@ class PointElectronicTiffParser(TiffParser):
         This also loads the metadata first if possible as these contain details
         about which software was used to process the image data, e.g. DISS software.
         """
-        self.supported = 0  # voting-based
+        self.supported = False
         with open(self.file_path, "rb", 0) as file:
             s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
             magic = s.read(4)
-            if magic == b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
-                self.supported += 1
-            else:
-                self.supported = False
-                print(
-                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
-                )
+            if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                 return
+
+        votes_for_support = 0  # voting-based
         with Image.open(self.file_path, mode="r") as fp:
             # either hunt for metadata under tag_v2 key 700 or take advantage of the
             # fact that point electronic write xmpmeta/xmptk XMP Core 5.1.2
@@ -110,13 +110,8 @@ class PointElectronicTiffParser(TiffParser):
                         print(supported_versions)
                         if self.flat_metadata["CreatorTool"] in supported_versions:
                             self.supported += 1  # found specific XMP metadata
-        if self.supported == 2:
+        if self.supported == 1:
             self.supported = True
-        else:
-            self.supported = False
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
-            )
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""
@@ -125,11 +120,6 @@ class PointElectronicTiffParser(TiffParser):
             # metadata have at this point already been collected into an fd.FlatDict
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
-        else:
-            print(
-                f"{self.file_path} is not a point electronic DISS-specific "
-                f"TIFF file that this parser can process !"
-            )
         return template
 
     def process_event_data_em_data(self, template: dict) -> dict:

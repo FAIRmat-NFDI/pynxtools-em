@@ -109,6 +109,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         """Read and normalize away EDAX/APEX-specific formatting with an equivalent in NXem."""
         if not self.supported:
             return template
+        print(f"Parsing via EDAX APEX EDAXH5 HDF5 file parser...")
         with h5py.File(f"{self.file_path}", "r") as h5r:
             for grp_nm in list(h5r["/"]):
                 for sub_grp_nm in list(h5r[grp_nm]):
