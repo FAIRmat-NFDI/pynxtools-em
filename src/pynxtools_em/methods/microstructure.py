@@ -92,7 +92,7 @@ def microstructure_to_template(
         "strength": 1,
     }
     template[f"{trg}/area"] = np.asarray(area, np.float32)
-    template[f"{trg}/area@units"] = f"{ureg.micrometer * ureg.micrometer}"
+    template[f"{trg}/area/@units"] = f"{ureg.micrometer * ureg.micrometer}"
     del area
 
     """
