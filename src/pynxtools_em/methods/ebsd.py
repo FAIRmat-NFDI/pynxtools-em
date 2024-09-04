@@ -501,8 +501,8 @@ def process_roi_phase_ipf(
             template[f"{mpp}/@AXISNAME_indices[axis_{dim}_indices]"] = np.uint32(
                 dim_idx
             )
-        template[f"{mpp}/DATA[data]"] = {"compress": ipf_rgb_map, "strength": 1}
-        hfive_web_decorate_nxdata(f"{mpp}/DATA[data]", template)
+        template[f"{mpp}/data"] = {"compress": ipf_rgb_map, "strength": 1}
+        hfive_web_decorate_nxdata(f"{mpp}/data", template)
 
         # mind that EBSD map could be scale-invariant e.g. from synthetic microstructure
         # simulation that could work on multiple length-scales as atoms are not resolved
@@ -533,7 +533,6 @@ def process_roi_phase_ipf(
         dims = ["x", "y"]  # no longer the EBSD map just an RGB image of the legend!
         for dim in dims[::-1]:
             template[f"{lgd}/@axes"].append(f"axis_{dim}")
-        enum = 0
         for dim_idx, dim in enumerate(dims):
             template[f"{lgd}/@AXISNAME_indices[axis_{dim}_indices]"] = np.uint32(
                 dim_idx

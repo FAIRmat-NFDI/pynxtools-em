@@ -33,6 +33,7 @@ from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.get_xrayline_iupac_names import get_xrayline_candidates
 from pynxtools_em.utils.hfive_utils import read_strings
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
+from ase.data import chemical_symbols
 
 
 class HdfFiveEdaxApexParser(HdfFiveBaseParser):
@@ -40,7 +41,13 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
 
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
         super().__init__(file_path)
-        self.id_mgn: Dict[str, int] = {"entry_id": entry_id, "roi_id": 1}
+        self.id_mgn: Dict[str, int] = {
+            "entry_id": entry_id,
+            "event_id": 1,
+            "roi_id": 1,
+            "img_id": 1,
+            "spc_id": 1,
+        }
         self.prfx: str = ""
         self.tmp = {}
         self.spc: Dict[str, Any] = {}
@@ -142,19 +149,21 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                                 if area_grp_nm.startswith("Live Map"):
                                     # self.parse_and_normalize_eds_spd(h5r)
                                     # element-specific ROI (aka element map)
-                                    self.parse_and_normalize_eds_area_rois(h5r)
+                                    self.parse_and_normalize_eds_area_rois(
+                                        h5r, template
+                                    )
 
-                            if area_grp_nm.startswith(("LineScan", "ROILineScan")):
-                                # "free form? or (which I assume) orthogonal line grid
-                                # inside the FOV
-                                # TODO::currently assume that internal organization of
-                                # LineScan and ROILineScan groups is the same
-                                # TODO but physical ROI they reference respectively differs
-                                # TODO:: LineScan refers to the FOV that is
-                                # in the parent of the LineScan group)
-                                self.prfx = f"{abbrev}/{area_grp_nm}"
-                                self.parse_and_normalize_eds_line_lsd(h5r)
-                                # self.parse_and_normalize_eds_line_rois(h5r)
+                            # if area_grp_nm.startswith(("LineScan", "ROILineScan")):
+                            # "free form? or (which I assume) orthogonal line grid
+                            # inside the FOV
+                            # TODO::currently assume that internal organization of
+                            # LineScan and ROILineScan groups is the same
+                            # TODO but physical ROI they reference respectively differs
+                            # TODO:: LineScan refers to the FOV that is
+                            # in the parent of the LineScan group)
+                            #     self.prfx = f"{abbrev}/{area_grp_nm}"
+                            #     self.parse_and_normalize_eds_line_lsd(h5r)
+                            # self.parse_and_normalize_eds_line_rois(h5r)
             # TODO::make this nesting access code better readable although its benefit
             # is that we do not need to visit first all nodes and do e.g. rfind operations
             # full_hdf_path = "/a/b/c/d/Area" triggering action could also just be catched
@@ -418,8 +427,10 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             ),
         }
         # is micron because MicronsPerPixel{dim} used by EDAX
-        trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/IMAGE_SET[image_set{self.id_mgn['img']}]"
-        template[f"{trg}/source"] = f"{self.prfx}/FOVIMAGE"
+        trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/IMAGE_SET[image_set{self.id_mgn['img_id']}]"
+        template[f"{trg}/PROCESS[process]/source/absolute_path"] = (
+            f"{self.prfx}/FOVIMAGE"
+        )
         template[f"{trg}/image_2d/@signal"] = "real"
         template[f"{trg}/image_2d/@axes"] = ["axis_j", "axis_i"]
         template[f"{trg}/image_2d/real"] = {
@@ -429,7 +440,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             "strength": 1,
         }
         for dim_idx, dim in enumerate(["j", "i"]):
-            template[f"{trg}/image_2d/axis_{dim}"] = ureg.Quantity(
+            qnt = ureg.Quantity(
                 np.asarray(
                     np.linspace(0, nyx[dim] - 1, num=nyx[dim], endpoint=True)
                     * syx[dim].magnitude,
@@ -437,13 +448,17 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 ),
                 syx[dim].units,
             )
+            template[f"{trg}/image_2d/axis_{dim}"] = {
+                "compress": qnt.magnitude,
+                "strength": 1,
+            }
             template[f"{trg}/image_2d/axis_{dim}/@long_name"] = (
-                f"### Position along {dim} ({syx[dim].units})"
+                f"Point coordinate along axis-{dim} ({qnt.units})"
             )
             template[f"{trg}/image_2d/@AXISNAME_indices[axis_{dim}_indices]"] = (
                 np.uint32(dim_idx)
             )
-        self.id_mgn["img"] += 1
+        self.id_mgn["img_id"] += 1
         return template
 
     def parse_and_normalize_eds_spc(self, fp, template: dict) -> dict:
@@ -462,11 +477,11 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 print(f"Attribute {req} not found in {self.prfx}/SPC !")
                 return template
 
-        trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/SPECTRUM_SET[spectrum_set{self.id_mgn['img']}]"
-        template[f"{trg}/source"] = f"{self.prfx}/SPC"
+        trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/SPECTRUM_SET[spectrum_set{self.id_mgn['spc_id']}]"
+        template[f"{trg}/PROCESS[process]/source/absolute_path"] = f"{self.prfx}/SPC"
         template[f"{trg}/spectrum_0d/@signal"] = "intensity"
         template[f"{trg}/spectrum_0d/@axes"] = ["axis_energy"]
-        template[f"{trg}/spectrum_0d/@AXISNAME_indices[axis_energy_indices"] = (
+        template[f"{trg}/spectrum_0d/@AXISNAME_indices[axis_energy_indices]"] = (
             np.uint32(0)
         )
         e_zero = ureg.Quantity(fp[f"{self.prfx}/SPC"]["eVOffset"][0], ureg.eV)
@@ -485,9 +500,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             .to(ureg.keV)
             .magnitude
         )
-        template[f"{trg}/spectrum_0d/axis_energy/@long_name"] = (
-            f"Energy ({ureg.keV.units})"
-        )
+        template[f"{trg}/spectrum_0d/axis_energy/@long_name"] = f"Energy ({ureg.keV})"
         template[f"{trg}/spectrum_0d/intensity"] = {
             "compress": np.asarray(
                 fp[f"{self.prfx}/SPC"]["SpectrumCounts"][0], dtype=np.int32
@@ -495,42 +508,44 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             "strength": 1,
         }
         template[f"{trg}/spectrum_0d/intensity/@long_name"] = f"Counts"
+        self.id_mgn["spc_id"] += 1
         return template
 
-    def parse_and_normalize_eds_area_rois(self, fp):
+    def parse_and_normalize_eds_area_rois(self, fp, template: dict) -> dict:
         """Normalize and scale APEX-specific EDS element line maps to NeXus."""
         print(f"Parsing {self.prfx} ...")
         for req in ["ELEMENTOVRLAYIMGCOLLECTIONPARAMS", "PHASES", "ROIs", "SPC"]:
             if f"{self.prfx}/{req}" not in fp:
                 print(f"Group {self.prfx}/{req} not found !")
-                return
+                return template
         for req in ["eVOffset", "evPch", "NumberOfPoints", "SpectrumCounts"]:
             if req not in fp[f"{self.prfx}/SPC"].dtype.names:  # also check for shape
                 print(f"Attribute {req} not found in {self.prfx}/SPC !")
-                return
+                return template
         for req in ["ResolutionX", "ResolutionY", "mmFieldWidth", "mmFieldHeight"]:
-            if (
-                req
-                not in fp[f"{self.prfx}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"].dtype.names
-            ):
+            abbrev = f"{self.prfx}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"
+            if req not in fp[abbrev].dtype.names:
                 # also check for shape
-                print(
-                    f"Attribute {req} not found in {self.prfx}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS !"
-                )
-        # find relevant EDS maps (pairs of <symbol>.dat, <symbol>.ipr) groups
-        uniq = set()
+                print(f"Attribute {req} not found in {abbrev} !")
+                return template
+        # find relevant EDS maps via demanding at least one pair of
+        # <symbol>.dat, <symbol>.ipr HDF5 group respectively
+        pairs = set()
         for group_name in fp[f"{self.prfx}/ROIs"]:
             token = group_name.split(".")
-            if len(token) == 2 and token[1] in ("dat", "ipr"):
-                uniq.add(token[0])
-        for entry in uniq:
+            if len(token) == 2 and token[1] in ("dat", "ipr") and token[0] not in pairs:
+                pairs.add(token[0])
+        for pair in pairs:
             if (
-                (f"{self.prfx}/ROIs/{entry}.dat" not in fp[f"{self.prfx}/ROIs"])
-                or (f"{self.prfx}/ROIs/{entry}.ipr" not in fp[f"{self.prfx}/ROIs"])
-                or ("RoiStartChan" not in fp[f"{self.prfx}/ROIs/{entry}.dat"].attrs)
-                or ("RoiEndChan" not in fp[f"{self.prfx}/ROIs/{entry}.dat"].attrs)
+                (f"{self.prfx}/ROIs/{pair}.dat" not in fp[f"{self.prfx}/ROIs"])
+                or (f"{self.prfx}/ROIs/{pair}.ipr" not in fp[f"{self.prfx}/ROIs"])
+                or ("RoiStartChan" not in fp[f"{self.prfx}/ROIs/{pair}.dat"].attrs)
+                or ("RoiEndChan" not in fp[f"{self.prfx}/ROIs/{pair}.dat"].attrs)
+                or pair[0 : pair.find(" ")] not in chemical_symbols[1:]
             ):
-                uniq.remove(entry)
+                pairs.remove(pair)
+        if len(pairs) == 0:
+            return template
 
         e_zero = ureg.Quantity(fp[f"{self.prfx}/SPC"]["eVOffset"][0], ureg.eV)
         e_delta = ureg.Quantity(fp[f"{self.prfx}/SPC"]["evPch"][0], ureg.eV)
@@ -543,7 +558,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 dtype=e_zero.magnitude.dtype,
             ),
             ureg.eV,
-        )  # eV, as xraydb demands
+        )  # eV, as xraydb demands eV for finding line candidates
         nxy = {
             "i": fp[f"{self.prfx}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["ResolutionX"],
             "j": fp[f"{self.prfx}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"][0]["ResolutionY"],
@@ -558,26 +573,38 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             "i": ureg.Quantity(nxy["li"] / nxy["i"], ureg.millimeter),
             "j": ureg.Quantity(nxy["lj"] / nxy["j"], ureg.millimeter),
         }
-        self.eds = []
-        for entry in uniq:
-            eds_map = {}
-            eds_map["source"] = f"{self.prfx}/ROIs/{entry}"
-            eds_map["description"] = f"{entry}"
+        for pair in pairs:
+            trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/roiID[roi{self.id_mgn['roi_id']}]/eds/indexing/IMAGE_SET[{pair[0:pair.find(' ')]}]"
+            template[f"{trg}/PROCESS[process]/source/absolute_path"] = (
+                f"{self.prfx}/ROIs/{pair}"
+            )
             # this can be a custom name e.g. InL or In L but it is not necessarily
             # a clean description of an element plus a IUPAC line, hence get all
             # theoretical candidates within integrated energy region [e_roi_s, e_roi_e]
-            e_roi_s = fp[f"{self.prfx}/ROIs/{entry}.dat"].attrs["RoiStartChan"][0]
-            e_roi_e = fp[f"{self.prfx}/ROIs/{entry}.dat"].attrs["RoiEndChan"][0]
-            eds_map["energy_range"] = ureg.Quantity(
-                np.asarray([e_channels[e_roi_s], e_channels[e_roi_e + 1]]), ureg.eV
+            e_roi_s = fp[f"{self.prfx}/ROIs/{pair}.dat"].attrs["RoiStartChan"][0]
+            e_roi_e = fp[f"{self.prfx}/ROIs/{pair}.dat"].attrs["RoiEndChan"][0]
+            rng = ureg.Quantity(
+                np.asarray(
+                    [e_channels.magnitude[e_roi_s], e_channels.magnitude[e_roi_e + 1]]
+                ),
+                ureg.eV,
             )
-            eds_map.tmp["iupac_line_candidates"] = ", ".join(
+            template[f"{trg}/energy_range"] = rng.magnitude
+            template[f"{trg}/energy_range/@units"] = f"{rng.units}"
+            template[f"{trg}/iupac_line_candidates"] = ", ".join(
                 get_xrayline_candidates(
                     e_channels.magnitude[e_roi_s], e_channels.magnitude[e_roi_e + 1]
                 )
             )
-            for dim in ["i", "j"]:
-                eds_map[f"image_2d/axis_{dim}"] = ureg.Quantity(
+            template[f"{trg}/image_2d/@signal"] = "intensity"
+            template[f"{trg}/image_2d/@axes"] = ["axis_j", "axis_i"]
+            template[f"{trg}/image_2d/title"] = f"{pair}"
+            template[f"{trg}/image_2d/intensity"] = {
+                "compress": np.asarray(fp[f"{self.prfx}/ROIs/{pair}.dat"]),
+                "strength": 1,
+            }
+            for dim_idx, dim in enumerate(["i", "j"]):
+                qnt = ureg.Quantity(
                     np.asarray(
                         0.0
                         + np.linspace(0, nxy[dim] - 1, num=int(nxy[dim]), endpoint=True)
@@ -586,14 +613,23 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                     ),
                     sxy[dim].units,
                 )
-                eds_map[f"image_2d/axis_{dim}/@long_name"] = (
-                    f"Point coordinate along the {dim}-axis ({sxy[dim].units})"
+                template[f"{trg}/image_2d/axis_{dim}"] = {
+                    "compress": qnt.magnitude,
+                    "strength": 1,
+                }
+                template[f"{trg}/image_2d/@AXISNAME_indices[axis_{dim}_indices]"] = (
+                    np.uint32(dim_idx)
                 )
-                eds_map["image_2d/real"] = np.asarray(
-                    fp[f"{self.prfx}/ROIs/{entry}.dat"]
+                template[f"{trg}/image_2d/axis_{dim}/@long_name"] = (
+                    f"Point coordinate along the {dim}-axis ({qnt.units})"
                 )
-            self.eds.append(eds_map)
+                template[f"{trg}/image_2d/axis_{dim}/@units"] = f"{qnt.units}"
+        return template
 
+    # TODO::these functions were deactivated as they have few examples and have not been
+    # discussed properly, below code is rather meant as snippets useful for a future
+    # extension
+    '''
     def parse_and_normalize_eds_line_lsd(self, fp):
         """Normalize and scale APEX-specific line scan with one spectrum each to NeXus."""
         # https://hyperspy.org/rosettasciio/_downloads/
@@ -680,7 +716,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         # c2e8b23d511a3c44fc30c69114e2873e/SpcMap-spd.file.format.pdf
         print(f"Parsing {self.prfx} ...")
         if f"{self.prfx}/SPD" not in fp:
-            print(f"Group {self.prfx/SPD} not found !")
+            print(f"Group {self.prfx}/SPD not found !")
             return
 
         for req in [
@@ -756,3 +792,4 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         # pure speculation and because of the fact that not even the SPD file format
         # specification details the metadata, i.e. energy per channel, start and end
         # we do not use the SPD instance right now
+    '''
