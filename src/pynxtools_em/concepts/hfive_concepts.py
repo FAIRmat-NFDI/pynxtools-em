@@ -31,6 +31,7 @@ VERSION_MANAGEMENT: Dict = {
     "writer_name": [],
     "writer_version": [],
 }
+0
 
 
 class Concept:
