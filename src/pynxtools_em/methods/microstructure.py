@@ -17,7 +17,7 @@
 #
 """Standardized functionalities and visualization used when working with microstructures."""
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Set
 from ase.data import chemical_symbols
 import numpy as np
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
@@ -45,7 +45,7 @@ def microstructure_to_template(
     # TODO::generalize
 
     # consistency checks
-    elements: set[int] = set()
+    elements: Set[int] = set()
     ids = set()
     for cryst in ms.crystal:
         if not hasattr(cryst, "id"):
