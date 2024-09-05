@@ -117,24 +117,22 @@ class EMReader(BaseReader):
 
         print("Parse and map pieces of information within files from tech partners...")
         if len(case.dat) == 1:  # no sidecar file
-            """
-            HdfFiveEdaxApexParser,
-            # HdfFiveBrukerEspritParser,
-            # HdfFiveDreamThreedParser,
-            # HdfFiveEbsdCommunityParser,
-            # HdfFiveEdaxOimAnalysisParser,
-            # HdfFiveEmSoftParser,
-            HdfFiveOxfordInstrumentsParser,
-            TfsTiffParser,
-            ZeissTiffParser,
-            PointElectronicTiffParser,
-            ProtochipsPngSetParser,
-            RsciioVeloxParser,
-            RsciioGatanParser,
-            NxEmNxsMTexParser,
-            NionProjectParser,
-            """
             parsers: List[type] = [
+                # HdfFiveBrukerEspritParser,
+                # HdfFiveDreamThreedParser,
+                # HdfFiveEbsdCommunityParser,
+                # HdfFiveEdaxOimAnalysisParser,
+                # HdfFiveEmSoftParser,
+                HdfFiveEdaxApexParser,
+                HdfFiveOxfordInstrumentsParser,
+                TfsTiffParser,
+                ZeissTiffParser,
+                PointElectronicTiffParser,
+                ProtochipsPngSetParser,
+                RsciioVeloxParser,
+                RsciioGatanParser,
+                NxEmNxsMTexParser,
+                NionProjectParser,
                 DiffractionPatternSetParser,
             ]
             for parser_type in parsers:
