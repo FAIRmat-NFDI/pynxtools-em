@@ -17,7 +17,7 @@
 #
 """Pieces of information relevant for the MaterialsProject EBSD Kikuchi pattern example."""
 
-from typing import Tuple
+from typing import Tuple, Union
 import re
 import numpy as np
 import os
@@ -31,7 +31,7 @@ SUPPORTED_MODES = ["L", "I"]
 
 def get_materialsproject_id_and_spacegroup(
     fpath: str, verbose: bool = False
-) -> Tuple[str, int] | Tuple[None, None]:
+) -> Union[Tuple[str, int], Tuple[None, None]]:
     if 1 <= int(fpath[fpath.rfind("/") - 3 : fpath.rfind("/")]) <= 230:
         fname = fpath[fpath.rfind("/") + 1 :]
         materialsproject_id = re.compile(r"^mp-(?:\d+)_").search(fname)
