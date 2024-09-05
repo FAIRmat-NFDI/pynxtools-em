@@ -1,0 +1,6666 @@
+221:
+  mp-1001844:
+    a_b_c:
+    - 2.98033
+    - 2.98033
+    - 2.98033
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:47:22.589000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1001844
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: HoN
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1009206:
+    a_b_c:
+    - 3.43411701
+    - 3.43411701
+    - 3.43411701
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:46:50.972000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1009206
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: MnSn
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1013537:
+    a_b_c:
+    - 5.8
+    - 5.8
+    - 5.8
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:45:45.752000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1013537
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Sr3AsN
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1018628:
+    a_b_c:
+    - 4.247042
+    - 4.247042
+    - 4.247042
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:47:16.595000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1018628
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: ScPt3C
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1018644:
+    a_b_c:
+    - 4.344528
+    - 4.344528
+    - 4.344528
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:37.485000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1018644
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: YBPt3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1020638:
+    a_b_c:
+    - 5.936011
+    - 5.936011
+    - 5.936011
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:50:57.624000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1020638
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Na8PO3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1067833:
+    a_b_c:
+    - 6.015188
+    - 6.015188
+    - 6.015188
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:46:38.071000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1067833
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: SnI3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1094839:
+    a_b_c:
+    - 4.39498222
+    - 4.39498222
+    - 4.39498222
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:49:19.733000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1094839
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: MgCd3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1102865:
+    a_b_c:
+    - 5.306167
+    - 5.306167
+    - 5.306167
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:52:32.608000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1102865
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Li8BiO3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-11471:
+    a_b_c:
+    - 3.50559208
+    - 3.50559208
+    - 3.50559208
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:45:51.618000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-11471
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: ScHg
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1147771:
+    a_b_c:
+    - 4.070081
+    - 4.070081
+    - 4.070081
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:28.488000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1147771
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Al(CuN)3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-11498:
+    a_b_c:
+    - 3.63780262
+    - 3.63780262
+    - 3.63780262
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:38:27.695000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-11498
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: MgTl
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-11652: {}
+  mp-1183130:
+    a_b_c:
+    - 4.081513
+    - 4.081513
+    - 4.081513
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:49:38.087000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1183130
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Al3Ag
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1183161:
+    a_b_c:
+    - 3.924151
+    - 3.924151
+    - 3.924151
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:21.240000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1183161
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Al3Cu
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1183759:
+    a_b_c:
+    - 4.365297
+    - 4.365297
+    - 4.365297
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:48:50.538000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1183759
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: CePuO3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1183823:
+    a_b_c:
+    - 4.121735
+    - 4.121735
+    - 4.121735
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:38:28.082000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1183823
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: DyInO3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1183911:
+    a_b_c:
+    - 4.075589
+    - 4.075589
+    - 4.075589
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:50:41.923000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1183911
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: CsAsO3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1183930:
+    a_b_c:
+    - 4.756457
+    - 4.756457
+    - 4.756457
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:43:54.167000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1183930
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: CsPa3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1184044:
+    a_b_c:
+    - 3.83172
+    - 3.83172
+    - 3.83172
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:46:32.239000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1184044
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: CuHgO3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1184571:
+    a_b_c:
+    - 4.39551
+    - 4.39551
+    - 4.39551
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:12.408000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1184571
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: HgGe3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1184825:
+    a_b_c:
+    - 4.442476
+    - 4.442476
+    - 4.442476
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:48:42.877000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1184825
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: In3Pt
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1184874:
+    a_b_c:
+    - 5.918217
+    - 5.918217
+    - 5.918217
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:49:08.355000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1184874
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: K3Cr
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1184926:
+    a_b_c:
+    - 4.638694
+    - 4.638694
+    - 4.638694
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:12.024000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1184926
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: HoNp3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1184963:
+    a_b_c:
+    - 5.340834
+    - 5.340834
+    - 5.340834
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:45:20.232000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1184963
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: KPm3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1185037:
+    a_b_c:
+    - 5.17180131
+    - 5.17180131
+    - 5.17180131
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:52:14.149000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1185037
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: LaY3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1185081:
+    a_b_c:
+    - 5.88504
+    - 5.88504
+    - 5.88504
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:47:32.610000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1185081
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: KEu3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1185213:
+    a_b_c:
+    - 6.127288
+    - 6.127288
+    - 6.127288
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:14.565000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1185213
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: K3U
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1185297:
+    a_b_c:
+    - 3.919444
+    - 3.919444
+    - 3.919444
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:46:31.084000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1185297
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: LiAcO3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1186363:
+    a_b_c:
+    - 4.178689
+    - 4.178689
+    - 4.178689
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:38:18.389000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1186363
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: NpTi3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1186532:
+    a_b_c:
+    - 4.898838
+    - 4.898838
+    - 4.898838
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:21.909000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1186532
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Pm3Ti
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1186557:
+    a_b_c:
+    - 4.266351
+    - 4.266351
+    - 4.266351
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:38:40.956000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1186557
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: PmErO3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1186705:
+    a_b_c:
+    - 5.1968307
+    - 5.1968307
+    - 5.1968307
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:08.424000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1186705
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Pr3Dy
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1187465:
+    a_b_c:
+    - 3.388902
+    - 3.388902
+    - 3.388902
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:49:31.622000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1187465
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: TiBeO3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1187490:
+    a_b_c:
+    - 4.810103
+    - 4.810103
+    - 4.810103
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:29.794000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1187490
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Tl3Ag
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1207000:
+    a_b_c:
+    - 4.422165
+    - 4.422165
+    - 4.422165
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:53.953000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1207000
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: DyBiO3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1207169:
+    a_b_c:
+    - 3.70671619
+    - 3.70671619
+    - 3.70671619
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:38:41.827000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1207169
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: CaH3Pd
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1212650:
+    a_b_c:
+    - 3.675335
+    - 3.675335
+    - 3.675335
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:47.524000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1212650
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Fe3CoN
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1435808:
+    a_b_c:
+    - 3.694482
+    - 3.694482
+    - 3.694482
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:01.774000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1435808
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: AlCoO3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1436662:
+    a_b_c:
+    - 3.89302
+    - 3.89302
+    - 3.89302
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:38:26.594000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1436662
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: YTiO3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1504314:
+    a_b_c:
+    - 3.699148
+    - 3.699148
+    - 3.699148
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:46:19.319000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1504314
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: AlCuO3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1505:
+    a_b_c:
+    - 3.74697045
+    - 3.74697045
+    - 3.74697045
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:49:19.141000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1505
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: TmMg
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1548:
+    a_b_c:
+    - 3.91847099
+    - 3.91847099
+    - 3.91847099
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:42.139000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1548
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: PrMg
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-16287:
+    a_b_c:
+    - 4.20689872
+    - 4.20689872
+    - 4.20689872
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:52:09.137000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-16287
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: NdRh3C
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-1837:
+    a_b_c:
+    - 3.45550647
+    - 3.45550647
+    - 3.45550647
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:52:31.510000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1837
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: TbCu
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-18695:
+    a_b_c:
+    - 5.72597497
+    - 5.7260053700001015
+    - 5.726055240000102
+    angles:
+    - 90.0000216133826
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:50:32.519000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-18695
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Fe15Co
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-20808:
+    a_b_c:
+    - 5.88866
+    - 5.88866
+    - 5.88866
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:48:47.199000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-20808
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Nd3PbC
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-2121:
+    a_b_c:
+    - 4.08780657
+    - 4.08780657
+    - 4.08780657
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:07.379000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2121
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: ScAl3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-22266:
+    a_b_c:
+    - 4.10142792
+    - 4.10142792
+    - 4.10142792
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:46:52.682000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-22266
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: GdB6
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-229:
+    a_b_c:
+    - 3.93410666
+    - 3.93410666
+    - 3.93410666
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:47:27.587000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-229
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: ZrRh3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-2677:
+    a_b_c:
+    - 3.97964867
+    - 3.97964867
+    - 3.97964867
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:49:57.036000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2677
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: ScPd3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-29241:
+    a_b_c:
+    - 4.82648645
+    - 4.82648645
+    - 4.82648645
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:50:07.217000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-29241
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ca3SnO
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-30746:
+    a_b_c:
+    - 3.41633399
+    - 3.41633399
+    - 3.41633399
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:43:53.993000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-30746
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: YIr
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-7700:
+    a_b_c:
+    - 4.133548
+    - 4.133548
+    - 4.133548
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:38:18.732000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-7700
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: SiB6
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-8368:
+    a_b_c:
+    - 5.537393
+    - 5.537393
+    - 5.537393
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:45:24.833000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-8368
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Pr3GaC
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-861982:
+    a_b_c:
+    - 4.272575200009712
+    - 4.272466210003877
+    - 4.272546380009711
+    angles:
+    - 90.00010916030496
+    - 89.99978141412747
+    - 90.0001091599368
+    build_date: 2023-11-22 19:47:48.325000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-861982
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: PaGa3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-862863:
+    a_b_c:
+    - 4.57029893
+    - 4.57029893
+    - 4.57029893
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:49:53.826000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-862863
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Pa3Te
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-975274:
+    a_b_c:
+    - 4.527717
+    - 4.527717
+    - 4.527717
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:19.155000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-975274
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: RbNaO3
+    pymatgen_version: 2023.11.12
+    space_group: 221
+  mp-979984: {}
+  mp-980945:
+    a_b_c:
+    - 4.133433
+    - 4.133433
+    - 4.133433
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:10.290000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-980945
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ti3Nb
+    pymatgen_version: 2023.11.12
+    space_group: 221
+223:
+  mp-1023127:
+    a_b_c:
+    - 8.192845
+    - 8.192845
+    - 8.192845
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:43:58.186000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1023127
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ba4Cu3PbO9
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1078558:
+    a_b_c:
+    - 5.527005
+    - 5.527005
+    - 5.527005
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:47:49.367000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1078558
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: NaCl3
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1079689:
+    a_b_c:
+    - 5.910254
+    - 5.910254
+    - 5.910254
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:38:46.424000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1079689
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Tl3Pt
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1096779:
+    a_b_c:
+    - 8.230287
+    - 8.230287
+    - 8.230287
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:45:14.387000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1096779
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ba4Ce(CuO3)3
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1101930:
+    a_b_c:
+    - 5.640578
+    - 5.640578
+    - 5.640578
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:51:05.288000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1101930
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: MgO
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1120:
+    a_b_c:
+    - 5.002782
+    - 5.002782
+    - 5.002782
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:43:59.833000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1120
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mo3Ir
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-11271:
+    a_b_c:
+    - 4.854445
+    - 4.854445
+    - 4.854445
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:45:24.156000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-11271
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: BeMo3
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1147675:
+    a_b_c:
+    - 6.600964
+    - 6.600964
+    - 6.600964
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:45:28.546000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1147675
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Rh3Cl4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1184657:
+    a_b_c:
+    - 6.13615816
+    - 6.13615816
+    - 6.13615816
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:49:03.790000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1184657
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Hg
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1196873:
+    a_b_c:
+    - 8.763719
+    - 8.763719
+    - 8.763719
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:45:42.008000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1196873
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Er3Co4Ge13
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1196992:
+    a_b_c:
+    - 9.836490070000773
+    - 9.836486050001351
+    - 9.836555840001964
+    angles:
+    - 90.00005824800978
+    - 90.00004298702073
+    - 90.0000146785373
+    build_date: 2023-11-22 19:49:23.694000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1196992
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: La3Sn13Ru4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1197955:
+    a_b_c:
+    - 9.02390243
+    - 9.02390243
+    - 9.02390243
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:48:26.103000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1197955
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Gd3Ge13Ru4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1198161:
+    a_b_c:
+    - 9.756744860029297
+    - 9.756629740031904
+    - 9.756579920024361
+    angles:
+    - 90.00019050445745
+    - 90.0001711829011
+    - 89.99977737480697
+    build_date: 2023-11-22 19:45:41.336000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1198161
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: NdSn3Ru
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1198205:
+    a_b_c:
+    - 9.02840027
+    - 9.02840027
+    - 9.02840027
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:49:42.390000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1198205
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Y3Ge13Os4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1198658: {}
+  mp-1200023:
+    a_b_c:
+    - 9.099267
+    - 9.099267
+    - 9.099267
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:03.281000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1200023
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Sm3Ge13Ru4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1200220:
+    a_b_c:
+    - 7.808594
+    - 7.808594
+    - 7.808594
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:41.532000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1200220
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Al3Ir
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1201653:
+    a_b_c:
+    - 9.107708
+    - 9.107708
+    - 9.107708
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:45:30.890000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1201653
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Sm3Ge13Ir4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1201823:
+    a_b_c:
+    - 9.160374
+    - 9.160374
+    - 9.160374
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:49:13.183000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1201823
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Pr3Ge13Ir4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1201880:
+    a_b_c:
+    - 9.499616470010318
+    - 9.499616560010308
+    - 9.49961728001056
+    angles:
+    - 89.9998792517523
+    - 89.99987913112423
+    - 89.99988202617963
+    build_date: 2023-11-22 19:44:23.805000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1201880
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Tb3Co4Sn13
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1202112:
+    a_b_c:
+    - 9.937828
+    - 9.937828
+    - 9.937828
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:45:01.647000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1202112
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Gd3Co4Sn13
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1202771: {}
+  mp-1202962:
+    a_b_c:
+    - 8.704319
+    - 8.704319
+    - 8.704319
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:38:46.857000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1202962
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Lu3Si13Ir4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1202967:
+    a_b_c:
+    - 8.799656
+    - 8.799656
+    - 8.799656
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:38:37.920000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1202967
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Er3Si13Os4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1202982:
+    a_b_c:
+    - 8.780533
+    - 8.780533
+    - 8.780533
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:45:53.261000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1202982
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Gd3Co4Ge13
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1203071: {}
+  mp-1203492:
+    a_b_c:
+    - 9.191551
+    - 9.191551
+    - 9.191551
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:11.824000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1203492
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Nd3Ge13Os4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1203831: {}
+  mp-1204450:
+    a_b_c:
+    - 9.027852
+    - 9.027852
+    - 9.027852
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:53.207000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1204450
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Dy3Ge13Rh4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1204494:
+    a_b_c:
+    - 9.08524
+    - 9.08524
+    - 9.08524
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:49:55.451000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1204494
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Sm3Ge13Rh4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1206445:
+    a_b_c:
+    - 5.02230312
+    - 5.02230312
+    - 5.02230312
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:50:26.455000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1206445
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: ReW3
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1208367:
+    a_b_c:
+    - 9.64449
+    - 9.64449
+    - 9.64449
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:55.542000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1208367
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Th3Co4Sn13
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1210053:
+    a_b_c:
+    - 9.801926391746548
+    - 9.801915600177317
+    - 9.802087851592374
+    angles:
+    - 89.9998238162473
+    - 90.00205801759006
+    - 90.00066637288487
+    build_date: 2023-11-22 19:46:51.376000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1210053
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Pr3Sn13Ru4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1214338:
+    a_b_c:
+    - 6.059453
+    - 6.059453
+    - 6.059453
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:09.113000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1214338
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: BaPt3O4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1214689:
+    a_b_c:
+    - 9.837628
+    - 9.837628
+    - 9.837628
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:45:49.502000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1214689
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: CeIn3Pt
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1214933:
+    a_b_c:
+    - 8.197496
+    - 8.197496
+    - 8.197496
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:27.655000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1214933
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ba4Gd(CuO3)3
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1231:
+    a_b_c:
+    - 4.55620809
+    - 4.55620809
+    - 4.55620809
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:38:36.454000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1231
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Cr3Ga
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1272:
+    a_b_c:
+    - 4.632632
+    - 4.632632
+    - 4.632632
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:50:46.445000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1272
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Cr3Ru
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-13675:
+    a_b_c:
+    - 5.76491975
+    - 5.76491975
+    - 5.76491975
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:38:43.123000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-13675
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: CdPd3O4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-15227:
+    a_b_c:
+    - 6.732924
+    - 6.732924
+    - 6.732924
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:23.722000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-15227
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: NdPd3S4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1545:
+    a_b_c:
+    - 5.17146099
+    - 5.17146099
+    - 5.17146099
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:51:02.781000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1545
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Nb3Rh
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-1786:
+    a_b_c:
+    - 5.08600641
+    - 5.08600641
+    - 5.08600641
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:38:24.718000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1786
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ti3Au
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-2053:
+    a_b_c:
+    - 5.30247347
+    - 5.30247347
+    - 5.30247347
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:27.663000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2053
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Nb3Sb
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-20961:
+    a_b_c:
+    - 6.709702920018041
+    - 6.709730620018042
+    - 6.70971474
+    angles:
+    - 90.0
+    - 90.0
+    - 90.00026574067425
+    build_date: 2023-11-22 19:48:11.672000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-20961
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: EuPd3S4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-21369:
+    a_b_c:
+    - 4.980141
+    - 4.980141
+    - 4.980141
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:49:27.810000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-21369
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: W3O
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-22060:
+    a_b_c:
+    - 5.328041820000029
+    - 5.3280612100000315
+    - 5.328054660000003
+    angles:
+    - 89.9999965588495
+    - 89.99999935478328
+    - 90.00001182896924
+    build_date: 2023-11-22 19:38:23.924000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-22060
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Nb3In
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-22068:
+    a_b_c:
+    - 5.387071
+    - 5.387071
+    - 5.387071
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:48:23.769000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-22068
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Nb3Pb
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-2377:
+    a_b_c:
+    - 4.9452948
+    - 4.9452948
+    - 4.9452948
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:38:39.261000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2377
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: GaMo3
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-2889:
+    a_b_c:
+    - 6.7650254
+    - 6.7650254
+    - 6.7650254
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:48:55.728000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2889
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: LaPd3S4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-30513:
+    a_b_c:
+    - 9.759353600000383
+    - 9.759353600000383
+    - 9.759353600000383
+    angles:
+    - 89.99997733848573
+    - 89.99997733848573
+    - 89.99997733848573
+    build_date: 2023-11-22 19:45:04.699000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-30513
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: La3Sn13Rh4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-30790:
+    a_b_c:
+    - 5.20606
+    - 5.20606
+    - 5.20606
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:38:19.742000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-30790
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: ZrMo3
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-30830:
+    a_b_c:
+    - 5.027517
+    - 5.027517
+    - 5.027517
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:45:50.476000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-30830
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: V3Pb
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-30871:
+    a_b_c:
+    - 5.29897901
+    - 5.29897901
+    - 5.29897901
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:45:41.267000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-30871
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ta3Sn
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-4363:
+    a_b_c:
+    - 9.75969022000064
+    - 9.759691510001264
+    - 9.759686210001297
+    angles:
+    - 89.99994916011964
+    - 89.99996994224378
+    - 90.0000286487905
+    build_date: 2023-11-22 19:46:36.102000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-4363
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ca3Sn13Rh4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-494:
+    a_b_c:
+    - 4.93996455
+    - 4.93996455
+    - 4.93996455
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:45:44.643000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-494
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: GeMo3
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-544:
+    a_b_c:
+    - 4.99972693
+    - 4.99972693
+    - 4.99972693
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:51:36.541000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-544
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ti3Ir
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-672337:
+    a_b_c:
+    - 5.098357
+    - 5.098357
+    - 5.098357
+    angles:
+    - 90.0
+    - 90.0
+    - 90.0
+    build_date: 2023-11-22 19:44:04.079000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-672337
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: VGe3
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-672373:
+    a_b_c:
+    - 9.642292170094645
+    - 9.642264950477813
+    - 9.642308260474554
+    angles:
+    - 90.00108075515517
+    - 89.99964715817687
+    - 89.9996348570946
+    build_date: 2023-11-22 19:44:16.045000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-672373
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: La3Co4Sn13
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-680552:
+    a_b_c:
+    - 9.757775890001374
+    - 9.75778602000124
+    - 9.757777510000453
+    angles:
+    - 90.00002078619187
+    - 89.99997187404057
+    - 90.00005390316542
+    build_date: 2023-11-22 19:44:28.503000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-680552
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Nd3Sn13Rh4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+  mp-756374:
+    a_b_c:
+    - 5.882511460002573
+    - 5.882497570000354
+    - 5.88312624000222
+    angles:
+    - 89.99999999998273
+    - 89.99990046219625
+    - 89.9999602606713
+    build_date: 2023-11-22 19:44:00.873000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-756374
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: SrPt3O4
+    pymatgen_version: 2023.11.12
+    space_group: 223
+225:
+  mp-1078203:
+    a_b_c:
+    - 6.759902997930602
+    - 6.759902997930602
+    - 6.759902997930602
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:45:09.731000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1078203
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: CsTlF3
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1078952:
+    a_b_c:
+    - 5.863814504850746
+    - 5.863814504850746
+    - 5.863814504850746
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:46:17.066000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1078952
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mg(N3Cl)2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1113627:
+    a_b_c:
+    - 6.361383428471604
+    - 6.361383428471604
+    - 6.361383428471604
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:49:01.979000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1113627
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Rb3GaF6
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1147639:
+    a_b_c:
+    - 6.548879353454146
+    - 6.548879353454146
+    - 6.548879353454146
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:52:31.342000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1147639
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Cd(Cu3O4)2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1183316:
+    a_b_c:
+    - 6.219104549698614
+    - 6.219104549698614
+    - 6.219104549698614
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:51:35.445000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1183316
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ba3Mo
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1183637:
+    a_b_c:
+    - 5.848874752777838
+    - 5.848874752777838
+    - 5.848874752777838
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:46:46.634000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1183637
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: CaEuMg2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1184030:
+    a_b_c:
+    - 4.266877677141134
+    - 4.266877677141134
+    - 4.266877677141134
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:45:31.498000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1184030
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: GaCuPd2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1184126:
+    a_b_c:
+    - 5.00455390070204
+    - 5.00455390070204
+    - 5.00455390070204
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:45:35.012000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1184126
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Er2MgTc
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1184235:
+    a_b_c:
+    - 4.708524919550498
+    - 4.708524919550498
+    - 4.708524919550498
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:48:09.822000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1184235
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: ErMgPd2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1184561:
+    a_b_c:
+    - 4.791570509781526
+    - 4.791570509781526
+    - 4.791570509781526
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:50:41.968000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1184561
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ge3As
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1184596:
+    a_b_c:
+    - 5.149290908920603
+    - 5.149290908920603
+    - 5.149290908920603
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:51:44.410000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1184596
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ho2AlCd
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1185027: {}
+  mp-1185239:
+    a_b_c:
+    - 4.790275245721885
+    - 4.790275245721885
+    - 4.790275245721885
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:43:58.795000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1185239
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: LiTl2Pd
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1185760:
+    a_b_c:
+    - 4.74236160537587
+    - 4.74236160537587
+    - 4.74236160537587
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:50:52.752000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1185760
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mg2HgAu
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1186011:
+    a_b_c:
+    - 4.0685043285435984
+    - 4.0685043285435984
+    - 4.0685043285435984
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:45:07.162000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1186011
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: MnV2Fe
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1186080:
+    a_b_c:
+    - 5.3653805916465975
+    - 5.3653805916465975
+    - 5.3653805916465975
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:44:03.575000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1186080
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Na3Sn
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1186145:
+    a_b_c:
+    - 5.60158112662059
+    - 5.60158112662059
+    - 5.60158112662059
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:44:16.955000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1186145
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: NaHo3
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1186185:
+    a_b_c:
+    - 5.335309390852399
+    - 5.335309390852399
+    - 5.335309390852399
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:44:34.991000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1186185
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: NaTl2In
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1186519:
+    a_b_c:
+    - 5.329980153316767
+    - 5.329980153316767
+    - 5.329980153316767
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:50:57.737000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1186519
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: PrEuAg2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1186792:
+    a_b_c:
+    - 5.170240177679055
+    - 5.170240177679055
+    - 5.170240177679055
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:51:07.921000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1186792
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: PuHg3
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1187001:
+    a_b_c:
+    - 5.41824164600854
+    - 5.41824164600854
+    - 5.41824164600854
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:49:20.521000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1187001
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Sm2TlIn
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1187153:
+    a_b_c:
+    - 5.735804107541149
+    - 5.735804107541149
+    - 5.735804107541149
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:38:29.765000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1187153
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: SrAcCd2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1187384:
+    a_b_c:
+    - 5.26687771788951
+    - 5.26687771788951
+    - 5.26687771788951
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:50:54.301000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1187384
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: TbTmIn2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1187856:
+    a_b_c:
+    - 4.81759404751245
+    - 4.81759404751245
+    - 4.81759404751245
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:38:35.198000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1187856
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: YHoIr2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1205585:
+    a_b_c:
+    - 6.216216725604248
+    - 6.216216725604248
+    - 6.216216725604248
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:44:29.500000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1205585
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ba2HoUO6
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1205597:
+    a_b_c:
+    - 6.031759436450363
+    - 6.031759436450363
+    - 6.031759436450363
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:49:42.480000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1205597
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ba2TbMoO6
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1206962:
+    a_b_c:
+    - 5.50547525999891
+    - 5.50547525999891
+    - 5.50547525999891
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:46:30.715000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1206962
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: LiTaF6
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-12570:
+    a_b_c:
+    - 5.374071309276672
+    - 5.374071203059247
+    - 5.37407015
+    angles:
+    - 59.99999407407697
+    - 59.99999465681451
+    - 59.99998857586235
+    build_date: 2023-11-22 19:44:15.368000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-12570
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: ThB12
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1516366:
+    a_b_c:
+    - 6.104081087664324
+    - 6.104081087664324
+    - 6.104081087664324
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:38:38.830000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1516366
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: PrEu2NbO6
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-1520897:
+    a_b_c:
+    - 5.786905866089364
+    - 5.786905866089364
+    - 5.786905866089364
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:52:31.018000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1520897
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Sr2CrBiO6
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-21014:
+    a_b_c:
+    - 4.770829158701016
+    - 4.770829158701016
+    - 4.770829158701016
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:38:42.341000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-21014
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: DySnPd2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-23950:
+    a_b_c:
+    - 6.293145700756657
+    - 6.293145700756657
+    - 6.293145700756657
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:46:30.372000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-23950
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: K(BH)3
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-24658:
+    a_b_c:
+    - 3.802081290297654
+    - 3.8020821364945268
+    - 3.80208301
+    angles:
+    - 60.000010428312116
+    - 60.000003024426604
+    - 60.00000415443593
+    build_date: 2023-11-22 19:38:27.127000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-24658
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: SmH2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-2735:
+    a_b_c:
+    - 3.4916254032481775
+    - 3.4916254032481775
+    - 3.4916254032481775
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:45:33.259000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2735
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: PaO
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-5436:
+    a_b_c:
+    - 3.959062006577011
+    - 3.9590623019296145
+    - 3.95906162
+    angles:
+    - 59.9999971270307
+    - 59.999994562746885
+    - 59.99999383426424
+    build_date: 2023-11-22 19:51:49.415000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-5436
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: FeCo2Si
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-559633:
+    a_b_c:
+    - 6.5280385732123465
+    - 6.528002078607255
+    - 6.527920760117735
+    angles:
+    - 60.00100237370233
+    - 60.00046620836449
+    - 60.000691997472465
+    build_date: 2023-11-22 19:44:50.698000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-559633
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Cu6PbO8
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-6428:
+    a_b_c:
+    - 5.977740721008398
+    - 5.977740721008398
+    - 5.977740721008398
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:47:02.171000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-6428
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ba2YRuO6
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-6430:
+    a_b_c:
+    - 5.995158175242585
+    - 5.995158175242585
+    - 5.995158175242585
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:48:19.352000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-6430
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ba2YReO6
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-690789:
+    a_b_c:
+    - 6.119474618442992
+    - 6.119474618442992
+    - 6.119474618442992
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:44:12.756000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-690789
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: K3ReH6
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-861934:
+    a_b_c:
+    - 4.780001846861517
+    - 4.780001846861517
+    - 4.780001846861517
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:44:10.295000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-861934
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: HoAlAg2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-861955:
+    a_b_c:
+    - 5.147314149487867
+    - 5.147317840587425
+    - 5.147315627341569
+    angles:
+    - 60.00008057027024
+    - 60.00003794483516
+    - 60.00007107271105
+    build_date: 2023-11-22 19:45:36.611000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-861955
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: LiPm2Ge
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-862492:
+    a_b_c:
+    - 5.115546514672311
+    - 5.115546514672311
+    - 5.115546514672311
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:38:31.665000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-862492
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: LiErTl2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-863721:
+    a_b_c:
+    - 5.000503197079606
+    - 5.000503197079606
+    - 5.000503197079606
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:49:59.793000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-863721
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Pm2IrPt
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-865000:
+    a_b_c:
+    - 4.585204351398578
+    - 4.585204351398578
+    - 4.585204351398578
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:44:43.917000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-865000
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: HfScIr2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-865028:
+    a_b_c:
+    - 5.761462240771826
+    - 5.761462240771826
+    - 5.761462240771826
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:46:19.001000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-865028
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: AcTlTe2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-865159:
+    a_b_c:
+    - 5.052563424727583
+    - 5.052563424727583
+    - 5.052563424727583
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:44:02.736000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-865159
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Dy2AlZn
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-865184:
+    a_b_c:
+    - 4.469141110072738
+    - 4.469141004006892
+    - 4.469140841372083
+    angles:
+    - 60.00026132706509
+    - 60.00025645955758
+    - 60.000256616567434
+    build_date: 2023-11-22 19:43:55.190000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-865184
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: LiScPd2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-865451:
+    a_b_c:
+    - 4.833803197678946
+    - 4.833803197678946
+    - 4.833803197678946
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:47:05.554000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-865451
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Tm2MnOs
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-865640:
+    a_b_c:
+    - 4.275141311177104
+    - 4.275949606202765
+    - 4.274542673808288
+    angles:
+    - 59.99190531867441
+    - 59.98962573637248
+    - 59.99106317723092
+    build_date: 2023-11-22 19:44:20.027000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-865640
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: TiGeRu2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-865656:
+    a_b_c:
+    - 4.194371555910097
+    - 4.194371555910097
+    - 4.194371555910097
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:45:08.282000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-865656
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: TiMn2W
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-865815: {}
+  mp-865895:
+    a_b_c:
+    - 4.245339543997447
+    - 4.245339543997447
+    - 4.245339543997447
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:44:04.559000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-865895
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: GaGeRu2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-865907:
+    a_b_c:
+    - 4.258354282711389
+    - 4.258354282711389
+    - 4.258354282711389
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:38:45.388000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-865907
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: LiZn3
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-866059:
+    a_b_c:
+    - 4.642019815831194
+    - 4.64260374108202
+    - 4.641719966259052
+    angles:
+    - 59.99452891794144
+    - 60.00926073527203
+    - 59.986638907926135
+    build_date: 2023-11-22 19:46:32.621000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-866059
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: GdMgRh2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-973969:
+    a_b_c:
+    - 4.855600443031531
+    - 4.855600443031531
+    - 4.855600443031531
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:38:31.221000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-973969
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: HoTa3
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-973979:
+    a_b_c:
+    - 4.236106666907731
+    - 4.236106666907731
+    - 4.236106666907731
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:52:10.628000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-973979
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: LiFePd2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-974708:
+    a_b_c:
+    - 5.387008004092478
+    - 5.387008004092478
+    - 5.387008004092478
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:47:51.702000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-974708
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: NdTmTl2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-975442:
+    a_b_c:
+    - 5.357514092703225
+    - 5.358631341512154
+    - 5.3560476870094345
+    angles:
+    - 59.97623815219328
+    - 59.99512043765923
+    - 59.98821254414338
+    build_date: 2023-11-22 19:44:37.963000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-975442
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: NdErIn2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-976151:
+    a_b_c:
+    - 5.427024492058438
+    - 5.427024492058438
+    - 5.427024492058438
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:46:36.997000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-976151
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: PrErMg2
+    pymatgen_version: 2023.11.12
+    space_group: 225
+  mp-977382:
+    a_b_c:
+    - 4.455759439491095
+    - 4.4557594394919215
+    - 4.455760160740192
+    angles:
+    - 59.999940784643314
+    - 59.99998393626144
+    - 59.99998918584434
+    build_date: 2023-11-22 19:45:53.851000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-977382
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ta2VRu
+    pymatgen_version: 2023.11.12
+    space_group: 225
+227:
+  mp-1067260:
+    a_b_c:
+    - 4.883319028854044
+    - 4.883319028854044
+    - 4.883319028854044
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:44:46.721000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1067260
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: CaW
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1077072:
+    a_b_c:
+    - 5.523129043461505
+    - 5.523129043461505
+    - 5.523129043461505
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:44:15.232000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1077072
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: GdS2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1080252:
+    a_b_c:
+    - 6.050127242198465
+    - 6.050127242198465
+    - 6.050127242198465
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:44:43.062000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1080252
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: CeSe2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1096945:
+    a_b_c:
+    - 6.39686978027535
+    - 6.39686978027535
+    - 6.39686978027535
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:46:35.279000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1096945
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: DyMn2O4
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1147622:
+    a_b_c:
+    - 5.675200842037046
+    - 5.675200842037046
+    - 5.675200842037046
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:45:15.804000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1147622
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: InS2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1147736:
+    a_b_c:
+    - 6.010233691817482
+    - 6.010233691817482
+    - 6.010233691817482
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:44:31.552000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1147736
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: RbCoO2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-117:
+    a_b_c:
+    - 4.645673488001437
+    - 4.645672919773378
+    - 4.64567271
+    angles:
+    - 60.00000142249578
+    - 60.00000546858973
+    - 60.00000371068201
+    build_date: 2023-11-22 19:44:15.361000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-117
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Sn
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1178397:
+    a_b_c:
+    - 6.016502900539482
+    - 6.016502900539482
+    - 6.016502900539482
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:44:25.525000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1178397
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: CsGaO2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1183802:
+    a_b_c:
+    - 6.0095332459821735
+    - 6.0095332459821735
+    - 6.0095332459821735
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:45:08.720000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1183802
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: DyMg2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1184321:
+    a_b_c:
+    - 6.285227997650166
+    - 6.2852296
+    - 6.282900328845737
+    angles:
+    - 120.0122371284868
+    - 59.98775974263586
+    - 119.99998112164735
+    build_date: 2023-11-22 19:48:27.795000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1184321
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: EuMg2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1187676:
+    a_b_c:
+    - 5.959466097791921
+    - 5.959463212796343
+    - 5.959466097791921
+    angles:
+    - 59.99999191449639
+    - 60.00000000000001
+    - 59.99999191449639
+    build_date: 2023-11-22 19:46:04.236000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1187676
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: TmMg2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1189:
+    a_b_c:
+    - 5.702308874664993
+    - 5.702308282143863
+    - 5.70230926
+    angles:
+    - 59.99998841021046
+    - 59.999991847493575
+    - 59.99998767796002
+    build_date: 2023-11-22 19:46:16.089000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1189
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: PrAl2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1190319:
+    a_b_c:
+    - 6.887576741701674
+    - 6.887576741701674
+    - 6.887576741701674
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:48:35.236000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1190319
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: In2Ge2O7
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1210248:
+    a_b_c:
+    - 7.020764235451864
+    - 7.020764235451864
+    - 7.020764235451864
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:51:39.586000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1210248
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Nd2PdO4
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1248873:
+    a_b_c:
+    - 6.48146944979007
+    - 6.48146944979007
+    - 6.48146944979007
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:48:13.917000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1248873
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Al2Ni2O7
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1258020:
+    a_b_c:
+    - 6.585185044027389
+    - 6.585185044027389
+    - 6.585185044027389
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:49:10.668000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1258020
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Al2Fe2O7
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1310:
+    a_b_c:
+    - 5.305721515011801
+    - 5.3057198440921045
+    - 5.30572063
+    angles:
+    - 59.999995037728596
+    - 60.000005455460965
+    - 59.9999858461875
+    build_date: 2023-11-22 19:48:27.572000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1310
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: TbRh2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1437:
+    a_b_c:
+    - 4.712753902309059
+    - 4.712754008021472
+    - 4.71275459
+    angles:
+    - 60.00000318527485
+    - 60.00000252430962
+    - 59.9999898284622
+    build_date: 2023-11-22 19:51:01.350000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1437
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: LiCd
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1463:
+    a_b_c:
+    - 5.451432709330981
+    - 5.4514334259125325
+    - 5.45143376
+    angles:
+    - 59.99999797273053
+    - 59.99999362445538
+    - 60.00000009791132
+    build_date: 2023-11-22 19:38:21.814000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1463
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: LaIr2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-16378:
+    a_b_c:
+    - 5.5060637284043485
+    - 5.5060637284043485
+    - 5.5060637284043485
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:45:22.366000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-16378
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: HoS2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1729:
+    a_b_c:
+    - 5.246513643308508
+    - 5.24654481018627
+    - 5.246526070000466
+    angles:
+    - 60.0001753670497
+    - 59.99994241708111
+    - 60.00010652231323
+    build_date: 2023-11-22 19:44:08.756000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1729
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: SmFe2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1762:
+    a_b_c:
+    - 5.2704986274603165
+    - 5.270498546517843
+    - 5.270498
+    angles:
+    - 59.999990613112764
+    - 59.99999115115948
+    - 59.99999732513408
+    build_date: 2023-11-22 19:43:55.450000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1762
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: ErRh2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-1859:
+    a_b_c:
+    - 4.91239243126931
+    - 4.91239243126931
+    - 4.91239243126931
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:47:00.756000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1859
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: NpMn2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-18766:
+    a_b_c:
+    - 5.676584114479509
+    - 5.676647384684125
+    - 5.677053920001957
+    angles:
+    - 59.997712985876085
+    - 59.99717404308606
+    - 59.99982599694167
+    build_date: 2023-11-22 19:48:32.984000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-18766
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Si(NiO2)2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-18831:
+    a_b_c:
+    - 7.00130249322639
+    - 7.001224082024489
+    - 7.001263913366334
+    angles:
+    - 60.00006397910296
+    - 60.00042797448836
+    - 60.0002068368444
+    build_date: 2023-11-22 19:49:26.930000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-18831
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Y2Mn2O7
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-18852:
+    a_b_c:
+    - 6.386074354546033
+    - 6.386074294305084
+    - 6.38607281
+    angles:
+    - 59.999992334037174
+    - 59.99999270589741
+    - 60.00000074672902
+    build_date: 2023-11-22 19:38:37.182000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-18852
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Na2MoO4
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-19071:
+    a_b_c:
+    - 5.805915187393629
+    - 5.805915187393629
+    - 5.805915187393629
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:44:57.094000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-19071
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Co2SiO4
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-19803:
+    a_b_c:
+    - 6.520965053389311
+    - 6.520964546154704
+    - 6.52096516
+    angles:
+    - 60.00000703172461
+    - 60.000009604837736
+    - 59.99999800180075
+    build_date: 2023-11-22 19:47:51.037000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-19803
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: CdIn2O4
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-19923:
+    a_b_c:
+    - 5.575042554611671
+    - 5.575143689854821
+    - 5.575106510006587
+    angles:
+    - 60.00035818750044
+    - 59.99975860031416
+    - 60.00034673577341
+    build_date: 2023-11-22 19:44:52.542000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-19923
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: GdAl2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-2019:
+    a_b_c:
+    - 5.430924378448304
+    - 5.43091975712407
+    - 5.43092444
+    angles:
+    - 59.99997147659734
+    - 59.99999962508892
+    - 59.999978874982034
+    build_date: 2023-11-22 19:45:58.197000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2019
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: LaRu2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-20644:
+    a_b_c:
+    - 5.41263936626042
+    - 5.41263936626042
+    - 5.41263936626042
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:48:48.338000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-20644
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: PuPt2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-21050:
+    a_b_c:
+    - 5.032714044643239
+    - 5.03268320499762
+    - 5.032723550539841
+    angles:
+    - 60.00134977919476
+    - 59.999913416498195
+    - 60.00069918753975
+    build_date: 2023-11-22 19:47:34.234000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-21050
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: UFe2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-2130:
+    a_b_c:
+    - 4.93987957323895
+    - 4.939863171796272
+    - 4.939868591039731
+    angles:
+    - 60.00191302032616
+    - 60.00199075879736
+    - 60.00171459664424
+    build_date: 2023-11-22 19:44:57.951000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2130
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: LuNi2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-2363:
+    a_b_c:
+    - 5.340331150279387
+    - 5.340331287019006
+    - 5.34033037
+    angles:
+    - 59.999992968920814
+    - 59.99999215153828
+    - 59.999991865728724
+    build_date: 2023-11-22 19:50:39.131000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2363
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: HfMo2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-2373:
+    a_b_c:
+    - 5.291058012089643
+    - 5.291058012089643
+    - 5.291058012089643
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:52:34.657000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2373
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: PrFe2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-2389:
+    a_b_c:
+    - 6.127192088029864
+    - 6.127190689425688
+    - 6.12719115
+    angles:
+    - 59.99999745944366
+    - 60.00000501028523
+    - 59.99999260998425
+    build_date: 2023-11-22 19:38:47.599000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2389
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: NdMg2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-2483:
+    a_b_c:
+    - 5.106118476110988
+    - 5.106118476110988
+    - 5.106118476110988
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:45:56.953000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2483
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: DyMn2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-25262:
+    a_b_c:
+    - 5.966814507025504
+    - 5.966814507025504
+    - 5.966814507025504
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:44:27.579000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-25262
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: TiO2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-2628:
+    a_b_c:
+    - 5.0506226633941225
+    - 5.051205266662287
+    - 5.050625560415601
+    angles:
+    - 59.99351318905981
+    - 59.997129826046624
+    - 60.001015940126194
+    build_date: 2023-11-22 19:48:48.844000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2628
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: DyCo2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-2674:
+    a_b_c:
+    - 5.409925929877946
+    - 5.409924539356627
+    - 5.40992466
+    angles:
+    - 59.999993025377684
+    - 60.000001527912936
+    - 59.99999611696749
+    build_date: 2023-11-22 19:38:29.127000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2674
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: YPt2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-2708:
+    a_b_c:
+    - 5.166329070029163
+    - 5.166328205778153
+    - 5.16632872
+    angles:
+    - 59.999996707463914
+    - 60.00000224121832
+    - 60.00000364327616
+    build_date: 2023-11-22 19:51:10.456000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2708
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: LaNi2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-2725:
+    a_b_c:
+    - 5.340094423635642
+    - 5.340094504419568
+    - 5.34009508
+    angles:
+    - 59.99999643451109
+    - 59.99999593408713
+    - 59.99999417759841
+    build_date: 2023-11-22 19:44:08.562000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2725
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: TbIr2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-2769:
+    a_b_c:
+    - 5.091481365740426
+    - 5.091481365740426
+    - 5.091481365740426
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:38:19.812000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2769
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: HoMn2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-421:
+    a_b_c:
+    - 5.010982972261786
+    - 5.010983897320168
+    - 5.010983580000212
+    angles:
+    - 59.99995353021923
+    - 59.999950675634146
+    - 59.99994672245153
+    build_date: 2023-11-22 19:51:45.379000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-421
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: DyNi2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-4590:
+    a_b_c:
+    - 5.907076864504305
+    - 5.9070768846231605
+    - 5.90707663
+    angles:
+    - 59.99999028185891
+    - 59.999990169192934
+    - 59.99999355879371
+    build_date: 2023-11-22 19:47:56.891000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-4590
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mg(GaO2)2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-505623:
+    a_b_c:
+    - 5.921186320649098
+    - 5.921186320649098
+    - 5.921186320649098
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:44:04.370000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-505623
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Al(FeO2)2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-5670:
+    a_b_c:
+    - 5.936924744866412
+    - 5.936915516035337
+    - 5.936895003068662
+    angles:
+    - 59.997137305262626
+    - 59.99711996478481
+    - 59.997023204168045
+    build_date: 2023-11-22 19:48:12.805000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-5670
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: LiTi2O4
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-570543:
+    a_b_c:
+    - 5.90314236980678
+    - 5.90314236980678
+    - 5.90314236980678
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:44:18.718000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-570543
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mg2Sn
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-582:
+    a_b_c:
+    - 5.37012695374761
+    - 5.370128824632387
+    - 5.370131510000099
+    angles:
+    - 59.9999997266989
+    - 59.999995551024114
+    - 60.00000117069544
+    build_date: 2023-11-22 19:44:47.313000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-582
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: CeIr2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-673:
+    a_b_c:
+    - 4.996219009515111
+    - 4.996224412009946
+    - 4.996223900000208
+    angles:
+    - 59.9999682026342
+    - 59.99993566301476
+    - 59.99993639936479
+    build_date: 2023-11-22 19:43:56.314000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-673
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: HoNi2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-690799:
+    a_b_c:
+    - 5.7495975829532115
+    - 5.7495975829532115
+    - 5.7495975829532115
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:46:16.359000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-690799
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Zr(TiH2)2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-7105:
+    a_b_c:
+    - 5.4661461363928066
+    - 5.4661461363928066
+    - 5.4661461363928066
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:44:15.090000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-7105
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: NdSi2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-754240:
+    a_b_c:
+    - 7.0014658771797205
+    - 7.0014658771797205
+    - 7.0014658771797205
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:49:45.860000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-754240
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: CaSm2O4
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-754446:
+    a_b_c:
+    - 6.091160648710721
+    - 6.091160648710721
+    - 6.091160648710721
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:44:33.378000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-754446
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Li2MnF4
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-754918:
+    a_b_c:
+    - 6.975567313501305
+    - 6.975567313501305
+    - 6.975567313501305
+    angles:
+    - 60.00000000000001
+    - 60.00000000000001
+    - 60.00000000000001
+    build_date: 2023-11-22 19:45:10.571000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-754918
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ho2Mn2O7
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-755611:
+    a_b_c:
+    - 6.130721858904545
+    - 6.130721858904545
+    - 6.130721858904545
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:44:57.602000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-755611
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: NaCr2O4
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-768465:
+    a_b_c:
+    - 6.010561789363953
+    - 6.010561789363953
+    - 6.010561789363953
+    angles:
+    - 59.99999999999999
+    - 59.99999999999999
+    - 59.99999999999999
+    build_date: 2023-11-22 19:45:04.568000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-768465
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mg2FeO4
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-770957:
+    a_b_c:
+    - 5.427452220950378
+    - 5.427452220950378
+    - 5.427452220950378
+    angles:
+    - 60.00000000000001
+    - 90.0
+    - 119.99999999999999
+    build_date: 2023-11-22 19:38:39.283000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-770957
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Be(CoO2)2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-903:
+    a_b_c:
+    - 5.027396705548171
+    - 5.027397544690561
+    - 5.0273959
+    angles:
+    - 60.000004072407386
+    - 59.99999847496274
+    - 59.999996723542864
+    build_date: 2023-11-22 19:52:04.267000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-903
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: ZrCr2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+  mp-978269:
+    a_b_c:
+    - 5.150638244324497
+    - 5.150638244324497
+    - 5.150638244324497
+    angles:
+    - 59.9999451403638
+    - 59.9999451403638
+    - 59.99994514036379
+    build_date: 2023-11-22 19:47:19.512000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-978269
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: MgZn2
+    pymatgen_version: 2023.11.12
+    space_group: 227
+229:
+  mp-1017981:
+    a_b_c:
+    - 5.365233954358635
+    - 5.365233954358635
+    - 5.365233954358635
+    angles:
+    - 120.70190618721429
+    - 120.70190618721429
+    - 88.78850227961945
+    build_date: 2023-11-22 19:52:13.915000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1017981
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Hg
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1069288:
+    a_b_c:
+    - 4.8010090718250735
+    - 4.8010096607223485
+    - 4.8010096607223485
+    angles:
+    - 109.4712106954453
+    - 109.47120572592387
+    - 109.47122063448948
+    build_date: 2023-11-22 19:38:36.890000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1069288
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: MnGa4
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-10751:
+    a_b_c:
+    - 3.464764353745668
+    - 3.4647635757225386
+    - 3.4647627700000005
+    angles:
+    - 109.471228407428
+    - 109.47122392509527
+    - 109.47121317253792
+    build_date: 2023-11-22 19:47:33.632000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-10751
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Dy
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1097959:
+    a_b_c:
+    - 6.375481568868975
+    - 6.375481568868975
+    - 6.375481568868975
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:47:03.365000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1097959
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: LiEu4(BN2)3
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1105477:
+    a_b_c:
+    - 6.67616039291051
+    - 6.67616039291051
+    - 6.67616039291051
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:45:13.586000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1105477
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: LaMn3V4O12
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1105803:
+    a_b_c:
+    - 7.233806707775663
+    - 7.233806707775663
+    - 7.233806707775663
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:49:59.544000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1105803
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Dy4Ge6Ir7
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1105833:
+    a_b_c:
+    - 6.783724212162151
+    - 6.783724212162151
+    - 6.783724212162151
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:51:09.070000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1105833
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Hf4Co7Ge6
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1106297:
+    a_b_c:
+    - 7.359889850975873
+    - 7.359891028770184
+    - 7.359891028770184
+    angles:
+    - 109.47119444646039
+    - 109.47123697023187
+    - 109.47123697023187
+    build_date: 2023-11-22 19:50:02.934000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1106297
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ho4Ga12Fe
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1147522:
+    a_b_c:
+    - 7.106997638988422
+    - 7.106997638988422
+    - 7.106997638988422
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:45:18.358000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1147522
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: K4Ca(WO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1147534:
+    a_b_c:
+    - 6.778266520067501
+    - 6.778266520067501
+    - 6.778266520067501
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:45:16.189000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1147534
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: La4Cu3SeO12
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1147539:
+    a_b_c:
+    - 6.861196242567982
+    - 6.861195916010196
+    - 6.861196
+    angles:
+    - 109.47121793004588
+    - 109.47121696591107
+    - 109.47122526720531
+    build_date: 2023-11-22 19:44:03.579000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1147539
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: La4Cu3MoO12
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1147549:
+    a_b_c:
+    - 7.587361145857959
+    - 7.587361145857959
+    - 7.587361145857959
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:38:35.217000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1147549
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ba4Ca(BiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1147683:
+    a_b_c:
+    - 6.887332027369307
+    - 6.887332027369307
+    - 6.887332027369307
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:49:16.869000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1147683
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: La4Cu3TeO12
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1181515:
+    a_b_c:
+    - 7.22679469060681
+    - 7.22679469060681
+    - 7.22679469060681
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:51:47.327000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1181515
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Dy4Ge6Rh7
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1188796:
+    a_b_c:
+    - 7.068734904598418
+    - 7.068734904598418
+    - 7.068734904598418
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:50:32.562000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1188796
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Sc4Ge6Ru7
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1188834:
+    a_b_c:
+    - 7.251547913672003
+    - 7.251547913672003
+    - 7.251547913672003
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:51:56.231000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1188834
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Tb4Ge6Ir7
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1189490:
+    a_b_c:
+    - 7.223916264651743
+    - 7.223916264651743
+    - 7.223916264651743
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:38:19.622000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1189490
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: U4Ge6Os7
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1189689:
+    a_b_c:
+    - 6.957770220906622
+    - 6.957770220906622
+    - 6.957770220906622
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:45:52.649000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1189689
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Sc4Si6Ir7
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1190084: {}
+  mp-1190285:
+    a_b_c:
+    - 8.53966173241821
+    - 8.53966173241821
+    - 8.53966173241821
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:43.254000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1190285
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ce6Cd4Pd13
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1190765:
+    a_b_c:
+    - 7.728841984023415
+    - 7.728841984023415
+    - 7.728841984023415
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:47:01.327000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1190765
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Nd3(SiNi3)2
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1191275:
+    a_b_c:
+    - 7.5642781047454895
+    - 7.5642781047454895
+    - 7.5642781047454895
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:45:37.504000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1191275
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ho3(SiNi3)2
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1191578:
+    a_b_c:
+    - 7.67917369506557
+    - 7.67917369506557
+    - 7.67917369506557
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:47:10.378000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1191578
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Sm3(SiNi3)2
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1192140:
+    a_b_c:
+    - 7.6457243298697986
+    - 7.6457243298697986
+    - 7.6457243298697986
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:38:44.620000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1192140
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Gd3(SiNi3)2
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1196242:
+    a_b_c:
+    - 7.934088272669519
+    - 7.934088272669519
+    - 7.934088272669519
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:47:04.553000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1196242
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Dy3Al2(Ni2H3)3
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1210252:
+    a_b_c:
+    - 7.526503808683219
+    - 7.526503808683219
+    - 7.526503808683219
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:47:33.726000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1210252
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Na4SrU3O12
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1212232:
+    a_b_c:
+    - 7.387251028715094
+    - 7.387251028715094
+    - 7.387251028715094
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:49
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1212232
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ho4Ga12Pd
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1212255:
+    a_b_c:
+    - 7.381030731970381
+    - 7.381030731970381
+    - 7.381030731970381
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:07.130000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1212255
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ho4Ga12Pt
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1212307:
+    a_b_c:
+    - 7.962656216394826
+    - 7.962656216394826
+    - 7.962656216394826
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:38:36.653000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1212307
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: In7Ni3
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1218429:
+    a_b_c:
+    - 7.971152000009597
+    - 7.971148000013048
+    - 7.9711450000045785
+    angles:
+    - 90.00011500631854
+    - 89.99995687271577
+    - 89.99982749057088
+    build_date: 2023-11-22 19:44:45.370000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1218429
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Sr4Fe3ReO12
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1218433:
+    a_b_c:
+    - 6.727948712056818
+    - 6.727948712056818
+    - 6.727948712056818
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:52.956000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1218433
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Sr3PrMn4O12
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1218514:
+    a_b_c:
+    - 6.750770213497346
+    - 6.750770213497346
+    - 6.750770213497346
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:43:58.227000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1218514
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Sr3CeMn4O12
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1228077:
+    a_b_c:
+    - 7.177525015821818
+    - 7.177525015821818
+    - 7.177525015821818
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:46:35.831000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1228077
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ba4Na(IrO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1232290:
+    a_b_c:
+    - 6.7066022882086145
+    - 6.706601889372151
+    - 6.70660296
+    angles:
+    - 109.47121480687224
+    - 109.47121360219751
+    - 109.47122882874268
+    build_date: 2023-11-22 19:49:10.828000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1232290
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Cu3SbF12
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1232318:
+    a_b_c:
+    - 7.030059942116212
+    - 7.030059942116212
+    - 7.030059942116212
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:24.769000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1232318
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ba4Cu3MoO12
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-135:
+    a_b_c:
+    - 2.97853209405321
+    - 2.9785316292606328
+    - 2.978532
+    angles:
+    - 109.47122315590451
+    - 109.47121999483102
+    - 109.47121481709904
+    build_date: 2023-11-22 19:44:06.294000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-135
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Li
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-1521:
+    a_b_c:
+    - 8.331871008530943
+    - 8.331870614289157
+    - 8.33187085
+    angles:
+    - 109.47122118325714
+    - 109.47122022474466
+    - 109.47121843607798
+    build_date: 2023-11-22 19:49:22.753000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1521
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Sb7Mo3
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-16852:
+    a_b_c:
+    - 7.2426470554725455
+    - 7.2426467408342035
+    - 7.24264763
+    angles:
+    - 109.47122314938719
+    - 109.47122226936825
+    - 109.47121196874247
+    build_date: 2023-11-22 19:51:40.929000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-16852
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ga7Ni3
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-20471:
+    a_b_c:
+    - 7.099981529950686
+    - 7.1000253273957314
+    - 7.100028740041239
+    angles:
+    - 109.47162039674203
+    - 109.47115869474871
+    - 109.47114752168027
+    build_date: 2023-11-22 19:51:35.115000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-20471
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: U4Si6Tc7
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-23158:
+    a_b_c:
+    - 2.821664987333607
+    - 2.821664987333607
+    - 2.821664987333607
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:45:48.993000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-23158
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: He
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-2647057:
+    a_b_c:
+    - 2.428889488469988
+    - 2.428889488469988
+    - 2.428889488469988
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:45:54.116000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2647057
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Co
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-2729:
+    a_b_c:
+    - 8.173705301881315
+    - 8.173705305767715
+    - 8.17370576
+    angles:
+    - 109.47122423855433
+    - 109.4712242481861
+    - 109.47121347123053
+    build_date: 2023-11-22 19:46:22.201000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-2729
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Sn7Os3
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-27901:
+    a_b_c:
+    - 7.785114582710521
+    - 7.785114582710521
+    - 7.785114582710521
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:05.424000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-27901
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: K4MnCl6
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-39:
+    a_b_c:
+    - 3.387882782556313
+    - 3.3878838943283283
+    - 3.3878830600000005
+    angles:
+    - 109.47123451164275
+    - 109.47124122722302
+    - 109.47120235749885
+    build_date: 2023-11-22 19:47:02.420000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-39
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Tl
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-41:
+    a_b_c:
+    - 3.1018386903264044
+    - 3.101838379222982
+    - 3.10183721
+    angles:
+    - 109.47119931788765
+    - 109.47119732903649
+    - 109.47123636644342
+    build_date: 2023-11-22 19:38:34.407000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-41
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Zr
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-466:
+    a_b_c:
+    - 7.1415538021591365
+    - 7.14155073806171
+    - 7.14154988000014
+    angles:
+    - 109.47119305855624
+    - 109.47122036862174
+    - 109.47122430529606
+    build_date: 2023-11-22 19:49:54.766000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-466
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Nb2F5
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-504491:
+    a_b_c:
+    - 8.173423053259388
+    - 8.173423053259388
+    - 8.173423053259388
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:38:39.005000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-504491
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Dy6Fe16O
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-559352:
+    a_b_c:
+    - 7.533833847700851
+    - 7.533833847700851
+    - 7.533833847700851
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:50:33.645000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-559352
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ba4Na(BiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-568053:
+    a_b_c:
+    - 7.420544849359117
+    - 7.420544882914839
+    - 7.42054551
+    angles:
+    - 109.4712167491563
+    - 109.47121679180836
+    - 109.47122430835766
+    build_date: 2023-11-22 19:48:21.313000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-568053
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Tb4Ga12Pt
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-570002:
+    a_b_c:
+    - 4.194542020194874
+    - 4.194541804644317
+    - 4.19454197
+    angles:
+    - 109.47122626245866
+    - 109.47122522147869
+    - 109.47121702018374
+    build_date: 2023-11-22 19:44:44.922000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-570002
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: C
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-570334:
+    a_b_c:
+    - 4.514027513415819
+    - 4.514027513415819
+    - 4.514027513415819
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:45:27.883000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-570334
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: SiW3
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-58:
+    a_b_c:
+    - 4.67230796401592
+    - 4.672308924841627
+    - 4.67230847
+    angles:
+    - 109.47121387235052
+    - 109.47121806653192
+    - 109.47123233750334
+    build_date: 2023-11-22 19:51:27.091000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-58
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: K
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-601193:
+    a_b_c:
+    - 4.74790979806346
+    - 4.74790979806346
+    - 4.74790979806346
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:56.845000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-601193
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Pt3O4
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-673171:
+    a_b_c:
+    - 3.2496003371239754
+    - 3.2496019061320376
+    - 3.24960037
+    angles:
+    - 109.47121701502334
+    - 109.47122694848211
+    - 109.471213179239
+    build_date: 2023-11-22 19:45:01.061000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-673171
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Br
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-697126:
+    a_b_c:
+    - 6.296433910798548
+    - 6.296434499696313
+    - 6.296435094366539
+    angles:
+    - 109.47121684526968
+    - 109.47115610591328
+    - 109.47130039435342
+    build_date: 2023-11-22 19:50:20.664000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-697126
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ca4(H4Rh)3
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-724972:
+    a_b_c:
+    - 6.278474599289464
+    - 6.278474599289464
+    - 6.278474599289464
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:45:23.840000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-724972
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Na5(CN2)3
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-7971:
+    a_b_c:
+    - 7.230193216778373
+    - 7.230193216778373
+    - 7.230193216778373
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:47:30.970000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-7971
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ba4Li(SbO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-8560:
+    a_b_c:
+    - 4.977057472679259
+    - 4.977055595082242
+    - 4.97705529
+    angles:
+    - 109.47123105279809
+    - 109.47122336451854
+    - 109.47120359658807
+    build_date: 2023-11-22 19:51:02.825000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-8560
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: SF6
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-9723:
+    a_b_c:
+    - 6.4892270774528304
+    - 6.4892270774528304
+    - 6.4892270774528304
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:49:22.256000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-9723
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Sr4Li(BN2)3
+    pymatgen_version: 2023.11.12
+    space_group: 229
+  mp-974400:
+    a_b_c:
+    - 4.176518932578906
+    - 4.176518932578906
+    - 4.176518932578906
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:38:46.832000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-974400
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Kr
+    pymatgen_version: 2023.11.12
+    space_group: 229
+230:
+  mp-1013864:
+    a_b_c:
+    - 10.74237656233424
+    - 10.74237656233424
+    - 10.74237656233424
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:25.064000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1013864
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Na3Fe2(GeO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1020161:
+    a_b_c:
+    - 10.142108374209132
+    - 10.142108374209132
+    - 10.142108374209132
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:38.827000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1020161
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Na3Al2(PO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1143147:
+    a_b_c:
+    - 9.982257405178599
+    - 9.982257405178599
+    - 9.982257405178599
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:38:44.642000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1143147
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: FeSiO4
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1154534:
+    a_b_c:
+    - 10.728920259610238
+    - 10.728920259610238
+    - 10.728920259610238
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:45:18.873000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1154534
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Zn3Si3(SbO6)2
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1154758:
+    a_b_c:
+    - 10.08861225296656
+    - 10.08861225296656
+    - 10.08861225296656
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:51:36.912000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1154758
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mg3Si3(NiO6)2
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1157153:
+    a_b_c:
+    - 10.818139928758917
+    - 10.818139928758917
+    - 10.818139928758917
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:01.085000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1157153
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ca3Si3(AgO6)2
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1157231:
+    a_b_c:
+    - 10.475786230236467
+    - 10.475786230236467
+    - 10.475786230236467
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:45:32.315000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1157231
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mg3Si3(WO6)2
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1157336:
+    a_b_c:
+    - 10.627683621958644
+    - 10.627683621958644
+    - 10.627683621958644
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:47:33.640000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1157336
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Y2Co3(SiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1157674:
+    a_b_c:
+    - 10.036827397921865
+    - 10.036827397921865
+    - 10.036827397921865
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:38:34.920000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1157674
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Al2Si3(NiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1163934:
+    a_b_c:
+    - 10.590666232099283
+    - 10.590666232099283
+    - 10.590666232099283
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:52:11.902000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1163934
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ca3V2(SiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1163936:
+    a_b_c:
+    - 10.528125341539585
+    - 10.528125341539585
+    - 10.528125341539585
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:38:27.899000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1163936
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ca3Cu2(SiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1163940:
+    a_b_c:
+    - 10.679012947640947
+    - 10.679012947640947
+    - 10.679012947640947
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:49:53.754000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1163940
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mg3Si3(SbO6)2
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1163942:
+    a_b_c:
+    - 10.18415044346125
+    - 10.18415044346125
+    - 10.18415044346125
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:32.602000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1163942
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Al2V3(SiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1172356:
+    a_b_c:
+    - 10.665535860307253
+    - 10.665535860307253
+    - 10.665535860307253
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:52:24.495000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1172356
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: SiBiO4
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1172462:
+    a_b_c:
+    - 10.05655892072169
+    - 10.05655892072169
+    - 10.05655892072169
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:52:15.748000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1172462
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Cr2(SiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1202673:
+    a_b_c:
+    - 10.806701551828274
+    - 10.806701551828274
+    - 10.806701551828274
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:45:51.075000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1202673
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Na3V3Cr2O12
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1207682: {}
+  mp-1207891:
+    a_b_c:
+    - 10.637729516642542
+    - 10.637729516642542
+    - 10.637729516642542
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:32.813000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1207891
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Y3Al3Cr2O12
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1207916:
+    a_b_c:
+    - 10.690224512518341
+    - 10.690224512518341
+    - 10.690224512518341
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:46:45.871000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1207916
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Tm3Sc2Al3O12
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1207967:
+    a_b_c:
+    - 10.782191214247826
+    - 10.782191214247826
+    - 10.782191214247826
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:48:04.805000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1207967
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Y3Cr2(GaO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1208209:
+    a_b_c:
+    - 10.7844965738727
+    - 10.7844965738727
+    - 10.7844965738727
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:38:28.816000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1208209
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Tm3Fe5O12
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1210577:
+    a_b_c:
+    - 10.86279933462737
+    - 10.86279933462737
+    - 10.86279933462737
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:14.518000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1210577
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Na3Mn2V3O12
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1210989:
+    a_b_c:
+    - 10.545117608666732
+    - 10.545117608666732
+    - 10.545117608666732
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:48.704000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1210989
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Li3Er3(TeO6)2
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1211213:
+    a_b_c:
+    - 10.784941710930246
+    - 10.784941710930246
+    - 10.784941710930246
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:45:11.152000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1211213
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Li3Tb3(TeO6)2
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1211646:
+    a_b_c:
+    - 10.605695236956556
+    - 10.605695236956556
+    - 10.605695236956556
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:45:46.205000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1211646
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Li3Lu3(TeO6)2
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1212395:
+    a_b_c:
+    - 10.852445152220232
+    - 10.852445152220232
+    - 10.852445152220232
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:38:44.629000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1212395
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mn2Cd3(GeO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1213017:
+    a_b_c:
+    - 10.847827279600649
+    - 10.847827279600649
+    - 10.847827279600649
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:51:41.071000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1213017
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Gd3Sc2Al3O12
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1213138:
+    a_b_c:
+    - 10.775077681581141
+    - 10.775077681581141
+    - 10.775077681581141
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:00.905000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1213138
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Dy3Sc2Al3O12
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1214197:
+    a_b_c:
+    - 10.88034133736033
+    - 10.88034133736033
+    - 10.88034133736033
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:45:45.022000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1214197
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ca3V3(CuO6)2
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1251134:
+    a_b_c:
+    - 10.30937944889929
+    - 10.30937944889929
+    - 10.30937944889929
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:55.850000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1251134
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: V2Zn3(SiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1257835:
+    a_b_c:
+    - 10.161841629059765
+    - 10.161841629059765
+    - 10.161841629059765
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:46:01.866000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1257835
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Zn3Si3(NiO6)2
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1258162:
+    a_b_c:
+    - 10.269270348348416
+    - 10.269270348348416
+    - 10.269270348348416
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:46:28.784000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1258162
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Zn3Fe2(SiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1265011:
+    a_b_c:
+    - 10.146892298539637
+    - 10.146892298539637
+    - 10.146892298539637
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:45:28.819000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1265011
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mg3Cu2(SiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1324516:
+    a_b_c:
+    - 10.857360487245508
+    - 10.857360487245508
+    - 10.857360487245508
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:48:04.534000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1324516
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ca3Ti2(GeO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1327460:
+    a_b_c:
+    - 10.506983929382399
+    - 10.506983929382399
+    - 10.506983929382399
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:48:38.584000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1327460
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mg3V2(GeO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1328181:
+    a_b_c:
+    - 10.60950226513474
+    - 10.609501713026898
+    - 10.60950185
+    angles:
+    - 109.47122091511193
+    - 109.47121986095188
+    - 109.47121988975427
+    build_date: 2023-11-22 19:51:59.111000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1328181
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ti2Zn3(GeO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1363500:
+    a_b_c:
+    - 10.526351721512633
+    - 10.526351721512633
+    - 10.526351721512633
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:49:36.299000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1363500
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mn2Zn3(GeO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1364379:
+    a_b_c:
+    - 10.025515374097633
+    - 10.025515374097633
+    - 10.025515374097633
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:48:22.587000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1364379
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: SiNiO4
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-1364577:
+    a_b_c:
+    - 9.751548237610425
+    - 9.751548237610425
+    - 9.751548237610425
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:48:36.602000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-1364577
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: TiSiO4
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-14046:
+    a_b_c:
+    - 10.386176849656085
+    - 10.386176849656085
+    - 10.386176849656085
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:38:45.656000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-14046
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mn3V2(SiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-14052:
+    a_b_c:
+    - 10.801023802678522
+    - 10.801023802678522
+    - 10.801023802678522
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:38:30.490000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-14052
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ca3In2(SiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-14132:
+    a_b_c:
+    - 10.362229515190638
+    - 10.362229515190638
+    - 10.362229515190638
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:51:54.874000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-14132
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Lu3Al5O12
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-14133:
+    a_b_c:
+    - 10.574875124886676
+    - 10.574875124886676
+    - 10.574875124886676
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:46.964000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-14133
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Gd3Al5O12
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-16383:
+    a_b_c:
+    - 10.688241314343676
+    - 10.688241314343676
+    - 10.688241314343676
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:51:58.924000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-16383
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Na3Cr2(AsO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-3050:
+    a_b_c:
+    - 10.395097684965531
+    - 10.395099734560814
+    - 10.39510341228039
+    angles:
+    - 109.47127601153866
+    - 109.47123427060106
+    - 109.4712446439498
+    build_date: 2023-11-22 19:44:47.246000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-3050
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Y3Al5O12
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-5444:
+    a_b_c:
+    - 10.647987795396467
+    - 10.647987795396467
+    - 10.647987795396467
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:50:27.347000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-5444
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Y3Ga5O12
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-555470:
+    a_b_c:
+    - 10.129086516048359
+    - 10.129086516048359
+    - 10.129086516048359
+    angles:
+    - 109.47136614187589
+    - 109.47136614187589
+    - 109.47136614187589
+    build_date: 2023-11-22 19:49:10.541000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-555470
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mn2Fe3(SiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-558891:
+    a_b_c:
+    - 8.773574940166682
+    - 8.773574345937554
+    - 8.77357503
+    angles:
+    - 109.47122221390778
+    - 109.4712208419049
+    - 109.47121856648454
+    build_date: 2023-11-22 19:47:02.561000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-558891
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: SiO2
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-5800:
+    a_b_c:
+    - 10.77696189306365
+    - 10.77696207204217
+    - 10.776962470413567
+    angles:
+    - 109.47113993687053
+    - 109.47113841755295
+    - 109.47113405494046
+    build_date: 2023-11-22 19:45:28.307000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-5800
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Sm3Ga5O12
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-5802:
+    a_b_c:
+    - 10.383227167130796
+    - 10.383227167130796
+    - 10.383227167130796
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:46:29.967000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-5802
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mn5(SiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-5965:
+    a_b_c:
+    - 10.668048736939383
+    - 10.668048736939383
+    - 10.668048736939383
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:38:48.004000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-5965
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Tb3Ga5O12
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-6008:
+    a_b_c:
+    - 10.365449397641909
+    - 10.365449397641909
+    - 10.365449397641909
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:46:58.886000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-6008
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ca3Al2(SiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-6073:
+    a_b_c:
+    - 10.02097913303261
+    - 10.02097913303261
+    - 10.02097913303261
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:45:19.588000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-6073
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mg3Al2(SiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-6255:
+    a_b_c:
+    - 10.710421956985403
+    - 10.710421956985403
+    - 10.710421956985403
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:30.908000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-6255
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Ca3Sc2(SiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-6480:
+    a_b_c:
+    - 10.169779617910853
+    - 10.169779617910853
+    - 10.169779617910853
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:48:01.088000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-6480
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mn3Al2(SiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-6551:
+    a_b_c:
+    - 10.210934877149496
+    - 10.210934877149496
+    - 10.210934877149496
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:45:08.216000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-6551
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Mg3Fe2(SiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-6670:
+    a_b_c:
+    - 10.259383802338812
+    - 10.259383802338812
+    - 10.259383802338812
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:46:31.004000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-6670
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Cr2Fe3(SiO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-6711:
+    a_b_c:
+    - 10.381289036918142
+    - 10.381289036918142
+    - 10.381289036918142
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:46:43.650000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-6711
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Na3Li3Al2F12
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-757914:
+    a_b_c:
+    - 10.325399186818492
+    - 10.325399186818492
+    - 10.325399186818492
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:47:33.693000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-757914
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Li3Ti2(PO4)3
+    pymatgen_version: 2023.11.12
+    space_group: 230
+  mp-772195:
+    a_b_c:
+    - 10.385174217405108
+    - 10.385174217405108
+    - 10.385174217405108
+    angles:
+    - 109.47122063449069
+    - 109.47122063449069
+    - 109.47122063449069
+    build_date: 2023-11-22 19:44:44.243000
+    database_version: 2023.11.1
+    emmet_version: 0.72.20
+    identifier/identifier: mp-772195
+    identifier/is_persistent: false
+    identifier/service: MaterialsProject
+    license: BY-C
+    phase_name: Dy3Al5O12
+    pymatgen_version: 2023.11.12
+    space_group: 230

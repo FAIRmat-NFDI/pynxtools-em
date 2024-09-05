@@ -28,6 +28,7 @@ from pynxtools_em.methods.ebsd import (
     EbsdPointCloud,
     ebsd_roi_overview,
     ebsd_roi_phase_ipf,
+    has_hfive_magic_header,
 )
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.get_xrayline_iupac_names import get_xrayline_candidates
@@ -77,6 +78,9 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
     def check_if_supported(self):
         """Check if instance matches all constraints to qualify as supported H5OINA"""
         self.supported = False
+        if not has_hfive_magic_header(self.file_path):
+            return
+
         with h5py.File(self.file_path, "r") as h5r:
             # parse Company and PRODUCT_VERSION attribute values from the first group below
             # but these are not scalar but single value lists
