@@ -44,7 +44,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
 
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
         super().__init__(file_path)
-        self.id_mgn: Dict[str, int] = {"entry_id": entry_id, "roi_id": 1}
+        self.id_mgn: Dict[str, int] = {"entry_id": entry_id, "roi_id": 1, "img_id": 1}
         self.verbose = verbose
         self.prfx = ""  # template path handling
         self.version: Dict = {  # Dict[str, Dict[str, List[str]]]
@@ -167,6 +167,8 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                                             }  # in weight percent
                             ms.crystal.append(cryst)
                 microstructure_to_template(ms, self.id_mgn, template)
+                self.id_mgn["roi_id"] += 1
+                self.id_mgn["img_id"] += 1
 
                 # TODO::parsing of information from other imaging modalities
         return template
