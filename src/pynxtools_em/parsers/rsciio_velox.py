@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""(Sub-)parser for reading content from ThermoFisher Velox *.emd (HDF5) via rosettasciio."""
+"""Parser for reading content from ThermoFisher Velox *.emd (HDF5) via rosettasciio."""
 
 from typing import Dict, List
 
@@ -157,9 +157,7 @@ class RsciioVeloxParser(RsciioBaseParser):
         flat_orig_meta = fd.FlatDict(obj["original_metadata"], "/")
 
         if (len(identifier) != 3) or (not all(isinstance(x, int) for x in identifier)):
-            raise ValueError(
-                f"Argument identifier {identifier} needs three int values!"
-            )
+            print(f"Argument identifier {identifier} needs three int values!")
         trg = (
             f"/ENTRY[entry{identifier[0]}]/measurement/event_data_em_set/EVENT_DATA_EM"
             f"[event_data_em{identifier[1]}]/em_lab/ebeam_column"
@@ -302,14 +300,10 @@ class RsciioVeloxParser(RsciioBaseParser):
                 units = axis["units"]
                 count = np.shape(obj["data"])[idx]
                 if units == "":
-                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.float32(offset) + (
-                        np.float32(step)
-                        * np.asarray(
-                            np.linspace(
-                                start=0, stop=count - 1, num=count, endpoint=True
-                            ),
-                            np.float32,
-                        )
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
+                        offset
+                        + np.linspace(0, count - 1, num=count, endpoint=True) * step,
+                        np.float32,
                     )
                     if unit_combination in VELOX_WHICH_SPECTRUM:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
@@ -325,14 +319,10 @@ class RsciioVeloxParser(RsciioBaseParser):
                             # unitless | dimensionless i.e. no unit in longname
                         )
                 else:
-                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.float32(offset) + (
-                        np.float32(step)
-                        * np.asarray(
-                            np.linspace(
-                                start=0, stop=count - 1, num=count, endpoint=True
-                            ),
-                            np.float32,
-                        )
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
+                        offset
+                        + np.linspace(0, count - 1, num=count, endpoint=True) * step,
+                        dtype=np.float32,
                     )
                     template[f"{trg}/AXISNAME[{axis_name}]/@units"] = (
                         f"{ureg.Unit(units)}"

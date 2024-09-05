@@ -107,7 +107,7 @@ class JeolTiffParser(TiffParser):
                         else:
                             self.flat_dict_meta[tmp[0]] = ureg.Quantity(tmp[1])
                     else:
-                        raise KeyError(f"Found duplicated key {tmp[0]} !")
+                        print(f"Found duplicated key {tmp[0]} !")
                 else:
                     print(f"WARNING::{line} is currently ignored !")
 
@@ -129,7 +129,7 @@ class JeolTiffParser(TiffParser):
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""
-        if self.supported is True:
+        if self.supported:
             print(f"Parsing via JEOL...")
             # metadata have at this point already been collected into an fd.FlatDict
             self.process_event_data_em_metadata(template)
@@ -201,7 +201,7 @@ class JeolTiffParser(TiffParser):
                         "compress": np.asarray(
                             np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
                             * sxy[dim].magnitude,
-                            np.float64,
+                            dtype=np.float32,
                         ),
                         "strength": 1,
                     }

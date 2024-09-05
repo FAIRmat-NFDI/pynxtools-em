@@ -482,14 +482,10 @@ class NionProjectParser:
                 units = axis["units"]
                 count = np.shape(nparr)[idx]
                 if units == "":
-                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.float32(offset) + (
-                        np.float32(step)
-                        * np.asarray(
-                            np.linspace(
-                                start=0, stop=count - 1, num=count, endpoint=True
-                            ),
-                            np.float32,
-                        )
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
+                        offset
+                        + np.linspace(0, count - 1, num=count, endpoint=True) * step,
+                        dtype=np.float32,
                     )
                     if unit_combination in NION_WHICH_SPECTRUM:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
@@ -505,14 +501,11 @@ class NionProjectParser:
                             # unitless | dimensionless i.e. no unit in longname
                         )
                 else:
-                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.float32(offset) + (
-                        np.float32(step)
-                        * np.asarray(
-                            np.linspace(
-                                start=0, stop=count - 1, num=count, endpoint=True
-                            ),
-                            np.float32,
-                        )
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
+                        offset
+                        * np.linspace(0, count - 1, num=count, endpoint=True)
+                        * step,
+                        dtype=np.float32,
                     )
                     template[f"{trg}/AXISNAME[{axis_name}]/@units"] = (
                         f"{ureg.Unit(units)}"

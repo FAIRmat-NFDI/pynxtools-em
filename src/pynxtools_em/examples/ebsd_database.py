@@ -25,16 +25,6 @@ mineral groups or rocks are used. The dict maps from these NXcrystal_structure/p
 onto the set of NXem/ENTRY/sample/atom_types.
 """
 
-# typical scan schemes used for EBSD
-HEXAGONAL_FLAT_TOP_TILING = "hexagonal_flat_top_tiling"
-SQUARE_TILING = "square_tiling"
-REGULAR_TILING = "regular_tiling"
-
-# most frequently this is the sequence of set scan positions with actual positions
-# based on grid type, spacing, and tiling
-FLIGHT_PLAN = "start_top_left_stack_x_left_to_right_stack_x_line_along_end_bottom_right"
-
-
 FREE_TEXT_TO_CONCEPT = {
     "Actinolite": "Actinolite",
     "al": "Al",

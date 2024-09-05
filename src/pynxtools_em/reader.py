@@ -24,7 +24,16 @@ import numpy as np
 from pynxtools.dataconverter.readers.base.reader import BaseReader
 
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
-from pynxtools_em.parsers.conventions_reader import NxEmConventionParser
+from pynxtools_em.parsers.conventions import NxEmConventionParser
+from pynxtools_em.parsers.hfive_apex import HdfFiveEdaxApexParser
+from pynxtools_em.parsers.hfive_bruker import HdfFiveBrukerEspritParser
+
+# from pynxtools_em.parsers.hfive_dreamthreed import HdfFiveDreamThreedParser
+from pynxtools_em.parsers.hfive_ebsd import HdfFiveEbsdCommunityParser
+from pynxtools_em.parsers.hfive_edax import HdfFiveEdaxOimAnalysisParser
+
+# from pynxtools_em.parsers.hfive_emsoft import HdfFiveEmSoftParser
+from pynxtools_em.parsers.hfive_oxford import HdfFiveOxfordInstrumentsParser
 from pynxtools_em.parsers.image_png_protochips import ProtochipsPngSetParser
 from pynxtools_em.parsers.image_tiff_hitachi import HitachiTiffParser
 from pynxtools_em.parsers.image_tiff_jeol import JeolTiffParser
@@ -34,9 +43,8 @@ from pynxtools_em.parsers.image_tiff_tfs import TfsTiffParser
 from pynxtools_em.parsers.image_tiff_zeiss import ZeissTiffParser
 from pynxtools_em.parsers.nxs_mtex import NxEmNxsMTexParser
 from pynxtools_em.parsers.nxs_nion import NionProjectParser
-from pynxtools_em.parsers.nxs_pyxem import NxEmNxsPyxemParser
-from pynxtools_em.parsers.oasis_config_reader import NxEmNomadOasisConfigParser
-from pynxtools_em.parsers.oasis_eln_reader import NxEmNomadOasisElnSchemaParser
+from pynxtools_em.parsers.oasis_config import NxEmNomadOasisConfigParser
+from pynxtools_em.parsers.oasis_eln import NxEmNomadOasisElnSchemaParser
 from pynxtools_em.parsers.rsciio_gatan import RsciioGatanParser
 from pynxtools_em.parsers.rsciio_velox import RsciioVeloxParser
 from pynxtools_em.utils.io_case_logic import EmUseCaseSelector
@@ -106,6 +114,13 @@ class EMReader(BaseReader):
         print("Parse and map pieces of information within files from tech partners...")
         if len(case.dat) == 1:  # no sidecar file
             parsers: List[type] = [
+                HdfFiveEdaxApexParser,
+                # HdfFiveBrukerEspritParser,
+                # HdfFiveDreamThreedParser,
+                # HdfFiveEbsdCommunityParser,
+                # HdfFiveEdaxOimAnalysisParser,
+                # HdfFiveEmSoftParser,
+                HdfFiveOxfordInstrumentsParser,
                 TfsTiffParser,
                 ZeissTiffParser,
                 PointElectronicTiffParser,
@@ -113,7 +128,6 @@ class EMReader(BaseReader):
                 RsciioVeloxParser,
                 RsciioGatanParser,
                 NxEmNxsMTexParser,
-                NxEmNxsPyxemParser,
                 NionProjectParser,
             ]
             for parser_type in parsers:

@@ -85,7 +85,7 @@ class NxEmDefaultPlotResolver:
                             break
 
             # find ebsd ipf map
-            idx_head = key.find("/ROI[roi1]")
+            idx_head = key.find("/roiID[roi1]")
             idx_tail = key.find("/ebsd/indexing")
             if idx_head is None or idx_tail is None:
                 continue

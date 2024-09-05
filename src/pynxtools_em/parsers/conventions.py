@@ -97,7 +97,7 @@ class NxEmConventionParser:
                     ]
                 )
             if not is_cartesian_cs_well_defined(handedness, directions):
-                raise ValueError(f"{csys_name}_reference_frame is not well defined!")
+                print(f"{csys_name}_reference_frame is not well defined!")
 
         # could add tests for gnomonic and pattern_centre as well
         return template

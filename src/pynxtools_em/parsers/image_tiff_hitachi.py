@@ -122,7 +122,7 @@ class HitachiTiffParser(TiffParser):
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""
-        if self.supported is True:
+        if self.supported:
             print(f"Parsing via Hitachi...")
             # metadata have at this point already been collected into an fd.FlatDict
             self.process_event_data_em_metadata(template)
@@ -189,7 +189,7 @@ class HitachiTiffParser(TiffParser):
                         "compress": np.asarray(
                             np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
                             * sxy[dim].magnitude,
-                            np.float64,
+                            dtype=np.float32,
                         ),
                         "strength": 1,
                     }

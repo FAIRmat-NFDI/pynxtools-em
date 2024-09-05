@@ -183,7 +183,7 @@ class ProtochipsPngSetParser(ImgsBaseParser):
                                                 string_to_number(v)
                                             )
                                         else:
-                                            raise KeyError(
+                                            print(
                                                 "Trying to register a duplicated key {key}"
                                             )
                                     if k.endswith(".Value"):
@@ -216,8 +216,10 @@ class ProtochipsPngSetParser(ImgsBaseParser):
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""
-        if self.supported is True:
-            print(f"Parsing via Protochips-specific metadata...")
+        if self.supported:
+            print(
+                f"Parsing via Protochips AXON Studio ZIP-compressed project parser..."
+            )
             # may need to set self.supported = False on error
             with ZipFile(self.file_path) as zip_file_hdl:
                 for file in self.png_info.keys():
@@ -234,11 +236,6 @@ class ProtochipsPngSetParser(ImgsBaseParser):
             )
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
-        else:
-            print(
-                f"{self.file_path} is not a Protochips-specific "
-                f"PNG file that this parser can process !"
-            )
         return template
 
     def sort_event_data_em(self) -> List:
@@ -394,7 +391,7 @@ class ProtochipsPngSetParser(ImgsBaseParser):
                                         0, nxy[dim] - 1, num=nxy[dim], endpoint=True
                                     )
                                     * sxy[dim].magnitude,
-                                    np.float64,
+                                    dtype=np.float32,
                                 ),
                                 "strength": 1,
                             }

@@ -123,7 +123,7 @@ class TfsTiffParser(TiffParser):
                     # TODO::better use official convention to not read beyond the end of file
                 idx += 1
                 if pos_s is None or pos_e is None:
-                    raise ValueError(
+                    print(
                         f"Definition of byte boundaries for reading childs of [{parent}] was unsuccessful !"
                     )
                 # print(f"Search for [{parent}] in between byte offsets {pos_s} and {pos_e}")
@@ -150,7 +150,7 @@ class TfsTiffParser(TiffParser):
                                 else:
                                     self.flat_dict_meta[f"{parent}/{term}"] = value
                         else:
-                            raise ValueError(
+                            print(
                                 f"Detected an unexpected case {parent}/{term}, type: {type(value)} !"
                             )
                     else:
@@ -162,16 +162,11 @@ class TfsTiffParser(TiffParser):
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache self.tmp."""
-        if self.supported is True:
-            print(f"Parsing via ThermoFisher-specific metadata...")
+        if self.supported:
+            print(f"Parsing via ThermoFisher TIFF parser...")
             self.get_metadata()
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
-        else:
-            print(
-                f"{self.file_path} is not a ThermoFisher-specific "
-                f"TIFF file that this parser can process !"
-            )
         return template
 
     def process_event_data_em_data(self, template: dict) -> dict:
@@ -248,7 +243,7 @@ class TfsTiffParser(TiffParser):
                         "compress": np.asarray(
                             np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
                             * sxy[dim].magnitude,
-                            np.float64,
+                            dtype=np.float32,
                         ),
                         "strength": 1,
                     }

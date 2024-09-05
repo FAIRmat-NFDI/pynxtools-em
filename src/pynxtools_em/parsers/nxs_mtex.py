@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""(Sub-)parser mapping concepts and content from *.nxs.mtex files on NXem."""
+"""Parser mapping concepts and content from *.nxs.mtex files on NXem."""
 
 # *.nxs.mtex is a specific semantic file formatting for storing processing results obtained
 # with the MTex texture toolbox for Matlab into an HDF5 file. The format uses NeXus

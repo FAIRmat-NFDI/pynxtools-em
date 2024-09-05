@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""(Sub-)parser for reading content from Gatan Digital Micrograph *.dm3 and *.dm4 (HDF5) via rosettasciio."""
+"""Parser for reading content from Gatan Digital Micrograph *.dm3 and *.dm4 (HDF5) via rosettasciio."""
 
 from typing import Dict, List
 
@@ -221,14 +221,11 @@ class RsciioGatanParser(RsciioBaseParser):
                 units = axis["units"]
                 count = np.shape(obj["data"])[idx]
                 if units == "":
-                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.float32(offset) + (
-                        np.float32(step)
-                        * np.asarray(
-                            np.linspace(
-                                start=0, stop=count - 1, num=count, endpoint=True
-                            ),
-                            np.float32,
-                        )
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
+                        offset
+                        * np.linspace(0, count - 1, num=count, endpoint=True)
+                        * step,
+                        dtype=np.float32,
                     )
                     if unit_combination in GATAN_WHICH_SPECTRUM:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
@@ -244,14 +241,11 @@ class RsciioGatanParser(RsciioBaseParser):
                             # unitless | dimensionless i.e. no unit in longname
                         )
                 else:
-                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.float32(offset) + (
-                        np.float32(step)
-                        * np.asarray(
-                            np.linspace(
-                                start=0, stop=count - 1, num=count, endpoint=True
-                            ),
-                            np.float32,
-                        )
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
+                        offset
+                        * np.linspace(0, count - 1, num=count, endpoint=True)
+                        * step,
+                        dtype=np.float32,
                     )
                     template[f"{trg}/AXISNAME[{axis_name}]/@units"] = (
                         f"{ureg.Unit(units)}"
