@@ -42,7 +42,8 @@
                      //"tests/data/hfive_apex/InGaN_nanowires_map.edaxh5",
                      //"tests/data/hfive_apex/InGaN_nanowires_linescan.edaxh5",
                      //"tests/data/hfive_apex/InGaN_nanowires_spectra.edaxh5",
-                     "tests/data/hfive_oxford/57764_CR_ZG_380.h5oina.h5",
+                     //"tests/data/hfive_oxford/57764_CR_ZG_380.h5oina.h5",
+                     "tests/data/ebsd_zip/13368338/original_data.zip",
                      //"tests/data/hfive_oxford/173_0057.h5oina",
                      "--reader",
                      "em",
@@ -66,7 +67,8 @@
                      //"--output=tests/data/hfive_apex/InGaN_nanowires_spectra.edaxh5.nxs"]
                      //"--output=tests/data/hfive_apex/2023-08-16_Ni_NFDI.edaxh5.nxs"]
                      //"--output=tests/data/hfive_oxford/173_0057.h5oina.nxs"
-                     "--output=tests/data/hfive_oxford/57764_CR_ZG_380.h5oina.h5.nxs"]
+                     //"--output=tests/data/hfive_oxford/57764_CR_ZG_380.h5oina.h5.nxs"
+                     "--output=tests/data/ebsd_zip/ebsd.mp.zip.nxs"]
         }
     ]
 }

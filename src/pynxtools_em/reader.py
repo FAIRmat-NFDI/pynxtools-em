@@ -17,9 +17,9 @@
 #
 """Parser for loading generic orientation microscopy data based on ."""
 
+import os
 from time import perf_counter_ns
 from typing import Any, List, Tuple
-
 import numpy as np
 from pynxtools.dataconverter.readers.base.reader import BaseReader
 
@@ -49,6 +49,9 @@ from pynxtools_em.parsers.rsciio_gatan import RsciioGatanParser
 from pynxtools_em.parsers.rsciio_velox import RsciioVeloxParser
 from pynxtools_em.utils.io_case_logic import EmUseCaseSelector
 from pynxtools_em.utils.nx_atom_types import NxEmAtomTypesResolver
+from pynxtools_em.parsers.image_diffraction_pattern_set import (
+    DiffractionPatternSetParser,
+)
 
 # from pynxtools_em.parsers.zip_ebsd_parser import NxEmOmZipEbsdParser
 from pynxtools_em.utils.nx_default_plots import NxEmDefaultPlotResolver
@@ -71,6 +74,7 @@ class EMReader(BaseReader):
     ) -> dict:
         """Read data from given file, return filled template dictionary em."""
         # pylint: disable=duplicate-code
+        print(os.getcwd())
         tic = perf_counter_ns()
         template.clear()
 
@@ -113,22 +117,25 @@ class EMReader(BaseReader):
 
         print("Parse and map pieces of information within files from tech partners...")
         if len(case.dat) == 1:  # no sidecar file
+            """
+            HdfFiveEdaxApexParser,
+            # HdfFiveBrukerEspritParser,
+            # HdfFiveDreamThreedParser,
+            # HdfFiveEbsdCommunityParser,
+            # HdfFiveEdaxOimAnalysisParser,
+            # HdfFiveEmSoftParser,
+            HdfFiveOxfordInstrumentsParser,
+            TfsTiffParser,
+            ZeissTiffParser,
+            PointElectronicTiffParser,
+            ProtochipsPngSetParser,
+            RsciioVeloxParser,
+            RsciioGatanParser,
+            NxEmNxsMTexParser,
+            NionProjectParser,
+            """
             parsers: List[type] = [
-                HdfFiveEdaxApexParser,
-                # HdfFiveBrukerEspritParser,
-                # HdfFiveDreamThreedParser,
-                # HdfFiveEbsdCommunityParser,
-                # HdfFiveEdaxOimAnalysisParser,
-                # HdfFiveEmSoftParser,
-                HdfFiveOxfordInstrumentsParser,
-                TfsTiffParser,
-                ZeissTiffParser,
-                PointElectronicTiffParser,
-                ProtochipsPngSetParser,
-                RsciioVeloxParser,
-                RsciioGatanParser,
-                NxEmNxsMTexParser,
-                NionProjectParser,
+                DiffractionPatternSetParser,
             ]
             for parser_type in parsers:
                 parser = parser_type(case.dat[0], entry_id, verbose=False)
