@@ -31,6 +31,12 @@ from pynxtools_em.methods.ebsd import (
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.hfive_utils import apply_euler_space_symmetry, read_strings
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
+from pynxtools_em.methods.microstructure import (
+    Crystal,
+    Microstructure,
+    microstructure_to_template,
+)
+from ase.data import chemical_symbols
 
 
 class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
@@ -38,7 +44,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
 
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
         super().__init__(file_path)
-        self.id_mgn: Dict[str, int] = {"entry_id": entry_id, "roi_id": 1}
+        self.id_mgn: Dict[str, int] = {"entry_id": entry_id, "roi_id": 1, "img_id": 1}
         self.verbose = verbose
         self.prfx = ""  # template path handling
         self.version: Dict = {  # Dict[str, Dict[str, List[str]]]
@@ -128,8 +134,43 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                         self.id_mgn["roi_id"] += 1
                         self.ebsd = EbsdPointCloud()
 
-                    # TODO:Vitesh example
-                    # TODO::parsing of information from other imaging modalities
+                # Vitesh's example
+                ms = Microstructure()
+                for grpnm in h5r:
+                    if grpnm.isdigit():
+                        if f"/{grpnm}/Electron Image/Data/Feature/Area" in h5r:
+                            cryst = Crystal()
+                            cryst.id = np.uint32(grpnm)
+                            cryst.props["area"] = ureg.Quantity(
+                                h5r[f"/{grpnm}/Electron Image/Data/Feature/Area"][0]
+                            )  # uses that 'um2' has been customized for pint
+                            abbrev = "EDS/Data/Composition"
+                            if (
+                                f"{grpnm}/{abbrev}" in h5r
+                                and f"/{grpnm}/{abbrev} Sigma" in h5r
+                            ):
+                                cryst.props["composition"] = {}
+                                for element in h5r[f"/{grpnm}/{abbrev}"]:
+                                    if element in h5r[f"/{grpnm}/{abbrev} Sigma"]:
+                                        if (
+                                            element in chemical_symbols[1:]
+                                            and element
+                                            not in cryst.props["composition"]
+                                        ):
+                                            cryst.props["composition"][element] = {
+                                                "value": h5r[
+                                                    f"/{grpnm}/{abbrev}/{element}"
+                                                ][0],
+                                                "sigma": h5r[
+                                                    f"/{grpnm}/{abbrev} Sigma/{element}"
+                                                ][0],
+                                            }  # in weight percent
+                            ms.crystal.append(cryst)
+                microstructure_to_template(ms, self.id_mgn, template)
+                self.id_mgn["roi_id"] += 1
+                self.id_mgn["img_id"] += 1
+
+                # TODO::parsing of information from other imaging modalities
         return template
 
     def parse_and_normalize_slice_ebsd_header(self, fp):
