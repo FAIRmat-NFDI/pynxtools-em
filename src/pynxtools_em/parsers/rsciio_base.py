@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Base class to inherit sub-parser from when interacting with rosettasciio."""
+"""Base class to inherit parser from when interacting with rosettasciio."""
 
 # this parser is currently implemented such that it represents the first
 # and the second step of a parsing and mapping workflow whereby concepts and
