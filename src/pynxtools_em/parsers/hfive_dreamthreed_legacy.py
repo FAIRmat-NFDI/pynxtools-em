@@ -82,7 +82,7 @@ DREAM_SPACEGROUPS_TO_REPRESENTATIVE_SPACEGROUP = {
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 
-class HdfFiveDreamThreedParser(HdfFiveBaseParser):
+class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
     """Read DREAM3D HDF5 files (from Bluequartz's DREAM3D)"""
 
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):

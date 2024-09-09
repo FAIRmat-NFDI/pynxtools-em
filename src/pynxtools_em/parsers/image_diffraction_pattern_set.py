@@ -159,10 +159,7 @@ class DiffractionPatternSetParser(ImgsBaseParser):
                 for sgid in self.mp_entries:
                     print(sgid)
                     for mpid in self.mp_entries[sgid]:
-                        if (
-                            self.mp_meta[sgid][mpid] != {}
-                            and len(self.mp_entries[sgid][mpid]["files"]) > 0
-                        ):
+                        if len(self.mp_entries[sgid][mpid]["files"]) > 0:
                             print(f"\t\t{mpid}")
                             dtyp = PIL_DTYPE_TO_NPY_DTYPE[
                                 self.mp_entries[sgid][mpid]["mode"]
@@ -211,11 +208,14 @@ class DiffractionPatternSetParser(ImgsBaseParser):
             "identifier/service",
             "identifier/is_persistent",
         ]:
-            template[f"{trg}/{concept}"] = meta[concept]
-        template[f"{trg}/a_b_c"] = np.asarray(meta["a_b_c"], np.float32)
-        template[f"{trg}/a_b_c/@units"] = f"{ureg.angstrom}"
-        template[f"{trg}/alpha_beta_gamma"] = np.asarray(meta["angles"], np.float32)
-        template[f"{trg}/alpha_beta_gamma/@units"] = f"{ureg.degree}"
+            if concept in meta:
+                template[f"{trg}/{concept}"] = meta[concept]
+        if "a_b_c" in meta:
+            template[f"{trg}/a_b_c"] = np.asarray(meta["a_b_c"], np.float32)
+            template[f"{trg}/a_b_c/@units"] = f"{ureg.angstrom}"
+        if "angles" in meta:
+            template[f"{trg}/alpha_beta_gamma"] = np.asarray(meta["angles"], np.float32)
+            template[f"{trg}/alpha_beta_gamma/@units"] = f"{ureg.degree}"
         for concept in [
             "emmet_version",
             "pymatgen_version",
@@ -224,13 +224,17 @@ class DiffractionPatternSetParser(ImgsBaseParser):
             "license",
             "space_group",
         ]:
-            template[f"{trg}/{concept}"] = meta[concept]
+            if concept in meta:
+                template[f"{trg}/{concept}"] = meta[concept]
 
         trg = f"/ENTRY[entry{self.entry_id}]/simulation/IMAGE_SET[image_set1]/stack_2d"
 
-        template[f"{trg}/title"] = (
-            f"{meta['identifier/identifier']}, {meta['phase_name']}"
-        )
+        if "identifier/identifier" in meta and "phase_name" in meta:
+            template[f"{trg}/title"] = (
+                f"{meta['identifier/identifier']}, {meta['phase_name']}"
+            )
+        else:
+            template[f"{trg}/title"] = f"MaterialsProject ID was not API-retrievable"
         template[f"{trg}/@signal"] = "real"
         template[f"{trg}/@AXISNAME_indices[axis_i_indices]"] = np.uint32(2)
         template[f"{trg}/@AXISNAME_indices[axis_j_indices]"] = np.uint32(1)
