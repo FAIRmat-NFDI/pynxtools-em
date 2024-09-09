@@ -25,27 +25,29 @@ from typing import Dict
 import flatdict as fd
 import numpy as np
 from PIL import Image, ImageSequence
-from PIL.TiffTags import TAGS
 from pint import UndefinedUnitError
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_zeiss_cfg import (
+    ZEISS_CONCEPT_PREFIXES,
     ZEISS_DYNAMIC_STAGE_NX,
     ZEISS_DYNAMIC_VARIOUS_NX,
     ZEISS_STATIC_VARIOUS_NX,
 )
-from pynxtools_em.parsers.image_tiff import TiffParser
+from pynxtools_em.utils.get_file_checksum import (
+    DEFAULT_CHECKSUM_ALGORITHM,
+    get_sha256_of_file_content,
+)
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
 
-ZEISS_CONCEPT_PREFIXES = ("AP_", "DP_", "SV_")
 
-
-class ZeissTiffParser(TiffParser):
+class ZeissTiffParser:
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
-        super().__init__(file_path)
-        self.entry_id = entry_id
-        self.event_id = 1
+        if file_path:
+            self.file_path = file_path
+        self.entry_id = entry_id if entry_id > 0 else 1
         self.verbose = verbose
+        self.id_mgn: Dict[str, int] = {"event_id": 1}
         self.flat_dict_meta = fd.FlatDict({}, "/")
         self.version: Dict = {
             "trg": {
@@ -58,7 +60,7 @@ class ZeissTiffParser(TiffParser):
         self.check_if_tiff_zeiss()
         if not self.supported:
             print(
-                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
             )
 
     def get_metadata(self, payload: str):
@@ -130,11 +132,15 @@ class ZeissTiffParser(TiffParser):
     def check_if_tiff_zeiss(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file."""
         self.supported = False
-        with open(self.file_path, "rb", 0) as file:
-            s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
-            magic = s.read(4)
-            if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
-                return
+        try:
+            with open(self.file_path, "rb", 0) as file:
+                s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
+                magic = s.read(4)
+                if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
+                    return
+        except (FileNotFoundError, IOError):
+            print(f"{self.file_path} either FileNotFound or IOError !")
+            return
 
         with Image.open(self.file_path, mode="r") as fp:
             zeiss_keys = [34118]
@@ -144,13 +150,16 @@ class ZeissTiffParser(TiffParser):
 
                     if this_version not in self.version["trg"]["schema_version"]:
                         return
-                    else:
-                        self.supported = True
+                    self.supported = True
 
     def parse(self, template: dict) -> dict:
-        """Perform actual parsing filling cache self.tmp."""
+        """Perform actual parsing."""
         if self.supported:
-            print(f"Parsing via Zeiss TIFF parser...")
+            with open(self.file_path, "rb", 0) as fp:
+                self.file_path_sha256 = get_sha256_of_file_content(fp)
+            print(
+                f"Parsing {self.file_path} Zeiss with SHA256 {self.file_path_sha256} ..."
+            )
             # metadata have at this point already been collected into an fd.FlatDict
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
@@ -169,7 +178,7 @@ class ZeissTiffParser(TiffParser):
                 # eventually similar open discussions points as were raised for tiff_tfs parser
                 trg = (
                     f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
-                    f"EVENT_DATA_EM[event_data_em{self.event_id}]/"
+                    f"EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/"
                     f"IMAGE_SET[image_set{image_identifier}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
@@ -228,7 +237,7 @@ class ZeissTiffParser(TiffParser):
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
         print(f"Mapping some of the Zeiss metadata on respective NeXus concepts...")
-        identifier = [self.entry_id, self.event_id, 1]
+        identifier = [self.entry_id, self.id_mgn["event_id"], 1]
         for cfg in [
             ZEISS_DYNAMIC_VARIOUS_NX,
             ZEISS_STATIC_VARIOUS_NX,

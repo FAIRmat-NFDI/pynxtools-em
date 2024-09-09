@@ -23,7 +23,6 @@ from typing import Dict
 import flatdict as fd
 import numpy as np
 from PIL import Image, ImageSequence
-from PIL.TiffTags import TAGS
 
 # https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
@@ -38,7 +37,10 @@ from pynxtools_em.configurations.image_tiff_tfs_cfg import (
     TFS_STATIC_VARIOUS_NX,
     TIFF_TFS_PARENT_CONCEPTS,
 )
-from pynxtools_em.parsers.image_tiff import TiffParser
+from pynxtools_em.utils.get_file_checksum import (
+    DEFAULT_CHECKSUM_ALGORITHM,
+    get_sha256_of_file_content,
+)
 from pynxtools_em.utils.image_utils import (
     if_str_represents_float,
     sort_ascendingly_by_second_argument,
@@ -47,44 +49,41 @@ from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.tfs_utils import get_fei_childs
 
 
-class TfsTiffParser(TiffParser):
+class TfsTiffParser:
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
-        super().__init__(file_path)
-        self.entry_id = entry_id
-        self.event_id = 1
+        if file_path:
+            self.file_path = file_path
+        self.entry_id = entry_id if entry_id > 0 else 1
         self.verbose = verbose
+        self.id_mgn: Dict[str, int] = {"event_id": 1}
         self.flat_dict_meta = fd.FlatDict({}, "/")
         self.version: Dict = {}
         self.supported = False
         self.check_if_tiff_tfs()
+        if not self.supported:
+            print(
+                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+            )
 
     def check_if_tiff_tfs(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file."""
-        self.supported = 0  # voting-based
-        with open(self.file_path, "rb", 0) as file:
-            s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
-            magic = s.read(4)
-            if magic == b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
-                self.supported += 1
-            else:
-                print(
-                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
-                )
-                self.supported = False
-                return
+        self.supported = False
+        try:
+            with open(self.file_path, "rb", 0) as file:
+                s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
+                magic = s.read(4)
+                if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
+                    return
+        except (FileNotFoundError, IOError):
+            print(f"{self.file_path} either FileNotFound or IOError !")
+            return
+
         with Image.open(self.file_path, mode="r") as fp:
             tfs_keys = [34682]
             for tfs_key in tfs_keys:
                 if tfs_key in fp.tag_v2:
                     if len(fp.tag_v2[tfs_key]) >= 1:
-                        self.supported += 1  # found TFS-specific tag
-        if self.supported == 2:
-            self.supported = True
-        else:
-            self.supported = False
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
-            )
+                        self.supported = True
 
     def get_metadata(self):
         """Extract metadata in TFS specific tags if present."""
@@ -161,9 +160,13 @@ class TfsTiffParser(TiffParser):
                         print(f"{key}____{type(value)}____{value}")
 
     def parse(self, template: dict) -> dict:
-        """Perform actual parsing filling cache self.tmp."""
+        """Perform actual parsing."""
         if self.supported:
-            print(f"Parsing via ThermoFisher TIFF parser...")
+            with open(self.file_path, "rb", 0) as fp:
+                self.file_path_sha256 = get_sha256_of_file_content(fp)
+            print(
+                f"Parsing {self.file_path} TFS with SHA256 {self.file_path_sha256} ..."
+            )
             self.get_metadata()
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
@@ -187,7 +190,7 @@ class TfsTiffParser(TiffParser):
                 # explorative viewing using H5Web than what traditionally typical image viewers are meant for
                 trg = (
                     f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
-                    f"EVENT_DATA_EM[event_data_em{self.event_id}]/"
+                    f"EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/"
                     f"IMAGE_SET[image_set{image_identifier}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
@@ -258,7 +261,7 @@ class TfsTiffParser(TiffParser):
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
         print(f"Mapping some of the TFS/FEI metadata on respective NeXus concepts...")
-        identifier = [self.entry_id, self.event_id, 1]
+        identifier = [self.entry_id, self.id_mgn["event_id"], 1]
         for cfg in [
             TFS_STATIC_APERTURE_NX,
             TFS_STATIC_DETECTOR_NX,

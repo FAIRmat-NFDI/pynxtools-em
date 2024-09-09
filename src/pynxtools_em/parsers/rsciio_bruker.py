@@ -19,23 +19,33 @@
 
 from typing import Dict, List
 
-from pynxtools_em.parsers.rsciio_base import RsciioBaseParser
+from pynxtools_em.utils.get_file_checksum import (
+    DEFAULT_CHECKSUM_ALGORITHM,
+    get_sha256_of_file_content,
+)
 from rsciio import bruker
 
 
-class RsciioBrukerParser(RsciioBaseParser):
+class RsciioBrukerParser:
     """Read Bruker BCF File Format bcf."""
 
-    def __init__(self, file_path: str = ""):
-        super().__init__(file_path)
-        self.tmp: Dict = {}
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+        if file_path:
+            self.file_path = file_path
+        self.entry_id = entry_id if entry_id > 0 else 1
+        self.verbose = verbose
         self.objs: List = []
         self.version: Dict = {}
         self.supported = False
         self.check_if_supported()
+        if not self.supported:
+            print(
+                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+            )
 
     def check_if_supported(self):
         """Check if provided content matches Bruker concepts."""
+        self.supported = False
         try:
             self.objs = bruker.file_reader(self.file_path)
             # TODO::what to do if the content of the file is larger than the available
@@ -44,20 +54,20 @@ class RsciioBrukerParser(RsciioBaseParser):
             # based on this one could then plan how much memory has to be reserved
             # in the template and stream out accordingly
             self.supported = True
-        except IOError:
-            print(f"Loading {self.file_path} using Bruker is not supported !")
+        except (FileNotFoundError, IOError):
+            print(f"{self.file_path} either FileNotFound or IOError !")
+            return
 
-    def parse_and_normalize(self, template: dict) -> dict:
+    def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""
         if self.supported:
-            print(f"Parsing via Bruker...")
+            with open(self.file_path, "rb", 0) as fp:
+                self.file_path_sha256 = get_sha256_of_file_content(fp)
+            print(
+                f"Parsing {self.file_path} Bruker with SHA256 {self.file_path_sha256} ..."
+            )
             self.normalize_eds_content(template)
             self.normalize_eels_content(template)
-        else:
-            print(
-                f"{self.file_path} is not a Bruker-specific "
-                f"BCF file that this parser can process !"
-            )
         return template
 
     def normalize_eds_content(self, template: dict) -> dict:

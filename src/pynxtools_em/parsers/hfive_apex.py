@@ -17,10 +17,11 @@
 #
 """Parser mapping concepts and content from EDAX/AMETEK *.edaxh5 (APEX) files on NXem."""
 
-from typing import Dict, Any
+from typing import Any, Dict
 
 import h5py
 import numpy as np
+from ase.data import chemical_symbols
 from diffpy.structure import Lattice, Structure
 from orix.quaternion import Orientation
 from pynxtools_em.examples.ebsd_database import ASSUME_PHASE_NAME_TO_SPACE_GROUP
@@ -31,26 +32,30 @@ from pynxtools_em.methods.ebsd import (
     has_hfive_magic_header,
 )
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
+from pynxtools_em.utils.get_file_checksum import (
+    DEFAULT_CHECKSUM_ALGORITHM,
+    get_sha256_of_file_content,
+)
 from pynxtools_em.utils.get_xrayline_iupac_names import get_xrayline_candidates
 from pynxtools_em.utils.hfive_utils import read_strings
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
-from ase.data import chemical_symbols
 
 
 class HdfFiveEdaxApexParser(HdfFiveBaseParser):
     """Read APEX edaxh5"""
 
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
-        super().__init__(file_path)
+        if file_path:
+            self.file_path = file_path
         self.id_mgn: Dict[str, int] = {
-            "entry_id": entry_id,
+            "entry_id": entry_id if entry_id > 0 else 1,
             "event_id": 1,
             "roi_id": 1,
             "img_id": 1,
             "spc_id": 1,
         }
+        self.verbose = verbose
         self.prfx: str = ""
-        self.tmp = {}
         self.spc: Dict[str, Any] = {}
         self.ebsd: EbsdPointCloud = EbsdPointCloud()
         self.eds: Dict[str, Any] = {}
@@ -113,7 +118,12 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         """Read and normalize away EDAX/APEX-specific formatting with an equivalent in NXem."""
         if not self.supported:
             return template
-        print(f"Parsing via EDAX APEX EDAXH5 HDF5 file parser...")
+
+        with open(self.file_path, "rb", 0) as fp:
+            self.file_path_sha256 = get_sha256_of_file_content(fp)
+        print(
+            f"Parsing {self.file_path} EDAX APEX with SHA256 {self.file_path_sha256} ..."
+        )
         with h5py.File(f"{self.file_path}", "r") as h5r:
             for grp_nm in list(h5r["/"]):
                 for sub_grp_nm in list(h5r[grp_nm]):

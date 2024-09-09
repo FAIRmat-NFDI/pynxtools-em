@@ -45,35 +45,35 @@
 # can be organized using NeXus to contextualize using research data management software
 
 import mmap
-from typing import Dict, Any
+from typing import Any, Dict
 from zipfile import ZipFile
+
 import numpy as np
 import yaml
 from PIL import Image
-from pynxtools_em.parsers.image_base import ImgsBaseParser
-from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.examples.diffraction_pattern_set import (
-    get_materialsproject_id_and_spacegroup,
     EXAMPLE_FILE_PREFIX,
     MATERIALS_PROJECT_METADATA,
+    PIL_DTYPE_TO_NPY_DTYPE,
     SUPPORTED_FORMATS,
     SUPPORTED_MODES,
-    PIL_DTYPE_TO_NPY_DTYPE,
+    get_materialsproject_id_and_spacegroup,
 )
 from pynxtools_em.utils.hfive_web import HFIVE_WEB_MAXIMUM_ROI
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 
-class DiffractionPatternSetParser(ImgsBaseParser):
+class DiffractionPatternSetParser:
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
-        super().__init__(file_path)
-        self.entry_id = entry_id
+        self.file_path = file_path
+        self.entry_id = entry_id if entry_id > 0 else 1
+        self.verbose = verbose
         self.mp_entries: Dict[int, Any] = {}
         # details about the images of a specific space group and materials project
         self.mp_meta: Dict[int, Any] = {}
         # metadata to each space group and materials id project as cached in projects.yaml
         self.version: Dict = {}
         self.supported = False
-        self.verbose = verbose
         self.check_if_zipped_pattern()
         if not self.supported:
             print(
@@ -83,18 +83,25 @@ class DiffractionPatternSetParser(ImgsBaseParser):
     def check_if_zipped_pattern(self):
         """Check if resource behind self.file_path is a ZIP file with diffraction pattern."""
         self.supported = False
-        with open(self.file_path, "rb", 0) as file:
-            s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
-            magic = s.read(4)
-            if (
-                magic != b"PK\x03\x04"
-            ):  # https://en.wikipedia.org/wiki/List_of_file_signatures
-                # print(f"Test 1 failed, {self.file_path} is not a ZIP archive !")
-                return
+        try:
+            with open(self.file_path, "rb", 0) as file:
+                s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
+                magic = s.read(4)
+                if (
+                    magic != b"PK\x03\x04"
+                ):  # https://en.wikipedia.org/wiki/List_of_file_signatures
+                    # print(f"Test 1 failed, {self.file_path} is not a ZIP archive !")
+                    return
+        except (FileNotFoundError, IOError):
+            print(f"{self.file_path} either FileNotFound or IOError !")
+            return
 
-        with open(MATERIALS_PROJECT_METADATA, "r") as yml:
-            self.mp_meta = yaml.safe_load(yml)
-        # TODO::sanity checks for the import
+        try:
+            with open(MATERIALS_PROJECT_METADATA, "r") as yml:
+                self.mp_meta = yaml.safe_load(yml)
+        except (FileNotFoundError, IOError):
+            print(f"{self.file_path} either FileNotFound or IOError !")
+            return
 
         # inspect zipfile for groups of pattern with the same properties and sub-sets
         with ZipFile(self.file_path) as zip_file_hdl:

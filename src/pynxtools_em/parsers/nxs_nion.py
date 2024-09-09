@@ -60,19 +60,15 @@ class NionProjectParser:
 
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         """Class wrapping swift parser."""
-        if file_path is not None and file_path != "":
+        if file_path:
             self.file_path = file_path
-        if entry_id > 0:
-            self.entry_id = entry_id
-        else:
-            self.entry_id = 1
-        self.event_id = 1
+        self.entry_id = entry_id if entry_id > 0 else 1
         self.verbose = verbose
+        self.id_mgn: Dict[str, int] = {"event_id": 1}
         # counters which keep track of how many instances of NXevent_data_em have
         # been instantiated, this implementation currently maps each display_items
         # onto an own NXevent_data_em instance
         self.file_path_sha256 = None
-        self.tmp: Dict = {}
         self.proj_file_dict: Dict = {}
         # assure that there is exactly one *.nsproj file only to parse from
         self.ndata_file_dict: Dict = {}
@@ -98,20 +94,24 @@ class NionProjectParser:
             return
 
         if self.is_zipped:
-            with open(self.file_path, "rb", 0) as fp:
-                s = mmap.mmap(fp.fileno(), 0, access=mmap.ACCESS_READ)
-                magic = s.read(8)
-                if self.verbose:
-                    fp.seek(0, 2)
-                    eof_byte_offset = fp.tell()
-                    print(
-                        f"Expecting zip-compressed file: ___{self.file_path}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
-                    )
-                """
-                if magic != b'PK\x03\x04':  # https://en.wikipedia.org/wiki/List_of_file_signatures
-                    print(f"Test 1 failed, {self.file_path} is not a ZIP archive !")
-                    return False
-                """
+            try:
+                with open(self.file_path, "rb", 0) as fp:
+                    s = mmap.mmap(fp.fileno(), 0, access=mmap.ACCESS_READ)
+                    magic = s.read(4)
+                    if (
+                        magic != b"PK\x03\x04"
+                    ):  # https://en.wikipedia.org/wiki/List_of_file_signatures
+                        return
+                    if self.verbose:
+                        fp.seek(0, 2)
+                        eof_byte_offset = fp.tell()
+                        print(
+                            f"Expecting zip-compressed file: ___{self.file_path}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
+                        )
+            except (FileNotFoundError, IOError):
+                print(f"{self.file_path} either FileNotFound or IOError !")
+                return
+
             # analyze information content of the project and its granularization
             with ZipFile(self.file_path) as zip_file_hdl:
                 for file in zip_file_hdl.namelist():
@@ -389,7 +389,7 @@ class NionProjectParser:
     ) -> dict:
         print(f"Mapping some of the Nion metadata on respective NeXus concepts...")
         # we assume for now dynamic quantities can just be repeated
-        identifier = [self.entry_id, self.event_id, 1]
+        identifier = [self.entry_id, self.id_mgn["event_id"], 1]
         for cfg in [
             NION_DYNAMIC_ABERRATION_NX,
             NION_DYNAMIC_DETECTOR_NX,
@@ -426,12 +426,12 @@ class NionProjectParser:
         unit_combination = nion_image_spectrum_or_generic_nxdata(axes)
         print(f"{unit_combination}, {np.shape(nparr)}")
         print(axes)
-        print(f"entry_id {self.entry_id}, event_id {self.event_id}")
+        print(f"entry_id {self.entry_id}, event_id {self.id_mgn['event_id']}")
         if unit_combination == "":
             return template
 
-        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.event_id}]"
-        self.event_id += 1
+        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]"
+        self.id_mgn["event_id"] += 1
 
         # this is the place when you want to skip individually the writing of NXdata
         # return template

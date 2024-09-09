@@ -47,7 +47,7 @@ from pynxtools_em.concepts.hfive_concepts import (
 
 
 class HdfFiveBaseParser:
-    def __init__(self, file_path: str = ""):
+    def __init__(self, file_path: str = "", verbose: bool = False):
         # tech_partner the company which designed this format
         # schema_name the specific name of the family of schemas supported by this reader
         # schema_version the specific version(s) supported by this reader
@@ -56,10 +56,11 @@ class HdfFiveBaseParser:
         #   was written e.g. Oxford Instruments AZTec software in some version may generate
         #   an instance of a file whose schema belongs to the H5OINA family of HDF5 container formats
         #   specifically using version 5
+        if file_path:
+            self.file_path = file_path
         self.prfx: str = ""
         self.tmp: Dict = {}
         self.source: str = ""
-        self.file_path: str = ""
         # collection of instance path
         self.groups: Dict = {}
         self.datasets: Dict = {}
@@ -71,12 +72,7 @@ class HdfFiveBaseParser:
         self.template_attributes: List = []
         self.templates: Dict = {}
         self.h5r = None
-        self.is_hdf = True
-        if file_path is not None and file_path != "":
-            self.file_path = file_path
-            # TODO::check if HDF5 file using magic cookie
-        else:
-            raise ValueError(f"{__name__} needs proper instantiation !")
+        self.is_hdf = True  # TODO::check if HDF5 file using magic cookie
 
     def init_cache(self, ckey: str) -> str:
         """Init a new cache for normalized EBSD data if not existent."""

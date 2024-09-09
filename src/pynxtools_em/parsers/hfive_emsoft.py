@@ -28,8 +28,12 @@ class HdfFiveEmSoftParser(HdfFiveBaseParser):
     """Read EMsoft H5 (Marc deGraeff Carnegie Mellon)"""
 
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
-        super().__init__(file_path)
-        self.id_mgn: Dict[str, int] = {"entry_id": entry_id, "roi_id": 1}
+        if file_path:
+            self.file_path = file_path
+        self.id_mgn: Dict[str, int] = {
+            "entry_id": entry_id if entry_id > 0 else 1,
+            "roi_id": 1,
+        }
         self.verbose = verbose
         self.prfx = ""  # template path handling
         self.version: Dict = {

@@ -27,6 +27,10 @@ from pynxtools_em.methods.ebsd import (
     has_hfive_magic_header,
 )
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
+from pynxtools_em.utils.get_file_checksum import (
+    DEFAULT_CHECKSUM_ALGORITHM,
+    get_sha256_of_file_content,
+)
 from pynxtools_em.utils.hfive_utils import read_strings
 
 # DREAM3D implements essentially a data analysis workflow with individual steps
@@ -86,8 +90,12 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
     """Read DREAM3D HDF5 files (from Bluequartz's DREAM3D)"""
 
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
-        super().__init__(file_path)
-        self.id_mgn: Dict[str, int] = {"entry_id": entry_id, "roi_id": 1}
+        if file_path:
+            self.file_path = file_path
+        self.id_mgn: Dict[str, int] = {
+            "entry_id": entry_id if entry_id > 0 else 1,
+            "roi_id": 1,
+        }
         self.verbose = verbose
         self.prfx = ""  # template path handling
         # strictly speaking Bluequartz refers the above-mentioned here as File Version
@@ -146,7 +154,7 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
             if file_version in self.version["trg"]["schema_version"]:
                 votes_for_support += 1
 
-            if self.supported == 2:
+            if votes_for_support == 2:
                 self.supported = True
                 # TODO::instantiate self.version["src"]
 
@@ -306,7 +314,11 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
     def parse(self, template: dict) -> dict:
         """Read and normalize away community-specific formatting with an equivalent in NXem."""
         if self.supported:
-            print(f"Parsing via (legacy) DREAM3D parser...")
+            with open(self.file_path, "rb", 0) as fp:
+                self.file_path_sha256 = get_sha256_of_file_content(fp)
+            print(
+                f"Parsing {self.file_path} DREAM3D legacy with SHA256 {self.file_path_sha256} ..."
+            )
             if self.search_normalizable_ebsd_content():
                 with h5py.File(self.file_path, "r") as h5r:
                     self.ebsd = EbsdPointCloud()

@@ -31,7 +31,7 @@ OASISELN_EM_ENTRY_TO_NEXUS: Dict[str, Any] = {
 OASISELN_EM_SAMPLE_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/sample",
     "prefix_src": "sample/",
-    "map": ["method", "name", "atom_types", "preparation_date"],
+    "map": [("type", "method"), "name", "atom_types", "preparation_date"],
     "map_to_f8": [("thickness", ureg.meter, "thickness/value", "thickness/unit")],
 }
 

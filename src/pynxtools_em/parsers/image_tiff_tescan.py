@@ -30,12 +30,15 @@ from pynxtools_em.configurations.image_tiff_tescan_cfg import (
     TESCAN_DYNAMIC_VARIOUS_NX,
     TESCAN_STATIC_VARIOUS_NX,
 )
-from pynxtools_em.parsers.image_tiff import TiffParser
+from pynxtools_em.utils.get_file_checksum import (
+    DEFAULT_CHECKSUM_ALGORITHM,
+    get_sha256_of_file_content,
+)
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
 
 
-class TescanTiffParser(TiffParser):
+class TescanTiffParser:
     def __init__(self, file_paths: List[str], entry_id: int = 1, verbose: bool = False):
         # file and sidecar file may not come in a specific order need to find which is which if any supported
         tif_hdr = ["", ""]
@@ -52,39 +55,33 @@ class TescanTiffParser(TiffParser):
                 elif entry.lower().endswith((".hdr")) and entry != "":
                     tif_hdr[1] = entry
 
-        if tif_hdr[0] != "":
-            super().__init__(tif_hdr[0])
-            self.entry_id = entry_id
-            self.event_id = 1
-            self.verbose = verbose
-            self.flat_dict_meta = fd.FlatDict({}, "/")
-            self.version: Dict = {}
-            self.supported = False
-            self.hdr_file_path = tif_hdr[1]
-            self.check_if_tiff_tescan()
-        else:
-            self.supported = False
+        self.file_path = tif_hdr[0]
+        self.entry_id = entry_id if entry_id > 0 else 1
+        self.verbose = verbose
+        self.id_mgn: Dict[str, int] = {"event_id": 1}
+        self.flat_dict_meta = fd.FlatDict({}, "/")
+        self.version: Dict = {}
+        self.supported = False
+        self.hdr_file_path = tif_hdr[1]
+        self.check_if_tiff_tescan()
+        if not self.supported:
+            print(
+                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+            )
 
     def check_if_tiff_tescan(self):
-        """Check if resource behind self.file_path is a TaggedImageFormat file.
-
-        This also loads the metadata first if possible as these contain details
-        about which software was used to process the image data, e.g. DISS software.
-        """
         self.supported = False
         if not hasattr(self, "file_path"):
-            print(
-                f"... is not a TESCAN-specific TIFF/(HDR) file (set) that this parser can process !"
-            )
             return
-        with open(self.file_path, "rb", 0) as file:
-            s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
-            magic = s.read(4)
-            if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
-                print(
-                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
-                )
-                return
+        try:
+            with open(self.file_path, "rb", 0) as file:
+                s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
+                magic = s.read(4)
+                if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
+                    return
+        except (FileNotFoundError, IOError):
+            print(f"{self.file_path} either FileNotFound or IOError !")
+            return
 
         self.flat_dict_meta = fd.FlatDict({}, "/")
         with Image.open(self.file_path, mode="r") as fp:
@@ -161,8 +158,12 @@ class TescanTiffParser(TiffParser):
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""
         if self.supported:
-            print(f"Parsing via TESCAN...")
             # metadata have at this point already been collected into an fd.FlatDict
+            with open(self.file_path, "rb", 0) as fp:
+                self.file_path_sha256 = get_sha256_of_file_content(fp)
+            print(
+                f"Parsing {self.file_path} TESCAN with SHA256 {self.file_path_sha256} ..."
+            )
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
         return template
@@ -180,7 +181,7 @@ class TescanTiffParser(TiffParser):
                 # eventually similar open discussions points as were raised for tiff_tfs parser
                 trg = (
                     f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
-                    f"EVENT_DATA_EM[event_data_em{self.event_id}]/"
+                    f"EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/"
                     f"IMAGE_SET[image_set{image_identifier}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
@@ -242,7 +243,7 @@ class TescanTiffParser(TiffParser):
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
         print(f"Mapping some of the TESCAN metadata on respective NeXus concepts...")
-        identifier = [self.entry_id, self.event_id, 1]
+        identifier = [self.entry_id, self.id_mgn["event_id"], 1]
         for cfg in [
             TESCAN_DYNAMIC_STIGMATOR_NX,
             TESCAN_STATIC_VARIOUS_NX,
