@@ -100,10 +100,15 @@ class ProtochipsPngSetParser:
                             if (
                                 method == "lazy"
                             ):  # lazy but paid with the price of reading the image content
-                                fp.seek(
-                                    0
-                                )  # seek back to beginning of file required because fp.read advanced fp implicitly!
+                                fp.seek(0)
+                                # seek back to beginning of file required because fp.read advanced fp implicitly!
                                 with Image.open(fp) as png:
+                                    # assure the zip contains only pngs with XML metadata
+                                    # matching typical Protochips terminology
+                                    # TODO::currently not accepting a polluted ZIP with
+                                    # PNGs of other content
+                                    if "MicroscopeControlImage" not in png.info:
+                                        return
                                     try:
                                         nparr = np.array(png)
                                         self.png_info[file] = np.shape(nparr)
@@ -115,6 +120,11 @@ class ProtochipsPngSetParser:
                                 method == "smart"
                             ):  # knowing where to hunt width and height in PNG metadata
                                 # https://dev.exiv2.org/projects/exiv2/wiki/The_Metadata_in_PNG_files
+                                fp.seek(0)
+                                with Image.open(fp) as png:
+                                    if "MicroscopeControlImage" not in png.info:
+                                        return
+                                fp.seek(0)
                                 magic = fp.read(8)
                                 self.png_info[file] = (
                                     np.frombuffer(fp.read(4), dtype=">i4"),

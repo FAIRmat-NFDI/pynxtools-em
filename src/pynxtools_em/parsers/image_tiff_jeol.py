@@ -64,7 +64,7 @@ class JeolTiffParser:
             self.supported = False
         if not self.supported:
             print(
-                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+                f"Parser {self.__class__.__name__} finds no content in {tif_txt} that it supports"
             )
 
     def check_if_tiff_jeol(self):
