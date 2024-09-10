@@ -139,10 +139,12 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                         self.ebsd = EbsdPointCloud()
 
                 # Vitesh's example
+                has_microstructural_features = False
                 ms = Microstructure()
                 for grpnm in h5r:
                     if grpnm.isdigit():
                         if f"/{grpnm}/Electron Image/Data/Feature/Area" in h5r:
+                            has_microstructural_features = True
                             cryst = Crystal()
                             cryst.id = np.uint32(grpnm)
                             cryst.props["area"] = ureg.Quantity(
@@ -153,6 +155,8 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                                 f"{grpnm}/{abbrev}" in h5r
                                 and f"/{grpnm}/{abbrev} Sigma" in h5r
                             ):
+                                has_microstructural_features = False
+                                # TODO::improve the use case
                                 cryst.props["composition"] = {}
                                 for element in h5r[f"/{grpnm}/{abbrev}"]:
                                     if element in h5r[f"/{grpnm}/{abbrev} Sigma"]:
@@ -170,7 +174,10 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                                                 ][0],
                                             }  # in weight percent
                             ms.crystal.append(cryst)
-                microstructure_to_template(ms, self.id_mgn, template)
+                        else:
+                            break
+                if has_microstructural_features:
+                    microstructure_to_template(ms, self.id_mgn, template)
                 self.id_mgn["roi_id"] += 1
                 self.id_mgn["img_id"] += 1
 
