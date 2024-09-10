@@ -11,12 +11,13 @@
             "cwd": "${workspaceFolder}",
             "program": "../.py3.12.4/bin/dataconverter",
             "args": [//"convert",
-                     "tests/data/hfive_apex/InGaN_nanowires_linescan.edaxh5",
+                     "tests/data/eln/eln_data.yaml",
+                     //"tests/data/hfive_apex/InGaN_nanowires_linescan.edaxh5",
                      "--reader",
                      "em",
                      "--nxdl",
                      "NXem",
-                     "--output=tests/data/hfive_apex/InGaN_nanowires_linescan.edaxh5.nxs"]
+                     "--output=tests/out.nxs"]
         }
     ]
 }
