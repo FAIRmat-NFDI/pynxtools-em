@@ -73,8 +73,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
             "src": {},
         }
         self.supported = False
-        if self.is_hdf:
-            self.check_if_supported()
+        self.check_if_supported()
         if not self.supported:
             print(
                 f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
