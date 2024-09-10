@@ -34,6 +34,7 @@ from pynxtools_em.configurations.rsciio_velox_cfg import (
     VELOX_WHICH_IMAGE,
     VELOX_WHICH_SPECTRUM,
 )
+from pynxtools_em.methods.ebsd import has_hfive_magic_header
 from pynxtools_em.utils.get_file_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -81,6 +82,11 @@ class RsciioVeloxParser:
 
     def check_if_supported(self):
         self.supported = False
+        # TFS best practice, Velox EMD files mimetype emd and HDF5 file
+        if not self.file_path.lower().endswith(".emd"):
+            return
+        if not has_hfive_magic_header(self.file_path):
+            return
         try:
             self.objs = emd.file_reader(self.file_path)
             # TODO::what to do if the content of the file is larger than the available

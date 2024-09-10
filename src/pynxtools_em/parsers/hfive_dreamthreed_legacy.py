@@ -87,7 +87,7 @@ from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 
 class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
-    """Read DREAM3D HDF5 files (from Bluequartz's DREAM3D)"""
+    """Read some information from (legacy) DREAM3D HDF5 files (Bluequartz's DREAM3D)"""
 
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
         if file_path:

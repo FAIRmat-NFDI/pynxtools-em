@@ -101,7 +101,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
                 self.version["src"]["schema_version"] = sversion
                 votes_for_support += 1
 
-            if self.supported == 2:
+            if votes_for_support == 2:
                 for keyword in ["schema_name", "writer_name", "writer_version"]:
                     self.version["src"][keyword] = self.version["trg"][keyword]
                     self.supported = True
