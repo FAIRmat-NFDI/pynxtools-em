@@ -36,8 +36,8 @@ from pynxtools_em.utils.get_file_checksum import (
 )
 from pynxtools_em.utils.hfive_utils import (
     EBSD_MAP_SPACEGROUP,
+    EULER_SPACE_SYMMETRY,
     all_equal,
-    apply_euler_space_symmetry,
     read_strings,
 )
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
@@ -258,13 +258,12 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
             self.ebsd.euler = np.zeros((n_pts_probe[0], 3), np.float32)
             # TODO::available examples support that community H5EBSD reports Euler triplets in degree
             for idx, angle in enumerate(["phi1", "PHI", "phi2"]):
-                self.ebsd.euler[:, idx] = np.asarray(
-                    fp[f"{grp_name}/{angle}"][:], np.float32
+                self.ebsd.euler[:, idx] = (
+                    np.asarray(fp[f"{grp_name}/{angle}"][:], np.float32) / 180.0 * np.pi
                 )
-            self.ebsd.euler = ureg.Quantity(self.ebsd.euler, ureg.degree).to(
-                ureg.radian
-            )
-            self.ebsd.euler = apply_euler_space_symmetry(self.ebsd.euler)
+                here = np.where(self.ebsd.euler[:, idx] < 0.0)
+                self.ebsd.euler[here, idx] += EULER_SPACE_SYMMETRY[idx].magnitude
+            self.ebsd.euler = ureg.Quantity(self.ebsd.euler, ureg.radian)
             n_pts = n_pts_probe[0]
 
         # index of phase, 0 if not indexed

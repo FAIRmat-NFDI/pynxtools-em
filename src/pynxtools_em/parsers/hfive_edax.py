@@ -37,7 +37,7 @@ from pynxtools_em.utils.get_file_checksum import (
     get_sha256_of_file_content,
 )
 from pynxtools_em.utils.hfive_utils import (
-    apply_euler_space_symmetry,
+    EULER_SPACE_SYMMETRY,
     read_first_scalar,
     read_strings,
 )
@@ -288,13 +288,14 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
         # normalization for each software version, TODO::here rad is assumed but then values
         # as large as 12.... should not be possible
         # TODO::there has to be a mechanism which treats these dirty scan points!
-        for dim_idx, dim in enumerate(["Phi1", "Phi", "Phi2"]):
-            self.ebsd.euler[:, dim_idx] = np.asarray(
-                fp[f"{grp_name}/{dim}"][:], np.float32
+        for idx, dim in enumerate(["Phi1", "Phi", "Phi2"]):
+            self.ebsd.euler[:, idx] = (
+                np.asarray(fp[f"{grp_name}/{dim}"][:], np.float32) / 180.0 * np.pi
             )
-        # TODO::seems to be the situation in the example but there is no documentation
+            here = np.where(self.ebsd.euler[:, idx] < 0.0)
+            self.ebsd.euler[here, idx] += EULER_SPACE_SYMMETRY[idx].magnitude
         self.ebsd.euler = ureg.Quantity(self.ebsd.euler, ureg.radian)
-        self.ebsd.euler = apply_euler_space_symmetry(self.ebsd.euler)
+        # TODO::seems to be the situation in the example but there is no documentation
 
         # given no official EDAX OimAnalysis spec we cannot define for sure if
         # phase_id == 0 means just all was indexed with the first/zeroth phase or nothing

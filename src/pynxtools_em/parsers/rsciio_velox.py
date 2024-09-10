@@ -121,8 +121,8 @@ class RsciioVeloxParser:
                 len(self.obj_idx_supported) > 0
             ):  # there is at least some supported content
                 self.supported = True
-        except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+        except (FileNotFoundError, IOError, ValueError):
+            print(f"{self.file_path} FileNotFound, IOError, or ValueError !")
             return
 
     def parse(self, template: dict) -> dict:
