@@ -23,16 +23,16 @@ nav:
     - reference/contextualization.md
     - reference/conventions.md
     - reference/eln_and_cfg.md
-    - reference/png_axon.md
-    - reference/apex.md
-    - reference/gatan.md
+    - reference/zip_png_axon.md
+    - reference/hfive_apex.md
+    - reference/rsciio_gatan.md
     - reference/tiff_hitachi.md
     - reference/tiff_jeol.md
-    - reference/nion.md
+    - reference/nxs_nion.md
     - reference/tiff_point.md
     - reference/tiff_tescan.md
     - reference/tiff_tfs.md
-    - reference/velox.md
+    - reference/rsciio_velox.md
     - reference/tiff_zeiss.md
 
 plugins:

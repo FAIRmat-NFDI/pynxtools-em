@@ -2,7 +2,10 @@
 
 The pynxtools-em parser and normalizer reads the following content and maps them on respective NeXus concepts that are defined in the NXem application definition:
 
-<!--| PNG | NeXus/HDF5 |
+| Concept | NeXus/HDF5 |
 | --------------- | --------------  |
-| (Molecular ion) number of elements and their multiplicity | :heavy_check_mark: |
-| Mass-to-charge-state-ratio value interval for each molecular ion | :heavy_check_mark: |-->
+| HV/Unit | :heavy_check_mark: |
+| HV/value | :heavy_check_mark: |
+| Mag | :heavy_check_mark: |
+| WD/Unit | :heavy_check_mark: |
+| WD/value | :heavy_check_mark: |

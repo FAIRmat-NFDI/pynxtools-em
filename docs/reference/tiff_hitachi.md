@@ -2,11 +2,13 @@
 
 The pynxtools-em parser and normalizer reads the following content and maps them on respective NeXus concepts that are defined in the NXem application definition:
 
-<!--| TIFF | NeXus/HDF5 |
+| Concept | NeXus/HDF5 |
 | --------------- | --------------  |
-| Reconstructed positions (x, y, z) | :heavy_check_mark: |
-| Mass-to-charge-state-ratio values (m/q) | :heavy_check_mark: |-->
-
-<!-- ThermoFisher-->
-<!-- point electronic DISS-->
-<!-- JEOL-->
+| AcceleratingVoltage | :heavy_check_mark: |
+| EmissionCurrent | :heavy_check_mark: |
+| FilamentCurrent | :heavy_check_mark: |
+| InstructName | :heavy_check_mark: |
+| Instrument name | :heavy_check_mark: |
+| Magnification | :heavy_check_mark: |
+| SerialNumber | :heavy_check_mark: |
+| WorkingDistance | :heavy_check_mark: |
