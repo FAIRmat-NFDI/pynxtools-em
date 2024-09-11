@@ -10,3 +10,6 @@ Upon parsing, it is this set of functions in *mapping_functor.py* which implemen
 The name functor is used because mapping may demand (as above-mentioned) more than copying the instance data. It is this *template* variable from which core functions like *convert.py* of the pynxtools library then write the actual NeXus/HDF5 file. The latter tool is also referred to as the dataconverter of [pynxtools](https://github.com/FAIRmat-NFDI/pynxtools).
 
 <!--This map is only performed by pynxtools-em, if `src` and `trg` can be transformed such that `src` and `trg` are connected via an `same_as` relationship.-->
+
+[A more detailed definition of the mapping approach is documented here](mapping.md)
+

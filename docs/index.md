@@ -27,7 +27,7 @@ pynxtools-em is useful for scientists from the electron microscopy community who
 
 - [Convert electron microscopy content to NeXus](tutorial/standalone.md)
 - [How to use a NeXus/HDF5 file](tutorial/nexusio.md)
-<!-- - [Convert data to NeXus using NOMAD Oasis](tutorial/oasis.md) -->
+- [How to combine different information sources](tutorial/examples.md)
 
 </div>
 <div markdown="block">
