@@ -36,6 +36,7 @@ VALID_FILE_NAME_SUFFIX_DATA = [
     ".dream3d",
     ".txt",
     ".hdr",
+    ".oh5",
 ]
 
 

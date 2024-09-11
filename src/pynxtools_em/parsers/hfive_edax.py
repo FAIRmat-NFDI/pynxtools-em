@@ -289,9 +289,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
         # as large as 12.... should not be possible
         # TODO::there has to be a mechanism which treats these dirty scan points!
         for idx, dim in enumerate(["Phi1", "Phi", "Phi2"]):
-            self.ebsd.euler[:, idx] = (
-                np.asarray(fp[f"{grp_name}/{dim}"][:], np.float32) / 180.0 * np.pi
-            )
+            self.ebsd.euler[:, idx] = np.asarray(fp[f"{grp_name}/{dim}"][:], np.float32)
             here = np.where(self.ebsd.euler[:, idx] < 0.0)
             self.ebsd.euler[here, idx] += EULER_SPACE_SYMMETRY[idx].magnitude
         self.ebsd.euler = ureg.Quantity(self.ebsd.euler, ureg.radian)
@@ -353,10 +351,10 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
                 self.ebsd.pos[dim.lower()] = ureg.Quantity(
                     np.asarray(
                         fp[f"{grp_name}/{dim} Position"][:]
-                        * self.ebsd.s[dim.lower()].units,
-                        np.float32,
-                        ureg.micrometer,
-                    )
+                        * self.ebsd.s[dim.lower()].magnitude,
+                        dtype=np.float32,
+                    ),
+                    ureg.micrometer,
                 )
         # despite differences in reported calibrations the scan_point_{dim} arrays are
         # already provided by the tech partner as tile and repeat coordinates

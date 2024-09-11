@@ -1,3 +1,14 @@
+## Contextualization
+If data models of technology partners would be communicated using tools and methods from the field of semantic technology,
+there would be less of a necessity to copy or reformat specific information into files as one could write inference and
+information/fact/knowledge retrieval algorithm(s) whereby a specific piece of information that is related to an experiment
+or simulation is read directly from the respective file of the technology partner and converted semantically into the
+representation that is required on the target side.
+
+The reason why currently this does not work convincingly in cases for many open-source research data management software
+is the strong heterogeneity of how granularized pieces of information are expected surplus the observation that contextualization
+and documentation, specifically rich and strongly expressive semantic documentation or contextualization, is underdeveloped.
+
 ## Technical details about the mapping approach
 
 Mapping information from one serialization format onto another can face various cases of information content,

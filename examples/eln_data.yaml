@@ -10,7 +10,7 @@ sample:
   identifier:
     identifier: YbGd
     service: undefined
-    # is_persistent: false
+    is_persistent: false
   preparation_date: "2024-05-08T13:06:00+00:00"
   thickness:
     value: 100.0

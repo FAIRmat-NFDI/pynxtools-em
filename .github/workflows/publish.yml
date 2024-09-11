@@ -7,9 +7,9 @@
 # documentation.
 name: Upload Python Package
 
-on: workflow_dispatch
-  # release:
-  #   types: [published]
+on:
+  release:
+    types: [published]
 env:
   UV_SYSTEM_PYTHON: true
 
