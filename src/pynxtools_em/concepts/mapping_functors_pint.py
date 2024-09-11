@@ -262,12 +262,12 @@ def map_functor(
         case = get_case(cmd)
         if case == "case_one":  # str
             src_val = mdata.get(f"{prfx_src}{cmd}")
-            if src_val:
+            if src_val is not None and src_val != "":
                 trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd}", ids)
                 set_value(template, trg, src_val, trg_dtype_key)
         elif case == "case_two_str":  # str, str
             src_val = mdata.get(f"{prfx_src}{cmd[1]}")
-            if src_val:
+            if src_val is not None and src_val != "":
                 trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
                 set_value(template, trg, src_val, trg_dtype_key)
         elif case == "case_two_list":
@@ -281,7 +281,7 @@ def map_functor(
             src_values = [mdata[f"{prfx_src}{val}"] for val in cmd[1]]
             if len(src_values) == 0:
                 continue
-            if not all(src_val for src_val in src_values):
+            if not all(src_val is not None and src_val != "" for src_val in src_values):
                 continue
             if not all(type(val) is type(src_values[0]) for val in src_values):
                 continue
@@ -306,7 +306,7 @@ def map_functor(
             if not all(f"{prfx_src}{val}" in mdata for val in cmd[2]):
                 continue
             src_values = [mdata[f"{prfx_src}{val}"] for val in cmd[2]]
-            if not all(src_val for src_val in src_values):
+            if not all(src_val is not None and src_val != "" for src_val in src_values):
                 continue
             if not all(type(val) is type(src_values[0]) for val in src_values):
                 # need to check whether content are scalars also
@@ -356,7 +356,7 @@ def map_functor(
             if not all(f"{prfx_src}{val}" in mdata for val in cmd[2]):
                 continue
             src_values = [mdata[f"{prfx_src}{val}"] for val in cmd[2]]
-            if not all(src_val for src_val in src_values):
+            if not all(src_val is not None and src_val != "" for src_val in src_values):
                 continue
             if isinstance(src_values[0], ureg.Quantity):
                 raise ValueError(

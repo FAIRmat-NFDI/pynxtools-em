@@ -32,7 +32,7 @@ OASISELN_EM_SAMPLE_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/sample",
     "prefix_src": "sample/",
     "map": [
-        ("type", "method"),
+        "type",
         "name",
         "atom_types",
         "preparation_date",
