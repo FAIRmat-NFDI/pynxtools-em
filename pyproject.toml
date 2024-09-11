@@ -28,7 +28,7 @@ dependencies = [
     "kikuchipy>=0.9.0",
     "pyxem>=0.16.0",
     "numpy<=1.26.4",
-    "nionswift>=16.11.0",
+    "nionswift",
     "flatdict",
     "xmltodict",
     "xraydb",
