@@ -34,7 +34,7 @@ from pynxtools_em.configurations.rsciio_velox_cfg import (
     VELOX_WHICH_IMAGE,
     VELOX_WHICH_SPECTRUM,
 )
-from pynxtools_em.parsers.rsciio_base import RsciioBaseParser
+from pynxtools_em.methods.ebsd import has_hfive_magic_header
 from pynxtools_em.utils.get_file_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -46,15 +46,13 @@ from pynxtools_em.utils.velox_utils import velox_image_spectrum_or_generic_nxdat
 from rsciio import emd
 
 
-class RsciioVeloxParser(RsciioBaseParser):
+class RsciioVeloxParser:
     """Read Velox EMD File Format emd."""
 
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
-        super().__init__(file_path)
-        if entry_id > 0:
-            self.entry_id = entry_id
-        else:
-            self.entry_id = 1
+        if file_path:
+            self.file_path = file_path
+        self.entry_id = entry_id if entry_id > 0 else 1
         self.verbose = verbose
         # for id_mgn check pynxtools-em v0.2 of this velox reader
         self.id_mgn: Dict = {
@@ -77,8 +75,18 @@ class RsciioVeloxParser(RsciioBaseParser):
         self.obj_idx_supported: List = []
         self.supported = False
         self.check_if_supported()
+        if not self.supported:
+            print(
+                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+            )
 
     def check_if_supported(self):
+        self.supported = False
+        # TFS best practice, Velox EMD files mimetype emd and HDF5 file
+        if not self.file_path.lower().endswith(".emd"):
+            return
+        if not has_hfive_magic_header(self.file_path):
+            return
         try:
             self.objs = emd.file_reader(self.file_path)
             # TODO::what to do if the content of the file is larger than the available
@@ -119,16 +127,12 @@ class RsciioVeloxParser(RsciioBaseParser):
                 len(self.obj_idx_supported) > 0
             ):  # there is at least some supported content
                 self.supported = True
-            else:
-                print(
-                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
-                )
-        except IOError:
+        except (FileNotFoundError, IOError, ValueError):
+            print(f"{self.file_path} FileNotFound, IOError, or ValueError !")
             return
-            # print(f"Loading {self.file_path} using {self.__class__.__name__} is not supported !")
 
     def parse(self, template: dict) -> dict:
-        """Perform actual parsing filling cache self.tmp."""
+        """Perform actual parsing."""
         if self.supported:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)

@@ -105,11 +105,14 @@ def get_ipfdir_legend(ipf_key):
 
 def has_hfive_magic_header(file_path: str) -> bool:
     """Check if file_path has magic header matching HDF5."""
-    with open(file_path, "rb", 0) as file:
-        s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
-        magic = s.read(4)
-        if magic == b"\x89HDF":
-            return True
+    try:
+        with open(file_path, "rb", 0) as file:
+            s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
+            magic = s.read(4)
+            if magic == b"\x89HDF":
+                return True
+    except (FileNotFoundError, IOError):
+        print(f"{file_path} either FileNotFound or IOError !")
     return False
 
 

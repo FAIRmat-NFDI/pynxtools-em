@@ -32,8 +32,12 @@ from pynxtools_em.methods.ebsd import (
     has_hfive_magic_header,
 )
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
+from pynxtools_em.utils.get_file_checksum import (
+    DEFAULT_CHECKSUM_ALGORITHM,
+    get_sha256_of_file_content,
+)
 from pynxtools_em.utils.hfive_utils import (
-    apply_euler_space_symmetry,
+    EULER_SPACE_SYMMETRY,
     read_first_scalar,
     read_strings,
 )
@@ -44,8 +48,12 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
     """Read EDAX (O)H5"""
 
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
-        super().__init__(file_path)
-        self.id_mgn: Dict[str, int] = {"entry_id": entry_id, "roi_id": 1}
+        if file_path:
+            self.file_path = file_path
+        self.id_mgn: Dict[str, int] = {
+            "entry_id": entry_id if entry_id > 0 else 0,
+            "roi_id": 1,
+        }
         self.verbose = verbose
         self.prfx = ""  # template path handling
         self.version: Dict = {  # Dict[str, Dict[str, List[str]]
@@ -65,8 +73,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
             "src": {},
         }
         self.supported = False
-        if self.is_hdf:
-            self.check_if_supported()
+        self.check_if_supported()
         if not self.supported:
             print(
                 f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
@@ -94,7 +101,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
                 self.version["src"]["schema_version"] = sversion
                 votes_for_support += 1
 
-            if self.supported == 2:
+            if votes_for_support == 2:
                 for keyword in ["schema_name", "writer_name", "writer_version"]:
                     self.version["src"][keyword] = self.version["trg"][keyword]
                     self.supported = True
@@ -102,7 +109,11 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
     def parse(self, template: dict) -> dict:
         """Read and normalize away EDAX-specific formatting with an equivalent in NXem."""
         if self.supported:
-            print(f"Parsing via EDAX O(H5) parser...")
+            with open(self.file_path, "rb", 0) as fp:
+                self.file_path_sha256 = get_sha256_of_file_content(fp)
+            print(
+                f"Parsing {self.file_path} EDAX O(H5) with SHA256 {self.file_path_sha256} ..."
+            )
             with h5py.File(f"{self.file_path}", "r") as h5r:
                 grp_names = list(h5r["/"])
                 for grp_name in grp_names:
@@ -277,13 +288,14 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
         # normalization for each software version, TODO::here rad is assumed but then values
         # as large as 12.... should not be possible
         # TODO::there has to be a mechanism which treats these dirty scan points!
-        for dim_idx, dim in enumerate(["Phi1", "Phi", "Phi2"]):
-            self.ebsd.euler[:, dim_idx] = np.asarray(
-                fp[f"{grp_name}/{dim}"][:], np.float32
+        for idx, dim in enumerate(["Phi1", "Phi", "Phi2"]):
+            self.ebsd.euler[:, idx] = (
+                np.asarray(fp[f"{grp_name}/{dim}"][:], np.float32) / 180.0 * np.pi
             )
-        # TODO::seems to be the situation in the example but there is no documentation
+            here = np.where(self.ebsd.euler[:, idx] < 0.0)
+            self.ebsd.euler[here, idx] += EULER_SPACE_SYMMETRY[idx].magnitude
         self.ebsd.euler = ureg.Quantity(self.ebsd.euler, ureg.radian)
-        self.ebsd.euler = apply_euler_space_symmetry(self.ebsd.euler)
+        # TODO::seems to be the situation in the example but there is no documentation
 
         # given no official EDAX OimAnalysis spec we cannot define for sure if
         # phase_id == 0 means just all was indexed with the first/zeroth phase or nothing

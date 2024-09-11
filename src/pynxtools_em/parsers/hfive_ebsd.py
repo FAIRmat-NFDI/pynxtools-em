@@ -30,10 +30,14 @@ from pynxtools_em.methods.ebsd import (
     has_hfive_magic_header,
 )
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
+from pynxtools_em.utils.get_file_checksum import (
+    DEFAULT_CHECKSUM_ALGORITHM,
+    get_sha256_of_file_content,
+)
 from pynxtools_em.utils.hfive_utils import (
     EBSD_MAP_SPACEGROUP,
+    EULER_SPACE_SYMMETRY,
     all_equal,
-    apply_euler_space_symmetry,
     read_strings,
 )
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
@@ -43,8 +47,12 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
     """Read modified H5EBSD (likely from Britton group)"""
 
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
-        super().__init__(file_path)
-        self.id_mgn: Dict[str, int] = {"entry_id": entry_id, "roi_id": 1}
+        if file_path:
+            self.file_path = file_path
+        self.id_mgn: Dict[str, int] = {
+            "entry_id": entry_id if entry_id > 0 else 1,
+            "roi_id": 1,
+        }
         self.verbose = verbose
         self.prfx = ""  # template path handling
         self.version: Dict = {  # Dict[str, Dict[str, List[str]]]
@@ -58,9 +66,8 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
             "src": {},
         }
         self.supported = False
-        if self.is_hdf:
-            self.check_if_supported()
-        else:
+        self.check_if_supported()
+        if not self.supported:
             print(
                 f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
             )
@@ -94,7 +101,11 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
     def parse(self, template: dict) -> dict:
         """Read and normalize away community-specific formatting with an equivalent in NXem."""
         if self.supported:
-            print(f"Parsing via H5EBSD file format user community parser...")
+            with open(self.file_path, "rb", 0) as fp:
+                self.file_path_sha256 = get_sha256_of_file_content(fp)
+            print(
+                f"Parsing {self.file_path} H5EBSD community with SHA256 {self.file_path_sha256} ..."
+            )
             with h5py.File(f"{self.file_path}", "r") as h5r:
                 grp_names = list(h5r["/"])
                 for grp_name in grp_names:
@@ -247,13 +258,12 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
             self.ebsd.euler = np.zeros((n_pts_probe[0], 3), np.float32)
             # TODO::available examples support that community H5EBSD reports Euler triplets in degree
             for idx, angle in enumerate(["phi1", "PHI", "phi2"]):
-                self.ebsd.euler[:, idx] = np.asarray(
-                    fp[f"{grp_name}/{angle}"][:], np.float32
+                self.ebsd.euler[:, idx] = (
+                    np.asarray(fp[f"{grp_name}/{angle}"][:], np.float32) / 180.0 * np.pi
                 )
-            self.ebsd.euler = ureg.Quantity(self.ebsd.euler, ureg.degree).to(
-                ureg.radian
-            )
-            self.ebsd.euler = apply_euler_space_symmetry(self.ebsd.euler)
+                here = np.where(self.ebsd.euler[:, idx] < 0.0)
+                self.ebsd.euler[here, idx] += EULER_SPACE_SYMMETRY[idx].magnitude
+            self.ebsd.euler = ureg.Quantity(self.ebsd.euler, ureg.radian)
             n_pts = n_pts_probe[0]
 
         # index of phase, 0 if not indexed

@@ -40,21 +40,30 @@ class NxEmConventionParser:
     def __init__(self, file_path: str, entry_id: int = 1, verbose: bool = False):
         """Fill template with ELN pieces of information."""
         print(f"Extracting conventions from {file_path} ...")
-        if (
-            pathlib.Path(file_path).name.endswith("conventions.yaml")
-            or pathlib.Path(file_path).name.endswith("conventions.yml")
-        ) and entry_id > 0:
+        if pathlib.Path(file_path).name.endswith("conventions.yaml") or pathlib.Path(
+            file_path
+        ).name.endswith("conventions.yml"):
             self.file_path = file_path
+            self.entry_id = entry_id if entry_id > 0 else 1
+            self.verbose = verbose
+            self.supported = False
+            self.check_if_supported()
+            if not self.supported:
+                print(
+                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                )
+
+    def check_if_supported(self):
+        try:
             with open(self.file_path, "r", encoding="utf-8") as stream:
                 self.flat_metadata = fd.FlatDict(yaml.safe_load(stream), delimiter="/")
-                if verbose:
+                self.supported = True
+                if self.verbose:
                     for key, val in self.flat_metadata.items():
                         print(f"key: {key}, value: {val}")
-            self.entry_id = entry_id
-        else:
-            self.file_path = ""
-            self.entry_id = 1
-            self.flat_metadata = fd.FlatDict({}, "/")
+        except (FileNotFoundError, IOError):
+            print(f"{self.file_path} either FileNotFound or IOError !")
+            return
 
     def parse(self, template) -> dict:
         """Extract metadata from generic ELN text file to respective NeXus objects."""

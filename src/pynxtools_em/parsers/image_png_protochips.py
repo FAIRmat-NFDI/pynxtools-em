@@ -40,7 +40,6 @@ from pynxtools_em.configurations.image_png_protochips_cfg import (
     AXON_STATIC_STAGE_NX,
     specific_to_variadic,
 )
-from pynxtools_em.parsers.image_base import ImgsBaseParser
 from pynxtools_em.utils.get_file_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -51,10 +50,11 @@ from pynxtools_em.utils.string_conversions import string_to_number
 from pynxtools_em.utils.xml_utils import flatten_xml_to_dict
 
 
-class ProtochipsPngSetParser(ImgsBaseParser):
+class ProtochipsPngSetParser:
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
-        super().__init__(file_path)
-        self.entry_id = entry_id
+        if file_path:
+            self.file_path = file_path
+        self.entry_id = entry_id if entry_id > 0 else 1
         self.event_id = 1
         self.dict_meta: Dict[str, fd.FlatDict] = {}
         self.version: Dict = {}
@@ -74,14 +74,19 @@ class ProtochipsPngSetParser(ImgsBaseParser):
         # can at all be processed with this parser
         # test 1: check if file is a zipfile
         self.supported = False
-        with open(self.file_path, "rb", 0) as file:
-            s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
-            magic = s.read(8)
-            if (
-                magic != b"PK\x03\x04\x14\x00\x08\x00"
-            ):  # https://en.wikipedia.org/wiki/List_of_file_signatures
-                # print(f"Test 1 failed, {self.file_path} is not a ZIP archive !")
-                return
+        try:
+            with open(self.file_path, "rb", 0) as file:
+                s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
+                magic = s.read(4)
+                if (
+                    magic != b"PK\x03\x04"
+                ):  # https://en.wikipedia.org/wiki/List_of_file_signatures
+                    # print(f"Test 1 failed, {self.file_path} is not a ZIP archive !")
+                    return
+        except (FileNotFoundError, IOError):
+            print(f"{self.file_path} either FileNotFound or IOError !")
+            return
+
         # test 2: check if there are at all PNG files with iTXt metadata from Protochips in this zip file
         # collect all those PNGs to work with and write a tuple of their image dimensions
         with ZipFile(self.file_path) as zip_file_hdl:
@@ -95,10 +100,15 @@ class ProtochipsPngSetParser(ImgsBaseParser):
                             if (
                                 method == "lazy"
                             ):  # lazy but paid with the price of reading the image content
-                                fp.seek(
-                                    0
-                                )  # seek back to beginning of file required because fp.read advanced fp implicitly!
+                                fp.seek(0)
+                                # seek back to beginning of file required because fp.read advanced fp implicitly!
                                 with Image.open(fp) as png:
+                                    # assure the zip contains only pngs with XML metadata
+                                    # matching typical Protochips terminology
+                                    # TODO::currently not accepting a polluted ZIP with
+                                    # PNGs of other content
+                                    if "MicroscopeControlImage" not in png.info:
+                                        return
                                     try:
                                         nparr = np.array(png)
                                         self.png_info[file] = np.shape(nparr)
@@ -110,6 +120,11 @@ class ProtochipsPngSetParser(ImgsBaseParser):
                                 method == "smart"
                             ):  # knowing where to hunt width and height in PNG metadata
                                 # https://dev.exiv2.org/projects/exiv2/wiki/The_Metadata_in_PNG_files
+                                fp.seek(0)
+                                with Image.open(fp) as png:
+                                    if "MicroscopeControlImage" not in png.info:
+                                        return
+                                fp.seek(0)
                                 magic = fp.read(8)
                                 self.png_info[file] = (
                                     np.frombuffer(fp.read(4), dtype=">i4"),
@@ -226,7 +241,7 @@ class ProtochipsPngSetParser(ImgsBaseParser):
                     with zip_file_hdl.open(file) as fp:
                         self.get_xml_metadata(file, fp)
                         self.get_file_hash(file, fp)
-                        # print(f"Debugging self.tmp.file.items {file}")
+                        # if self.verbose:
                         # for k, v in self.dict_meta[file].items():
                         #     if k == "MicroscopeControlImageMetadata.MicroscopeDateTime":
                         #     print(f"{k}: {v}")

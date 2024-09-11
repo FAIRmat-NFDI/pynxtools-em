@@ -21,6 +21,7 @@ from typing import Dict
 
 import h5py
 import numpy as np
+from ase.data import chemical_symbols
 from diffpy.structure import Lattice, Structure
 from pynxtools_em.methods.ebsd import (
     EbsdPointCloud,
@@ -28,23 +29,27 @@ from pynxtools_em.methods.ebsd import (
     ebsd_roi_phase_ipf,
     has_hfive_magic_header,
 )
-from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
-from pynxtools_em.utils.hfive_utils import apply_euler_space_symmetry, read_strings
-from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.methods.microstructure import (
     Crystal,
     Microstructure,
     microstructure_to_template,
 )
-from ase.data import chemical_symbols
+from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
+from pynxtools_em.utils.hfive_utils import apply_euler_space_symmetry, read_strings
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 
 class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
     """Overwrite constructor of hfive_base reader"""
 
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
-        super().__init__(file_path)
-        self.id_mgn: Dict[str, int] = {"entry_id": entry_id, "roi_id": 1, "img_id": 1}
+        if file_path:
+            self.file_path = file_path
+        self.id_mgn: Dict[str, int] = {
+            "entry_id": entry_id if entry_id > 0 else 1,
+            "roi_id": 1,
+            "img_id": 1,
+        }
         self.verbose = verbose
         self.prfx = ""  # template path handling
         self.version: Dict = {  # Dict[str, Dict[str, List[str]]]
@@ -71,8 +76,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
             },
         }
         self.supported = False
-        if self.is_hdf:
-            self.check_if_supported()
+        self.check_if_supported()
         if not self.supported:
             print(
                 f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
@@ -135,10 +139,12 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                         self.ebsd = EbsdPointCloud()
 
                 # Vitesh's example
+                has_microstructural_features = False
                 ms = Microstructure()
                 for grpnm in h5r:
                     if grpnm.isdigit():
                         if f"/{grpnm}/Electron Image/Data/Feature/Area" in h5r:
+                            has_microstructural_features = True
                             cryst = Crystal()
                             cryst.id = np.uint32(grpnm)
                             cryst.props["area"] = ureg.Quantity(
@@ -149,6 +155,8 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                                 f"{grpnm}/{abbrev}" in h5r
                                 and f"/{grpnm}/{abbrev} Sigma" in h5r
                             ):
+                                has_microstructural_features = False
+                                # TODO::improve the use case
                                 cryst.props["composition"] = {}
                                 for element in h5r[f"/{grpnm}/{abbrev}"]:
                                     if element in h5r[f"/{grpnm}/{abbrev} Sigma"]:
@@ -166,7 +174,10 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                                                 ][0],
                                             }  # in weight percent
                             ms.crystal.append(cryst)
-                microstructure_to_template(ms, self.id_mgn, template)
+                        else:
+                            break
+                if has_microstructural_features:
+                    microstructure_to_template(ms, self.id_mgn, template)
                 self.id_mgn["roi_id"] += 1
                 self.id_mgn["img_id"] += 1
 

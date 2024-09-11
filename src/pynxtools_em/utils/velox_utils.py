@@ -51,11 +51,12 @@ def velox_image_spectrum_or_generic_nxdata(list_of_dict) -> str:
                         q = ureg.Quantity(unit)
                         base_unit_map: Dict[str, str] = {
                             "1/meter": "1/m",
+                            "1 / meter": "1/m",
                             "meter": "m",
                             "kilogram * meter ** 2 / second ** 2": "eV",
                             "second": "s",
-                        }
-                        base_unit = base_unit_map.get(q.to_base_units().units)
+                        }  # TODO::make this more robust against whitespace formatting
+                        base_unit = base_unit_map.get(f"{q.to_base_units().units}")
                         if base_unit:
                             unit_categories.append(base_unit)
                         else:

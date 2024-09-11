@@ -20,7 +20,6 @@
 import re
 
 from ase.data import chemical_symbols
-
 from pynxtools_em.examples.ebsd_database import (
     CONCEPT_TO_ATOM_TYPES,
     FREE_TEXT_TO_CONCEPT,
@@ -32,7 +31,7 @@ class NxEmAtomTypesResolver:
 
     def __init__(self, entry_id: int = 1):
         if entry_id >= 1:
-            self.entry_id = entry_id
+            self.entry_id = entry_id if entry_id > 0 else 1
 
     def identify_atomtypes(self, template: dict) -> dict:
         """Inspect template and find elements to eventually overwrite sample/atom_types."""

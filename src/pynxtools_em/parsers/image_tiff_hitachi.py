@@ -30,14 +30,16 @@ from pynxtools_em.configurations.image_tiff_hitachi_cfg import (
     HITACHI_DYNAMIC_VARIOUS_NX,
     HITACHI_STATIC_VARIOUS_NX,
 )
-from pynxtools_em.parsers.image_tiff import TiffParser
+from pynxtools_em.utils.get_file_checksum import (
+    DEFAULT_CHECKSUM_ALGORITHM,
+    get_sha256_of_file_content,
+)
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
 
 
-class HitachiTiffParser(TiffParser):
+class HitachiTiffParser:
     def __init__(self, file_paths: List[str], entry_id: int = 1, verbose=False):
-        # TODO::instantiate super.__init__
         tif_txt = ["", ""]
         if (
             len(file_paths) == 2
@@ -50,10 +52,10 @@ class HitachiTiffParser(TiffParser):
                 elif entry.lower().endswith((".txt")):
                     tif_txt[1] = entry
         if all(value != "" for value in tif_txt):
-            super().__init__(tif_txt[0])
-            self.entry_id = entry_id
-            self.event_id = 1
+            self.file_path = tif_txt[0]
+            self.entry_id = entry_id if entry_id > 0 else 1
             self.verbose = verbose
+            self.id_mgn: Dict[str, int] = {"event_id": 1}
             self.txt_file_path = tif_txt[1]
             self.flat_dict_meta = fd.FlatDict({}, "/")
             self.version: Dict = {}
@@ -62,29 +64,24 @@ class HitachiTiffParser(TiffParser):
         else:
             print(f"Parser {self.__class__.__name__} needs TIF and TXT file !")
             self.supported = False
+        if not self.supported:
+            print(
+                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+            )
 
     def check_if_tiff_hitachi(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file."""
         self.supported = False
-        if not hasattr(self, "file_path"):
-            print(
-                f"... is not a Hitachi-specific TIFF file that this parser can process !"
-            )
+        try:
+            with open(self.file_path, "rb", 0) as file:
+                s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
+                magic = s.read(4)
+                if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
+                    return
+        except (FileNotFoundError, IOError):
+            print(f"{self.file_path} either FileNotFound or IOError !")
             return
-        if self.txt_file_path is None:
-            print(
-                f"Parser {self.__class__.__name__} does not work without a Hitachi text file with the image metadata !"
-                f"This file is required to have exactly the same file name as the file with the TIF image data !"
-            )
-            return
-        with open(self.file_path, "rb", 0) as file:
-            s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
-            magic = s.read(4)
-            if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
-                print(
-                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
-                )
-                return
+
         with open(self.txt_file_path, "r", encoding="utf8") as fp:
             txt = fp.read()
             txt = txt.replace("\r\n", "\n")  # windows to unix EOL conversion
@@ -123,8 +120,12 @@ class HitachiTiffParser(TiffParser):
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""
         if self.supported:
-            print(f"Parsing via Hitachi...")
             # metadata have at this point already been collected into an fd.FlatDict
+            with open(self.file_path, "rb", 0) as fp:
+                self.file_path_sha256 = get_sha256_of_file_content(fp)
+            print(
+                f"Parsing {self.file_path} Hitachi with SHA256 {self.file_path_sha256} ..."
+            )
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
         return template
@@ -145,7 +146,7 @@ class HitachiTiffParser(TiffParser):
                 # eventually similar open discussions points as were raised for tiff_tfs parser
                 trg = (
                     f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
-                    f"EVENT_DATA_EM[event_data_em{self.event_id}]/"
+                    f"EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/"
                     f"IMAGE_SET[image_set{image_identifier}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
@@ -204,7 +205,7 @@ class HitachiTiffParser(TiffParser):
         """Add respective metadata."""
         print(f"Mapping some of the Hitachi metadata on respective NeXus concepts...")
         # we assume for now dynamic quantities can just be repeated
-        identifier = [self.entry_id, self.event_id, 1]
+        identifier = [self.entry_id, self.id_mgn["event_id"], 1]
         for cfg in [HITACHI_DYNAMIC_VARIOUS_NX, HITACHI_STATIC_VARIOUS_NX]:
             add_specific_metadata_pint(cfg, self.flat_dict_meta, identifier, template)
         return template

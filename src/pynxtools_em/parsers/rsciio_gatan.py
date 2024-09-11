@@ -28,7 +28,6 @@ from pynxtools_em.configurations.rsciio_gatan_cfg import (
     GATAN_WHICH_IMAGE,
     GATAN_WHICH_SPECTRUM,
 )
-from pynxtools_em.parsers.rsciio_base import RsciioBaseParser
 from pynxtools_em.utils.gatan_utils import gatan_image_spectrum_or_generic_nxdata
 from pynxtools_em.utils.get_file_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
@@ -39,27 +38,26 @@ from pynxtools_em.utils.rsciio_hspy_utils import all_req_keywords_in_dict
 from rsciio import digitalmicrograph as gatan
 
 
-class RsciioGatanParser(RsciioBaseParser):
+class RsciioGatanParser:
     """Read Gatan Digital Micrograph dm3/dm4 formats."""
 
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
-        super().__init__(file_path)
-        if entry_id > 0:
-            self.entry_id = entry_id
-        else:
-            self.entry_id = 1
-        self.event_id = 1
+        if file_path:
+            self.file_path = file_path
+        self.entry_id = entry_id if entry_id > 0 else 1
         self.verbose = verbose
+        self.id_mgn: Dict[str, int] = {"event_id": 1}
         self.version: Dict = {}
         self.supported = False
         self.check_if_supported()
+        if not self.supported:
+            print(
+                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+            )
 
     def check_if_supported(self):
         self.supported = False
         if not self.file_path.lower().endswith(("dm3", "dm4")):
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
-            )
             return
         try:
             self.objs = gatan.file_reader(
@@ -82,15 +80,12 @@ class RsciioGatanParser(RsciioBaseParser):
                     print(f"{idx}-th obj is supported")
             if len(obj_idx_supported) > 0:  # at least some supported content
                 self.supported = True
-            else:
-                print(
-                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
-                )
-        except IOError:
+        except (FileNotFoundError, IOError):
+            print(f"{self.file_path} either FileNotFound or IOError !")
             return
 
     def parse(self, template: dict) -> dict:
-        """Perform actual parsing filling cache self.tmp."""
+        """Perform actual parsing."""
         if self.supported:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
@@ -110,7 +105,7 @@ class RsciioGatanParser(RsciioBaseParser):
                 continue
             self.process_event_data_em_metadata(obj, template)
             self.process_event_data_em_data(obj, template)
-            self.event_id += 1
+            self.id_mgn["event_id"] += 1
             if self.verbose:
                 print(f"obj{idx}, dims {obj['axes']}")
         return template
@@ -121,7 +116,7 @@ class RsciioGatanParser(RsciioBaseParser):
         # as for each section there are typically always some extra formatting
         # steps required
         flat_metadata = fd.FlatDict(obj["original_metadata"], "/")
-        identifier = [self.entry_id, self.event_id, 1]
+        identifier = [self.entry_id, self.id_mgn["event_id"], 1]
         for cfg in [GATAN_DYNAMIC_STAGE_NX, GATAN_DYNAMIC_VARIOUS_NX]:
             add_specific_metadata_pint(cfg, flat_metadata, identifier, template)
         return template
@@ -155,10 +150,10 @@ class RsciioGatanParser(RsciioBaseParser):
         if self.verbose:
             print(axes)
             print(f"{unit_combination}, {np.shape(obj['data'])}")
-            print(f"entry_id {self.entry_id}, event_id {self.event_id}")
+            print(f"entry_id {self.entry_id}, event_id {self.id_mgn['event_id']}")
 
-        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.event_id}]"
-        self.event_id += 1
+        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]"
+        self.id_mgn["event_id"] += 1
 
         # this is the place when you want to skip individually the writing of NXdata
         # return template

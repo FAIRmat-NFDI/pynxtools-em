@@ -45,35 +45,35 @@
 # can be organized using NeXus to contextualize using research data management software
 
 import mmap
-from typing import Dict, Any
+from typing import Any, Dict
 from zipfile import ZipFile
+
 import numpy as np
 import yaml
 from PIL import Image
-from pynxtools_em.parsers.image_base import ImgsBaseParser
-from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.examples.diffraction_pattern_set import (
-    get_materialsproject_id_and_spacegroup,
     EXAMPLE_FILE_PREFIX,
     MATERIALS_PROJECT_METADATA,
+    PIL_DTYPE_TO_NPY_DTYPE,
     SUPPORTED_FORMATS,
     SUPPORTED_MODES,
-    PIL_DTYPE_TO_NPY_DTYPE,
+    get_materialsproject_id_and_spacegroup,
 )
 from pynxtools_em.utils.hfive_web import HFIVE_WEB_MAXIMUM_ROI
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 
-class DiffractionPatternSetParser(ImgsBaseParser):
+class DiffractionPatternSetParser:
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
-        super().__init__(file_path)
-        self.entry_id = entry_id
+        self.file_path = file_path
+        self.entry_id = entry_id if entry_id > 0 else 1
+        self.verbose = verbose
         self.mp_entries: Dict[int, Any] = {}
         # details about the images of a specific space group and materials project
         self.mp_meta: Dict[int, Any] = {}
         # metadata to each space group and materials id project as cached in projects.yaml
         self.version: Dict = {}
         self.supported = False
-        self.verbose = verbose
         self.check_if_zipped_pattern()
         if not self.supported:
             print(
@@ -83,18 +83,25 @@ class DiffractionPatternSetParser(ImgsBaseParser):
     def check_if_zipped_pattern(self):
         """Check if resource behind self.file_path is a ZIP file with diffraction pattern."""
         self.supported = False
-        with open(self.file_path, "rb", 0) as file:
-            s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
-            magic = s.read(4)
-            if (
-                magic != b"PK\x03\x04"
-            ):  # https://en.wikipedia.org/wiki/List_of_file_signatures
-                # print(f"Test 1 failed, {self.file_path} is not a ZIP archive !")
-                return
+        try:
+            with open(self.file_path, "rb", 0) as file:
+                s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
+                magic = s.read(4)
+                if (
+                    magic != b"PK\x03\x04"
+                ):  # https://en.wikipedia.org/wiki/List_of_file_signatures
+                    # print(f"Test 1 failed, {self.file_path} is not a ZIP archive !")
+                    return
+        except (FileNotFoundError, IOError):
+            print(f"{self.file_path} either FileNotFound or IOError !")
+            return
 
-        with open(MATERIALS_PROJECT_METADATA, "r") as yml:
-            self.mp_meta = yaml.safe_load(yml)
-        # TODO::sanity checks for the import
+        try:
+            with open(MATERIALS_PROJECT_METADATA, "r") as yml:
+                self.mp_meta = yaml.safe_load(yml)
+        except (FileNotFoundError, IOError):
+            print(f"{self.file_path} either FileNotFound or IOError !")
+            return
 
         # inspect zipfile for groups of pattern with the same properties and sub-sets
         with ZipFile(self.file_path) as zip_file_hdl:
@@ -159,10 +166,7 @@ class DiffractionPatternSetParser(ImgsBaseParser):
                 for sgid in self.mp_entries:
                     print(sgid)
                     for mpid in self.mp_entries[sgid]:
-                        if (
-                            self.mp_meta[sgid][mpid] != {}
-                            and len(self.mp_entries[sgid][mpid]["files"]) > 0
-                        ):
+                        if len(self.mp_entries[sgid][mpid]["files"]) > 0:
                             print(f"\t\t{mpid}")
                             dtyp = PIL_DTYPE_TO_NPY_DTYPE[
                                 self.mp_entries[sgid][mpid]["mode"]
@@ -211,11 +215,14 @@ class DiffractionPatternSetParser(ImgsBaseParser):
             "identifier/service",
             "identifier/is_persistent",
         ]:
-            template[f"{trg}/{concept}"] = meta[concept]
-        template[f"{trg}/a_b_c"] = np.asarray(meta["a_b_c"], np.float32)
-        template[f"{trg}/a_b_c/@units"] = f"{ureg.angstrom}"
-        template[f"{trg}/alpha_beta_gamma"] = np.asarray(meta["angles"], np.float32)
-        template[f"{trg}/alpha_beta_gamma/@units"] = f"{ureg.degree}"
+            if concept in meta:
+                template[f"{trg}/{concept}"] = meta[concept]
+        if "a_b_c" in meta:
+            template[f"{trg}/a_b_c"] = np.asarray(meta["a_b_c"], np.float32)
+            template[f"{trg}/a_b_c/@units"] = f"{ureg.angstrom}"
+        if "angles" in meta:
+            template[f"{trg}/alpha_beta_gamma"] = np.asarray(meta["angles"], np.float32)
+            template[f"{trg}/alpha_beta_gamma/@units"] = f"{ureg.degree}"
         for concept in [
             "emmet_version",
             "pymatgen_version",
@@ -224,13 +231,17 @@ class DiffractionPatternSetParser(ImgsBaseParser):
             "license",
             "space_group",
         ]:
-            template[f"{trg}/{concept}"] = meta[concept]
+            if concept in meta:
+                template[f"{trg}/{concept}"] = meta[concept]
 
         trg = f"/ENTRY[entry{self.entry_id}]/simulation/IMAGE_SET[image_set1]/stack_2d"
 
-        template[f"{trg}/title"] = (
-            f"{meta['identifier/identifier']}, {meta['phase_name']}"
-        )
+        if "identifier/identifier" in meta and "phase_name" in meta:
+            template[f"{trg}/title"] = (
+                f"{meta['identifier/identifier']}, {meta['phase_name']}"
+            )
+        else:
+            template[f"{trg}/title"] = f"MaterialsProject ID was not API-retrievable"
         template[f"{trg}/@signal"] = "real"
         template[f"{trg}/@AXISNAME_indices[axis_i_indices]"] = np.uint32(2)
         template[f"{trg}/@AXISNAME_indices[axis_j_indices]"] = np.uint32(1)

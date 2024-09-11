@@ -28,12 +28,15 @@ from pynxtools_em.configurations.image_tiff_jeol_cfg import (
     JEOL_DYNAMIC_VARIOUS_NX,
     JEOL_STATIC_VARIOUS_NX,
 )
-from pynxtools_em.parsers.image_tiff import TiffParser
+from pynxtools_em.utils.get_file_checksum import (
+    DEFAULT_CHECKSUM_ALGORITHM,
+    get_sha256_of_file_content,
+)
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
 
 
-class JeolTiffParser(TiffParser):
+class JeolTiffParser:
     def __init__(self, file_paths: List[str], entry_id: int = 1, verbose=False):
         tif_txt = ["", ""]
         if (
@@ -46,11 +49,11 @@ class JeolTiffParser(TiffParser):
                     tif_txt[0] = entry
                 elif entry.lower().endswith((".txt")):
                     tif_txt[1] = entry
-        if all(value != "" for value in tif_txt):
-            super().__init__(tif_txt[0])
-            self.entry_id = entry_id
-            self.event_id = 1
+        if all(value != "" and value is not None for value in tif_txt):
+            self.file_path = tif_txt[0]
+            self.entry_id = entry_id if entry_id > 0 else 1
             self.verbose = verbose
+            self.id_mgn: Dict[str, int] = {"event_id": 1}
             self.txt_file_path = tif_txt[1]
             self.flat_dict_meta = fd.FlatDict({}, "/")
             self.version: Dict = {}
@@ -59,6 +62,10 @@ class JeolTiffParser(TiffParser):
         else:
             print(f"Parser {self.__class__.__name__} needs TIF and TXT file !")
             self.supported = False
+        if not self.supported:
+            print(
+                f"Parser {self.__class__.__name__} finds no content in {tif_txt} that it supports"
+            )
 
     def check_if_tiff_jeol(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file.
@@ -67,25 +74,16 @@ class JeolTiffParser(TiffParser):
         information can be used to tell JEOL data apart from other data.
         """
         self.supported = False
-        if not hasattr(self, "file_path"):
-            print(
-                f"... is not a JEOL-specific TIFF file that this parser can process !"
-            )
+        try:
+            with open(self.file_path, "rb", 0) as file:
+                s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
+                magic = s.read(4)
+                if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
+                    return
+        except (FileNotFoundError, IOError):
+            print(f"{self.file_path} either FileNotFound or IOError !")
             return
-        if self.txt_file_path is None:
-            print(
-                f"Parser {self.__class__.__name__} does not work without a JEOL text file with the image metadata !"
-                f"This file is required to have exactly the same file name as the file with the TIF image data !"
-            )
-            return
-        with open(self.file_path, "rb", 0) as file:
-            s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
-            magic = s.read(4)
-            if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
-                print(
-                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
-                )
-                return
+
         with open(self.txt_file_path, "r") as txt:
             txt = [
                 line.strip().lstrip("$")
@@ -122,16 +120,16 @@ class JeolTiffParser(TiffParser):
                     self.flat_dict_meta["CM_LABEL"] == "JEOL"
                 ):
                     self.supported = True
-            else:
-                print(
-                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
-                )
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""
         if self.supported:
-            print(f"Parsing via JEOL...")
             # metadata have at this point already been collected into an fd.FlatDict
+            with open(self.file_path, "rb", 0) as fp:
+                self.file_path_sha256 = get_sha256_of_file_content(fp)
+            print(
+                f"Parsing {self.file_path} JEOL with SHA256 {self.file_path_sha256} ..."
+            )
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
         return template
@@ -152,7 +150,7 @@ class JeolTiffParser(TiffParser):
                 # eventually similar open discussions points as were raised for tiff_tfs parser
                 trg = (
                     f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
-                    f"EVENT_DATA_EM[event_data_em{self.event_id}]/"
+                    f"EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/"
                     f"IMAGE_SET[image_set{image_identifier}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
@@ -214,7 +212,7 @@ class JeolTiffParser(TiffParser):
 
     def add_various_dynamic(self, template: dict) -> dict:
         """Add several event-based concepts with similar template path prefixes dynamic."""
-        identifier = [self.entry_id, self.event_id, 1]
+        identifier = [self.entry_id, self.id_mgn["event_id"], 1]
         add_specific_metadata_pint(
             JEOL_DYNAMIC_VARIOUS_NX,
             self.flat_dict_meta,
@@ -225,7 +223,7 @@ class JeolTiffParser(TiffParser):
 
     def add_various_static(self, template: dict) -> dict:
         """Add several event-based concepts with similar template path prefixes static."""
-        identifier = [self.entry_id, self.event_id, 1]
+        identifier = [self.entry_id, self.id_mgn["event_id"], 1]
         add_specific_metadata_pint(
             JEOL_STATIC_VARIOUS_NX,
             self.flat_dict_meta,
