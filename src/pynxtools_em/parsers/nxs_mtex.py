@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""(Sub-)parser mapping concepts and content from *.nxs.mtex files on NXem."""
+"""Parser mapping concepts and content from *.nxs.mtex files on NXem."""
 
 # *.nxs.mtex is a specific semantic file formatting for storing processing results obtained
 # with the MTex texture toolbox for Matlab into an HDF5 file. The format uses NeXus
@@ -50,28 +50,33 @@ def hfive_to_template(payload):
 class NxEmNxsMTexParser:
     """Map content from *.nxs.mtex files on an instance of NXem."""
 
-    def __init__(self, entry_id: int = 1, file_path: str = "", verbose: bool = False):
-        if entry_id > 0:
-            self.entry_id = entry_id
-        else:
-            self.entry_id = 1
-        self.file_path = file_path
-        self.supported = False
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+        if file_path:
+            self.file_path = file_path
+        self.entry_id = entry_id if entry_id > 0 else 1
         self.verbose = verbose
+        self.supported = False
         self.check_if_mtex_nxs()
+        if not self.supported:
+            print(
+                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+            )
 
     def check_if_mtex_nxs(self):
         """Check if content matches expected content."""
         if self.file_path is None or not self.file_path.endswith(".mtex.h5"):
             return
-        with open(self.file_path, "rb", 0) as file:
-            s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
-            magic = s.read(4)
-            if magic != b"\x89HDF":
-                return
+        try:
+            with open(self.file_path, "rb", 0) as file:
+                s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
+                magic = s.read(4)
+                if magic != b"\x89HDF":
+                    return
+        except (FileNotFoundError, IOError):
+            print(f"{self.file_path} either FileNotFound or IOError !")
+            return
         # TODO add code which checks for available content
         # the file written out by MTex/Matlab this file is already preformatted for NeXus
-        # #######
         self.supported = True
 
     def parse(self, template: dict) -> dict:

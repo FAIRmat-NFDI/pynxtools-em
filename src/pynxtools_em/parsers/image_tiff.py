@@ -22,25 +22,23 @@ from typing import Dict
 
 from PIL import Image
 from PIL.TiffTags import TAGS
-from pynxtools_em.parsers.image_base import ImgsBaseParser
 
 
-class TiffParser(ImgsBaseParser):
+class TiffParser:
     """Read Tagged Image File Format TIF/TIFF."""
 
-    def __init__(self, file_path: str = ""):
-        super().__init__(file_path)
-        self.prfx = None
-        self.tmp: Dict = {}
-        self.supported_version: Dict = {}
-        self.version: Dict = {}
+    def __init__(self, file_path: str = "", verbose: bool = False):
+        if file_path:
+            self.file_path = file_path
+        self.verbose = verbose
+        self.version: Dict = {}  # trg target versions supported, src actual
         self.tags: Dict = {}
         self.supported = False
         self.check_if_tiff()
 
     def check_if_tiff(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file."""
-        self.supported = 0  # voting-based
+        self.supported = False
         # different tech partners may all generate tiff files but internally
         # report completely different pieces of information the situation is the same
         # as for HDF5 files. Therefore, specific parsers for specific tech partner content
@@ -69,31 +67,24 @@ class TiffParser(ImgsBaseParser):
         # Our conviction is that these should be used and explored more frequently.
         # Exactly for this reason we provided an example for the differences
         # in the current state of and documentation of EBSD data stored in HDF5
-        with open(self.file_path, "rb", 0) as file:
-            s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
-            magic = s.read(4)
-            if magic == b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
-                self.supported += 1
-            if self.supported == 1:
+        try:
+            with open(self.file_path, "rb", 0) as file:
+                s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
+                magic = s.read(4)
+                if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
+                    return
                 self.supported = True
-            else:
-                self.supported = False
+        except (FileNotFoundError, IOError):
+            print(f"{self.file_path} either FileNotFound or IOError !")
+            return
 
-    def get_tags(self, verbose: bool = False):
+    def get_tags(self):
         """Extract tags if present."""
         print("Reporting the tags found in this TIFF file...")
         # for an overview of tags
         # https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
-        if verbose:
-            with Image.open(self.file_path, mode="r") as fp:
-                self.tags = {TAGS[key]: fp.tag[key] for key in fp.tag_v2}
+        with Image.open(self.file_path, mode="r") as fp:
+            self.tags = {TAGS[key]: fp.tag[key] for key in fp.tag_v2}
+            if self.verbose:
                 for key, val in self.tags.items():
                     print(f"{key}, {val}")
-
-    def parse_and_normalize(self):
-        """Perform actual parsing filling cache self.tmp."""
-        if self.supported is True:
-            print(f"Parsing via TiffParser...")
-            self.get_tags()
-        else:
-            print(f"{self.file_path} is not a TIFF file this parser can process !")

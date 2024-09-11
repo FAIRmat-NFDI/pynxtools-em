@@ -20,6 +20,16 @@
 import numpy as np
 
 
+def all_req_keywords_in_dict(dct: dict, keywords: list) -> bool:
+    """Check if dict dct has all keywords in keywords as keys from."""
+    # falsifiable?
+    for key in keywords:
+        if key in dct:
+            continue
+        return False
+    return True
+
+
 def get_named_axis(axes_metadata, dim_name):
     """Return numpy array with tuple (axis pos, unit) along dim_name or None."""
     retval = None
@@ -28,25 +38,23 @@ def get_named_axis(axes_metadata, dim_name):
             if isinstance(axis, dict):
                 if "name" in axis:
                     if axis["name"] == dim_name:
-                        reqs = ["offset", "scale", "size", "units"]
                         # "index_in_array" and "navigate" are currently not required
                         # and ignored but might become important
-                        for req in reqs:
+                        for req in ["offset", "scale", "size", "units"]:
                             if req not in axis:
-                                raise ValueError(f"{req} not in {axis}!")
+                                print(f"{req} not in {axis}!")
+                                return None
                         retval = (
                             np.asarray(
                                 axis["offset"]
-                                + (
-                                    np.linspace(
-                                        0.0,
-                                        axis["size"] - 1.0,
-                                        num=int(axis["size"]),
-                                        endpoint=True,
-                                    )
-                                    * axis["scale"]
-                                ),
-                                np.float64,
+                                + np.linspace(
+                                    0.0,
+                                    axis["size"] - 1.0,
+                                    num=int(axis["size"]),
+                                    endpoint=True,
+                                )
+                                * axis["scale"],
+                                dtype=np.float32,
                             ),
                             axis["units"],
                         )

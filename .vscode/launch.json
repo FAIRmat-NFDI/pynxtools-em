@@ -6,19 +6,18 @@
     "configurations": [
         {
             "name": "pynx-em debug",
-            "type": "debugpy",
+            "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "../.py3.11.5/bin/dataconverter",
-            "args": ["convert",
-                     "examples/eln_data.yaml",
-                     "examples/em.oasis.specific.yaml",
-                     "dbg/Spectrum_Image_HAADF_1055_340_kx.emd",
-                     "--nxdl",
-                     "NXem",
+            "program": "../.py3.12.4/bin/dataconverter",
+            "args": [//"convert",
+                     "tests/data/eln/eln_data.yaml",
+                     //"tests/data/hfive_apex/InGaN_nanowires_linescan.edaxh5",
                      "--reader",
                      "em",
-                     "--output=dbg/OpenEM.nxs"],
+                     "--nxdl",
+                     "NXem",
+                     "--output=tests/out.nxs"]
         }
     ]
 }

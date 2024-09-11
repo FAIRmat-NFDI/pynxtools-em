@@ -5,11 +5,11 @@
 ![](https://img.shields.io/pypi/pyversions/pynxtools-em)
 ![](https://img.shields.io/pypi/l/pynxtools-em)
 ![](https://img.shields.io/pypi/v/pynxtools-em)
-![](https://coveralls.io/repos/github/FAIRmat-NFDI/pynxtools-em/badge.svg?branch=master)
+![](https://coveralls.io/repos/github/FAIRmat-NFDI/pynxtools-em/badge.svg?branch=main)
 
-# A parser and normalizer for electron microscopy data
+# Parse and normalize electron microscopy data
 
-# Installation
+## Installation
 It is recommended to use python 3.11 with a dedicated virtual environment for this package.
 Learn how to manage [python versions](https://github.com/pyenv/pyenv) and
 [virtual environments](https://realpython.com/python-virtual-environments-a-primer/).
@@ -19,25 +19,26 @@ This package is a reader plugin for [`pynxtools`](https://github.com/FAIRmat-NFD
 pip install pynxtools[em]
 ```
 
-for the latest development version.
+for the latest release version from [pypi](https://pypi.org/project/pynxtools-em/).
 
-# Purpose
+If you are interested in the newest version, we recommend to work with a development installation instead.
+
+## Purpose
 This reader plugin for [`pynxtools`](https://github.com/FAIRmat-NFDI/pynxtools) is used to translate diverse file formats from the scientific community and technology partners
 within the field of electron microscopy into a standardized representation using the [NeXus](https://www.nexusformat.org/) application definition [NXem](https://fairmat-nfdi.github.io/nexus_definitions/classes/contributed_definitions/NXem.html#nxem).
 
 ## Supported file formats
-This plugin supports the several file formats that are currently used for electron microscopy.
+This plugin supports several file formats that are currently used within the research field of electron microscopy.
 A detailed summary is available in the [reference section of the documentation](https://fairmat-nfdi.github.io/pynxtools-em).
 
-# Getting started
+## Getting started
 [A getting started tutorial](https://github.com/FAIRmat-NFDI/pynxtools-em/tree/main/examples) is offered that guides you
-how to use the em reader for converting your data to NeXus from a Jupyter notebook. Note that not every combination of
-supported file formats and input for the parser allows to fill required and recommended fields and attributes of the NXem
+on how to use the em reader for converting your data to NeXus from a Jupyter notebook or command line calls. Note that not every combination of input from a supported file format and other input, such as from an electronic lab notebook, allows filling all required and recommended fields including their attributes of the NXem
 application definition. Therefore, you may need to provide an ELN file that contains the missing values in order for the
 validation step of the EM reader to pass.
 
-# Contributing
-We are continously working on adding parsers for other data formats, technology partners, and atom probers.
+## Contributing
+We are continously working on improving the collection of parsers and their functionalities.
 If you would like to implement a parser for your data, feel free to get in contact.
 
 ## Development install
@@ -47,19 +48,12 @@ Install the package with its dependencies:
 git clone https://github.com/FAIRmat-NFDI/pynxtools-em.git --branch main --recursive pynxtools_em
 cd pynxtools_em
 python -m pip install --upgrade pip
-python -m pip install -e .
 python -m pip install -e ".[dev,docs]"
-```
-
-<!---There is also a [pre-commit hook](https://pre-commit.com/#intro) available
-which formats the code and checks the linting before actually commiting.
-It can be installed with
-```shell
 pre-commit install
 ```
-from the root of this repository.
 
-## Development Notes-->
+The last line installs a [pre-commit hook](https://pre-commit.com/#intro) which
+automatically formats (linting) and type checks the code before committing.
 
 ## Test this software
 Especially relevant for developers, there exists a basic test framework written in
@@ -70,4 +64,4 @@ python -m pytest -sv tests
 ```
 
 ## Contact person in FAIRmat for this reader
-Markus Kühbach
+[Markus Kühbach](https://www.fairmat-nfdi.eu/fairmat/about-fairmat/team-fairmat)

@@ -20,6 +20,7 @@
 import xraydb
 
 from ase.data import chemical_symbols
+from typing import List
 
 
 def get_all_xraylines() -> dict:
@@ -30,14 +31,12 @@ def get_all_xraylines() -> dict:
     return xray_lines
 
 
-def get_xrayline_candidates(e_min, e_max) -> list:
+def get_xrayline_candidates(e_min, e_max) -> List[str]:
     # one could try to resolve the line from the alias of
     # the actual entry but this is not rigorous!
     cand = []
     for key, val in get_all_xraylines().items():
-        if val < e_min:
-            continue
-        if val > e_max:
+        if val < e_min or val > e_max:
             continue
         cand.append(key)
     return cand

@@ -17,23 +17,40 @@
 #
 """Parser for loading generic orientation microscopy data based on ."""
 
-from os import getcwd
+import os
 from time import perf_counter_ns
-from typing import Any, Tuple
+from typing import Any, List, Tuple
 
 import numpy as np
 from pynxtools.dataconverter.readers.base.reader import BaseReader
 
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
-from pynxtools_em.parsers.convention_reader import NxEmConventionParser
-from pynxtools_em.parsers.nxs_imgs import NxEmImagesParser
-from pynxtools_em.parsers.nxs_mtex import NxEmNxsMTexParser
-from pynxtools_em.parsers.nxs_nion import NionProjectParser
-from pynxtools_em.parsers.nxs_pyxem import NxEmNxsPyxemParser
-from pynxtools_em.parsers.oasis_config_reader import (
-    NxEmNomadOasisConfigurationParser,
+from pynxtools_em.parsers.conventions import NxEmConventionParser
+from pynxtools_em.parsers.hfive_apex import HdfFiveEdaxApexParser
+from pynxtools_em.parsers.hfive_bruker import HdfFiveBrukerEspritParser
+from pynxtools_em.parsers.hfive_dreamthreed_legacy import HdfFiveDreamThreedLegacyParser
+
+# from pynxtools_em.parsers.hfive_ebsd import HdfFiveEbsdCommunityParser
+from pynxtools_em.parsers.hfive_edax import HdfFiveEdaxOimAnalysisParser
+
+# from pynxtools_em.parsers.hfive_emsoft import HdfFiveEmSoftParser
+from pynxtools_em.parsers.hfive_oxford import HdfFiveOxfordInstrumentsParser
+from pynxtools_em.parsers.image_diffraction_pattern_set import (
+    DiffractionPatternSetParser,
 )
-from pynxtools_em.parsers.oasis_eln_reader import NxEmNomadOasisElnSchemaParser
+from pynxtools_em.parsers.image_png_protochips import ProtochipsPngSetParser
+from pynxtools_em.parsers.image_tiff_hitachi import HitachiTiffParser
+from pynxtools_em.parsers.image_tiff_jeol import JeolTiffParser
+from pynxtools_em.parsers.image_tiff_point_electronic import PointElectronicTiffParser
+from pynxtools_em.parsers.image_tiff_tescan import TescanTiffParser
+from pynxtools_em.parsers.image_tiff_tfs import TfsTiffParser
+from pynxtools_em.parsers.image_tiff_zeiss import ZeissTiffParser
+
+# from pynxtools_em.parsers.nxs_mtex import NxEmNxsMTexParser
+from pynxtools_em.parsers.nxs_nion import NionProjectParser
+from pynxtools_em.parsers.oasis_config import NxEmNomadOasisConfigParser
+from pynxtools_em.parsers.oasis_eln import NxEmNomadOasisElnSchemaParser
+from pynxtools_em.parsers.rsciio_gatan import RsciioGatanParser
 from pynxtools_em.parsers.rsciio_velox import RsciioVeloxParser
 from pynxtools_em.utils.io_case_logic import EmUseCaseSelector
 from pynxtools_em.utils.nx_atom_types import NxEmAtomTypesResolver
@@ -59,6 +76,7 @@ class EMReader(BaseReader):
     ) -> dict:
         """Read data from given file, return filled template dictionary em."""
         # pylint: disable=duplicate-code
+        print(os.getcwd())
         tic = perf_counter_ns()
         template.clear()
 
@@ -81,13 +99,13 @@ class EMReader(BaseReader):
         if len(case.cfg) == 1:
             print("Parse (meta)data coming from a configuration of an RDM...")
             # having or using a deployment-specific configuration is optional
-            nx_em_cfg = NxEmNomadOasisConfigurationParser(case.cfg[0], entry_id)
-            nx_em_cfg.report(template)
+            nx_em_cfg = NxEmNomadOasisConfigParser(case.cfg[0], entry_id)
+            nx_em_cfg.parse(template)
 
         if len(case.eln) == 1:
             print("Parse (meta)data coming from an ELN...")
             nx_em_eln = NxEmNomadOasisElnSchemaParser(case.eln[0], entry_id)
-            nx_em_eln.report(template)
+            nx_em_eln.parse(template)
 
         print("Parse NeXus appdef-specific content...")
         nxs = NxEmAppDef(entry_id)
@@ -101,23 +119,39 @@ class EMReader(BaseReader):
 
         print("Parse and map pieces of information within files from tech partners...")
         if len(case.dat) == 1:
-            images = NxEmImagesParser(entry_id, case.dat[0], verbose=False)
-            images.parse(template)
+            parsers_no_sidecar_file: List[type] = [
+                HdfFiveBrukerEspritParser,
+                HdfFiveDreamThreedLegacyParser,
+                # HdfFiveEbsdCommunityParser,
+                # HdfFiveEmSoftParser,
+                HdfFiveEdaxOimAnalysisParser,
+                HdfFiveEdaxApexParser,
+                HdfFiveOxfordInstrumentsParser,
+                TfsTiffParser,
+                ZeissTiffParser,
+                PointElectronicTiffParser,
+                ProtochipsPngSetParser,
+                RsciioVeloxParser,
+                RsciioGatanParser,
+                # NxEmNxsMTexParser,
+                NionProjectParser,
+                DiffractionPatternSetParser,
+            ]
+            for parser_type in parsers_no_sidecar_file:
+                parser = parser_type(case.dat[0], entry_id)
+                parser.parse(template)
 
-            velox = RsciioVeloxParser(entry_id, case.dat[0], verbose=False)
-            velox.parse(template)
+        if len(case.dat) >= 1:
+            parsers_optional_sidecar_file: List[type] = [TescanTiffParser]
+            for parser_type in parsers_optional_sidecar_file:
+                parser = parser_type(case.dat, entry_id)
+                parser.parse(template)
 
-            nxs_mtex = NxEmNxsMTexParser(entry_id, case.dat[0], verbose=False)
-            nxs_mtex.parse(template)
-
-            nxs_pyxem = NxEmNxsPyxemParser(entry_id, case.dat[0], verbose=False)
-            nxs_pyxem.parse(template)
-
-            nxs_nion = NionProjectParser(entry_id, case.dat[0], verbose=False)
-            nxs_nion.parse(template)
-
-            # zip_parser = NxEmOmZipEbsdParser(case.dat[0], entry_id)
-            # zip_parser.parse(template)
+        if len(case.dat) == 2:
+            parsers_needs_sidecar_file: List[type] = [JeolTiffParser, HitachiTiffParser]
+            for parser_type in parsers_needs_sidecar_file:
+                parser = parser_type(case.dat, entry_id)
+                parser.parse(template)
 
         nxplt = NxEmDefaultPlotResolver()
         nxplt.priority_select(template)
@@ -128,8 +162,8 @@ class EMReader(BaseReader):
         debugging = False
         if debugging:
             print("Reporting state of template before passing to HDF5 writing...")
-            for keyword in template:
-                print(f"{keyword}")  # : {template[keyword]}")
+            for keyword, value in template.items():
+                print(f"{keyword}____{type(value)}")
 
         print("Forward instantiated template to the NXS writer...")
         toc = perf_counter_ns()

@@ -21,7 +21,7 @@ from typing import Dict, List
 
 import h5py
 import numpy as np
-from pynxtools_em.parsers.hfive_concept import (
+from pynxtools_em.concepts.hfive_concepts import (
     IS_ATTRIBUTE,
     IS_COMPOUND_DATASET,
     IS_FIELD_IN_COMPOUND_DATASET,
@@ -47,9 +47,7 @@ from pynxtools_em.parsers.hfive_concept import (
 
 
 class HdfFiveBaseParser:
-    def __init__(self, file_path: str = ""):
-        # self.supported_version = VERSION_MANAGEMENT
-        # self.version = VERSION_MANAGEMENT
+    def __init__(self, file_path: str = "", verbose: bool = False):
         # tech_partner the company which designed this format
         # schema_name the specific name of the family of schemas supported by this reader
         # schema_version the specific version(s) supported by this reader
@@ -58,10 +56,11 @@ class HdfFiveBaseParser:
         #   was written e.g. Oxford Instruments AZTec software in some version may generate
         #   an instance of a file whose schema belongs to the H5OINA family of HDF5 container formats
         #   specifically using version 5
-        self.prfx = None
+        if file_path:
+            self.file_path = file_path
+        self.prfx: str = ""
         self.tmp: Dict = {}
-        self.source = None
-        self.file_path = None
+        self.source: str = ""
         # collection of instance path
         self.groups: Dict = {}
         self.datasets: Dict = {}
@@ -73,21 +72,20 @@ class HdfFiveBaseParser:
         self.template_attributes: List = []
         self.templates: Dict = {}
         self.h5r = None
-        self.is_hdf = True
-        if file_path is not None and file_path != "":
-            self.file_path = file_path
-            # TODO::check if HDF5 file using magic cookie
-        else:
-            raise ValueError(f"{__name__} needs proper instantiation !")
+        self.is_hdf = True  # TODO::check if HDF5 file using magic cookie
 
-    def init_named_cache(self, ckey: str):
+    def init_cache(self, ckey: str) -> str:
         """Init a new cache for normalized EBSD data if not existent."""
         # purpose of the cache is to hold normalized information
-        if ckey not in self.tmp.keys():
-            self.tmp[ckey] = {}
+        if ckey not in self.tmp:
+            self.tmp[ckey] = {}  # reset to {} upon incomplete collection of the cache
             return ckey
         else:
             raise ValueError(f"Existent named cache {ckey} must not be overwritten !")
+
+    def clear_cache(self, ckey: str):
+        if ckey in self.tmp:
+            self.tmp.pop(ckey)
 
     def open(self):
         if self.h5r is None:
@@ -101,7 +99,7 @@ class HdfFiveBaseParser:
     def __call__(self, node_name, h5obj):
         # only h5py datasets have dtype attribute, so we can search on this
         if isinstance(h5obj, h5py.Dataset):
-            if node_name not in self.datasets.keys():
+            if node_name not in self.datasets:
                 if hasattr(h5obj, "dtype"):
                     if hasattr(h5obj.dtype, "fields") and hasattr(h5obj.dtype, "names"):
                         if h5obj.dtype.names is not None:
@@ -251,7 +249,7 @@ class HdfFiveBaseParser:
                         f"hasattr(h5obj, dtype) failed, inspect {node_name} !"
                     )
         else:
-            if node_name not in self.groups.keys():
+            if node_name not in self.groups:
                 self.groups[node_name] = "IS_GROUP"
                 self.instances[node_name] = Concept(
                     node_name,
@@ -262,13 +260,13 @@ class HdfFiveBaseParser:
                     None,
                     hdf_type="group",
                 )
-        # if hasattr(h5obj, 'dtype') and not node_name in self.metadata.keys():
+        # if hasattr(h5obj, 'dtype') and not node_name in self.metadata:
         #     self.metadata[node_name] = ["dataset"]
 
     def get_attribute_data_structure(self, prefix, src_dct):
         # trg_dct is self.attributes
         for key, val in src_dct.items():
-            if f"{prefix}/@{key}" not in self.attributes.keys():
+            if f"{prefix}/@{key}" not in self.attributes:
                 if isinstance(val, str):
                     self.attributes[f"{prefix}/@{key}"] = (
                         "IS_ATTRIBUTE",
@@ -392,7 +390,7 @@ class HdfFiveBaseParser:
 
     def get_attribute_value(self, h5path):
         if self.h5r is not None:
-            if h5path in self.attributes.keys():
+            if h5path in self.attributes:
                 trg, attrnm = h5path.split("@")
                 # with (self.file_path, "r") as h5r:
                 obj = self.h5r[trg].attrs[attrnm]
@@ -404,7 +402,7 @@ class HdfFiveBaseParser:
 
     def get_dataset_value(self, h5path):
         if self.h5r is not None:
-            if h5path in self.datasets.keys():
+            if h5path in self.datasets:
                 if self.datasets[h5path][0] == "IS_REGULAR_DATASET":
                     # with (self.file_path, "r") as h5r:
                     obj = self.h5r[h5path]
