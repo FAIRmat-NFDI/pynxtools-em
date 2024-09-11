@@ -4,7 +4,7 @@ entry:
   end_time: "2024-05-08T12:56:00+00:00"
   experiment_description: "<p>Normal</p>\n<p><strong>Bold</strong></p>\n<p><em>Italics</em></p>"
 sample:
-  type: experiment
+  method: experiment
   name: test
   atom_types: Yb, Gd
   identifier:
