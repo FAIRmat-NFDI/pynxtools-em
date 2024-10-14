@@ -38,7 +38,7 @@ from pynxtools_em.nomad.entrypoints import em_example
 
 
 @pytest.mark.parametrize(
-    "mainfile", get_file_parameter("src/pynxtools_apm/nomad/examples")
+    "mainfile", get_file_parameter("src/pynxtools_em/nomad/examples")
 )
 def test_parse_nomad_examples(mainfile):
     """Test if NOMAD examples work."""
