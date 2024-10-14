@@ -70,6 +70,9 @@ docs = [
 [project.entry-points."pynxtools.reader"]
 em = "pynxtools_em.reader:EMReader"
 
+[project.entry-points.'nomad.plugin']
+em_example = "pynxtools_mpes.nomad.entrypoints:em_example"
+
 [tool.setuptools.packages.find]
 where = [
     "src",
