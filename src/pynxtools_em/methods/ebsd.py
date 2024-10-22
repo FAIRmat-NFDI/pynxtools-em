@@ -136,8 +136,7 @@ def regrid_onto_equisized_scan_points(
 
     # too large grid needs to be capped when gridded
     # cap to the maximum extent to comply with H5Web technical constraints
-    if max_extent >= max_edge_discr:
-        max_extent = max_edge_discr
+    max_extent = min(max_edge_discr, max_extent)
 
     # all non-square grids or too large square grids will be
     # discretized onto a regular grid with square or cubic pixel/voxel
