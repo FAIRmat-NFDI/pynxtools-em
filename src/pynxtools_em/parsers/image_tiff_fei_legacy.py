@@ -41,6 +41,7 @@ from pynxtools_em.utils.get_file_checksum import (
     get_sha256_of_file_content,
 )
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
+from pynxtools_em.utils.string_conversions import string_to_number
 from pynxtools_em.utils.xml_utils import flatten_xml_to_dict
 
 # distinguish different types of legacy formats
@@ -103,10 +104,12 @@ class FeiLegacyTiffParser:
                                         )
                                     except UndefinedUnitError:
                                         self.flat_dict_meta[tmp[f"{prefix}Label"]] = (
-                                            tmp[f"{prefix}Value"]
+                                            string_to_number(tmp[f"{prefix}Value"])
                                         )
                         if "Microscope" in self.flat_dict_meta:
                             if "Tecnai" in self.flat_dict_meta["Microscope"]:
+                                for key, val in self.flat_dict_meta.items():
+                                    print(f"{key}, {val}, {type(val)}")
                                 self.supported = FEI_LEGACY_TECNAI_TEM
                                 return
 
@@ -136,7 +139,6 @@ class FeiLegacyTiffParser:
             print(
                 f"Parsing {self.file_path} FEI Legacy with SHA256 {self.file_path_sha256} ..."
             )
-            # TODO::check image the next function
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
         return template
@@ -145,6 +147,7 @@ class FeiLegacyTiffParser:
         """Add respective heavy data."""
         # default display of the image(s) representing the data collected in this event
         print(f"Writing TFS/FEI image data to NeXus concept instances...")
+        # assuming same image FEI_LEGACY_TECNAI_TEM, FEI_LEGACY_HELIOS_SEM
         image_identifier = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
@@ -178,26 +181,14 @@ class FeiLegacyTiffParser:
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Signal"
 
-                sxy = {
-                    "i": ureg.Quantity(1.0, ureg.meter),
-                    "j": ureg.Quantity(1.0, ureg.meter),
-                }
-                # may face CCD overview camera of chamber that has no calibration!
-                if ("EScan/PixelWidth" in self.flat_dict_meta) and (
-                    "EScan/PixelHeight" in self.flat_dict_meta
-                ):
-                    sxy = {
-                        "i": ureg.Quantity(
-                            self.flat_dict_meta["EScan/PixelWidth"], ureg.meter
-                        ),
-                        "j": ureg.Quantity(
-                            self.flat_dict_meta["EScan/PixelHeight"], ureg.meter
-                        ),
-                    }
-                else:
-                    print("WARNING: Assuming pixel width and height unit is meter!")
+                if self.supported == FEI_LEGACY_TECNAI_TEM:
+                    print(
+                        "WARNING: Unresolvable case, Tecnai instruments may not come with physical dimension per pixel data!"
+                    )
                 nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
                 # TODO::be careful we assume here a very specific coordinate system
+                # https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
+                # tags 40962 and 40963 do not exist in example datasets from the community!
                 # however the TIFF file gives no clue, TIFF just documents in which order
                 # it arranges a bunch of pixels that have stream in into a n-d tiling
                 # e.g. a 2D image
@@ -213,16 +204,14 @@ class FeiLegacyTiffParser:
                 for dim in dims:
                     template[f"{trg}/AXISNAME[axis_{dim}]"] = {
                         "compress": np.asarray(
-                            np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
-                            * sxy[dim].magnitude,
+                            np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True),
                             dtype=np.float32,
                         ),
                         "strength": 1,
                     }
                     template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                        f"Coordinate along {dim}-axis ({sxy[dim].units})"
+                        f"Coordinate along {dim}-axis (needs proper scaling!)"
                     )
-                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
                 image_identifier += 1
         return template
 

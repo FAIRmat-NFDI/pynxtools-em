@@ -26,7 +26,7 @@ from pynxtools_em.utils.pint_custom_unit_registry import ureg
 # Intensity____31.429 dimensionless
 # Objective lens____92.941 dimensionless
 # Diffraction lens____36.754 dimensionless
-# TODO::changeme need to go elsewhere when after the Autumn NIAC meeting NXem
+# TODO::changeme need to go elsewhere after the Autumn NIAC meeting NXem
 
 
 FEI_TECNAI_STATIC_VARIOUS_NX: Dict[str, Any] = {
@@ -43,14 +43,14 @@ FEI_TECNAI_STATIC_VARIOUS_NX: Dict[str, Any] = {
 FEI_TECNAI_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]",
     "prefix_src": "",
-    "map": [("filtermode_changeme", "Filter mode")],
-    "map_to_u4": [("gunlens_changeme", "Gun lens"), ("spotsize_changeme", "Spot size")],
+    "map": [("filtermode_tmp", "Filter mode")],
+    "map_to_u4": [("gunlens_tmp", "Gun lens"), ("spotsize_tmp", "Spot size")],
     "map_to_f8": [
         ("magnification", "Magnification"),
         ("camera_length", ureg.meter, "Camera length", ureg.meter),
         ("defocus", ureg.meter, "Defocus", ureg.micrometer),
-        ("stemrotation_changeme", ureg.radian, "Stem rotation", ureg.degree),
-        ("stemrotation_changeme", ureg.radian, "Stem rotation correction", ureg.degree),
+        ("stemrotation_tmp", ureg.radian, "Stem rotation", ureg.degree),
+        ("stemrotation_tmp", ureg.radian, "Stem rotation correction", ureg.degree),
     ],
 }
 
@@ -65,10 +65,11 @@ FEI_TECNAI_DYNAMIC_STAGE_NX: Dict[str, Any] = {
             "position",
             ureg.meter,
             ["Stage X", "Stage Y", "Stage Z"],
-            ureg.micrometer,
+            # ureg.micrometer,
         ),
     ],
 }
+# TODO:: L68 should be commented in again related to TODO in case_five_list
 
 
 FEI_TECNAI_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {

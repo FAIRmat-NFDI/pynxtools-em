@@ -20,19 +20,20 @@
 
 def string_to_number(arg: str):
     """Convert input string to int, float, or leave string."""
-    if isinstance(arg, str):
-        try:
-            float(arg)
-        except ValueError:
-            return arg
-        # val = np.array([str_val]).astype(np.float64)[0]
-        val = float(arg)
-        if val.is_integer():
-            return int(val)
+    if arg:
+        if isinstance(arg, str):
+            try:
+                float(arg)
+            except ValueError:
+                return arg
+            # val = np.array([str_val]).astype(np.float64)[0]
+            val = float(arg)
+            if val.is_integer():
+                return int(val)
+            else:
+                return val
         else:
-            return val
-    else:
-        raise TypeError(f"Input argument arg needs to be a string!")
+            raise TypeError(f"Input argument arg needs to be a string!")
 
 
 def rchop(s: str, suffix: str) -> str:
