@@ -103,9 +103,10 @@ class FeiLegacyTiffParser:
                                             )
                                         )
                                     except UndefinedUnitError:
-                                        self.flat_dict_meta[tmp[f"{prefix}Label"]] = (
-                                            string_to_number(tmp[f"{prefix}Value"])
-                                        )
+                                        if tmp[f"{prefix}Value"] is not None:
+                                            self.flat_dict_meta[
+                                                tmp[f"{prefix}Label"]
+                                            ] = string_to_number(tmp[f"{prefix}Value"])
                         if "Microscope" in self.flat_dict_meta:
                             if "Tecnai" in self.flat_dict_meta["Microscope"]:
                                 for key, val in self.flat_dict_meta.items():
