@@ -69,7 +69,8 @@ FEI_TECNAI_DYNAMIC_STAGE_NX: Dict[str, Any] = {
         ),
     ],
 }
-# TODO:: L68 should be commented in again related to TODO in case_five_list
+# TODO:: L68 should be commented in again related to not handling list of ureg.Quantity
+# as catched currently in case_five_list of concepts/mapping_functors_pint L361
 
 
 FEI_TECNAI_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
