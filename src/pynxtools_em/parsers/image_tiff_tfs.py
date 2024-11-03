@@ -131,7 +131,7 @@ class TfsTiffParser:
                 for term in get_fei_childs(parent):
                     s.seek(pos_s, 0)
                     pos = s.find(bytes(f"{term}=", "utf8"))
-                    if pos < pos_e:  # check if pos_e is None
+                    if -1 < pos < pos_e:  # check if pos_e is None
                         s.seek(pos, 0)
                         value = f"{s.readline().strip().decode('utf8').replace(f'{term}=', '')}"
                         self.flat_dict_meta[f"{parent}/{term}"] = None

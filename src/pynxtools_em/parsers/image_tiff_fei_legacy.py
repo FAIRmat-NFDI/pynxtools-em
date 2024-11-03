@@ -81,52 +81,60 @@ class FeiLegacyTiffParser:
                 # XML content suggestive of e.g. FEI Tecnai instruments
                 pos_s = s.find(bytes(f"<Root>", "utf8"))
                 pos_e = s.find(bytes(f"</Root>", "utf8"))
-                if pos_s != -1 and pos_e != -1:
-                    if pos_e > pos_s:
-                        pos_e += len(f"</Root>")
-                        s.seek(pos_s)
-                        # root = ET.fromstring(value)
-                        tmp = flatten_xml_to_dict(
-                            xmltodict.parse(s.read(pos_e - pos_s))
-                        )
-                        for key in tmp:
-                            if key.endswith("Label"):
-                                prefix = key[: len(key) - 5]
-                                if all(
-                                    f"{prefix}{suffix}" in tmp
-                                    for suffix in ["Label", "Value", "Unit"]
-                                ):
-                                    try:
-                                        self.flat_dict_meta[tmp[f"{prefix}Label"]] = (
-                                            ureg.Quantity(
-                                                f"""{tmp[f"{prefix}Value"]} {tmp[f"{prefix}Unit"]}"""
-                                            )
+                if -1 < pos_s < pos_e:
+                    pos_e += len(f"</Root>")
+                    s.seek(pos_s)
+                    # root = ET.fromstring(value)
+                    tmp = flatten_xml_to_dict(xmltodict.parse(s.read(pos_e - pos_s)))
+                    for key in tmp:
+                        if key.endswith("Label"):
+                            prefix = key[: len(key) - 5]
+                            if all(
+                                f"{prefix}{suffix}" in tmp
+                                for suffix in ["Label", "Value", "Unit"]
+                            ):
+                                try:
+                                    self.flat_dict_meta[tmp[f"{prefix}Label"]] = (
+                                        ureg.Quantity(
+                                            f"""{tmp[f"{prefix}Value"]} {tmp[f"{prefix}Unit"]}"""
                                         )
-                                    except UndefinedUnitError:
-                                        if tmp[f"{prefix}Value"] is not None:
-                                            self.flat_dict_meta[
-                                                tmp[f"{prefix}Label"]
-                                            ] = string_to_number(tmp[f"{prefix}Value"])
-                        if "Microscope" in self.flat_dict_meta:
-                            if "Tecnai" in self.flat_dict_meta["Microscope"]:
-                                for key, val in self.flat_dict_meta.items():
-                                    print(f"{key}, {val}, {type(val)}")
-                                self.supported = FEI_LEGACY_TECNAI_TEM
-                                return
+                                    )
+                                except UndefinedUnitError:
+                                    if tmp[f"{prefix}Value"] is not None:
+                                        self.flat_dict_meta[tmp[f"{prefix}Label"]] = (
+                                            string_to_number(tmp[f"{prefix}Value"])
+                                        )
+                    if "Microscope" in self.flat_dict_meta:
+                        if "Tecnai" in self.flat_dict_meta["Microscope"]:
+                            for key, val in self.flat_dict_meta.items():
+                                print(f"{key}, {val}, {type(val)}")
+                            self.supported = FEI_LEGACY_TECNAI_TEM
+                            return
 
                 pos_s = s.find(bytes(f"<Metadata", "utf8"))
                 pos_e = s.find(bytes(f"</Metadata>", "utf8"))
-                if pos_s != -1 and pos_e != -1:
-                    if pos_e > pos_s:
-                        pos_e += len(f"</Metadata>")
-                        s.seek(0)
-                        tmp = flatten_xml_to_dict(
-                            xmltodict.parse(s.read(pos_e - pos_s))
-                        )
-                        # TODO::Implement mapping for FEI_LEGACY_HELIOS_SEM
-                        for key, val in tmp.items():
-                            print(f"{key}, {val}")
-                        self.supported = FEI_LEGACY_UNKNOWN  # FEI_LEGACY_HELIOS_SEM
+                if -1 < pos_s < pos_e:
+                    pos_e += len(f"</Metadata>")
+                    s.seek(pos_s)
+                    tmp = flatten_xml_to_dict(xmltodict.parse(s.read(pos_e - pos_s)))
+                    # TODO::Implement mapping for FEI_LEGACY_HELIOS_SEM
+                    for key, val in tmp.items():
+                        self.flat_dict_meta[key] = string_to_number(val)
+                    if all(
+                        val in self.flat_dict_meta
+                        for val in [
+                            "Metadata.Instrument.ControlSoftwareVersion",
+                            "Metadata.Instrument.Manufacturer",
+                            "Metadata.Instrument.InstrumentClass",
+                        ]
+                    ):
+                        if self.flat_dict_meta[
+                            "Metadata.Instrument.Manufacturer"
+                        ].startswith("FEI") and self.flat_dict_meta[
+                            "Metadata.Instrument.InstrumentClass"
+                        ].startswith("Helios NanoLab"):
+                            self.supported = FEI_LEGACY_HELIOS_SEM
+                            return
 
         except (FileNotFoundError, IOError):
             print(f"{self.file_path} either FileNotFound or IOError !")
