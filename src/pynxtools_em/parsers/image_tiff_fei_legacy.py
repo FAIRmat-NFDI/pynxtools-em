@@ -145,6 +145,12 @@ class FeiLegacyTiffParser:
                                 for key, val in self.flat_dict_meta.items():
                                     print(f"{key}, {val}, {type(val)}")
                             self.supported = FEI_LEGACY_HELIOS_SEM
+                            print(
+                                f"WARNING::TFS/FEI for TIFF stores in some cases the metadata in an XML block surplus ! a structure text appendix to the binary payload of the TIFF file !"
+                            )
+                            # this part of the legacy parser has been switched off
+                            # for now as we expect that rather the newer structured text strategy
+                            # will be continued to find usage
                             return
 
         except (FileNotFoundError, IOError):
@@ -153,7 +159,9 @@ class FeiLegacyTiffParser:
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing."""
-        if self.supported != FEI_LEGACY_UNKNOWN:
+        if self.supported == FEI_LEGACY_TECNAI_TEM:
+            # do not use != FEI_LEGACY_UNKNOWN as the FEI_FEI_LEGACY_HELIOS_SEM part
+            # has been switched off intentionally
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
             print(

@@ -82,7 +82,6 @@ class TfsTiffParser:
             tfs_keys = [34682]
             for tfs_key in tfs_keys:
                 if tfs_key in fp.tag_v2:
-                    print(fp.tag_v2[tfs_key])
                     if len(fp.tag_v2[tfs_key]) >= 1:
                         self.supported = True
 
