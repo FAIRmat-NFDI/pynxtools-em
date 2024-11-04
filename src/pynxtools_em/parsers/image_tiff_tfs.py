@@ -82,6 +82,7 @@ class TfsTiffParser:
             tfs_keys = [34682]
             for tfs_key in tfs_keys:
                 if tfs_key in fp.tag_v2:
+                    print(fp.tag_v2[tfs_key])
                     if len(fp.tag_v2[tfs_key]) >= 1:
                         self.supported = True
 
@@ -175,7 +176,7 @@ class TfsTiffParser:
     def process_event_data_em_data(self, template: dict) -> dict:
         """Add respective heavy data."""
         # default display of the image(s) representing the data collected in this event
-        print(f"Writing TFS/FEI image data to NeXus concept instances...")
+        print(f"Writing ThermoFisher TIFF image data to NeXus concept instances...")
         image_identifier = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):

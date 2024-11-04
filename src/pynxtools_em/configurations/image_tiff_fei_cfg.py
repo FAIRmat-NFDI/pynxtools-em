@@ -21,13 +21,12 @@ from typing import Any, Dict
 
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-# Tecnai TEM-specific metadata based on prototype example
+# FEI Tecnai TEM-specific metadata based on prototype example
 # currently not mapped:
 # Intensity____31.429 dimensionless
 # Objective lens____92.941 dimensionless
 # Diffraction lens____36.754 dimensionless
 # TODO::changeme need to go elsewhere after the Autumn NIAC meeting NXem
-
 
 FEI_TECNAI_STATIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/em_lab",
@@ -98,3 +97,186 @@ FEI_TECNAI_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
         ),
     ],
 }
+
+
+# FEI Helios NanoLab FIB/SEM-specific metadata based on prototypic example
+
+FEI_HELIOS_DYNAMIC_DETECTOR_NX: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/detectorID[detector*]",
+    "prefix_src": "Metadata.Detectors.ScanningDetector.",
+    "map": [("local_name", "DetectorName")],
+}
+
+
+FEI_HELIOS_STATIC_VARIOUS_NX: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab",
+    "prefix_src": "Metadata.",
+    "use": [("fabrication/vendor", "FEI")],
+    "map": [
+        ("fabrication/model", "Instrument.InstrumentClass"),
+        ("fabrication/identifier", "Instrument.InstrumentID"),
+        ("ebeam_column/electron_source/emitter_type", "Acquisition.SourceType"),
+    ],
+}
+
+
+FEI_HELIOS_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]",
+    "prefix_src": "Metadata.",
+    "map_to_bool": [
+        ("sample_tilt_correction", "Optics.SampleTiltCorrectionOn"),
+        ("cross_over", "Optics.CrossOverOn"),
+    ],
+    "map_to_f8": [
+        ("beam_current", ureg.ampere, "Optics.BeamCurrent", ureg.ampere),
+        ("working_distance", ureg.meter, "Optics.WorkingDistance", ureg.meter),
+        (
+            "eucentric_distance",
+            ureg.meter,
+            "Optics.EucentricWorkingDistance",
+            ureg.meter,
+        ),
+    ],
+}
+
+
+FEI_HELIOS_DYNAMIC_STAGE_NX: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
+    "prefix_src": "Metadata.StageSettings.StagePosition.",
+    "map_to_f8": [
+        ("rotation", ureg.radian, "Rotation", ureg.radian),
+        ("tilt1", ureg.radian, "Tilt.Alpha", ureg.radian),
+        ("tilt2", ureg.radian, "Tilt.Beta", ureg.radian),
+        (
+            "position",
+            ureg.meter,
+            ["X", "Y", "Z"],
+            ureg.meter,
+        ),
+    ],
+}
+
+
+FEI_HELIOS_DYNAMIC_STIGMATOR_NX: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column/corrector_ax",
+    "prefix_src": "Metadata.Optics.StigmatorRaw.",
+    "map_to_f8": [("value_x", "X"), ("value_y", "Y")],  # unit?
+}
+
+
+FEI_HELIOS_DYNAMIC_SCAN_NX: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
+    "prefix_src": "Metadata.ScanSettings.",
+    "map_to_f8": [("dwell_time", ureg.second, "DwellTime", ureg.second)],
+}
+
+
+FEI_HELIOS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
+    "prefix_src": "Metadata.",
+    "use": [
+        ("em_lab/ebeam_column/sensorID[sensor1]/measurement", "pressure"),
+        ("em_lab/ibeam_column/sensorID[sensor1]/measurement", "pressure"),
+    ],
+    "map_to_f8": [
+        (
+            "em_lab/ebeam_column/sensorID[sensor1]/value",
+            ureg.pascal,
+            "VacuumProperties.ElectronChamberPressure",
+            ureg.pascal,
+        ),
+        (
+            "em_lab/ibeam_column/sensorID[sensor1]/value",
+            ureg.pascal,
+            "VacuumProperties.IonChamberPressure",
+            ureg.pascal,
+        ),
+        (
+            "em_lab/ebeam_column/electron_source/voltage",
+            ureg.volt,
+            "Optics.AccelerationVoltage",
+            ureg.volt,
+        ),
+        (
+            "em_lab/ebeam_column/DEFLECTOR[beam_decelerator]/voltage",
+            ureg.volt,
+            "Optics.DecelerationVoltage",
+            ureg.volt,
+        ),
+        (
+            "em_lab/ebeam_column/DEFLECTOR[beam_shift1]/value_x",
+            ureg.meter,
+            "Optics.BeamShift.X",
+            ureg.meter,
+        ),
+        (
+            "em_lab/ebeam_column/DEFLECTOR[beam_shift1]/value_y",
+            ureg.meter,
+            "Optics.BeamShift.Y",
+            ureg.meter,
+        ),
+        (
+            "em_lab/ebeam_column/electron_source/DEFLECTOR[gun_tilt]/value_x",
+            "Optics.GunTiltRaw.X",
+        ),
+        (
+            "em_lab/ebeam_column/electron_source/DEFLECTOR[gun_tilt]/value_y",
+            "Optics.GunTiltRaw.Y",
+        ),
+        (
+            "em_lab/ebeam_column/apertureID[aperture1]/diameter",
+            ureg.meter,
+            "Optics.Apertures.Aperture.Diameter",
+            ureg.meter,
+        ),
+        (
+            "em_lab/ebeam_column/BEAM[beam]/current",
+            ureg.ampere,
+            "OPtics.BeamCurrent",
+            ureg.ampere,
+        ),
+        (
+            "em_lab/ebeam_column/BEAM[beam]/value",
+            ureg.meter,
+            "Optics.SpotSize",
+            ureg.meter,
+        ),
+    ],
+}
+
+# currently not mapped:
+# SEM_Image_-_SliceImage_-_109.tif
+# Metadata.@xmlns:nil, http://schemas.fei.com/Metadata/v1/2013/07  this link no longer works (2024/11/04)
+# Metadata.@xmlns:xsi, http://www.w3.org/2001/XMLSchema-instance
+# Metadata.Core.Guid, 93b31de4-087f-4b44-8390-8d5e971bc94b
+# Metadata.Core.UserID, Supervisor
+# Metadata.Core.ApplicationSoftware, xT
+# Metadata.Core.ApplicationSoftwareVersion, 0
+# Metadata.Instrument.ControlSoftwareVersion, 10.1.7.5675
+# Metadata.Acquisition.AcquisitionDatetime, 2021-03-03T11:31:14
+# Metadata.Acquisition.BeamType, Electron         process beam type
+# Metadata.Acquisition.ColumnType, Elstar
+# Metadata.Detectors.ScanningDetector.DetectorType, TLD
+# Metadata.Detectors.ScanningDetector.Signal, BSE
+# Metadata.Detectors.ScanningDetector.Gain, 45.956145987158642
+# Metadata.Detectors.ScanningDetector.Offset, -6.2495952023896315
+# Metadata.Detectors.ScanningDetector.GridVoltage, 0
+# Metadata.Detectors.ScanningDetector.ConverterElectrodeVoltage, 0
+# Metadata.Detectors.ScanningDetector.ContrastNormalized, 80.446892241078331
+# Metadata.Detectors.ScanningDetector.BrightnessNormalized, 23.960385596512875
+# Metadata.VacuumProperties.SamplePressure, 0.00018694142371456488
+# Metadata.GasInjectionSystems.Gis.[0].PortName, Port1
+# Metadata.GasInjectionSystems.Gis.[0].NeedleState, Retracted
+# Metadata.GasInjectionSystems.Gis.[0].Gases.Gas.GasType, G1
+# Metadata.GasInjectionSystems.Gis.[1].PortName, Port2
+# Metadata.GasInjectionSystems.Gis.[1].NeedleState, Retracted
+# Metadata.GasInjectionSystems.Gis.[1].Gases.Gas.GasType, G2
+# Metadata.BinaryResult.CompositionType, Single       composition_type_tmp
+# Metadata.BinaryResult.FilterType, DriftCorrectedFrameIntegration  # filter_type_tmp
+# Metadata.BinaryResult.FilterFrameCount, 1           filter_frame_count_tmp
+# Metadata.ScanSettings.LineTime, 0.0031665
+# Metadata.ScanSettings.LineIntegrationCount, 1
+# Metadata.ScanSettings.LineInterlacing, 1
+# Metadata.ScanSettings.FrameTime, 12.969984
+# Metadata.ScanSettings.ScanRotation, 0
+# Metadata.Optics.SamplePreTiltAngle, -0.66323502406567147

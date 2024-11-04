@@ -31,6 +31,13 @@ from pint import UndefinedUnitError
 # https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_fei_cfg import (
+    FEI_HELIOS_DYNAMIC_DETECTOR_NX,
+    FEI_HELIOS_DYNAMIC_OPTICS_NX,
+    FEI_HELIOS_DYNAMIC_SCAN_NX,
+    FEI_HELIOS_DYNAMIC_STAGE_NX,
+    FEI_HELIOS_DYNAMIC_STIGMATOR_NX,
+    FEI_HELIOS_DYNAMIC_VARIOUS_NX,
+    FEI_HELIOS_STATIC_VARIOUS_NX,
     FEI_TECNAI_DYNAMIC_OPTICS_NX,
     FEI_TECNAI_DYNAMIC_STAGE_NX,
     FEI_TECNAI_DYNAMIC_VARIOUS_NX,
@@ -106,8 +113,9 @@ class FeiLegacyTiffParser:
                                         )
                     if "Microscope" in self.flat_dict_meta:
                         if "Tecnai" in self.flat_dict_meta["Microscope"]:
-                            for key, val in self.flat_dict_meta.items():
-                                print(f"{key}, {val}, {type(val)}")
+                            if self.verbose:
+                                for key, val in self.flat_dict_meta.items():
+                                    print(f"{key}, {val}, {type(val)}")
                             self.supported = FEI_LEGACY_TECNAI_TEM
                             return
 
@@ -133,6 +141,9 @@ class FeiLegacyTiffParser:
                         ].startswith("FEI") and self.flat_dict_meta[
                             "Metadata.Instrument.InstrumentClass"
                         ].startswith("Helios NanoLab"):
+                            if self.verbose:
+                                for key, val in self.flat_dict_meta.items():
+                                    print(f"{key}, {val}, {type(val)}")
                             self.supported = FEI_LEGACY_HELIOS_SEM
                             return
 
@@ -155,7 +166,7 @@ class FeiLegacyTiffParser:
     def process_event_data_em_data(self, template: dict) -> dict:
         """Add respective heavy data."""
         # default display of the image(s) representing the data collected in this event
-        print(f"Writing TFS/FEI image data to NeXus concept instances...")
+        print(f"Writing legacy FEI TIFF image data to NeXus concept instances...")
         # assuming same image FEI_LEGACY_TECNAI_TEM, FEI_LEGACY_HELIOS_SEM
         image_identifier = 1
         with Image.open(self.file_path, mode="r") as fp:
@@ -194,6 +205,33 @@ class FeiLegacyTiffParser:
                     print(
                         "WARNING: Unresolvable case, Tecnai instruments may not come with physical dimension per pixel data!"
                     )
+                elif self.supported == FEI_LEGACY_HELIOS_SEM:
+                    sxy = {
+                        "i": ureg.Quantity(1.0, ureg.meter),
+                        "j": ureg.Quantity(1.0, ureg.meter),
+                    }
+                    # may face CCD overview camera of chamber that has no calibration!
+                    abbrev = "Metadata.BinaryResult.PixelSize"
+                    if all(
+                        key in self.flat_dict_meta
+                        for key in [
+                            f"{abbrev}.X.@unit",
+                            f"{abbrev}.X.#text",
+                            f"{abbrev}.Y.@unit",
+                            f"{abbrev}.Y.#text",
+                        ]
+                    ):
+                        sxy = {
+                            "i": ureg.Quantity(
+                                f"{self.flat_dict_meta[f'''{abbrev}.X.#text''']} {self.flat_dict_meta[f'''{abbrev}.X.@unit''']}"
+                            ),
+                            "j": ureg.Quantity(
+                                f"{self.flat_dict_meta[f'''{abbrev}.Y.#text''']} {self.flat_dict_meta[f'''{abbrev}.Y.@unit''']}"
+                            ),
+                        }
+                    else:
+                        print("WARNING: Assuming pixel width and height unit is meter!")
+
                 nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
@@ -211,16 +249,36 @@ class FeiLegacyTiffParser:
                 # and there is already a proper TIFF tag for the width and height of an
                 # image in number of pixel
                 for dim in dims:
-                    template[f"{trg}/AXISNAME[axis_{dim}]"] = {
-                        "compress": np.asarray(
-                            np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True),
-                            dtype=np.float32,
-                        ),
-                        "strength": 1,
-                    }
-                    template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                        f"Coordinate along {dim}-axis (needs proper scaling!)"
-                    )
+                    if self.supported == FEI_LEGACY_TECNAI_TEM:
+                        template[f"{trg}/AXISNAME[axis_{dim}]"] = {
+                            "compress": np.asarray(
+                                np.linspace(
+                                    0, nxy[dim] - 1, num=nxy[dim], endpoint=True
+                                ),
+                                dtype=np.float32,
+                            ),
+                            "strength": 1,
+                        }
+                        template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
+                            f"Coordinate along {dim}-axis (needs proper scaling!)"
+                        )
+                    elif self.supported == FEI_LEGACY_HELIOS_SEM:
+                        template[f"{trg}/AXISNAME[axis_{dim}]"] = {
+                            "compress": np.asarray(
+                                np.linspace(
+                                    0, nxy[dim] - 1, num=nxy[dim], endpoint=True
+                                )
+                                * sxy[dim].magnitude,
+                                dtype=np.float32,
+                            ),
+                            "strength": 1,
+                        }
+                        template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
+                            f"Coordinate along {dim}-axis ({sxy[dim].units})"
+                        )
+                        template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = (
+                            f"{sxy[dim].units}"
+                        )
                 image_identifier += 1
         return template
 
@@ -242,5 +300,20 @@ class FeiLegacyTiffParser:
                 )
             add_specific_metadata_pint(
                 FEI_TECNAI_DYNAMIC_STAGE_NX, self.flat_dict_meta, identifier, template
+            )
+        elif self.supported == FEI_LEGACY_HELIOS_SEM:
+            for cfg in [
+                FEI_HELIOS_DYNAMIC_DETECTOR_NX,
+                FEI_HELIOS_DYNAMIC_OPTICS_NX,
+                FEI_HELIOS_DYNAMIC_SCAN_NX,
+                FEI_HELIOS_DYNAMIC_STIGMATOR_NX,
+                FEI_HELIOS_DYNAMIC_VARIOUS_NX,
+                FEI_HELIOS_STATIC_VARIOUS_NX,
+            ]:
+                add_specific_metadata_pint(
+                    cfg, self.flat_dict_meta, identifier, template
+                )
+            add_specific_metadata_pint(
+                FEI_HELIOS_DYNAMIC_STAGE_NX, self.flat_dict_meta, identifier, template
             )
         return template
