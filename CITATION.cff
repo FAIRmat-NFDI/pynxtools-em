@@ -1,0 +1,56 @@
+cff-version: 1.2.0
+title: 'pynxtools-em: A pynxtools reader plugin for electron microscopy (EM) data'
+version: 0.3.1
+message:
+  If you use this software, please cite it using the metadata from this file.
+type: software
+authors:
+  - given-names: Markus
+    family-names: Kühbach
+    orcid: 'https://orcid.org/0000-0002-7117-5196'
+  - given-names: Sherjeel
+    family-names: Shabih
+    orcid: 'https://orcid.org/0009-0008-6635-4465'
+  - given-names: Sandor
+    family-names: Brockhauser
+    orcid: 'https://orcid.org/0000-0002-9700-4803'
+  - given-names: Erdmann
+    family-names: Spiecker
+    orcid: 'https://orcid.org/0000-0002-2723-5227'
+  - given-names: Heiko B.
+    family-names: Weber
+    orcid: 'https://orcid.org/0000-0002-6403-9022'
+  - given-names: Christoph
+    family-names: Koch
+    orcid: 'https://orcid.org/0000-0002-3984-1523'
+  - given-names: Claudia
+    family-names: Draxl
+    orcid: 'https://orcid.org/0000-0003-3523-6657'
+# doi: 10.5281/zenodo.13951684
+repository-code: https://github.com/FAIRmat-NFDI/pynxtools-em
+# url: https://zenodo.org/records/13951684
+keywords:
+  - Electron microscopy
+  - Microscopy
+  - NOMAD
+  - pynxtools
+  - NeXus
+  - EMglossary
+abstract:
+  pynxtools-em is a reader plugin for pynxtools (https://github.com/FAIRmat-NFDI/pynxtools)
+  written in Python. pynxtools-em is a tool for reading and translating data from various proprietary
+  and open data formats from technology partners and the wider electron microscopy community and
+  standardizing it such that it is compliant with the NeXus application definition NXem
+  (https://fairmat-nfdi.github.io/nexus_definitions/).
+
+  pynxtools-em is developed both as a standalone reader and as a tool within NOMAD,
+  an open-source research data management platform for Materials Science (https://nomad-lab.eu/nomad-lab/).
+
+  The work is funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) - 460197019 (FAIRmat)
+  (https://gepris.dfg.de/gepris/projekt/460197019?language=en).
+license: Apache-2.0
+funding:
+  - name: Deutsche Forschungsgemeinschaft
+    award-number: 460197019
+    title: FAIRmat - FAIR Data Infrastructure for Condensed-Matter Physics and the Chemical Physics of Solids
+    award-uri: https://gepris.dfg.de/gepris/projekt/460197019?language=en
