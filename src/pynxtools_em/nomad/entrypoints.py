@@ -36,5 +36,6 @@ em_example = ExampleUploadEntryPoint(
         NOMAD installation small. Ones started, we recommend to change the respective input file in the NOMAD Oasis
         ELN to run the example with your own datasets.
     """,
+    plugin_package="pynxtools_em",
     resources=["nomad/examples/*"],
 )
