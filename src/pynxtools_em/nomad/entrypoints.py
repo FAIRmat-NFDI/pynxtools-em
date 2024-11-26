@@ -36,6 +36,5 @@ em_example = ExampleUploadEntryPoint(
         NOMAD installation small. Ones started, we recommend to change the respective input file in the NOMAD Oasis
         ELN to run the example with your own datasets.
     """,
-    path="nomad/examples",
-    local_path="examples/data/uploads/em.zip",
+    resources=['nomad/examples/*']
 )
