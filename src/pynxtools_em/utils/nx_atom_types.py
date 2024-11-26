@@ -36,7 +36,7 @@ class NxEmAtomTypesResolver:
     def identify_atomtypes(self, template: dict) -> dict:
         """Inspect template and find elements to eventually overwrite sample/atom_types."""
         atom_types = set()
-        for key in template:
+        for key, free_text in template.items():
             if (
                 re.match(
                     rf"^/ENTRY\[entry{self.entry_id}\]/ROI\[roi1\]/ebsd/indexing/phaseID\[phase[0-9]+\]/phase_name",
@@ -45,7 +45,6 @@ class NxEmAtomTypesResolver:
                 is None
             ):
                 continue
-            free_text = template[key]
             if free_text in chemical_symbols[1::]:
                 atom_types.add(free_text)
             elif free_text in FREE_TEXT_TO_CONCEPT:
