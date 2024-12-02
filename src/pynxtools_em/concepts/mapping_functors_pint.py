@@ -289,15 +289,17 @@ def map_functor(
             set_value(template, trg, src_values, trg_dtype_key)
         elif case == "case_three_str":  # str, ureg.Unit, str
             src_val = mdata.get(f"{prfx_src}{cmd[2]}")
-            if not src_val:
-                continue
-            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-            if isinstance(src_val, ureg.Quantity):
-                set_value(template, trg, src_val.to(cmd[1]), trg_dtype_key)
-            else:
-                set_value(
-                    template, trg, ureg.Quantity(src_val, cmd[1].units), trg_dtype_key
-                )
+            if src_val is not None:
+                trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+                if isinstance(src_val, ureg.Quantity):
+                    set_value(template, trg, src_val.to(cmd[1]), trg_dtype_key)
+                else:
+                    set_value(
+                        template,
+                        trg,
+                        ureg.Quantity(src_val, cmd[1].units),
+                        trg_dtype_key,
+                    )
         elif case == "case_three_list":  # str, ureg.Unit, list
             if len(cmd[2]) == 0:
                 continue
@@ -340,14 +342,13 @@ def map_functor(
             )
         elif case == "case_five_str":
             src_val = mdata.get(f"{prfx_src}{cmd[2]}")
-            if not src_val:
-                continue
-            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-            if isinstance(src_val, ureg.Quantity):
-                set_value(template, trg, src_val.to(cmd[1]), trg_dtype_key)
-            else:
-                pint_src = ureg.Quantity(src_val, cmd[3])
-                set_value(template, trg, pint_src.to(cmd[1]), trg_dtype_key)
+            if src_val is not None:
+                trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+                if isinstance(src_val, ureg.Quantity):
+                    set_value(template, trg, src_val.to(cmd[1]), trg_dtype_key)
+                else:
+                    pint_src = ureg.Quantity(src_val, cmd[3])
+                    set_value(template, trg, pint_src.to(cmd[1]), trg_dtype_key)
         elif case == "case_five_list":
             if len(cmd[2]) == 0:
                 continue
@@ -375,14 +376,13 @@ def map_functor(
                 continue
             src_val = mdata[f"{prfx_src}{cmd[2]}"]
             src_unit = mdata[f"{prfx_src}{cmd[3]}"]
-            if not src_val or not src_unit:
-                continue
-            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-            if isinstance(src_val, ureg.Quantity):
-                set_value(template, trg, src_val.units.to(cmd[1]), trg_dtype_key)
-            else:
-                pint_src = ureg.Quantity(src_val, ureg.Unit(src_unit))
-                set_value(template, trg, pint_src.to(cmd[1]), trg_dtype_key)
+            if src_val is not None and src_unit is not None:
+                trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+                if isinstance(src_val, ureg.Quantity):
+                    set_value(template, trg, src_val.units.to(cmd[1]), trg_dtype_key)
+                else:
+                    pint_src = ureg.Quantity(src_val, ureg.Unit(src_unit))
+                    set_value(template, trg, pint_src.to(cmd[1]), trg_dtype_key)
     return template
 
 

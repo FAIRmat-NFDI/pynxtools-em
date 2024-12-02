@@ -39,6 +39,7 @@ from pynxtools_em.parsers.image_diffraction_pattern_set import (
     DiffractionPatternSetParser,
 )
 from pynxtools_em.parsers.image_png_protochips import ProtochipsPngSetParser
+from pynxtools_em.parsers.image_tiff_fei_legacy import FeiLegacyTiffParser
 from pynxtools_em.parsers.image_tiff_hitachi import HitachiTiffParser
 from pynxtools_em.parsers.image_tiff_jeol import JeolTiffParser
 from pynxtools_em.parsers.image_tiff_point_electronic import PointElectronicTiffParser
@@ -136,6 +137,7 @@ class EMReader(BaseReader):
                 # NxEmNxsMTexParser,
                 NionProjectParser,
                 DiffractionPatternSetParser,
+                FeiLegacyTiffParser,
             ]
             for parser_type in parsers_no_sidecar_file:
                 parser = parser_type(case.dat[0], entry_id)
