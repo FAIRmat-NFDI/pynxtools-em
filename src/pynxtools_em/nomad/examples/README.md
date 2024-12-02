@@ -42,7 +42,8 @@ This example upload contains the following entries:
 The ELN template is configured such that its terminology matches with the [NXem](https://fairmat-nfdi.github.io/nexus_definitions/classes/contributed_definitions/NXem.html#nxem) NeXus application definition.
 
 ## Acknowledgements
-[This example comes with real world datasets contributed by the international atom probe community.](https://zenodo.org/records/7986279)
+[This example comes with real world datasets contributed by the international electron microscopy community.](https://zenodo.org/records/11208725)
+[Further example datasets are related to this tool and offered here.](https://zenodo.org/records/7986279)
 
 ## Where to raise questions, comments, and suggestions?
 You are very welcome to approach us with all sorts of questions and feature requests.

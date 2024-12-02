@@ -40,7 +40,7 @@ def try_interpret_as_boolean(arg: Any) -> bool:
             return HUMAN_BOOLEAN_STATEMENT[arg.lower()]
         else:
             raise KeyError(
-                f"try_to_interpret_as_boolean argument {arg} does not yield key even for {arg.lower()}!"
+                f"try_to_interpret_as_boolean argument {arg} does not yield key even for {arg.lower()} !"
             )
     else:
         raise ValueError(

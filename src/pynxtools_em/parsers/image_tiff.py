@@ -84,7 +84,10 @@ class TiffParser:
         # for an overview of tags
         # https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
         with Image.open(self.file_path, mode="r") as fp:
-            self.tags = {TAGS[key]: fp.tag[key] for key in fp.tag_v2}
+            self.tags = {}
+            for key in fp.tag_v2:
+                if key in TAGS:
+                    self.tags[TAGS[key]] = fp.tag_v2[key]
             if self.verbose:
                 for key, val in self.tags.items():
                     print(f"{key}, {val}")

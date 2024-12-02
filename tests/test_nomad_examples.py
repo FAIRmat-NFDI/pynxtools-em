@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Test for NOMAD examples in APM reader plugin."""
+"""Test for NOMAD examples in EM reader plugin."""
 
 import os
 import pytest
