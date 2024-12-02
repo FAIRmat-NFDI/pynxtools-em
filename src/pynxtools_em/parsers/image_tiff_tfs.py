@@ -131,7 +131,7 @@ class TfsTiffParser:
                 for term in get_fei_childs(parent):
                     s.seek(pos_s, 0)
                     pos = s.find(bytes(f"{term}=", "utf8"))
-                    if pos < pos_e:  # check if pos_e is None
+                    if -1 < pos < pos_e:  # check if pos_e is None
                         s.seek(pos, 0)
                         value = f"{s.readline().strip().decode('utf8').replace(f'{term}=', '')}"
                         self.flat_dict_meta[f"{parent}/{term}"] = None
@@ -175,7 +175,7 @@ class TfsTiffParser:
     def process_event_data_em_data(self, template: dict) -> dict:
         """Add respective heavy data."""
         # default display of the image(s) representing the data collected in this event
-        print(f"Writing TFS/FEI image data to NeXus concept instances...")
+        print(f"Writing ThermoFisher TIFF image data to NeXus concept instances...")
         image_identifier = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):

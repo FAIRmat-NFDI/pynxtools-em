@@ -53,7 +53,10 @@ class ZeissTiffParser:
             "trg": {
                 "tech_partner": ["Zeiss"],
                 "schema_name": ["Zeiss"],
-                "schema_version": ["V06.03.00.00 : 15-Dec-17"],
+                "schema_version": [
+                    "V06.00.00.00 : 09-Jun-16",
+                    "V06.03.00.00 : 15-Dec-17",
+                ],
             }
         }
         self.supported = False
