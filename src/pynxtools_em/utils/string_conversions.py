@@ -25,7 +25,6 @@ def string_to_number(arg: str):
             float(arg)
         except ValueError:
             return arg
-        # val = np.array([str_val]).astype(np.float64)[0]
         val = float(arg)
         if val.is_integer():
             return int(val)
