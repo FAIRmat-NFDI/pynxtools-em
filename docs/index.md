@@ -69,6 +69,7 @@ for the respective file formats of technology partners of the electron microscop
 - [TESCAN Tagged Image File Format TIFF](reference/tiff_tescan.md)
 - [ThermoFisher Tagged Image File Format TIFF](reference/tiff_tfs.md)
 - [ThermoFisher Velox EMD](reference/rsciio_velox.md)
+- [FEI Legacy Tagged Image File Format TIFF](reference/tiff_fei.md)
 - [Zeiss Tagged Image File Format TIFF](reference/tiff_zeiss.md)
 - [EBSD-centric content for the parsing route via MTex](how-tos/mtex.md)
 - [EBSD-centric content for the parsing route via pyxem](how-tos/pyxem.md)
