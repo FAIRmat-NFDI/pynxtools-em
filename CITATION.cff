@@ -26,7 +26,9 @@ authors:
   - given-names: Claudia
     family-names: Draxl
     orcid: 'https://orcid.org/0000-0003-3523-6657'
+doi: 10.5281/zenodo.14263105
 repository-code: https://github.com/FAIRmat-NFDI/pynxtools-em
+url: https://zenodo.org/records/14263105
 keywords:
   - Electron microscopy
   - Microscopy
