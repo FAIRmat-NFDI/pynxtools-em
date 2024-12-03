@@ -6,6 +6,7 @@
 ![](https://img.shields.io/pypi/l/pynxtools-em)
 ![](https://img.shields.io/pypi/v/pynxtools-em)
 ![](https://coveralls.io/repos/github/FAIRmat-NFDI/pynxtools-em/badge.svg?branch=main)
+[![DOI](https://zenodo.org/badge/773960253.svg)](https://zenodo.org/badge/latestdoi/73960253)
 
 # Parse and normalize electron microscopy data
 
