@@ -234,12 +234,12 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
             "Mean Angular Deviation": "mad",
             "MeanAngularDeviation": "mad",
         }
-        for key in one_key_required:
+        for key, value in one_key_required.items():
             if f"{group_data}/{key}" in self.datasets:
                 shp = self.datasets[f"{group_data}/{key}"][2]
                 if isinstance(shp, tuple) and len(shp) == 4:
                     if (shp[0], shp[1], shp[2]) == i_j_k:
-                        roi_info = (f"{group_data}/{key}", one_key_required[key])
+                        roi_info = (f"{group_data}/{key}", value)
                         break
         #       which has a dset named Phases shape 4d (i, j, k, 1) +
         if f"{group_data}/Phases" in self.datasets:

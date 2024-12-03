@@ -483,20 +483,18 @@ def add_specific_metadata_pint(
 
     # https://numpy.org/doc/stable/reference/arrays.dtypes.html
     for prefix_src in prfx_src:
-        for functor_key in cfg:
+        for functor_key, functor in cfg.items():
             if functor_key in ["prefix_trg", "prefix_src"]:
                 continue
             if functor_key == "use":
                 use_functor(cfg["use"], mdata, prefix_trg, ids, template)
             if functor_key == "map":
-                map_functor(
-                    cfg[functor_key], mdata, prefix_src, prefix_trg, ids, template
-                )
+                map_functor(functor, mdata, prefix_src, prefix_trg, ids, template)
             if functor_key.startswith("map_to_"):
                 dtype_key = functor_key.replace("map_to_", "")
                 if dtype_key in MAP_TO_DTYPES:
                     map_functor(
-                        cfg[functor_key],
+                        functor,
                         mdata,
                         prefix_src,
                         prefix_trg,
