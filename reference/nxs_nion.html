@@ -1,0 +1,2192 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The documentation for the pynxtools-em plugin
+">
+      
+      
+        <meta name="author" content="The NOMAD authors">
+      
+      
+      
+        <link rel="prev" href="tiff_jeol.html">
+      
+      
+        <link rel="next" href="tiff_point.html">
+      
+      
+      <link rel="icon" href="../assets/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.47">
+    
+    
+      
+        <title>Nion Co. projects with NDATA and HDF5 files - pynxtools-em</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.6f8fc17f.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Titillium Web";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="#2A4CDF" data-md-color-accent="#008A67">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#nion-co-projects-with-ndata-and-hdf5-files" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="header.title">
+    <a href="https://nomad-lab.eu" title="pynxtools-em" class="md-header__button md-logo" aria-label="pynxtools-em" data-md-component="logo">
+      
+  <img src="../assets/nomad-logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pynxtools-em
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Nion Co. projects with NDATA and HDF5 files
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/FAIRmat-NFDI/pynxtools-em" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://nomad-lab.eu" title="pynxtools-em" class="md-nav__button md-logo" aria-label="pynxtools-em" data-md-component="logo">
+      
+  <img src="../assets/nomad-logo.png" alt="logo">
+
+    </a>
+    pynxtools-em
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/FAIRmat-NFDI/pynxtools-em" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial/standalone.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Convert electron microscopy content to NeXus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    How-tos
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            How-tos
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../how-tos/kikuchi.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Kikuchi diffraction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../how-tos/mtex.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Kikuchi diffraction via MTex
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../how-tos/pyxem.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Kikuchi diffraction via pyxem
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Learn
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Learn
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../explanation/learn.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Learn
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../explanation/implementation.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Implementation design
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="contextualization.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    How to map pieces of information to NeXus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="conventions.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Conventions collected with a text file or ELN
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="eln_and_cfg.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Metadata collected with an ELN and RDM-specific configurations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="zip_png_axon.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AXON Protochips Portable Network Graphics PNG
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="hfive_apex.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EDAX APEX
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="rsciio_gatan.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Gatan DigitalMicrograph DM3/DM4
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tiff_hitachi.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hitachi Tagged Image File Format TIFF
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tiff_jeol.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    JEOL Tagged Image File Format TIFF
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="nxs_nion.html" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Nion Co. projects with NDATA and HDF5 files
+  </span>
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tiff_point.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    point electronic DISS Tagged Image Format TIFF
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tiff_tescan.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TESCAN Tagged Image File Format TIFF
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tiff_tfs.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ThermoFisher Tagged Image File Format TIFF
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="rsciio_velox.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ThermoFisher Velox EMD
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tiff_zeiss.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Zeiss Tagged Image File Format TIFF
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="nion-co-projects-with-ndata-and-hdf5-files">Nion Co. projects with NDATA and HDF5 files<a class="headerlink" href="#nion-co-projects-with-ndata-and-hdf5-files" title="Permanent link">&para;</a></h1>
+<p>The pynxtools-em parser and normalizer reads the following content and maps them on respective NeXus concepts that are defined in the NXem application definition:</p>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>NeXus/HDF5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/C1 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/C10</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/C12.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/C12.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/C2 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/C21.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/C21.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/C23.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/C23.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/C3 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/C30</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/C32.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/C32.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/C34.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/C34.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/C50</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/EHT</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/GeometricProbeSize</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/MajorOL</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/StageOutA</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/StageOutB</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/StageOutX</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/StageOutY</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/StageOutZ</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/SuperFEG.^EmissionCurrent</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/fov_nm</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ImageRonchigram/probe_ha</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ac_frame_sync</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/ac_line_sync</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageRonchigram/C1 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageRonchigram/C2 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageRonchigram/C3 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageRonchigram/EHT</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageRonchigram/GeometricProbeSize</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageRonchigram/MajorOL</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageRonchigram/StageOutA</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageRonchigram/StageOutB</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageRonchigram/StageOutX</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageRonchigram/StageOutY</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageRonchigram/StageOutZ</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageRonchigram/SuperFEG.^EmissionCurrent</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageRonchigram/fov_nm</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageRonchigram/probe_ha</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/C1 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/C10</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/C12.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/C12.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/C2 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/C21.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/C21.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/C23.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/C23.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/C3 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/C30</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/C32.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/C32.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/C34.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/C34.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/C50</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/EHT</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/GeometricProbeSize</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/MajorOL</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/StageOutA</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/StageOutB</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/StageOutX</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/StageOutY</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/StageOutZ</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/SuperFEG.^EmissionCurrent</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/fov_nm</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/autostem/ImageScanned/probe_ha</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/calibration_style</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/center_x_nm</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/center_y_nm</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/channel_modifier</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/beam_center_x</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/beam_center_y</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/bit_depth_image</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/bit_depth_readout</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/count_time</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/countrate_correction_applied</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/data_collection_date</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/description</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/detector_number</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/detector_readout_time</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/eiger_fw_version</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/flatfield_correction_applied</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/frame_time</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/pixel_mask_applied</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/sensor_material</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/sensor_thickness</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/software_version</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/threshold_energy</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/x_pixel_size</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/x_pixels_in_detector</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/y_pixel_size</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/detector_configuration/y_pixels_in_detector</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/external_clock_mode</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/external_clock_wait_time_ms</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/flyback_time_us</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/line_time_us</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/pixel_time_us</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/hardware_source/rotation_rad</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/C1 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/C10</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/C12.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/C12.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/C2 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/C21.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/C21.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/C23.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/C23.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/C3 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/C30</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/C32.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/C32.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/C34.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/C34.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/C50</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/EHT</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/GeometricProbeSize</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/MajorOL</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/StageOutA</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/StageOutB</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/StageOutX</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/StageOutY</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/StageOutZ</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/SuperFEG.^EmissionCurrent</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/fov_nm</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageRonchigram/probe_ha</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/C1 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/C10</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/C12.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/C12.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/C2 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/C21.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/C21.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/C23.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/C23.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/C3 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/C30</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/C32.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/C32.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/C34.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/C34.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/C50</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/EHT</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/GeometricProbeSize</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/MajorOL</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/StageOutA</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/StageOutB</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/StageOutX</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/StageOutY</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/StageOutZ</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/SuperFEG.^EmissionCurrent</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/fov_nm</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/ImageScanned/probe_ha</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageRonchigram/C1 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageRonchigram/C2 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageRonchigram/C3 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageRonchigram/EHT</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageRonchigram/GeometricProbeSize</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageRonchigram/MajorOL</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageRonchigram/StageOutA</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageRonchigram/StageOutB</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageRonchigram/StageOutX</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageRonchigram/StageOutY</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageRonchigram/StageOutZ</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageRonchigram/SuperFEG.^EmissionCurrent</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageRonchigram/fov_nm</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageRonchigram/probe_ha</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/C10</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/C12.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/C12.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/C21.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/C21.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/C23.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/C23.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/C30</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/C32.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/C32.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/C34.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/C34.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/C50</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/EHT</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/GeometricProbeSize</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/StageOutA</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/StageOutB</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/StageOutX</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/StageOutY</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/StageOutZ</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/SuperFEG.^EmissionCurrent</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/fov_nm</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/instrument/autostem/ImageScanned/probe_ha</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_parameters/ac_frame_sync</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_parameters/ac_line_sync</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_parameters/calibration_style</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_parameters/center_x_nm</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_parameters/center_y_nm</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_parameters/channel_modifier</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_parameters/external_clock_mode</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_parameters/external_clock_wait_time_ms</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_parameters/flyback_time_us</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_parameters/line_time_us</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_parameters/pixel_time_us</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_parameters/rotation_rad</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:C1 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:C10</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:C12.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:C12.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:C2 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:C21.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:C21.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:C23.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:C23.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:C3 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:C30</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:C32.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:C32.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:C34.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:C34.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:C50</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:EHT</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:GeometricProbeSize</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:MajorOL</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:StageOutA</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:StageOutB</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:StageOutX</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:StageOutY</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:StageOutZ</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:SuperFEG.^EmissionCurrent</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:fov_nm</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ImageScanned:probe_ha</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 0 DAC 0</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 0 DAC 1</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 0 DAC 10</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 0 DAC 11</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 0 DAC 2</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 0 DAC 3</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 0 DAC 4</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 0 DAC 5</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 0 DAC 6</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 0 DAC 7</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 0 DAC 8</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 0 DAC 9</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 0 Relay</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 1 DAC 0</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 1 DAC 1</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 1 DAC 10</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 1 DAC 11</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 1 DAC 2</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 1 DAC 3</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 1 DAC 4</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 1 DAC 5</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 1 DAC 6</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 1 DAC 7</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 1 DAC 8</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 1 DAC 9</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/MagBoard 1 Relay</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ac_frame_sync</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/ac_line_sync</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/calibration_style</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/center_x_nm</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/center_y_nm</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/channel_modifier</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/external_clock_mode</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/external_clock_wait_time_ms</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/flyback_time_us</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/line_time_us</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 0 DAC 0</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 0 DAC 1</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 0 DAC 10</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 0 DAC 11</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 0 DAC 2</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 0 DAC 3</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 0 DAC 4</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 0 DAC 5</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 0 DAC 6</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 0 DAC 7</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 0 DAC 8</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 0 DAC 9</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 0 Relay</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 1 DAC 0</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 1 DAC 1</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 1 DAC 10</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 1 DAC 11</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 1 DAC 2</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 1 DAC 3</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 1 DAC 4</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 1 DAC 5</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 1 DAC 6</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 1 DAC 7</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 1 DAC 8</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 1 DAC 9</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/mag_boards/MagBoard 1 Relay</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/pixel_time_us</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan/scan_device_properties/rotation_rad</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/C1 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/C10</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/C12.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/C12.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/C2 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/C21.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/C21.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/C23.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/C23.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/C3 ConstW</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/C30</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/C32.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/C32.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/C34.a</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/C34.b</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/C50</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/EHT</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/GeometricProbeSize</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/MajorOL</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/StageOutA</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/StageOutB</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/StageOutX</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/StageOutY</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/StageOutZ</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/SuperFEG.^EmissionCurrent</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/fov_nm</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>metadata/scan_detector/autostem/ImageScanned/probe_ha</td>
+<td><img alt="✔️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2714.png" title=":heavy_check_mark:" /></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.83f73b43.min.js"></script>
+      
+        <script src="../javascript.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
