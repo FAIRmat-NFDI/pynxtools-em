@@ -56,7 +56,7 @@ em_example = ExampleUploadEntryPoint(
 
 schema = "pynxtools.nomad.schema.NeXus"
 
-apm_app = AppEntryPoint(
+em_app = AppEntryPoint(
     name="EmApp",
     description="Electron microscopy app.",
     app=App(
