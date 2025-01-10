@@ -169,7 +169,7 @@ class ProtochipsPngSetParser:
                             for marker in markers:
                                 if concept.endswith(marker):
                                     grpnm_lookup[
-                                        f"{concept[0:len(concept)-len(marker)]}"
+                                        f"{concept[0 : len(concept) - len(marker)]}"
                                     ] = value
                         else:
                             grpnm_lookup[concept] = value
@@ -191,7 +191,7 @@ class ProtochipsPngSetParser:
                                         and k.endswith(".PositionerName") is False
                                     ):
                                         key = specific_to_variadic(
-                                            f"{grpnms[0]}.{grpnms[1]}.{k[k.rfind('.') + 1:]}"
+                                            f"{grpnms[0]}.{grpnms[1]}.{k[k.rfind('.') + 1 :]}"
                                         )
                                         if key not in self.dict_meta[file]:
                                             self.dict_meta[file][key] = (

@@ -46,8 +46,8 @@ class NxEmDefaultPlotResolver:
             symbol_s = path[idx + 1].find("[")
             symbol_e = path[idx + 1].find("]")
             if 0 <= symbol_s < symbol_e:
-                template[f"{trg}@default"] = f"{path[idx + 1][symbol_s + 1:symbol_e]}"
-                trg += f"{path[idx + 1][symbol_s + 1:symbol_e]}/"
+                template[f"{trg}@default"] = f"{path[idx + 1][symbol_s + 1 : symbol_e]}"
+                trg += f"{path[idx + 1][symbol_s + 1 : symbol_e]}/"
             else:
                 template[f"{trg}@default"] = f"{path[idx + 1]}"
                 trg += f"{path[idx + 1]}/"
@@ -79,7 +79,7 @@ class NxEmDefaultPlotResolver:
                     idx_tail = key.find(tail)
                     if idx_head is not None and idx_tail is not None:
                         if 0 < idx_head < idx_tail:
-                            keyword = f"{key[0:idx_tail + len(tail)]}"
+                            keyword = f"{key[0 : idx_tail + len(tail)]}"
                             if keyword not in candidates[tpl[2]]:
                                 candidates[tpl[2]].append(keyword)
                             break
@@ -92,11 +92,11 @@ class NxEmDefaultPlotResolver:
             if 0 < idx_head < idx_tail:
                 n_scan_points_total = 1.0
                 if (
-                    f"{key[0:idx_tail + len('/ebsd/indexing')]}/number_of_scan_points"
+                    f"{key[0 : idx_tail + len('/ebsd/indexing')]}/number_of_scan_points"
                     in template
                 ):
                     n_scan_points_total = template[
-                        f"{key[0:idx_tail + len('/ebsd/indexing')]}/number_of_scan_points"
+                        f"{key[0 : idx_tail + len('/ebsd/indexing')]}/number_of_scan_points"
                     ]
                     # in case of ebsd map with phase2, phase3, ... find than phase with the
                     vote_ipf_map = []
@@ -104,7 +104,7 @@ class NxEmDefaultPlotResolver:
                         idx_tail = key.find(f"/ebsd/indexing/phaseID[phase{phase_id}]")
                         if idx_tail is None or idx_tail == -1:
                             continue
-                        prfx = f"{key[0:idx_tail + len(f'''/ebsd/indexing/phaseID[phase{phase_id}]''')]}"
+                        prfx = f"{key[0 : idx_tail + len(f'''/ebsd/indexing/phaseID[phase{phase_id}]''')]}"
                         # print(f"{key}\t{idx_head}\t{idx_tail}\t{prfx}")
                         if 0 < idx_head < idx_tail and (
                             f"{prfx}/ipfID[ipf1]/map/data" in template

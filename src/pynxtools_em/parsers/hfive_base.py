@@ -353,7 +353,7 @@ class HdfFiveBaseParser:
         if store_instances is True:
             print(
                 f"Storing analysis results in "
-                f"{self.file_path[self.file_path.rfind('/')+1:]}."
+                f"{self.file_path[self.file_path.rfind('/') + 1 :]}."
                 f"EbsdHdfFileInstanceNames.txt..."
             )
             with open(f"{self.file_path}.EbsdHdfFileInstanceNames.txt", "w") as txt:
@@ -366,7 +366,7 @@ class HdfFiveBaseParser:
         if store_instances_templatized is True:
             print(
                 f"Storing analysis results in "
-                f"{self.file_path[self.file_path.rfind('/')+1:]}"
+                f"{self.file_path[self.file_path.rfind('/') + 1 :]}"
                 f".EbsdHdfFileInstanceNamesTemplatized.txt..."
             )
             with open(
@@ -378,7 +378,7 @@ class HdfFiveBaseParser:
         if store_templates is True:
             print(
                 f"Storing analysis results in "
-                f"{self.file_path[self.file_path.rfind('/')+1:]}"
+                f"{self.file_path[self.file_path.rfind('/') + 1 :]}"
                 f".EbsdHdfFileTemplateNames.txt..."
             )
             with open(f"{self.file_path}.EbsdHdfFileTemplateNames.txt", "w") as txt:

@@ -588,7 +588,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             "j": ureg.Quantity(nxy["lj"] / nxy["j"], ureg.millimeter),
         }
         for pair in pairs:
-            trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/roiID[roi{self.id_mgn['roi_id']}]/eds/indexing/IMAGE_SET[{pair[0:pair.find(' ')]}]"
+            trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/roiID[roi{self.id_mgn['roi_id']}]/eds/indexing/IMAGE_SET[{pair[0 : pair.find(' ')]}]"
             template[f"{trg}/PROCESS[process]/source/absolute_path"] = (
                 f"{self.prfx}/ROIs/{pair}"
             )
