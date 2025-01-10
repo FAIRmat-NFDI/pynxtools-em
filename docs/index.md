@@ -4,20 +4,15 @@ hide: toc
 
 # Documentation for pynxtools-em
 
-pynxtools-em is a free and open-source data software for creating standardized semantic serializations of electron microscopy data and metadata for research data management using NeXus, implemented with the goal to make scientific research data FAIR (findable, accessible, interoperable and reusable).
+pynxtools-em is a free and open-source data software for creating standardized semantic serializations of electron microscopy data and metadata for research data management using NeXus. The software aims at making scientific research data FAIR (findable, accessible, interoperable and reusable).
 
-pynxtools-em, which is a plugin for pynxtools, provides a tool for reading data from various proprietary and open data formats from technology partners and the wider electron microscopy community and standardizing it such that it is compliant with the NeXus application definition NXem.
+pynxtools-em, which is a plugin for pynxtools, provides a tool for reading data and metadata from various proprietary and open data formats from technology partners and the wider electron microscopy community. The software parses and standardizes these into compliance with the NeXus application definition NXem.
 
 pynxtools-em is developed both as a standalone reader and as a tool within NOMAD, which is the open-source research data management platform for Materials Science that is developed by the [FAIRmat consortium of the German National Research Data Infrastructure (German NFDI)](https://www.nfdi.de/consortia-fairmat/?lang=en).
 
 pynxtools-em solves the challenge that comes with using heterogeneous and semantically ambiguous serialization formats that are commonly used in electron microscopy. In addition, the plugin provides an interface for writing readers for different file formats to be mapped to NeXus.
 
-pynxtools-em is useful for scientists from the electron microscopy community who deal with heterogeneous data, for technology partners, software developers, and data providers who search for ways to make their data more completely aligned with the aims of the FAIR principles. Specifically the tool is useful for research groups who wish to organize their research data based on an interoperable.
-
-<!-- A single sentence that says what the product is, succinctly and memorably -->
-<!-- A paragraph of one to three short sentences, that describe what the product does. -->
-<!-- A third paragraph of similar length, this time explaining what need the product meets -->
-<!-- Finally, a paragraph that describes whom the product is useful for. -->
+pynxtools-em is useful for scientists from the electron microscopy community, for technology partners, software developers, and data providers who search for ways to make their data more completely aligned with the aims of the FAIR principles. Specifically the tool is useful for research groups who wish to organize their research data based on an interoperable standard.
 
 <div markdown="block" class="home-grid">
 <div markdown="block">
@@ -25,9 +20,9 @@ pynxtools-em is useful for scientists from the electron microscopy community who
 ### Tutorial
 <!--This is the place where to add documentation of [diátaxis](https://diataxis.fr) content type tutorial.-->
 
-- [Convert electron microscopy content to NeXus](tutorial/standalone.md)
+- [Convert EM (meta)data to NeXus](tutorial/standalone.md)
 - [How to use a NeXus/HDF5 file](tutorial/nexusio.md)
-- [How to combine different information sources](tutorial/examples.md)
+- [How to combine data from different sources](tutorial/examples.md)
 
 </div>
 <div markdown="block">
@@ -45,6 +40,7 @@ pynxtools-em is useful for scientists from the electron microscopy community who
 <!--This is the place where to add documentation of [diátaxis](https://diataxis.fr) content type explanation.-->
 
 - [Implementation design](explanation/implementation.md)
+- [NOMAD EM App](explanation/emapp.md)
 
 </div>
 <div markdown="block">
