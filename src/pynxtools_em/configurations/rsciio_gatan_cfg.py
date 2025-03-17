@@ -38,7 +38,7 @@ GATAN_WHICH_IMAGE = {
 
 
 GATAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument",
     "prefix_src": "ImageList/TagGroup0/ImageTags/Microscope Info/",
     "map_to_f8": [
         (
@@ -61,41 +61,41 @@ GATAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
             ureg.nanometer,
         ),  # diameter? radius ?
         (
-            "OPTICAL_SETUP_EM[optical_setup]/probe_current",
+            "optics/probe_current",
             ureg.ampere,
             "Probe Current (nA)",
             ureg.nanoampere,
         ),
         (
-            "OPTICAL_SETUP_EM[optical_setup]/field_of_view",
+            "optics/field_of_view",
             ureg.meter,
             "Field of View (µm)",
             ureg.micrometer,
         ),
-        ("OPTICAL_SETUP_EM[optical_setup]/magnification", "Actual Magnification"),
+        ("optics/magnification", "Actual Magnification"),
         (
-            "OPTICAL_SETUP_EM[optical_setup]/camera_length",
+            "optics/camera_length",
             ureg.meter,
             "STEM Camera Length",
             ureg.meter,
         ),  # meter?
         # Cs(mm), Indicated Magnification, Magnification Interpolated, Formatted Actual Mag, Formatted Indicated Mag
     ],
-    "map": [
-        ("OPTICAL_SETUP_EM[optical_setup]/illumination_mode", "Illumination Mode"),
+    "map_to_str": [
+        ("optics/illumination_mode", "Illumination Mode"),
         (
-            "OPTICAL_SETUP_EM[optical_setup]/illumination_submode",
+            "optics/illumination_submode",
             "Illumination Sub-mode",
         ),
-        ("OPTICAL_SETUP_EM[optical_setup]/imaging_mode", "Imaging Mode"),
-        ("OPTICAL_SETUP_EM[optical_setup]/name", "Name"),
-        ("OPTICAL_SETUP_EM[optical_setup]/operation_mode", "Operation Mode"),
-        ("OPTICAL_SETUP_EM[optical_setup]/operation_mode_type", "Operation Mode Type"),
+        ("optics/imaging_mode", "Imaging Mode"),
+        ("optics/name", "Name"),
+        ("optics/operation_mode", "Operation Mode"),
+        ("optics/operation_mode_type", "Operation Mode Type"),
     ],
 }
 
 GATAN_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/stage",
     "prefix_src": "ImageList/TagGroup0/ImageTags/Microscope Info/Stage Position/",
     "map_to_f8": [
         ("tilt1", ureg.radian, "Stage Alpha", ureg.radian),

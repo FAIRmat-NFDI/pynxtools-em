@@ -26,10 +26,8 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - counter_clockwise
                     - clockwise
-                # default: undefined
                 description: |
                   Convention how a positive rotation angle is defined when viewing
                   from the end of the rotation unit vector towards its origin,
@@ -43,7 +41,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - passive
                     - active
                 description: |
@@ -67,7 +64,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - rotation_angle_on_interval_zero_to_pi
                 description: |
                   To which angular range is the rotation angle argument of an
@@ -80,7 +76,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - p_plus_one
                     - p_minus_one
                 description: |
@@ -106,7 +101,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - cartesian
                 description: |
                   Type of coordinate system and reference frame according to
@@ -118,7 +112,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - right_handed
                     - left_handed
                 description: |
@@ -130,7 +123,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - front_top_left
                     - front_top_right
                     - front_bottom_right
@@ -159,7 +151,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -184,7 +175,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -209,7 +199,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -236,7 +225,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - cartesian
                 description: |
                   Type of coordinate system and reference frame according to convention 1 of DOI: 10.1088/0965-0393/23/8/083501.
@@ -254,7 +242,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - right_handed
                     - left_handed
                 description: |
@@ -266,7 +253,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - front_top_left
                     - front_top_right
                     - front_bottom_right
@@ -294,7 +280,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -319,7 +304,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -344,7 +328,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -370,7 +353,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - cartesian
                 description: |
                   Type of coordinate system/reference frame used for
@@ -383,7 +365,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - right_handed
                     - left_handed
                 description: |
@@ -392,7 +373,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - front_top_left
                     - front_top_right
                     - front_bottom_right
@@ -421,7 +401,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -446,7 +425,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -471,7 +449,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -497,7 +474,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - cartesian
                 description: |
                   Type of coordinate system/reference frame used for identifying positions in the Xg, Yg, Zg
@@ -509,7 +485,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - in_the_pattern_centre
                 # just stating in the pattern_centre is not necessarily sufficient
                 description: |
@@ -522,7 +497,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -540,7 +514,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -558,7 +531,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -588,7 +560,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - top
                     - right
                     - bottom
@@ -603,7 +574,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -626,7 +596,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - top
                     - right
                     - bottom
@@ -641,7 +610,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -656,7 +624,6 @@ definitions:
               #   type:
               #     type_kind: Enum
               #     type_data:
-              #       - undefined
               #       - Bruker
               #       - JEOL
               #       - FEI

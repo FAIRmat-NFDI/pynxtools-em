@@ -22,42 +22,42 @@ from typing import Any, Dict
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 TESCAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "",
     "map_to_f8": [
-        ("em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/magnification", "Magnification"),
+        ("instrument/optics/magnification", "Magnification"),
         (
-            "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/working_distance",
+            "instrument/optics/working_distance",
             ureg.meter,
             "WD",
             ureg.meter,
         ),
         (
-            "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/probe_diameter",
+            "instrument/optics/probe_diameter",
             ureg.meter,
             "SpotSize",  # diameter or probe at the specimen surface?
             ureg.meter,
         ),
         (
-            "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/beam_current",
+            "instrument/optics/beam_current",
             ureg.ampere,
             "PredictedBeamCurrent",
             ureg.ampere,
         ),
         (
-            "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/specimen_current",
+            "instrument/optics/specimen_current",
             ureg.ampere,
             "SpecimenCurrent",
             ureg.ampere,
         ),
         (
-            "em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage",
+            "instrument/ebeam_column/electron_source/voltage",
             ureg.volt,
             "HV",
             ureg.volt,
         ),
         (
-            "em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/emission_current",
+            "instrument/ebeam_column/electron_source/emission_current",
             ureg.ampere,
             "EmissionCurrent",
             ureg.ampere,
@@ -67,14 +67,14 @@ TESCAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
 
 
 TESCAN_DYNAMIC_STIGMATOR_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column/corrector_ax",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/ebeam_column/corrector_ax",
     "prefix_src": "",
     "map_to_f8": [("value_x", "StigmatorX"), ("value_y", "StigmatorY")],
 }
 
 
 TESCAN_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/STAGE_LAB[stage_lab]",
     "prefix_src": "",
     "map_to_f8": [
         ("rotation", ureg.radian, "StageRotation", ureg.degree),
@@ -85,11 +85,11 @@ TESCAN_DYNAMIC_STAGE_NX: Dict[str, Any] = {
 
 
 TESCAN_STATIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab",
+    "prefix_trg": "/ENTRY[entry*]/measurement/instrument/fabrication",
     "prefix_src": "",
-    "use": [("FABRICATION[fabrication]/vendor", "TESCAN")],
-    "map": [
-        ("FABRICATION[fabrication]/model", "Device"),
-        ("FABRICATION[fabrication]/identifier", "SerialNumber"),
+    "use": [("vendor", "TESCAN")],
+    "map_to_str": [
+        ("model", "Device"),
+        ("serial_number", "SerialNumber"),
     ],
 }

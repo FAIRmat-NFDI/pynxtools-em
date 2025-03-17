@@ -22,18 +22,18 @@ from typing import Any, Dict
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 JEOL_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "",
     "map_to_f8": [
-        ("em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/magnification", "CM_MAG"),
+        ("instrument/optics/magnification", "CM_MAG"),
         (
-            "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/working_distance",
+            "instrument/optics/working_distance",
             ureg.meter,
             "SM_WD",
             ureg.millimeter,
         ),
         (
-            "em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage",
+            "instrument/ebeam_column/electron_source/voltage",
             ureg.volt,
             "CM_ACCEL_VOLTAGE",
             ureg.kilovolt,
@@ -43,10 +43,10 @@ JEOL_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
 
 
 JEOL_STATIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab",
+    "prefix_trg": "/ENTRY[entry*]/measurement/instrument/fabrication",
     "prefix_src": "",
-    "use": [("FABRICATION[fabrication]/vendor", "JEOL")],
+    "use": [("vendor", "JEOL")],
     "map": [
-        ("FABRICATION[fabrication]/model", "CM_INSTRUMENT"),
+        ("model", "CM_INSTRUMENT"),
     ],
 }

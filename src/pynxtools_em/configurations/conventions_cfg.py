@@ -23,7 +23,7 @@ from typing import Any, Dict
 CONV_ROTATIONS_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/coordinate_system_set",
     "prefix_src": "rotation_conventions/",
-    "map": [
+    "map_to_str": [
         "rotation_handedness",
         "rotation_convention",
         "euler_angle_convention",
@@ -36,7 +36,7 @@ CONV_ROTATIONS_TO_NEXUS: Dict[str, Any] = {
 CONV_PROCESSING_CSYS_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/coordinate_system_set/processing_reference_frame",
     "prefix_src": "processing_reference_frame/",
-    "map": [
+    "map_to_str": [
         "type",
         "handedness",
         "origin",
@@ -53,7 +53,7 @@ CONV_PROCESSING_CSYS_TO_NEXUS: Dict[str, Any] = {
 CONV_SAMPLE_CSYS_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/coordinate_system_set/sample_reference_frame",
     "prefix_src": "sample_reference_frame/",
-    "map": [
+    "map_to_str": [
         "type",
         "handedness",
         "origin",
@@ -70,7 +70,7 @@ CONV_SAMPLE_CSYS_TO_NEXUS: Dict[str, Any] = {
 CONV_DETECTOR_CSYS_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/coordinate_system_set/COORDINATE_SYSTEM[detector_reference_frame1]",
     "prefix_src": "detector_reference_frame/",
-    "map": [
+    "map_to_str": [
         "type",
         "handedness",
         "origin",
@@ -87,7 +87,7 @@ CONV_DETECTOR_CSYS_TO_NEXUS: Dict[str, Any] = {
 CONV_GNOMONIC_CSYS_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/ROI[roi*]/ebsd/gnomonic_reference_frame",
     "prefix_src": "gnomonic_reference_frame/",
-    "map": [
+    "map_to_str": [
         "type",
         "handedness",
         "origin",
@@ -101,7 +101,7 @@ CONV_GNOMONIC_CSYS_TO_NEXUS: Dict[str, Any] = {
 CONV_PATTERN_CSYS_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/ROI[roi*]/ebsd/pattern_centre",
     "prefix_src": "pattern_centre/",
-    "map": [
+    "map_to_str": [
         "x_boundary_convention",
         "x_normalization_direction",
         "y_boundary_convention",
