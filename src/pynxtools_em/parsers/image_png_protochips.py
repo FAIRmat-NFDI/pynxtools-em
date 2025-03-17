@@ -27,6 +27,7 @@ import flatdict as fd
 import numpy as np
 import xmltodict
 from PIL import Image
+
 from pynxtools_em.concepts.mapping_functors_pint import (
     add_specific_metadata_pint,
     var_path_to_spcfc_path,
@@ -300,7 +301,7 @@ class ProtochipsPngSetParser:
         for file_name, iso8601 in self.event_sequence:
             identifier = [self.entry_id, event_id, 1]
             trg = var_path_to_spcfc_path(
-                f"/ENTRY[entry*]/measurement/event_data_em_set/"
+                f"/ENTRY[entry*]/measurement/events/"
                 f"EVENT_DATA_EM[event_data_em*]/start_time",
                 identifier,
             )
@@ -355,9 +356,9 @@ class ProtochipsPngSetParser:
                         nparr = np.array(png)
                         image_identifier = 1
                         trg = (
-                            f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set"
+                            f"/ENTRY[entry{self.entry_id}]/measurement/events"
                             f"/EVENT_DATA_EM[event_data_em{event_id}]"
-                            f"/IMAGE_SET[image_set{image_identifier}]/image_2d"
+                            f"/IMAGE[image{image_identifier}]/image_2d"
                         )
                         # TODO::writer should decorate automatically!
                         template[f"{trg}/title"] = f"Image"

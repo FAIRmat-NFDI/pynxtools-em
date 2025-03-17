@@ -21,11 +21,11 @@ import pathlib
 
 import flatdict as fd
 import yaml
+
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.eln_cfg import (
     OASISELN_EM_ENTRY_TO_NEXUS,
     OASISELN_EM_SAMPLE_TO_NEXUS,
-    OASISELN_EM_USER_IDENTIFIER_TO_NEXUS,
     OASISELN_EM_USER_TO_NEXUS,
 )
 from pynxtools_em.utils.get_file_checksum import (
@@ -114,11 +114,8 @@ class NxEmNomadOasisElnSchemaParser:
                             template,
                         )
                         if "orcid" in user_dict:
-                            add_specific_metadata_pint(
-                                OASISELN_EM_USER_IDENTIFIER_TO_NEXUS,
-                                user_dict,
-                                identifier,
-                                template,
-                            )
+                            trg = f"/ENTRY[entry{self.entry_id}]/USER[user{user_id}]"
+                            template[f"{trg}/identifier"] = user_dict["orcid"]
+                            template[f"{trg}/identifier/@type"] = "DOI"
                         user_id += 1
         return template

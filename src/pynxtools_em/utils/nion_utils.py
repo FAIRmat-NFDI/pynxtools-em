@@ -39,7 +39,7 @@ def uuid_to_file_name(data_item_uuid_str: str) -> str:
 
 
 def nion_image_spectrum_or_generic_nxdata(list_of_dict) -> str:
-    """Encode sequence of units to tell whether NXimage_set, NXspectrum_set, NXdata."""
+    """Encode sequence of units to tell whether NXimage, NXspectrum, NXdata."""
     if len(list_of_dict) >= 1:
         token = []
         for obj in list_of_dict:

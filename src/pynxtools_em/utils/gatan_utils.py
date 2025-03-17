@@ -18,11 +18,12 @@
 """Utility function for working with mapping of Gatan DigitalMicrograph content."""
 
 from pint import UndefinedUnitError
+
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 
 def gatan_image_spectrum_or_generic_nxdata(list_of_dict) -> str:
-    """Encode sequence of units to tell whether NXimage_set, NXspectrum_set, NXdata."""
+    """Encode sequence of units to tell whether NXimage, NXspectrum, NXdata."""
     if len(list_of_dict) >= 1:
         token = []
         for obj in list_of_dict:

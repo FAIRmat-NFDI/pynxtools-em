@@ -51,6 +51,7 @@ from zipfile import ZipFile
 import numpy as np
 import yaml
 from PIL import Image
+
 from pynxtools_em.examples.diffraction_pattern_set import (
     EXAMPLE_FILE_PREFIX,
     MATERIALS_PROJECT_METADATA,
@@ -234,7 +235,7 @@ class DiffractionPatternSetParser:
             if concept in meta:
                 template[f"{trg}/{concept}"] = meta[concept]
 
-        trg = f"/ENTRY[entry{self.entry_id}]/simulation/IMAGE_SET[image_set1]/stack_2d"
+        trg = f"/ENTRY[entry{self.entry_id}]/simulation/IMAGE[image1]/stack_2d"
 
         if "identifier/identifier" in meta and "phase_name" in meta:
             template[f"{trg}/title"] = (

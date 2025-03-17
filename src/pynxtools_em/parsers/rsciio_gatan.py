@@ -21,6 +21,8 @@ from typing import Dict, List
 
 import flatdict as fd
 import numpy as np
+from rsciio import digitalmicrograph as gatan
+
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.rsciio_gatan_cfg import (
     GATAN_DYNAMIC_STAGE_NX,
@@ -35,7 +37,6 @@ from pynxtools_em.utils.get_file_checksum import (
 )
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.rsciio_hspy_utils import all_req_keywords_in_dict
-from rsciio import digitalmicrograph as gatan
 
 
 class RsciioGatanParser:
@@ -126,7 +127,7 @@ class RsciioGatanParser:
     ) -> dict:
         """Add from where the information was obtained."""
         template[f"{trg}/PROCESS[process]/source/type"] = "file"
-        template[f"{trg}/PROCESS[process]/source/path"] = file_path
+        template[f"{trg}/PROCESS[process]/source/file_name"] = file_path
         template[f"{trg}/PROCESS[process]/source/checksum"] = checksum
         template[f"{trg}/PROCESS[process]/source/algorithm"] = (
             DEFAULT_CHECKSUM_ALGORITHM
@@ -152,7 +153,7 @@ class RsciioGatanParser:
             print(f"{unit_combination}, {np.shape(obj['data'])}")
             print(f"entry_id {self.entry_id}, event_id {self.id_mgn['event_id']}")
 
-        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]"
+        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/events/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]"
         self.id_mgn["event_id"] += 1
 
         # this is the place when you want to skip individually the writing of NXdata
@@ -161,26 +162,24 @@ class RsciioGatanParser:
         axis_names = None
         if unit_combination in GATAN_WHICH_SPECTRUM:
             self.annotate_information_source(
-                f"{prfx}/SPECTRUM_SET[spectrum_set1]",
+                f"{prfx}/SPECTRUM[spectrum1]",
                 self.file_path,
                 self.file_path_sha256,
                 template,
             )
-            trg = f"{prfx}/SPECTRUM_SET[spectrum_set1]/{GATAN_WHICH_SPECTRUM[unit_combination][0]}"
+            trg = f"{prfx}/SPECTRUM[spectrum1]/{GATAN_WHICH_SPECTRUM[unit_combination][0]}"
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"intensity"
             template[f"{trg}/intensity"] = {"compress": obj["data"], "strength": 1}
             axis_names = GATAN_WHICH_SPECTRUM[unit_combination][1]
         elif unit_combination in GATAN_WHICH_IMAGE:
             self.annotate_information_source(
-                f"{prfx}/IMAGE_SET[image_set1]",
+                f"{prfx}/IMAGE[image1]",
                 self.file_path,
                 self.file_path_sha256,
                 template,
             )
-            trg = (
-                f"{prfx}/IMAGE_SET[image_set1]/{GATAN_WHICH_IMAGE[unit_combination][0]}"
-            )
+            trg = f"{prfx}/IMAGE[image1]/{GATAN_WHICH_IMAGE[unit_combination][0]}"
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
             template[f"{trg}/real"] = {"compress": obj["data"], "strength": 1}

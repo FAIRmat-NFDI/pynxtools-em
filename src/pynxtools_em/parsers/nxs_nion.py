@@ -29,6 +29,7 @@ import h5py
 import nion.swift.model.NDataHandler as nsnd
 import numpy as np
 import yaml
+
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.nion_cfg import (
     NION_DYNAMIC_ABERRATION_NX,
@@ -430,7 +431,7 @@ class NionProjectParser:
         if unit_combination == "":
             return template
 
-        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]"
+        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/events/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]"
         self.id_mgn["event_id"] += 1
 
         # this is the place when you want to skip individually the writing of NXdata
@@ -438,15 +439,15 @@ class NionProjectParser:
 
         axis_names = None
         if unit_combination in NION_WHICH_SPECTRUM:
-            trg = f"{prfx}/SPECTRUM_SET[spectrum_set1]/{NION_WHICH_SPECTRUM[unit_combination][0]}"
+            trg = (
+                f"{prfx}/SPECTRUM[spectrum1]/{NION_WHICH_SPECTRUM[unit_combination][0]}"
+            )
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"intensity"
             template[f"{trg}/intensity"] = {"compress": nparr, "strength": 1}
             axis_names = NION_WHICH_SPECTRUM[unit_combination][1]
         elif unit_combination in NION_WHICH_IMAGE:
-            trg = (
-                f"{prfx}/IMAGE_SET[image_set1]/{NION_WHICH_IMAGE[unit_combination][0]}"
-            )
+            trg = f"{prfx}/IMAGE[image1]/{NION_WHICH_IMAGE[unit_combination][0]}"
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
             template[f"{trg}/real"] = {"compress": nparr, "strength": 1}

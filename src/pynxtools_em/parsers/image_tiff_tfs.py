@@ -189,9 +189,9 @@ class TfsTiffParser:
                 # remember H5Web images can be scaled based on the metadata allowing basically the same
                 # explorative viewing using H5Web than what traditionally typical image viewers are meant for
                 trg = (
-                    f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
+                    f"/ENTRY[entry{self.entry_id}]/measurement/events/"
                     f"EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/"
-                    f"IMAGE_SET[image_set{image_identifier}]/image_2d"
+                    f"IMAGE[image{image_identifier}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
                 template[f"{trg}/@signal"] = "real"

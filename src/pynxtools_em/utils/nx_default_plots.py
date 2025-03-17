@@ -65,10 +65,10 @@ class NxEmDefaultPlotResolver:
             candidates[votes] = []
 
         dtyp_vote = [
-            ("IMAGE_SET", "image", 1),
-            ("IMAGE_SET", "stack", 1),
-            ("SPECTRUM_SET", "spectrum", 2),
-            ("SPECTRUM_SET", "stack", 2),
+            ("IMAGE", "image", 1),
+            ("IMAGE", "stack", 1),
+            ("SPECTRUM", "spectrum", 2),
+            ("SPECTRUM", "stack", 2),
         ]
         for key in template.keys():
             for tpl in dtyp_vote:
@@ -85,7 +85,7 @@ class NxEmDefaultPlotResolver:
                             break
 
             # find ebsd ipf map
-            idx_head = key.find("/roiID[roi1]")
+            idx_head = key.find("/ROI[roi1]")
             idx_tail = key.find("/ebsd/indexing")
             if idx_head is None or idx_tail is None:
                 continue
@@ -101,26 +101,26 @@ class NxEmDefaultPlotResolver:
                     # in case of ebsd map with phase2, phase3, ... find than phase with the
                     vote_ipf_map = []
                     for phase_id in np.arange(1, 20 + 1):
-                        idx_tail = key.find(f"/ebsd/indexing/phaseID[phase{phase_id}]")
+                        idx_tail = key.find(f"/ebsd/indexing/PHASE[phase{phase_id}]")
                         if idx_tail is None or idx_tail == -1:
                             continue
-                        prfx = f"{key[0 : idx_tail + len(f'''/ebsd/indexing/phaseID[phase{phase_id}]''')]}"
+                        prfx = f"{key[0 : idx_tail + len(f'''/ebsd/indexing/PHASE[phase{phase_id}]''')]}"
                         # print(f"{key}\t{idx_head}\t{idx_tail}\t{prfx}")
                         if 0 < idx_head < idx_tail and (
-                            f"{prfx}/ipfID[ipf1]/map/data" in template
-                            or f"{prfx}/ipfID[ipf1]/map/DATA[data]" in template
+                            f"{prfx}/IPF[ipf1]/map/data" in template
+                            or f"{prfx}/IPF[ipf1]/map/DATA[data]" in template
                         ):
                             n_scan_points = 1.0
                             if f"{prfx}/number_of_scan_points" in template:
                                 # n_scan_points = template[
-                                #     f"{key[0:idx_tail + len(f'''/ebsd/indexing/phaseID[phase{phase_id}]''')]}/number_of_scan_points"
+                                #     f"{key[0:idx_tail + len(f'''/ebsd/indexing/PHASE[phase{phase_id}]''')]}/number_of_scan_points"
                                 # ]
                                 n_scan_points = template[
                                     f"{prfx}/number_of_scan_points"
                                 ]
                             vote_ipf_map.append(
                                 (
-                                    f"{prfx}/ipfID[ipf1]/map",
+                                    f"{prfx}/IPF[ipf1]/map",
                                     np.float64(n_scan_points)
                                     / np.float64(n_scan_points_total),
                                 )

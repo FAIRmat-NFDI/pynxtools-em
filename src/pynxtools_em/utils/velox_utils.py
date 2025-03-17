@@ -20,6 +20,7 @@
 from typing import Dict
 
 import pint
+
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 RSCIIO_AXES_MIN = ["name", "navigate", "offset", "scale", "size", "units"]
@@ -27,7 +28,7 @@ RSCIIO_AXES_MAX = ["index_in_array"] + RSCIIO_AXES_MIN
 
 
 def velox_image_spectrum_or_generic_nxdata(list_of_dict) -> str:
-    """Encode sequence of units to tell whether NXimage_set, NXspectrum_set, NXdata."""
+    """Encode sequence of units to tell whether NXimage, NXspectrum, NXdata."""
     if len(list_of_dict) >= 1:
         token = []
         for obj in list_of_dict:

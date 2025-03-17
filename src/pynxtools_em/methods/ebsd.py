@@ -28,6 +28,8 @@ from orix.quaternion import Rotation
 from orix.quaternion.symmetry import get_point_group
 from orix.vector import Vector3d
 from PIL import Image as pil
+from scipy.spatial import KDTree
+
 from pynxtools_em.utils.hfive_web import (
     HFIVE_WEB_MAXIMUM_RGB,
     HFIVE_WEB_MAXIMUM_ROI,
@@ -35,7 +37,6 @@ from pynxtools_em.utils.hfive_web import (
 from pynxtools_em.utils.hfive_web_utils import hfive_web_decorate_nxdata
 from pynxtools_em.utils.image_processing import thumbnail
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
-from scipy.spatial import KDTree
 
 PROJECTION_VECTORS = [Vector3d.xvector(), Vector3d.yvector(), Vector3d.zvector()]
 PROJECTION_DIRECTIONS = [
@@ -307,7 +308,7 @@ def ebsd_roi_overview(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dict
     if not trg_grid.descr_type:
         return template
 
-    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/ebsd/indexing/roi"
+    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/ebsd/indexing/roi"
     template[f"{trg}/descriptor"] = trg_grid.descr_type
     template[f"{trg}/title"] = (
         f"Region-of-interest overview image ({trg_grid.descr_type})"
@@ -367,9 +368,7 @@ def ebsd_roi_phase_ipf(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dic
         return template
 
     nxem_phase_id = 0
-    prfx = (
-        f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/ebsd/indexing"
-    )
+    prfx = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/ebsd/indexing"
     # bookkeeping for how many scan points solutions were found is always for src_grid
     # because the eventual discretization for h5web is solely
     # for the purpose of showing users a readily consumable default plot
@@ -396,7 +395,7 @@ def ebsd_roi_phase_ipf(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dic
     print(f"n_pts {n_pts}, n_pts_indexed {n_pts_indexed}")
     template[f"{prfx}/number_of_scan_points"] = np.uint32(n_pts)
     template[f"{prfx}/indexing_rate"] = np.float64(n_pts_indexed / n_pts)
-    grp_name = f"{prfx}/phaseID[phase{nxem_phase_id}]"
+    grp_name = f"{prfx}/PHASE[phase{nxem_phase_id}]"
     template[f"{grp_name}/number_of_scan_points"] = np.uint32(np.sum(inp.phase_id == 0))
     template[f"{grp_name}/phase_identifier"] = np.uint32(nxem_phase_id)
     template[f"{grp_name}/phase_name"] = f"notIndexed"
@@ -409,7 +408,7 @@ def ebsd_roi_phase_ipf(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dic
         print(f"inp[phases].keys(): {inp.phases.keys()}")
         if nxem_phase_id not in inp.phases:
             raise KeyError(f"{nxem_phase_id} is not a key in inp['phases'] !")
-        trg = f"{prfx}/phaseID[phase{nxem_phase_id}]"
+        trg = f"{prfx}/PHASE[phase{nxem_phase_id}]"
         template[f"{trg}/number_of_scan_points"] = np.uint32(
             np.sum(inp.phase_id == nxem_phase_id)
         )
@@ -483,8 +482,8 @@ def process_roi_phase_ipf(
         # 2D, 0 > y, 1 > x
         # 1D, 0 > x
         trg = (
-            f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/ebsd/indexing"
-            f"/phaseID[phase{nxem_phase_id}]/ipfID[ipf{idx + 1}]"
+            f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/ebsd/indexing"
+            f"/PHASE[phase{nxem_phase_id}]/IPF[ipf{idx + 1}]"
         )
         template[f"{trg}/projection_direction"] = np.asarray(
             PROJECTION_VECTORS[idx].data.flatten(), np.float32

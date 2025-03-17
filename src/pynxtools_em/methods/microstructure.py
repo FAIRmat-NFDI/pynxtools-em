@@ -17,9 +17,11 @@
 #
 """Standardized functionalities and visualization used when working with microstructures."""
 
-from typing import Dict, Any, List, Set
-from ase.data import chemical_symbols
+from typing import Any, Dict, List, Set
+
 import numpy as np
+from ase.data import chemical_symbols
+
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 
@@ -101,9 +103,9 @@ def microstructure_to_template(
             new_idx += 1
     del is_consistent
 
-    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/imaging"
+    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/imaging"
     template[f"{trg}/imaging_mode"] = f"secondary_electron"
-    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/imaging/IMAGE_SET[image{id_mgn['img_id']}]/microstructureID[microstructure1]/crystal"
+    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/imaging/IMAGE[image{id_mgn['img_id']}]/MICROSTRUCTURE[microstructure1]/crystal"
     template[f"{trg}/number_of_crystals"] = np.uint32(n_cryst)
     template[f"{trg}/number_of_phases"] = np.uint32(1)
     # TODO::generally wrong, only for Vitesh's example!

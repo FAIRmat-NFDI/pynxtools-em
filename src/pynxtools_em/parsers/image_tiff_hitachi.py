@@ -25,6 +25,7 @@ import flatdict as fd
 import numpy as np
 from PIL import Image, ImageSequence
 from pint import UndefinedUnitError
+
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_hitachi_cfg import (
     HITACHI_DYNAMIC_VARIOUS_NX,
@@ -145,9 +146,9 @@ class HitachiTiffParser:
                 )
                 # eventually similar open discussions points as were raised for tiff_tfs parser
                 trg = (
-                    f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
+                    f"/ENTRY[entry{self.entry_id}]/measurement/events/"
                     f"EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/"
-                    f"IMAGE_SET[image_set{image_identifier}]/image_2d"
+                    f"IMAGE[image{image_identifier}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
                 template[f"{trg}/@signal"] = "real"

@@ -19,7 +19,6 @@
 
 from typing import Any, Dict
 
-# /ENTRY[entryID]/ROI[roiID]/ebsd/conventions"
 CONV_ROTATIONS_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/coordinate_system_set",
     "prefix_src": "rotation_conventions/",

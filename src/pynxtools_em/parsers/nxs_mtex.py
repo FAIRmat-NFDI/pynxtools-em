@@ -241,7 +241,7 @@ class NxEmNxsMTexParser:
         print("Parse phases...")
         with h5py.File(self.file_path, "r") as h5r:
             src = "/entry1/roi1/ebsd/indexing1"
-            trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/phaseID"
+            trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/PHASE"
             if f"{src}" not in h5r:
                 return template
             for grp_name in h5r[f"{src}"]:
@@ -281,7 +281,7 @@ class NxEmNxsMTexParser:
             src = f"/entry1/roi1/ebsd/indexing1/{phase}/ipf{ipfid}"
             trg = (
                 f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/"
-                f"phaseID[{phase}]/ipfID[ipf{ipfid}]"
+                f"PHASE[{phase}]/IPF[ipf{ipfid}]"
             )
             if f"{src}/projection_direction" in h5r:
                 template[f"{trg}/projection_direction"] = hfive_to_template(

@@ -9,18 +9,14 @@
             "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "../.py3.12.3/bin/dataconverter",
-            "args": [//"tests/data/eln/eln_data.yaml",
-                     //"tests/data/image_zeiss/A-alloy800-0506_BSD.tif",
-                     //"tests/data/image_zeiss/A-alloy800-05_grain_boundary22_InLens.tif",
-                     //"tests/data/image_zeiss/A-alloy800-05GrainBoundary19_SE.tif",
-                     //"tests/data/image_fei_legacy/BF_02_40kx.tif",
-                     "tests/data/image_fei_legacy/SEM_Image_-_SliceImage_-_109.tif",
+            "program": "../../.py3.11.11/bin/dataconverter",
+            "args": ["tests/data/eln/eln_data.yaml",
+                     "tests/data/eln/em.oasis.specific.yaml",
                      "--reader",
                      "em",
                      "--nxdl",
                      "NXem",
-                     "--output=tests/out.nxs"]
+                     "--output=tests/prod/data.eln.eln_data.yaml.nxs"]
         }
     ]
 }

@@ -24,6 +24,7 @@ import numpy as np
 from ase.data import chemical_symbols
 from diffpy.structure import Lattice, Structure
 from orix.quaternion import Orientation
+
 from pynxtools_em.examples.ebsd_database import ASSUME_PHASE_NAME_TO_SPACE_GROUP
 from pynxtools_em.methods.ebsd import (
     EbsdPointCloud,
@@ -441,7 +442,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             ),
         }
         # is micron because MicronsPerPixel{dim} used by EDAX
-        trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/IMAGE_SET[image_set{self.id_mgn['img_id']}]"
+        trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/events/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/IMAGE[image{self.id_mgn['img_id']}]"
         template[f"{trg}/PROCESS[process]/source/absolute_path"] = (
             f"{self.prfx}/FOVIMAGE"
         )
@@ -491,7 +492,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 print(f"Attribute {req} not found in {self.prfx}/SPC !")
                 return template
 
-        trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/SPECTRUM_SET[spectrum_set{self.id_mgn['spc_id']}]"
+        trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/events/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/SPECTRUM[spectrum{self.id_mgn['spc_id']}]"
         template[f"{trg}/PROCESS[process]/source/absolute_path"] = f"{self.prfx}/SPC"
         template[f"{trg}/spectrum_0d/@signal"] = "intensity"
         template[f"{trg}/spectrum_0d/@axes"] = ["axis_energy"]
@@ -588,7 +589,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             "j": ureg.Quantity(nxy["lj"] / nxy["j"], ureg.millimeter),
         }
         for pair in pairs:
-            trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/roiID[roi{self.id_mgn['roi_id']}]/eds/indexing/IMAGE_SET[{pair[0 : pair.find(' ')]}]"
+            trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/ROI[roi{self.id_mgn['roi_id']}]/eds/indexing/IMAGE[{pair[0 : pair.find(' ')]}]"
             template[f"{trg}/PROCESS[process]/source/absolute_path"] = (
                 f"{self.prfx}/ROIs/{pair}"
             )
