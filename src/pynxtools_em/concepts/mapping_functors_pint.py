@@ -222,14 +222,20 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
                     f"Unexpected type for explicit src_val.magnitude, set_value, trg {trg} !"
                 )
         elif isinstance(src_val, list):
-            if all(isinstance(val, str) for val in src_val):
-                template[f"{trg}"] = ", ".join(src_val)
+            if trg_dtype == "str":
+                if all(isinstance(val, str) for val in src_val):
+                    template[f"{trg}"] = ", ".join(src_val)
+                else:
+                    template[f"{trg}"] = ", ".join([f"{val}" for val in src_val])
+                print(
+                    f"WARNING::Assuming I/O to HDF5 will serializing to concatenated string !"
+                )
             else:
                 template[f"{trg}"] = map_to_dtype(trg_dtype, np.asarray(src_val))
-            # units may be required, need to be set explicitly elsewhere in the source code!
-            print(
-                f"WARNING::Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
-            )
+                # units may be required, need to be set explicitly elsewhere in the source code!
+                print(
+                    f"WARNING::Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
+                )
         elif isinstance(src_val, (np.ndarray, np.generic)):
             template[f"{trg}"] = map_to_dtype(trg_dtype, np.asarray(src_val))
             # units may be required, need to be set explicitly elsewhere in the source code!
@@ -273,6 +279,11 @@ def map_functor(
     trg_dtype_key: str = "",
 ) -> dict:
     """Process concept mapping, datatype and unit conversion for quantities."""
+    # for debugging set configurable breakpoints like such
+    # prfx_trg == "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument"
+    # either here or on a resolved variadic name in the trg variable
+    # in the set_value function or specific parameterized concept names like
+    # cmd[0] == "optics/operation_mode" (see rsciio_gatan_cfg, GATAN_DYNAMIC_VARIOUS_NX)
     for cmd in cmds:
         case = get_case(cmd)
         if case == "case_one":  # str
@@ -298,8 +309,9 @@ def map_functor(
                 continue
             if not all(src_val is not None and src_val != "" for src_val in src_values):
                 continue
-            if not all(type(val) is type(src_values[0]) for val in src_values):
-                continue
+            if trg_dtype_key != "str":
+                if not all(type(val) is type(src_values[0]) for val in src_values):
+                    continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             set_value(template, trg, src_values, trg_dtype_key)
         elif case == "case_three_str":  # str, ureg.Unit, str

@@ -89,8 +89,7 @@ GATAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
         ),
         ("optics/imaging_mode", "Imaging Mode"),
         ("optics/name", "Name"),
-        ("optics/operation_mode", "Operation Mode"),
-        ("optics/operation_mode_type", "Operation Mode Type"),
+        ("optics/operation_mode", ["Operation Mode", "Operation Mode Type"]),
     ],
 }
 
