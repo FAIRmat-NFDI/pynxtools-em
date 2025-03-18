@@ -99,10 +99,14 @@ class NxEmNxsMTexParser:
         with h5py.File(self.file_path, "r") as h5r:
             src = "/entry1/roi1/ebsd/indexing1/mtex"
             trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/mtex"
-            template[f"{trg}/@NX_class"] = "NXms_mtex_config"
+            template[f"{trg}/@NX_class"] = (
+                "NXms_mtex_config"  # TODO::should be made part of NXem
+            )
             for grp_name in ["conventions", "miscellanous", "numerics", "plotting"]:
                 # "system"
-                template[f"{trg}/{grp_name}/@NX_class"] = "NXcollection"
+                template[f"{trg}/{grp_name}/@NX_class"] = (
+                    "NXcollection"  # TODO::should be made part of NXem
+                )
 
             for dst_name in [
                 "a_axis_direction",
@@ -165,7 +169,7 @@ class NxEmNxsMTexParser:
                     if "NX_class" in grp.attrs:
                         template[f"{trg}/PROGRAM[program{idx}]/@NX_class"] = grp.attrs[
                             "NX_class"
-                        ]
+                        ]  # TODO::should be made part of NXem
                     dst = h5r[f"{src}/program{idx}/program"]
                     template[f"{trg}/PROGRAM[program{idx}]/program"] = (
                         hfive_to_template(dst)
@@ -186,7 +190,9 @@ class NxEmNxsMTexParser:
                 return template
             grp = h5r[f"{src}"]
             if "NX_class" in grp.attrs:
-                template[f"{trg}/@NX_class"] = grp.attrs["NX_class"]
+                template[f"{trg}/@NX_class"] = grp.attrs[
+                    "NX_class"
+                ]  # TODO::should be made part of NXem
             for dst_name in ["indexing_rate", "number_of_scan_points"]:
                 if f"{src}/{dst_name}" in h5r:
                     dst = h5r[f"{src}/{dst_name}"]
@@ -249,7 +255,9 @@ class NxEmNxsMTexParser:
                     continue
                 grp = h5r[f"{src}/{grp_name}"]
                 if "NX_class" in grp.attrs:
-                    template[f"{trg}[{grp_name}]/@NX_class"] = grp.attrs["NX_class"]
+                    template[f"{trg}[{grp_name}]/@NX_class"] = grp.attrs[
+                        "NX_class"
+                    ]  # TODO::should be made part of NXem
 
                 for dst_name in [
                     "number_of_scan_points",

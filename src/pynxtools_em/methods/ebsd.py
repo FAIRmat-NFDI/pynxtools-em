@@ -397,8 +397,8 @@ def ebsd_roi_phase_ipf(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dic
     template[f"{prfx}/indexing_rate"] = np.float64(n_pts_indexed / n_pts)
     grp_name = f"{prfx}/PHASE[phase{nxem_phase_id}]"
     template[f"{grp_name}/number_of_scan_points"] = np.uint32(np.sum(inp.phase_id == 0))
-    template[f"{grp_name}/identifier_phase"] = np.uint32(nxem_phase_id)
-    template[f"{grp_name}/phase_name"] = f"notIndexed"
+    template[f"{grp_name}/identifier"] = np.int32(nxem_phase_id)
+    template[f"{grp_name}/name"] = f"notIndexed"
 
     print(f"----unique inp phase_id--->{np.unique(inp.phase_id)}")
     for nxem_phase_id in np.arange(1, np.max(np.unique(inp.phase_id)) + 1):
@@ -412,8 +412,8 @@ def ebsd_roi_phase_ipf(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dic
         template[f"{trg}/number_of_scan_points"] = np.uint32(
             np.sum(inp.phase_id == nxem_phase_id)
         )
-        template[f"{trg}/identifier_phase"] = np.uint32(nxem_phase_id)
-        template[f"{trg}/phase_name"] = f"{inp.phases[nxem_phase_id]['phase_name']}"
+        template[f"{trg}/identifier"] = np.int32(nxem_phase_id)
+        template[f"{trg}/name"] = f"{inp.phases[nxem_phase_id]['phase_name']}"
 
         for concept in ["a_b_c", "alpha_beta_gamma"]:
             if concept in inp.phases[nxem_phase_id]:

@@ -21,7 +21,7 @@ We collected several EBSD datasets from the community. In these studies, names o
 phases used for indexing almost never documented the exact atomic coordinates values
 of and all details to the atomic motif and crystal structures explicitly. Instead,
 free-text, elements, mineral names, fragments of chemical formulas, names of
-mineral groups or rocks are used. The dict maps from these NXcrystal_structure/phase_name
+mineral groups or rocks are used. The dict maps from these NXphase/name
 onto the set of NXem/ENTRY/sample/atom_types.
 """
 

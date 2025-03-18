@@ -167,31 +167,35 @@ class DiffractionPatternSetParser:
                 for sgid in self.mp_entries:
                     print(sgid)
                     for mpid in self.mp_entries[sgid]:
-                        if len(self.mp_entries[sgid][mpid]["files"]) > 0:
-                            print(f"\t\t{mpid}")
-                            dtyp = PIL_DTYPE_TO_NPY_DTYPE[
-                                self.mp_entries[sgid][mpid]["mode"]
-                            ]
-                            stack_2d = np.zeros(
-                                (
-                                    len(self.mp_entries[sgid][mpid]["files"]),
-                                    self.mp_entries[sgid][mpid]["shape"][0],
-                                    self.mp_entries[sgid][mpid]["shape"][1],
-                                ),
-                                dtype=dtyp,
-                            )
-                            for idx, file in enumerate(
-                                self.mp_entries[sgid][mpid]["files"]
-                            ):
-                                with zip_file_hdl.open(file) as fp:
-                                    stack_2d[idx, :, :] = np.asarray(
-                                        Image.open(fp, "r"), dtype=dtyp
-                                    )
+                        if (
+                            len(self.mp_entries[sgid][mpid]["files"]) <= 0
+                            or self.mp_meta[sgid][mpid] == {}
+                        ):
+                            continue
 
-                            self.process_stack_to_template(
-                                template, self.mp_meta[sgid][mpid], stack_2d
-                            )
-                            del stack_2d
+                        print(f"\t\t{mpid}")
+                        dtyp = PIL_DTYPE_TO_NPY_DTYPE[
+                            self.mp_entries[sgid][mpid]["mode"]
+                        ]
+                        stack_2d = np.zeros(
+                            (
+                                len(self.mp_entries[sgid][mpid]["files"]),
+                                self.mp_entries[sgid][mpid]["shape"][0],
+                                self.mp_entries[sgid][mpid]["shape"][1],
+                            ),
+                            dtype=dtyp,
+                        )
+                        for idx, file in enumerate(
+                            self.mp_entries[sgid][mpid]["files"]
+                        ):
+                            with zip_file_hdl.open(file) as fp:
+                                stack_2d[idx, :, :] = np.asarray(
+                                    Image.open(fp, "r"), dtype=dtyp
+                                )
+                        self.process_stack_to_template(
+                            template, self.mp_meta[sgid][mpid], stack_2d
+                        )
+                        del stack_2d
         return template
 
     def process_stack_to_template(
@@ -208,8 +212,8 @@ class DiffractionPatternSetParser:
         # projects[sgid][mpid][f"build_date"] = mp_entry[0].builder_meta.build_date
         # projects[sgid][mpid][f"license"] = f"{mp_entry[0].builder_meta.license}"
         # projects[sgid][mpid][f"space_group"] = sgid
-        trg = f"/ENTRY[entry{self.entry_id}]/simulation/CRYSTAL_STRUCTURE[phase1]"
-        template[f"{trg}/@NX_class"] = "NXcrystal_structure"
+        trg = f"/ENTRY[entry{self.entry_id}]/simulation/PHASE[phase1]"
+        template[f"{trg}/@NX_class"] = "NXphase"  # TODO::should be made part of NXem
         template[f"{trg}/identifier"] = meta["identifier/identifier"]
         template[f"{trg}/identifier/@type"] = meta["identifier/service"]
         if "a_b_c" in meta:
@@ -224,19 +228,20 @@ class DiffractionPatternSetParser:
             "database_version",
             # "build_date",
             "license",
-            "space_group",
         ]:
             if concept in meta:
                 template[f"{trg}/{concept}"] = meta[concept]
+        if "space_group" in meta:
+            template[f"{trg}/space_group"] = f"{meta['space_group']}"
 
         trg = f"/ENTRY[entry{self.entry_id}]/simulation/IMAGE[image1]/stack_2d"
-
         if "identifier/identifier" in meta and "phase_name" in meta:
             template[f"{trg}/title"] = (
                 f"{meta['identifier/identifier']}, {meta['phase_name']}"
             )
         else:
             template[f"{trg}/title"] = f"MaterialsProject ID was not API-retrievable"
+        template[f"{trg}/@NX_class"] = "NXdata"  # TODO::should be made part of NXem
         template[f"{trg}/@signal"] = "real"
         template[f"{trg}/@AXISNAME_indices[axis_i_indices]"] = np.uint32(2)
         template[f"{trg}/@AXISNAME_indices[axis_j_indices]"] = np.uint32(1)

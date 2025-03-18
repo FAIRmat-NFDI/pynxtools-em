@@ -457,7 +457,6 @@ class NionProjectParser:
         ):
             trg = f"{prfx}/DATA[data1]"
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
-            template[f"{trg}/@NX_class"] = f"NXdata"
             template[f"{trg}/@signal"] = f"data"
             template[f"{trg}/data"] = {"compress": nparr, "strength": 1}
             axis_names = ["axis_i", "axis_j", "axis_k", "axis_l", "axis_m"][
