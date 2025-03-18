@@ -165,6 +165,8 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
             # TODO this is not rigorous need to check for null-term also and str arrays
             template[f"{trg}"] = src_val
             # assumes I/O to HDF5 will write specific encoding, typically variable, null-term, utf8
+        elif isinstance(src_val, bool):
+            template[f"{trg}"] = try_interpret_as_boolean(src_val)
         elif isinstance(src_val, ureg.Quantity):
             if isinstance(src_val.magnitude, (np.ndarray, np.generic)) or np.isscalar(
                 src_val.magnitude
@@ -204,7 +206,7 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
         # e.g. in cases when tech partner writes float32 but e.g. NeXus assumes float64
         if isinstance(src_val, str):
             template[f"{trg}"] = f"{src_val}"
-        if isinstance(src_val, bool):
+        elif isinstance(src_val, bool):
             template[f"{trg}"] = try_interpret_as_boolean(src_val)
         elif isinstance(src_val, ureg.Quantity):
             if isinstance(src_val.magnitude, (np.ndarray, np.generic)):
@@ -219,7 +221,16 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
                 raise TypeError(
                     f"Unexpected type for explicit src_val.magnitude, set_value, trg {trg} !"
                 )
-        elif isinstance(src_val, (list, np.ndarray, np.generic)):
+        elif isinstance(src_val, list):
+            if all(isinstance(val, str) for val in src_val):
+                template[f"{trg}"] = ", ".join(src_val)
+            else:
+                template[f"{trg}"] = map_to_dtype(trg_dtype, np.asarray(src_val))
+            # units may be required, need to be set explicitly elsewhere in the source code!
+            print(
+                f"WARNING::Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
+            )
+        elif isinstance(src_val, (np.ndarray, np.generic)):
             template[f"{trg}"] = map_to_dtype(trg_dtype, np.asarray(src_val))
             # units may be required, need to be set explicitly elsewhere in the source code!
             print(

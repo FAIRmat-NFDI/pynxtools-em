@@ -194,6 +194,7 @@ class RsciioVeloxParser:
                 )
                 toggle = True
             if toggle:
+                # TODO::name should not really be there as it is considered rather a static quantity during the microscope session
                 template[f"{trg}/LENS_EM[lens{lens_idx}]/name"] = f"{lens_name}"
                 lens_idx += 1
         # Optics/GunLensSetting
