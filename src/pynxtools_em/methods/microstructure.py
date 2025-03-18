@@ -83,11 +83,9 @@ def microstructure_to_template(
     ctable = {}
     for symbol in elements:
         ctable[symbol] = {
-            "value": np.zeros((n_cryst,), dtype=np.float32),
-            "sigma": np.zeros((n_cryst,), dtype=np.float32),
+            "value": np.full((n_cryst,), np.nan, dtype=np.float32),
+            "sigma": np.full((n_cryst,), np.nan, dtype=np.float32),
         }
-        for qnt in ["value", "sigma"]:
-            ctable[symbol][qnt][:] = np.nan
     old_ids = np.empty((n_cryst,), dtype=np.uint32)
     new_idx = 0
     for idx, state in enumerate(is_consistent):
@@ -103,9 +101,28 @@ def microstructure_to_template(
             new_idx += 1
     del is_consistent
 
-    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/imaging"
+    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/img"
     template[f"{trg}/imaging_mode"] = f"secondary_electron"
-    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/imaging/IMAGE[image{id_mgn['img_id']}]/MICROSTRUCTURE[microstructure1]/crystal"
+
+    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/img/IMAGE[image{id_mgn['img_id']}]/MICROSTRUCTURE[microstructure1]/chemical_composition"
+    inform_about_atom_types = set()
+    for symbol in ctable:
+        if (
+            np.sum(np.isnan(ctable[symbol][qnt])) > 0
+            or np.sum(np.isnan(ctable[symbol][qnt])) > 0
+        ):
+            continue
+        for qnt in ["value", "sigma"]:
+            template[f"{trg}/ELEMENT[{symbol}]/{qnt}"] = {
+                "compress": ctable[symbol][qnt],
+                "strength": 1,
+            }
+            template[f"{trg}/ELEMENT[{symbol}]/{qnt}/@units"] = "wt%"
+            inform_about_atom_types.add(symbol)
+    if len(inform_about_atom_types) > 0:
+        template[f"{trg}/normalization"] = "weight_percent"
+
+    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/img/IMAGE[image{id_mgn['img_id']}]/MICROSTRUCTURE[microstructure1]/crystals"
     template[f"{trg}/number_of_crystals"] = np.uint32(n_cryst)
     template[f"{trg}/number_of_phases"] = np.uint32(1)
     # TODO::generally wrong, only for Vitesh's example!
@@ -146,15 +163,4 @@ def microstructure_to_template(
         f"Feature area ({ureg.micrometer * ureg.micrometer})"
     )
 
-    # add custom, i.e. currently not NeXus-standardized composition tables
-    abbrev = "CHEMICAL_COMPOSITION[chemical_composition]"
-    template[f"{trg}/{abbrev}/@NX_class"] = "NXchemical_composition"
-    for symbol in ctable:
-        template[f"{trg}/{abbrev}/OBJECT[{symbol}]/@NX_class"] = "NXobject"
-        for qnt in ["value", "sigma"]:
-            template[f"{trg}/{abbrev}/OBJECT[{symbol}]/{qnt}"] = {
-                "compress": ctable[symbol][qnt],
-                "strength": 1,
-            }
-            template[f"{trg}/{abbrev}/OBJECT[{symbol}]/{qnt}/@units"] = "wt%"
     return template

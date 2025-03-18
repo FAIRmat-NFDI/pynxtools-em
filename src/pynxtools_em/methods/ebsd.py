@@ -414,6 +414,20 @@ def ebsd_roi_phase_ipf(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dic
         )
         template[f"{trg}/identifier_phase"] = np.uint32(nxem_phase_id)
         template[f"{trg}/phase_name"] = f"{inp.phases[nxem_phase_id]['phase_name']}"
+
+        for concept in ["a_b_c", "alpha_beta_gamma"]:
+            if concept in inp.phases[nxem_phase_id]:
+                template[f"{trg}/UNIT_CELL[unit_cell]/{concept}"] = np.asarray(
+                    inp.phases[nxem_phase_id][concept].magnitude, dtype=np.float32
+                )
+                template[f"{trg}/UNIT_CELL[unit_cell]/{concept}/@units"] = (
+                    f"{inp.phases[nxem_phase_id][concept].units}"
+                )
+        if "space_group" in inp.phases[nxem_phase_id]:
+            template[f"{trg}/UNIT_CELL[unit_cell]/space_group"] = (
+                f"{inp.phases[nxem_phase_id]['space_group']}"
+            )
+
         # internally the following function may discretize a coarser IPF
         # if the input grid inp is too large for h5web to display
         # this remove fine details in the EBSD maps but keep in mind
