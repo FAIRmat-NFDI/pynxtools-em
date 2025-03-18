@@ -122,7 +122,7 @@ class EMReader(BaseReader):
         if len(case.dat) == 1:
             parsers_no_sidecar_file: List[type] = [
                 HdfFiveBrukerEspritParser,
-                HdfFiveDreamThreedLegacyParser,
+                # HdfFiveDreamThreedLegacyParser,
                 # HdfFiveEbsdCommunityParser,
                 # HdfFiveEmSoftParser,
                 HdfFiveEdaxOimAnalysisParser,

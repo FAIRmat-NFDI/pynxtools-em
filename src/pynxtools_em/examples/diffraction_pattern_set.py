@@ -16,11 +16,13 @@
 # limitations under the License.
 #
 """Pieces of information relevant for the MaterialsProject EBSD Kikuchi pattern example."""
+# https://doi.org/10.1093/mam/ozae044.178
 
-from typing import Tuple, Union
-import re
-import numpy as np
 import os
+import re
+from typing import Tuple, Union
+
+import numpy as np
 
 THIS_MODULE_PATH = os.path.abspath(__file__).replace("/diffraction_pattern_set.py", "")
 EXAMPLE_FILE_PREFIX = "original_data/original_data_0/train/"
