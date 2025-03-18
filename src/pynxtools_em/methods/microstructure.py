@@ -109,17 +109,17 @@ def microstructure_to_template(
     template[f"{trg}/number_of_crystals"] = np.uint32(n_cryst)
     template[f"{trg}/number_of_phases"] = np.uint32(1)
     # TODO::generally wrong, only for Vitesh's example!
-    template[f"{trg}/crystal_identifier"] = {
+    template[f"{trg}/identifier_crystal"] = {
         "compress": np.asarray(
             np.linspace(0, n_cryst - 1, num=n_cryst, endpoint=True), dtype=np.uint32
         ),
         "strength": 1,
     }
-    template[f"{trg}/h5oina_feature_identifier"] = {
+    template[f"{trg}/identifier_h5oina_feature"] = {
         "compress": old_ids,
         "strength": 1,
     }
-    template[f"{trg}/phase_identifier"] = {
+    template[f"{trg}/identifier_phase"] = {
         "compress": np.ones((n_cryst,), dtype=np.uint32),
         "strength": 1,
     }

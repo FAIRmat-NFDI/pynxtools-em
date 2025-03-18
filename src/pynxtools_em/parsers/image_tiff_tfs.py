@@ -176,7 +176,7 @@ class TfsTiffParser:
         """Add respective heavy data."""
         # default display of the image(s) representing the data collected in this event
         print(f"Writing ThermoFisher TIFF image data to NeXus concept instances...")
-        image_identifier = 1
+        identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
                 nparr = np.array(img)
@@ -191,7 +191,7 @@ class TfsTiffParser:
                 trg = (
                     f"/ENTRY[entry{self.entry_id}]/measurement/events/"
                     f"EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/"
-                    f"IMAGE[image{image_identifier}]/image_2d"
+                    f"IMAGE[image{identifier_image}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
                 template[f"{trg}/@signal"] = "real"
@@ -254,7 +254,7 @@ class TfsTiffParser:
                         f"Coordinate along {dim}-axis ({sxy[dim].units})"
                     )
                     template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
-                image_identifier += 1
+                identifier_image += 1
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:

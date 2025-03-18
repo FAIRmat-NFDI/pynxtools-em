@@ -354,11 +354,11 @@ class ProtochipsPngSetParser:
                 with zip_file_hdl.open(file_name) as fp:
                     with Image.open(fp) as png:
                         nparr = np.array(png)
-                        image_identifier = 1
+                        identifier_image = 1
                         trg = (
                             f"/ENTRY[entry{self.entry_id}]/measurement/events"
                             f"/EVENT_DATA_EM[event_data_em{event_id}]"
-                            f"/IMAGE[image{image_identifier}]/image_2d"
+                            f"/IMAGE[image{identifier_image}]/image_2d"
                         )
                         # TODO::writer should decorate automatically!
                         template[f"{trg}/title"] = f"Image"

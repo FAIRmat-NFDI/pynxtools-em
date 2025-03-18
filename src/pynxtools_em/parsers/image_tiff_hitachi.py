@@ -137,18 +137,18 @@ class HitachiTiffParser:
         print(
             f"Writing Hitachi TIFF image data to the respective NeXus concept instances..."
         )
-        image_identifier = 1
+        identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
                 nparr = np.array(img)
                 print(
-                    f"Processing image {image_identifier} ... {type(nparr)}, {np.shape(nparr)}, {nparr.dtype}"
+                    f"Processing image {identifier_image} ... {type(nparr)}, {np.shape(nparr)}, {nparr.dtype}"
                 )
                 # eventually similar open discussions points as were raised for tiff_tfs parser
                 trg = (
                     f"/ENTRY[entry{self.entry_id}]/measurement/events/"
                     f"EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/"
-                    f"IMAGE[image{image_identifier}]/image_2d"
+                    f"IMAGE[image{identifier_image}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
                 template[f"{trg}/@signal"] = "real"
@@ -199,7 +199,7 @@ class HitachiTiffParser:
                         f"Coordinate along {dim}-axis ({sxy[dim].units})"
                     )
                     template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
-                image_identifier += 1
+                identifier_image += 1
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:

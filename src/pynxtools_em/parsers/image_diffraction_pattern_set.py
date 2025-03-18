@@ -210,14 +210,8 @@ class DiffractionPatternSetParser:
         # projects[sgid][mpid][f"space_group"] = sgid
         trg = f"/ENTRY[entry{self.entry_id}]/simulation/CRYSTAL_STRUCTURE[phase1]"
         template[f"{trg}/@NX_class"] = "NXcrystal_structure"
-        template[f"{trg}/identifier/@NX_class"] = "NXidentifier"
-        for concept in [
-            "identifier/identifier",
-            "identifier/service",
-            "identifier/is_persistent",
-        ]:
-            if concept in meta:
-                template[f"{trg}/{concept}"] = meta[concept]
+        template[f"{trg}/identifier"] = meta["identifier/identifier"]
+        template[f"{trg}/identifier/@type"] = meta["identifier/service"]
         if "a_b_c" in meta:
             template[f"{trg}/a_b_c"] = np.asarray(meta["a_b_c"], np.float32)
             template[f"{trg}/a_b_c/@units"] = f"{ureg.angstrom}"
@@ -246,12 +240,12 @@ class DiffractionPatternSetParser:
         template[f"{trg}/@signal"] = "real"
         template[f"{trg}/@AXISNAME_indices[axis_i_indices]"] = np.uint32(2)
         template[f"{trg}/@AXISNAME_indices[axis_j_indices]"] = np.uint32(1)
-        template[f"{trg}/@AXISNAME_indices[image_identifier_indices]"] = np.uint32(0)
-        template[f"{trg}/@axes"] = ["image_identifier", "axis_j", "axis_i"]
+        template[f"{trg}/@AXISNAME_indices[identifier_image_indices]"] = np.uint32(0)
+        template[f"{trg}/@axes"] = ["identifier_image", "axis_j", "axis_i"]
         template[f"{trg}/real"] = {"compress": stack_2d, "strength": 1}
         template[f"{trg}/real/@long_name"] = f"Signal"
         niyx = {
-            "image_identifier": np.shape(stack_2d)[0],
+            "identifier_image": np.shape(stack_2d)[0],
             "axis_j": np.shape(stack_2d)[1],
             "axis_i": np.shape(stack_2d)[2],
         }

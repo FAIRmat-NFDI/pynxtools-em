@@ -26,26 +26,26 @@ NION_WHICH_SPECTRUM = {
     "nm_eV": ("spectrum_1d", ["axis_i", "axis_energy"]),
     "nm_nm_eV": ("spectrum_2d", ["axis_j", "axis_i", "axis_energy"]),
     "nm_nm_nm_eV": ("spectrum_3d", ["axis_k", "axis_j", "axis_i", "axis_energy"]),
-    "unitless_eV": ("stack_0d", ["spectrum_identifier", "axis_energy"]),
-    "unitless_nm_eV": ("stack_1d", ["spectrum_identifier", "axis_energy"]),
+    "unitless_eV": ("stack_0d", ["identifier_spectrum", "axis_energy"]),
+    "unitless_nm_eV": ("stack_1d", ["identifier_spectrum", "axis_energy"]),
     "unitless_nm_nm_eV": (
         "stack_2d",
-        ["spectrum_identifier", "axis_j", "axis_i", "axis_energy"],
+        ["identifier_spectrum", "axis_j", "axis_i", "axis_energy"],
     ),
     "unitless_nm_nm_nm_eV": (
         "stack_3d",
-        ["spectrum_identifier", "axis_k", "axis_j", "axis_i", "axis_energy"],
+        ["identifier_spectrum", "axis_k", "axis_j", "axis_i", "axis_energy"],
     ),
 }
 NION_WHICH_IMAGE = {
     "nm": ("image_1d", ["axis_i"]),
     "nm_nm": ("image_2d", ["axis_j", "axis_i"]),
     "nm_nm_nm": ("image_3d", ["axis_k", "axis_j", "axis_i"]),
-    "unitless_nm": ("stack_1d", ["image_identifier", "axis_i"]),
-    "unitless_nm_nm": ("stack_2d", ["image_identifier", "axis_j", "axis_i"]),
+    "unitless_nm": ("stack_1d", ["identifier_image", "axis_i"]),
+    "unitless_nm_nm": ("stack_2d", ["identifier_image", "axis_j", "axis_i"]),
     "unitless_nm_nm_nm": (
         "stack_3d",
-        ["image_identifier", "axis_k", "axis_j", "axis_i"],
+        ["identifier_image", "axis_k", "axis_j", "axis_i"],
     ),
 }
 # TODO::use mapping to base_units like exemplified for the gatan parser
@@ -356,10 +356,10 @@ NION_STATIC_DETECTOR_NX: Dict[str, Any] = {
     "prefix_src": "metadata/hardware_source/detector_configuration/",
     "map_to_str": [
         ("FABRICATION[fabrication]/model", "description"),
-        (
-            "FABRICATION[fabrication]/vendor",
-            "detector_number",
-        ),  # not documented in nion metadata by default
+        # (
+        #     "FABRICATION[fabrication]/vendor",
+        #     "detector_number",
+        # ),  # not documented in nion metadata by default
         ("FABRICATION[fabrication]/serial_number", "detector_number"),
         "eiger_fw_version",
         "sensor_material",

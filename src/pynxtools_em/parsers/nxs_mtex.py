@@ -253,7 +253,7 @@ class NxEmNxsMTexParser:
 
                 for dst_name in [
                     "number_of_scan_points",
-                    "phase_identifier",
+                    "identifier_phase",
                     "unit_cell_abc",
                     "unit_cell_alphabetagamma",
                 ]:

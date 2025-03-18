@@ -490,11 +490,11 @@ class NionProjectParser:
                     )
                     if unit_combination in NION_WHICH_SPECTRUM:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Spectrum identifier"
+                            f"Identifier spectrum"
                         )
                     elif unit_combination in NION_WHICH_IMAGE:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Image identifier"
+                            f"Identifier image"
                         )
                     else:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
