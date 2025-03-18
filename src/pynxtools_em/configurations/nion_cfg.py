@@ -177,10 +177,10 @@ NION_DYNAMIC_LENS_NX: Dict[str, Any] = {
         )
     ],
     "map_to_f8": [
-        ("LENS_EM[lens1]/value", "C1 ConstW"),
-        ("LENS_EM[lens2]/value", "C2 ConstW"),
-        ("LENS_EM[lens3]/value", "C3 ConstW"),
-        ("LENS_EM[lens4]/value", "MajorOL"),
+        ("LENS_EM[lens1]/power_setting", "C1 ConstW"),
+        ("LENS_EM[lens2]/power_setting", "C2 ConstW"),
+        ("LENS_EM[lens3]/power_setting", "C3 ConstW"),
+        ("LENS_EM[lens4]/power_setting", "MajorOL"),
     ],
 }
 

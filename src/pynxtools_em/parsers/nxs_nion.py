@@ -504,8 +504,7 @@ class NionProjectParser:
                 else:
                     template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
                         offset
-                        * np.linspace(0, count - 1, num=count, endpoint=True)
-                        * step,
+                        + np.linspace(0, count - 1, num=count, endpoint=True) * step,
                         dtype=np.float32,
                     )
                     template[f"{trg}/AXISNAME[{axis_name}]/@units"] = (

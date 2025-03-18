@@ -183,8 +183,8 @@ class RsciioVeloxParser:
         ]:
             toggle = False
             if f"Optics/{lens_name}LensIntensity" in flat_orig_meta:
-                template[f"{trg}/LENS_EM[lens{lens_idx}]/value"] = string_to_number(
-                    flat_orig_meta[f"Optics/{lens_name}LensIntensity"]
+                template[f"{trg}/LENS_EM[lens{lens_idx}]/power_setting"] = (
+                    string_to_number(flat_orig_meta[f"Optics/{lens_name}LensIntensity"])
                 )
                 # TODO::unit?
                 toggle = True

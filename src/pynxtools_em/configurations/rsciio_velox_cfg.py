@@ -31,7 +31,7 @@ Concept names like Projector1Lens<term> and Projector2Lens<term> mean two differ
 of the same concept Projector*Lens<term> in NeXus this would become lens_em1(NXlens_em) name: projector, and field named <term>
 
 ("/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/LENS_EM[lens_em*]/name", "is", "C1"),
-("/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/LENS_EM[lens_em*]/value", "map_to_str", "Optics/C1LensIntensity"),
+("/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/LENS_EM[lens_em*]/power_setting", "map_to_str", "Optics/C1LensIntensity"),
 ("/ENTRY[entry*]/", "map_to_str", "Optics/C2LensIntensity")
 this can not work but has to be made explicit with an own function that is Velox
 MetadataSchema-version and NeXus NXem-schema-version-dependent for the lenses
