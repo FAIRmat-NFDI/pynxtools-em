@@ -451,6 +451,7 @@ class NionProjectParser:
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
             template[f"{trg}/real"] = {"compress": nparr, "strength": 1}
+            template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
             axis_names = NION_WHICH_IMAGE[unit_combination][1]
         elif not any(
             (value in ["1/", "iteration"]) for value in unit_combination.split(";")

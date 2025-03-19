@@ -74,7 +74,7 @@ TESCAN_DYNAMIC_STIGMATOR_NX: Dict[str, Any] = {
 
 
 TESCAN_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/STAGE_LAB[stage_lab]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/stage",
     "prefix_src": "",
     "map_to_f8": [
         ("rotation", ureg.radian, "StageRotation", ureg.degree),

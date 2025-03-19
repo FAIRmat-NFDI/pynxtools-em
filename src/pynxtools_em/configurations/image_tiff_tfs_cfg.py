@@ -32,7 +32,7 @@ TFS_STATIC_APERTURE_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/ebeam_column/APERTURE[aperture*]",
     "prefix_src": "",
     "map_to_str": [("description", "Beam/Aperture")],
-    "map_to_f8": [("value", ureg.meter, "EBeam/ApertureDiameter", ureg.meter)],
+    "map_to_f8": [("size", ureg.meter, "EBeam/ApertureDiameter", ureg.meter)],
 }
 
 
@@ -41,6 +41,7 @@ TFS_STATIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_src": "",
     "use": [("fabrication/vendor", "FEI")],
     "map_to_str": [
+        ("ebeam_column/APERTURE[aperture*]/name", "EBeam/Aperture"),
         ("fabrication/model", "System/SystemType"),
         ("fabrication/serial_number", "System/BuildNr"),
         ("ebeam_column/electron_source/emitter_type", "System/Source"),
@@ -95,10 +96,10 @@ TFS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_src": "",
     "map_to_str": [
         ("instrument/DETECTOR[detector*]/mode", "Detectors/Mode"),
-        ("instrument/ebeam_column/operation_mode", "EBeam/UseCase"),
-        ("instrument/ebeam_column/BEAM[beam]/image_mode", "Beam/ImageMode"),
-        ("instrument/ebeam_column/BEAM[beam]/mode", "EBeam/BeamMode"),
-        ("instrument/ebeam_column/APERTURE[aperture1]/name", "EBeam/Aperture"),
+        (
+            "instrument/ebeam_column/operation_mode",
+            ["EBeam/UseCase", "Beam/ImageMode", "EBeam/BeamMode", "Beam/Spot"],
+        ),
         ("event_type", "T1/Signal"),
         ("event_type", "T2/Signal"),
         ("event_type", "T3/Signal"),
@@ -106,11 +107,10 @@ TFS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
     ],
     "map_to_bool": [
         (
-            "instrument/optics/dynamic_focus",
+            "instrument/optics/dynamic_focus_correction",
             "EBeam/DynamicFocusIsOn",
         )
     ],
-    "map_to_u2": [("instrument/ebeam_column/BEAM[beam]/value", "Beam/Spot")],
     "map_to_f8": [
         (
             "instrument/ebeam_column/electron_source/voltage",
@@ -125,16 +125,10 @@ TFS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
             ureg.ampere,
         ),
         (
-            "instrument/ebeam_column/APERTURE[aperture1]/diameter",
+            "instrument/ebeam_column/APERTURE[aperture*]/size",
             ureg.meter,
             "EBeam/ApertureDiameter",
             ureg.meter,
-        ),
-        (
-            "instrument/ebeam_column/BEAM[beam]/current",
-            ureg.ampere,
-            "EBeam/BeamCurrent",
-            ureg.ampere,
         ),
     ],
 }

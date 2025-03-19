@@ -37,6 +37,13 @@ GATAN_WHICH_IMAGE = {
 }
 
 
+GATAN_STATIC_VARIOUS_NX: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/instrument/fabrication",
+    "prefix_src": "ImageList/TagGroup0/ImageTags/Microscope Info/",
+    "map_to_str": [("model", "Name")],
+}
+
+
 GATAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument",
     "prefix_src": "ImageList/TagGroup0/ImageTags/Microscope Info/",
@@ -82,14 +89,15 @@ GATAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
         # Cs(mm), Indicated Magnification, Magnification Interpolated, Formatted Actual Mag, Formatted Indicated Mag
     ],
     "map_to_str": [
-        ("optics/illumination_mode", "Illumination Mode"),
         (
-            "optics/illumination_submode",
-            "Illumination Sub-mode",
+            "ebeam_column/operation_mode",
+            [
+                "Illumination Mode",
+                "Illumination Sub-mode",
+                "Imaging Mode",
+                "Operation Mode Type",
+            ],
         ),
-        ("optics/imaging_mode", "Imaging Mode"),
-        ("optics/name", "Name"),
-        ("optics/operation_mode", ["Operation Mode", "Operation Mode Type"]),
     ],
 }
 

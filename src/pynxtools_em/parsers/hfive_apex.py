@@ -454,6 +454,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             ),
             "strength": 1,
         }
+        template[f"{trg}/image_2d/real"] = f"Real part of the image intensity"
         for dim_idx, dim in enumerate(["j", "i"]):
             qnt = ureg.Quantity(
                 np.asarray(

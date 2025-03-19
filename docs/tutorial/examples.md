@@ -19,16 +19,16 @@ structure as it is exemplified in the above-mentioned YAML file.
 **em.oasis.specific.yaml** is a YAML/text file which contains additional metadata and configuration details that are not necessarily
 defined via an ELN but which should be considered during parsing. One use case where this file is ideal is for passing frequent metadata
 that are often the same when using pynxtools-em. The oasis.specific config file can be used to offload once the entering of these
-pieces of information to render the ELN more succinct and focused on collecting those metadata that do change frequently. 
+pieces of information to render the ELN more succinct and focused on collecting those metadata that do change frequently.
 A typical example is a lab where one uses always the same microscope such that many (static) details of the microscope are expected
-to end up in the static section of the NXem application definition i.e. */NXem/ENTRY/measurement/em_lab*
+to end up in the static section of the NXem application definition i.e. */NXem/ENTRY/measurement/instrument*
 
 ## Documenting reference frame conventions
 Unambiguous and complete documentation of all reference frames used or assumed is a necessary requirement to make every study
 of crystal orientations understandable and interpretable.
 
 **em.conventions.schema.archive.yaml** is a YAML file representing a custom NOMAD Oasis ELN schema whereby users can document these conventions
-and export them into an eln_data.yaml file. 
+and export them into an eln_data.yaml file.
 
 **em.conventions.yaml** is an example of one such resulting YAML file that can be used as additional input to pynxtools-em
 to add respective conventions as additional content in the generated NeXus/HDF5 file.

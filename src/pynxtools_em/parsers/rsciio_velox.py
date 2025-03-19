@@ -274,6 +274,7 @@ class RsciioVeloxParser:
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
             template[f"{trg}/real"] = {"compress": obj["data"], "strength": 1}
+            template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
             axis_names = VELOX_WHICH_IMAGE[unit_combination][1]
         else:
             self.annotate_information_source(

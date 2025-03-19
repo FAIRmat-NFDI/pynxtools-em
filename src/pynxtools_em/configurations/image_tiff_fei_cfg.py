@@ -229,23 +229,18 @@ FEI_HELIOS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
             "Optics.GunTiltRaw.Y",
         ),
         (
-            "instrument/ebeam_column/APERTURE[aperture1]/diameter",
+            "instrument/ebeam_column/APERTURE[aperture*]/size",
             ureg.meter,
             "Optics.Apertures.Aperture.Diameter",
             ureg.meter,
         ),
-        (
-            "instrument/ebeam_column/BEAM[beam]/current",
-            ureg.ampere,
-            "OPtics.BeamCurrent",
-            ureg.ampere,
-        ),
-        (
-            "instrument/ebeam_column/BEAM[beam]/value",
-            ureg.meter,
-            "Optics.SpotSize",
-            ureg.meter,
-        ),
+        # (
+        #     "instrument/ebeam_column/BEAM[beam]/value",
+        #     ureg.meter,
+        #     "Optics.SpotSize",
+        #     ureg.meter,
+        # ),
+        # replace by beam diameter
     ],
 }
 

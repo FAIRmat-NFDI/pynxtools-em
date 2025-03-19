@@ -170,7 +170,7 @@ class PointElectronicTiffParser:
                     template[f"{trg}/@axes"].append(f"axis_{dim}")
                 template[f"{trg}/real"] = {"compress": np.array(fp), "strength": 1}
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
-                template[f"{trg}/real/@long_name"] = f"Signal"
+                template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
                 sxy = {"i": 1.0, "j": 1.0}
                 scan_unit = {"i": "m", "j": "m"}

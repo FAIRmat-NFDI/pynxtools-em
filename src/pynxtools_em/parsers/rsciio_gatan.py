@@ -27,6 +27,7 @@ from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pi
 from pynxtools_em.configurations.rsciio_gatan_cfg import (
     GATAN_DYNAMIC_STAGE_NX,
     GATAN_DYNAMIC_VARIOUS_NX,
+    GATAN_STATIC_VARIOUS_NX,
     GATAN_WHICH_IMAGE,
     GATAN_WHICH_SPECTRUM,
 )
@@ -118,7 +119,11 @@ class RsciioGatanParser:
         # steps required
         flat_metadata = fd.FlatDict(obj["original_metadata"], "/")
         identifier = [self.entry_id, self.id_mgn["event_id"], 1]
-        for cfg in [GATAN_DYNAMIC_STAGE_NX, GATAN_DYNAMIC_VARIOUS_NX]:
+        for cfg in [
+            GATAN_STATIC_VARIOUS_NX,
+            GATAN_DYNAMIC_STAGE_NX,
+            GATAN_DYNAMIC_VARIOUS_NX,
+        ]:
             add_specific_metadata_pint(cfg, flat_metadata, identifier, template)
         return template
 
@@ -183,6 +188,7 @@ class RsciioGatanParser:
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
             template[f"{trg}/real"] = {"compress": obj["data"], "strength": 1}
+            template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
             axis_names = GATAN_WHICH_IMAGE[unit_combination][1]
         else:
             self.annotate_information_source(

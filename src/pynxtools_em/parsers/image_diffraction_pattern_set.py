@@ -264,7 +264,7 @@ class DiffractionPatternSetParser:
         template[f"{trg}/@AXISNAME_indices[identifier_image_indices]"] = np.uint32(0)
         template[f"{trg}/@axes"] = ["identifier_image", "axis_j", "axis_i"]
         template[f"{trg}/real"] = {"compress": stack_2d, "strength": 1}
-        template[f"{trg}/real/@long_name"] = f"Signal"
+        template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
         niyx = {
             "identifier_image": np.shape(stack_2d)[0],
             "axis_j": np.shape(stack_2d)[1],
