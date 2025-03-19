@@ -128,15 +128,16 @@ class RsciioGatanParser:
         return template
 
     def annotate_information_source(
-        self, trg: str, file_path: str, checksum: str, template: dict
+        self, src: str, trg: str, file_path: str, checksum: str, template: dict
     ) -> dict:
         """Add from where the information was obtained."""
-        template[f"{trg}/PROCESS[process]/source/type"] = "file"
-        template[f"{trg}/PROCESS[process]/source/file_name"] = file_path
-        template[f"{trg}/PROCESS[process]/source/checksum"] = checksum
-        template[f"{trg}/PROCESS[process]/source/algorithm"] = (
-            DEFAULT_CHECKSUM_ALGORITHM
-        )
+        abbrev = "PROCESS[process]/source"
+        template[f"{trg}/{abbrev}/type"] = "file"
+        template[f"{trg}/{abbrev}/file_name"] = file_path
+        template[f"{trg}/{abbrev}/checksum"] = checksum
+        template[f"{trg}/{abbrev}/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
+        if src != "":
+            template[f"{trg}/{abbrev}/context"] = src
         return template
 
     def process_event_data_em_data(self, obj: dict, template: dict) -> dict:
@@ -167,6 +168,7 @@ class RsciioGatanParser:
         axis_names = None
         if unit_combination in GATAN_WHICH_SPECTRUM:
             self.annotate_information_source(
+                "",
                 f"{prfx}/SPECTRUM[spectrum1]",
                 self.file_path,
                 self.file_path_sha256,
@@ -176,9 +178,11 @@ class RsciioGatanParser:
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"intensity"
             template[f"{trg}/intensity"] = {"compress": obj["data"], "strength": 1}
+            template[f"{trg}/intensity/@long_name"] = f"Counts"
             axis_names = GATAN_WHICH_SPECTRUM[unit_combination][1]
         elif unit_combination in GATAN_WHICH_IMAGE:
             self.annotate_information_source(
+                "",
                 f"{prfx}/IMAGE[image1]",
                 self.file_path,
                 self.file_path_sha256,
@@ -192,7 +196,11 @@ class RsciioGatanParser:
             axis_names = GATAN_WHICH_IMAGE[unit_combination][1]
         else:
             self.annotate_information_source(
-                f"{prfx}/DATA[data1]", self.file_path, self.file_path_sha256, template
+                "",
+                f"{prfx}/DATA[data1]",
+                self.file_path,
+                self.file_path_sha256,
+                template,
             )
             trg = f"{prfx}/DATA[data1]"
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"

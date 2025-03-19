@@ -205,7 +205,10 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
     else:  # do an explicit type conversion
         # e.g. in cases when tech partner writes float32 but e.g. NeXus assumes float64
         if isinstance(src_val, str):
-            template[f"{trg}"] = f"{src_val}"
+            if trg_dtype != "bool":
+                template[f"{trg}"] = f"{src_val}"
+            else:
+                template[f"{trg}"] = try_interpret_as_boolean(src_val)
         elif isinstance(src_val, bool):
             template[f"{trg}"] = try_interpret_as_boolean(src_val)
         elif isinstance(src_val, ureg.Quantity):

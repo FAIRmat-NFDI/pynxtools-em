@@ -95,6 +95,9 @@ NION_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
         "metadata/instrument/autostem/ImageScanned/",
         "metadata/scan/scan_device_properties/ImageScanned:",
         "metadata/scan_detector/autostem/ImageScanned/",
+        "metadata/hardware_source/",
+        "metadata/scan/scan_device_parameters/",
+        "metadata/scan/scan_device_properties/",
     ],
     "map_to_f8": [
         ("ebeam_column/electron_source/voltage", ureg.volt, "EHT", ureg.volt),
@@ -122,6 +125,7 @@ NION_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
             "fov_nm",
             ureg.nanometer,
         ),
+        ("optics/rotation", ureg.radian, "rotation_rad", ureg.radian),
         # G_2Db, HAADF_Inner_ha, HAADF_Outer_ha, LastTuneCurrent, PMT2_gain, PMTBF_gain,PMTDF_gain
     ],
 }

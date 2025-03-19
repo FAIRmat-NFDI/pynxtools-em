@@ -31,12 +31,16 @@ HUMAN_BOOLEAN_STATEMENT = {
 }
 
 
-def try_interpret_as_boolean(arg: Any) -> bool:
+def try_interpret_as_boolean(arg: Any, probe=False):
     """Try to interpret a human string statement if boolean be strict."""
     if isinstance(arg, bool):
+        if probe is True:
+            return True
         return arg
     elif isinstance(arg, str):
         if arg.lower() in HUMAN_BOOLEAN_STATEMENT:
+            if probe is True:
+                return True
             return HUMAN_BOOLEAN_STATEMENT[arg.lower()]
         else:
             raise KeyError(

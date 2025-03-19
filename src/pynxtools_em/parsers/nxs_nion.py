@@ -445,6 +445,7 @@ class NionProjectParser:
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"intensity"
             template[f"{trg}/intensity"] = {"compress": nparr, "strength": 1}
+            template[f"{trg}/intensity/@long_name"] = f"Counts"
             axis_names = NION_WHICH_SPECTRUM[unit_combination][1]
         elif unit_combination in NION_WHICH_IMAGE:
             trg = f"{prfx}/IMAGE[image1]/{NION_WHICH_IMAGE[unit_combination][0]}"

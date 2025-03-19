@@ -443,9 +443,9 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         }
         # is micron because MicronsPerPixel{dim} used by EDAX
         trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/events/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/IMAGE[image{self.id_mgn['img_id']}]"
-        template[f"{trg}/PROCESS[process]/source/absolute_path"] = (
-            f"{self.prfx}/FOVIMAGE"
-        )
+        # TODO:: fill also type, file_name, checksum, algorithm of source(NXnote)
+        # abbrev = "PROCESS[process]/source"
+        # template[f"{trg}/{abbrev}/context"] = f"{self.prfx}/FOVIMAGE"
         template[f"{trg}/image_2d/@signal"] = "real"
         template[f"{trg}/image_2d/@axes"] = ["axis_j", "axis_i"]
         template[f"{trg}/image_2d/real"] = {
@@ -454,7 +454,9 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             ),
             "strength": 1,
         }
-        template[f"{trg}/image_2d/real"] = f"Real part of the image intensity"
+        template[f"{trg}/image_2d/real/@long_name"] = (
+            f"Real part of the image intensity"
+        )
         for dim_idx, dim in enumerate(["j", "i"]):
             qnt = ureg.Quantity(
                 np.asarray(
@@ -468,9 +470,11 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 "compress": qnt.magnitude,
                 "strength": 1,
             }
+            template[f"{trg}/image_2d/axis_{dim}/@units"] = f"{qnt.units}"
             template[f"{trg}/image_2d/axis_{dim}/@long_name"] = (
                 f"Point coordinate along axis-{dim} ({qnt.units})"
             )
+
             template[f"{trg}/image_2d/@AXISNAME_indices[axis_{dim}_indices]"] = (
                 np.uint32(dim_idx)
             )
@@ -494,7 +498,9 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 return template
 
         trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/events/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/SPECTRUM[spectrum{self.id_mgn['spc_id']}]"
-        template[f"{trg}/PROCESS[process]/source/absolute_path"] = f"{self.prfx}/SPC"
+        # TODO:: fill also type, file_name, checksum, algorithm of source(NXnote)
+        # abbrev = "PROCESS[process]/source"
+        # template[f"{trg}/{abbrev}/context"] = f"{self.prfx}/SPC"
         template[f"{trg}/spectrum_0d/@signal"] = "intensity"
         template[f"{trg}/spectrum_0d/@axes"] = ["axis_energy"]
         template[f"{trg}/spectrum_0d/@AXISNAME_indices[axis_energy_indices]"] = (
@@ -516,6 +522,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             .to(ureg.keV)
             .magnitude
         )
+        template[f"{trg}/spectrum_0d/axis_energy/@units"] = f"{ureg.keV}"
         template[f"{trg}/spectrum_0d/axis_energy/@long_name"] = f"Energy ({ureg.keV})"
         template[f"{trg}/spectrum_0d/intensity"] = {
             "compress": np.asarray(
@@ -589,11 +596,14 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             "i": ureg.Quantity(nxy["li"] / nxy["i"], ureg.millimeter),
             "j": ureg.Quantity(nxy["lj"] / nxy["j"], ureg.millimeter),
         }
+        atom_types = set()
         for pair in pairs:
-            trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/ROI[roi{self.id_mgn['roi_id']}]/eds/indexing/IMAGE[{pair[0 : pair.find(' ')]}]"
-            template[f"{trg}/PROCESS[process]/source/absolute_path"] = (
-                f"{self.prfx}/ROIs/{pair}"
-            )
+            element = pair[0 : pair.find(" ")]
+            atom_types.add(element)
+            trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/ROI[roi{self.id_mgn['roi_id']}]/eds/indexing/IMAGE[{element}]"
+            # TODO:: fill also type, file_name, checksum, algorithm of source(NXnote)
+            # abbrev = "PROCESS[process]/source"
+            # template[f"{trg}/{abbrev}/context"] = f"{self.prfx}/ROIs/{pair}"
             # this can be a custom name e.g. InL or In L but it is not necessarily
             # a clean description of an element plus a IUPAC line, hence get all
             # theoretical candidates within integrated energy region [e_roi_s, e_roi_e]
@@ -619,6 +629,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 "compress": np.asarray(fp[f"{self.prfx}/ROIs/{pair}.dat"]),
                 "strength": 1,
             }
+            template[f"{trg}/image_2d/intensity/@long_name"] = f"Counts"
             for dim_idx, dim in enumerate(["i", "j"]):
                 qnt = ureg.Quantity(
                     np.asarray(
@@ -640,6 +651,10 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                     f"Point coordinate along the {dim}-axis ({qnt.units})"
                 )
                 template[f"{trg}/image_2d/axis_{dim}/@units"] = f"{qnt.units}"
+        if len(atom_types) > 0:
+            template[
+                f"/ENTRY[entry{self.id_mgn['entry_id']}]/ROI[roi{self.id_mgn['roi_id']}]/eds/indexing/atom_types"
+            ] = ", ".join(list(atom_types))
         return template
 
     # TODO::these functions were deactivated as they have few examples and have not been
@@ -724,7 +739,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         self.spc["spectrum_1d/intensity"] = np.asarray(
             fp[f"{self.prfx}/LSD"][0], np.int32
         )
-        self.spc["spectrum_1d/intensity/@long_name"] = f"Count"
+        self.spc["spectrum_1d/intensity/@long_name"] = f"Counts"
 
     def parse_and_normalize_eds_spd(self, fp):
         """Normalize and scale APEX-specific spectrum cuboid to NeXus."""

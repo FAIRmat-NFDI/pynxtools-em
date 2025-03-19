@@ -102,9 +102,10 @@ def microstructure_to_template(
     del is_consistent
 
     trg = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/img"
+    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/img/IMAGE[image{id_mgn['img_id']}]"
     template[f"{trg}/imaging_mode"] = f"secondary_electron"
 
-    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/img/IMAGE[image{id_mgn['img_id']}]/MICROSTRUCTURE[microstructure1]/chemical_composition"
+    trg += f"/MICROSTRUCTURE[microstructure1]/chemical_composition"
     inform_about_atom_types = set()
     for symbol in ctable:
         if (
@@ -121,6 +122,11 @@ def microstructure_to_template(
             inform_about_atom_types.add(symbol)
     if len(inform_about_atom_types) > 0:
         template[f"{trg}/normalization"] = "weight_percent"
+
+    if f"/ENTRY[entry{id_mgn['entry_id']}]/sample/atom_types" not in template:
+        template[f"/ENTRY[entry{id_mgn['entry_id']}]/sample/atom_types"] = ", ".join(
+            list(inform_about_atom_types)
+        )
 
     trg = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/img/IMAGE[image{id_mgn['img_id']}]/MICROSTRUCTURE[microstructure1]/crystals"
     template[f"{trg}/number_of_crystals"] = np.uint32(n_cryst)

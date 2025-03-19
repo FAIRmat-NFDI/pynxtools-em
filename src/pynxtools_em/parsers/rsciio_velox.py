@@ -262,6 +262,7 @@ class RsciioVeloxParser:
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"intensity"
             template[f"{trg}/intensity"] = {"compress": obj["data"], "strength": 1}
+            template[f"{trg}/intensity/@long_name"] = f"Counts"
             axis_names = VELOX_WHICH_SPECTRUM[unit_combination][1]
         elif unit_combination in VELOX_WHICH_IMAGE:
             self.annotate_information_source(

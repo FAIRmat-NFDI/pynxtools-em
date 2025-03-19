@@ -43,8 +43,14 @@ class NxEmDefaultPlotResolver:
         path = nxpath.split("/")
         trg = "/"
         for idx in np.arange(0, len(path) - 1):
-            template[f"{trg}@default"] = f"{path[idx + 1]}"
-            trg += f"{path[idx + 1]}/"
+            symbol_s = path[idx + 1].find("[")
+            symbol_e = path[idx + 1].find("]")
+            if 0 <= symbol_s < symbol_e:
+                template[f"{trg}@default"] = f"{path[idx + 1][symbol_s + 1 : symbol_e]}"
+                trg += f"{path[idx + 1]}/"
+            else:
+                template[f"{trg}@default"] = f"{path[idx + 1]}"
+                trg += f"{path[idx + 1]}/"
         return template
 
     def priority_select(self, template: dict, entry_id: int = 1) -> dict:

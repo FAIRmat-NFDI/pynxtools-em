@@ -156,16 +156,17 @@ class EMReader(BaseReader):
                 parser.parse(template)
 
         nxplt = NxEmDefaultPlotResolver()
-        nxplt.priority_select(template)
+        nxplt.priority_select(template, entry_id)
 
         smpl = NxEmAtomTypesResolver(entry_id)
         smpl.identify_atomtypes(template)
 
-        debugging = False
+        debugging = True
         if debugging:
             print("Reporting state of template before passing to HDF5 writing...")
             for keyword, value in sorted(template.items()):
-                print(f"{keyword}____{type(value)}")
+                if keyword.endswith("dynamic_focus_correction"):
+                    print(f"{keyword}____{type(value)}____{value}")
 
         print("Forward instantiated template to the NXS writer...")
         toc = perf_counter_ns()
