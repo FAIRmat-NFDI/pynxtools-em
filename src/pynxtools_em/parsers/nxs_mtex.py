@@ -97,7 +97,7 @@ class NxEmNxsMTexParser:
         """Parse MTex content."""
         print("Parse MTex content...")
         with h5py.File(self.file_path, "r") as h5r:
-            src = "/entry1/roi1/ebsd/indexing1/mtex"
+            src = "/entry1/roi1/ebsd/indexing/mtex"
             trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/mtex"
             template[f"{trg}/@NX_class"] = (
                 "NXms_mtex_config"  # TODO::should be made part of NXem
@@ -166,10 +166,6 @@ class NxEmNxsMTexParser:
             for idx in [1, 2]:
                 if f"{src}/program{idx}/program" in h5r:
                     grp = h5r[f"{src}/program{idx}"]
-                    if "NX_class" in grp.attrs:
-                        template[f"{trg}/PROGRAM[program{idx}]/@NX_class"] = grp.attrs[
-                            "NX_class"
-                        ]  # TODO::should be made part of NXem
                     dst = h5r[f"{src}/program{idx}/program"]
                     template[f"{trg}/PROGRAM[program{idx}]/program"] = (
                         hfive_to_template(dst)
@@ -184,15 +180,11 @@ class NxEmNxsMTexParser:
         """Parse various quantities."""
         print("Parse various...")
         with h5py.File(self.file_path, "r") as h5r:
-            src = "/entry1/roi1/ebsd/indexing1"
+            src = "/entry1/roi1/ebsd/indexing"
             trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing"
             if f"{src}" not in h5r:
                 return template
             grp = h5r[f"{src}"]
-            if "NX_class" in grp.attrs:
-                template[f"{trg}/@NX_class"] = grp.attrs[
-                    "NX_class"
-                ]  # TODO::should be made part of NXem
             for dst_name in ["indexing_rate", "number_of_scan_points"]:
                 if f"{src}/{dst_name}" in h5r:
                     dst = h5r[f"{src}/{dst_name}"]
@@ -210,12 +202,12 @@ class NxEmNxsMTexParser:
             # ideally self.hfive_deep_copy(h5r, src, trg, template) at some point
             # but template uses NeXus template path names
             # and HDF5 src has HDF5 instance names
-            src = "/entry1/roi1/ebsd/indexing1/roi"
+            src = "/entry1/roi1/ebsd/indexing/roi"
             trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/roi"
             if f"{src}" not in h5r:
                 return template
             grp = h5r[f"{src}"]
-            attrs = ["NX_class", "axes", "axis_x_indices", "axis_y_indices", "signal"]
+            attrs = ["axes", "axis_x_indices", "axis_y_indices", "signal"]
             for attr_name in attrs:
                 if attr_name in grp.attrs:
                     template[f"{trg}/@{attr_name}"] = grp.attrs[attr_name]
@@ -246,7 +238,7 @@ class NxEmNxsMTexParser:
         """Parse data for the region-of-interest default plot."""
         print("Parse phases...")
         with h5py.File(self.file_path, "r") as h5r:
-            src = "/entry1/roi1/ebsd/indexing1"
+            src = "/entry1/roi1/ebsd/indexing"
             trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/PHASE"
             if f"{src}" not in h5r:
                 return template
@@ -254,11 +246,6 @@ class NxEmNxsMTexParser:
                 if re.match("phase[0-9]+", grp_name) is None:
                     continue
                 grp = h5r[f"{src}/{grp_name}"]
-                if "NX_class" in grp.attrs:
-                    template[f"{trg}[{grp_name}]/@NX_class"] = grp.attrs[
-                        "NX_class"
-                    ]  # TODO::should be made part of NXem
-
                 for dst_name in [
                     "number_of_scan_points",
                     "identifier_phase",
@@ -286,7 +273,7 @@ class NxEmNxsMTexParser:
 
     def parse_phase_ipf(self, h5r, phase: str, template: dict) -> dict:
         for ipfid in [1, 2, 3]:  # by default MTex reports three IPFs
-            src = f"/entry1/roi1/ebsd/indexing1/{phase}/ipf{ipfid}"
+            src = f"/entry1/roi1/ebsd/indexing/{phase}/ipf{ipfid}"
             trg = (
                 f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/"
                 f"PHASE[{phase}]/IPF[ipf{ipfid}]"
@@ -298,13 +285,7 @@ class NxEmNxsMTexParser:
             for nxdata in ["legend", "map"]:
                 if f"{src}/{nxdata}" in h5r:
                     grp = h5r[f"{src}/{nxdata}"]
-                    attrs = [
-                        "NX_class",
-                        "axes",
-                        "axis_x_indices",
-                        "axis_y_indices",
-                        "signal",
-                    ]
+                    attrs = ["axes", "axis_x_indices", "axis_y_indices", "signal"]
                     for attr_name in attrs:
                         if attr_name in grp.attrs:
                             template[f"{trg}/{nxdata}/@{attr_name}"] = grp.attrs[
