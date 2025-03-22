@@ -444,7 +444,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         # is micron because MicronsPerPixel{dim} used by EDAX
         trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/events/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/IMAGE[image{self.id_mgn['img_id']}]"
         # TODO:: fill also type, file_name, checksum, algorithm of source(NXnote)
-        # abbrev = "PROCESS[process]/source"
+        # abbrev = "PROCESS[process]/input"
         # template[f"{trg}/{abbrev}/context"] = f"{self.prfx}/FOVIMAGE"
         template[f"{trg}/image_2d/@signal"] = "real"
         template[f"{trg}/image_2d/@axes"] = ["axis_j", "axis_i"]
@@ -499,7 +499,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
 
         trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/events/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/SPECTRUM[spectrum{self.id_mgn['spc_id']}]"
         # TODO:: fill also type, file_name, checksum, algorithm of source(NXnote)
-        # abbrev = "PROCESS[process]/source"
+        # abbrev = "PROCESS[process]/input"
         # template[f"{trg}/{abbrev}/context"] = f"{self.prfx}/SPC"
         template[f"{trg}/spectrum_0d/@signal"] = "intensity"
         template[f"{trg}/spectrum_0d/@axes"] = ["axis_energy"]
@@ -602,7 +602,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             atom_types.add(element)
             trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/ROI[roi{self.id_mgn['roi_id']}]/eds/indexing/IMAGE[{element}]"
             # TODO:: fill also type, file_name, checksum, algorithm of source(NXnote)
-            # abbrev = "PROCESS[process]/source"
+            # abbrev = "PROCESS[process]/input"
             # template[f"{trg}/{abbrev}/context"] = f"{self.prfx}/ROIs/{pair}"
             # this can be a custom name e.g. InL or In L but it is not necessarily
             # a clean description of an element plus a IUPAC line, hence get all

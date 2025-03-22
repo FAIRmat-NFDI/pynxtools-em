@@ -131,7 +131,7 @@ class RsciioGatanParser:
         self, src: str, trg: str, file_path: str, checksum: str, template: dict
     ) -> dict:
         """Add from where the information was obtained."""
-        abbrev = "PROCESS[process]/source"
+        abbrev = "PROCESS[process]/input"
         template[f"{trg}/{abbrev}/type"] = "file"
         template[f"{trg}/{abbrev}/file_name"] = file_path
         template[f"{trg}/{abbrev}/checksum"] = checksum

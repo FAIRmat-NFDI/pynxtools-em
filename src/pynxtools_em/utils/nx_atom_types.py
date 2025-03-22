@@ -58,6 +58,6 @@ class NxEmAtomTypesResolver:
                         if symbol in chemical_symbols[1::]:
                             atom_types.add(symbol)
         if len(atom_types) > 0:
-            trg = f"/ENTRY[entry{self.entry_id}]/sample/atom_types"
+            trg = f"/ENTRY[entry{self.entry_id}]/SAMPLE[sample]/atom_types"
             template[trg] = ", ".join(list(atom_types))
         return template

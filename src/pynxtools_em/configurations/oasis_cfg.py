@@ -23,7 +23,7 @@ from typing import Any, Dict
 # f"{dt.datetime.now(dt.timezone.utc).isoformat().replace('+00:00', 'Z')}",
 
 OASISCFG_EM_CSYS_TO_NEXUS: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/coordinate_system_set/COORDINATE_SYSTEM[coordinate_system*]",
+    "prefix_trg": "/ENTRY[entry*]/COORDINATE_SYSTEM[coordinate_system*]",
     "prefix_src": "",
     "map_to_str": [
         "alias",

@@ -10,7 +10,7 @@ definitions:
           reader: em
           nxdl: NXem
         eln:
-          hide: []
+          hide: ['nxdl', 'reader']
       sub_sections:
         entry:
           section:
@@ -51,12 +51,12 @@ definitions:
                 m_annotations:
                   eln:
                     component: RichTextEditQuantity
-              file_from_the_microscope:
+              file_with_data_from_the_microscope:
                 type: str
                 description: |
                   A reference to an uploaded file with the data from the
                   microscope session that the parser should process.
-
+                  
                   Typically these are files with proprietary formatting.
                 m_annotations:
                   eln:

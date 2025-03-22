@@ -202,12 +202,12 @@ class DiffractionPatternSetParser:
         self, template: dict, meta: dict, stack_2d: np.ndarray
     ) -> dict:
         """Add respective heavy data."""
-        trg = f"/ENTRY[entry{self.entry_id}]/OBJECT[simulation1]"
+        trg = f"/ENTRY[entry{self.entry_id}]/SIMULATION[simulation1]"
         template[f"{trg}/PROGRAM[program1]/program"] = "EMsoft"
         template[f"{trg}/PROGRAM[program1]/program/@version"] = (
             "not reported in the paper"
         )
-        trg = f"/ENTRY[entry{self.entry_id}]/OBJECT[simulation1]/config"
+        trg = f"/ENTRY[entry{self.entry_id}]/SIMULATION[simulation1]/config"
         for concept in [
             "emmet_version",
             "pymatgen_version",
@@ -238,23 +238,23 @@ class DiffractionPatternSetParser:
 
         # TODO::requery MaterialsProject to get missing information chemical_formula
         if "atom_types" in meta:
-            template[f"/ENTRY[entry{self.entry_id}]/sample/atom_types"] = meta[
+            template[f"/ENTRY[entry{self.entry_id}]/SAMPLE[sample]/atom_types"] = meta[
                 "atom_types"
             ]
         if "chemical_formula" in meta:
-            template[f"/ENTRY[entry{self.entry_id}]/sample/chemical_formula"] = meta[
-                "chemical_formula"
-            ]
+            template[
+                f"/ENTRY[entry{self.entry_id}]/SAMPLE[sample]/chemical_formula"
+            ] = meta["chemical_formula"]
             # TODO::needs to be Hill
 
-        trg = f"/ENTRY[entry{self.entry_id}]/OBJECT[simulation1]/results/IMAGE[image1]/stack_2d"
+        trg = f"/ENTRY[entry{self.entry_id}]/SIMULATION[simulation1]/results/IMAGE[image1]/stack_2d"
         if "identifier/identifier" in meta and "phase_name" in meta:
             template[f"{trg}/title"] = (
                 f"{meta['identifier/identifier']}, {meta['phase_name']}"
             )
         else:
             template[f"{trg}/title"] = f"MaterialsProject ID was not API-retrievable"
-        # trg = f"/ENTRY[entry{self.entry_id}]/simulation/config/PHASE[phase1]"
+        # trg = f"/ENTRY[entry{self.entry_id}]/SIMULATION[simulation1]/config/PHASE[phase1]"
         # template[f"{trg}/@NX_class"] = "NXphase"  # TODO::should be made part of NXem
         # trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/PHASE[phase1]"
         # template[f"{trg}/@NX_class"] = "NXdata"  # TODO::should be made part of NXem

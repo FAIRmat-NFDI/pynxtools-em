@@ -22,7 +22,7 @@ phases used for indexing almost never documented the exact atomic coordinates va
 of and all details to the atomic motif and crystal structures explicitly. Instead,
 free-text, elements, mineral names, fragments of chemical formulas, names of
 mineral groups or rocks are used. The dict maps from these NXphase/name
-onto the set of NXem/ENTRY/sample/atom_types.
+onto the set of NXem/ENTRY/SAMPLE[sample]/atom_types.
 """
 
 FREE_TEXT_TO_CONCEPT = {

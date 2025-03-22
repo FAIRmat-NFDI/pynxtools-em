@@ -20,8 +20,8 @@
 from typing import Any, Dict
 
 CONV_ROTATIONS_TO_NEXUS: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/coordinate_system_set",
-    "prefix_src": "rotation_conventions/",
+    "prefix_trg": "/ENTRY[entry*]/consistent_rotations]",
+    "prefix_src": "consistent_rotations/",
     "map_to_str": [
         "rotation_handedness",
         "rotation_convention",
@@ -33,7 +33,7 @@ CONV_ROTATIONS_TO_NEXUS: Dict[str, Any] = {
 
 
 CONV_PROCESSING_CSYS_TO_NEXUS: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/coordinate_system_set/processing_reference_frame",
+    "prefix_trg": "/ENTRY[entry*]/processing_reference_frame",
     "prefix_src": "processing_reference_frame/",
     "map_to_str": [
         "type",
@@ -50,7 +50,7 @@ CONV_PROCESSING_CSYS_TO_NEXUS: Dict[str, Any] = {
 
 
 CONV_SAMPLE_CSYS_TO_NEXUS: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/coordinate_system_set/sample_reference_frame",
+    "prefix_trg": "/ENTRY[entry*]/sample_reference_frame",
     "prefix_src": "sample_reference_frame/",
     "map_to_str": [
         "type",
@@ -67,7 +67,7 @@ CONV_SAMPLE_CSYS_TO_NEXUS: Dict[str, Any] = {
 
 
 CONV_DETECTOR_CSYS_TO_NEXUS: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/coordinate_system_set/COORDINATE_SYSTEM[detector_reference_frame1]",
+    "prefix_trg": "/ENTRY[entry*]/COORDINATE_SYSTEM[detector_reference_frame1]",
     "prefix_src": "detector_reference_frame/",
     "map_to_str": [
         "type",

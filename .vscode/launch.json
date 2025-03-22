@@ -10,13 +10,21 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "../../.py3.11.11/bin/dataconverter",
-            "args": ["tests/data/eln/eln_data.yaml",
-                     "tests/data/eln/em.oasis.specific.yaml",
+            "args": [//"tests/data/eln/eln_data.yaml",
+                     //"tests/data/eln/em.oasis.specific.yaml",
+                     //"tests/data/conventions/em.conventions.yaml",
+                     //"tests/data/image_diffraction_pattern/original_data.zip",
+                     //"tests/data/image_tfs/T3_image.tif",
+                     "tests/data/image_fei_legacy/SEM_Image_-_SliceImage_-_109.tif",
                      "--reader",
                      "em",
                      "--nxdl",
                      "NXem",
-                     "--output=tests/prod/data.eln.eln_data.yaml.nxs"]
+                     "--output=tests/prod/data.image_fei_legacy.SEM_Image_-_SliceImage_-_109.tif.nxs"]
+                     //"--output=tests/prod/data.image_tfs.T3_image.tif.nxs"]
+                     //"--output=tests/prod/data.eln.eln_data.yaml.nxs"]
+                     //"--output=tests/prod/data.image_diffraction_pattern.original_data.zip.nxs",
+                     //"--output=tests/prod/data.conventions.em.conventions.yaml.nxs"]
         }
     ]
 }
