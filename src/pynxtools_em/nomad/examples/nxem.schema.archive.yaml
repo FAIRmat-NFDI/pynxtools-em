@@ -1,15 +1,3 @@
-# https://fairmat-nfdi.github.io/nexus_definitions/classes/contributed_definitions/NXem.html#nxem
-# pynxtools-em implements a multi-format-capable reader whose design strategy is to work towards
-# that injection of metadata via an ELN should be reduced to the minimum amount of work possible
-# as proprietary file formats typically include already a substantial amount of contextualization of the
-# microscope session and thus there should not be a need that users have to enter these pieces
-# of information again
-# the em reader accepts customizable yaml documents that can be used to inject metadata
-# that are specific to a microscope also to reduce the pieces of information which users need
-# to enter into the ELN
-# many electron microscopy labs have ELN solutions running the data inputted into these
-# should be parsed rather directly to the em reader rather than by reengineering a NOMAD OASIS
-# ELN template like the one here
 definitions:
   name: 'em'
   sections:
@@ -20,9 +8,9 @@ definitions:
       m_annotations:
         template:
           reader: em
-          nxdl: NXem.nxdl
+          nxdl: NXem
         eln:
-          hide: []
+          hide: ['nxdl', 'reader']
       sub_sections:
         entry:
           section:
@@ -72,15 +60,14 @@ definitions:
               eln:
                 overview: true
             quantities:
-              method:
-                type:
-                  type_kind: Enum
-                  type_data:
-                    - experiment
-                    - simulation
+              is_simulation:
+                type: bool
+                description: |
+                  False, if working with a real sample.
+                  True, if performing a simulation for a sample.
                 m_annotations:
                   eln:
-                    component: RadioEnumEditQuantity
+                    component: BoolEditQuantity
               name:
                 type: str
                 description: |
@@ -91,9 +78,8 @@ definitions:
               preparation_date:
                 type: Datetime
                 description: |
-                  ISO 8601 time code with local time zone offset to UTC information when
-                  the measured specimen surface was last actively prepared before
-                  loading the sample into the microscope.
+                  ISO 8601 time code with local time zone offset to UTC
+                  information when the specimen was prepared.
                 m_annotations:
                   eln:
                     component: DateTimeEditQuantity
@@ -102,6 +88,14 @@ definitions:
                 description: |
                   List of comma-separated elements from the periodic
                   table that are contained in the sample.
+                m_annotations:
+                  eln:
+                    component: StringEditQuantity
+              chemical_formula:
+                type: str
+                description: |
+                  The chemical formula specified using CIF conventions.
+                  This is the Hill system used by Chemical Abstracts.
                 m_annotations:
                   eln:
                     component: StringEditQuantity
@@ -114,7 +108,7 @@ definitions:
                 m_annotations:
                   eln:
                     component: NumberEditQuantity
-                    defaultDisplayUnit: micrometer
+                    defaultDisplayUnit: nanometer
                     minValue: 0.0
               description:
                 type: str
