@@ -228,7 +228,9 @@ class ProtochipsPngSetParser:
             print(f"Flattening XML metadata content {self.file_path}:{file} failed !")
 
     def get_file_hash(self, file, fp):
-        self.dict_meta[file]["sha256"] = get_sha256_of_file_content(fp)
+        self.dict_meta[file][DEFAULT_CHECKSUM_ALGORITHM] = get_sha256_of_file_content(
+            fp
+        )
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""

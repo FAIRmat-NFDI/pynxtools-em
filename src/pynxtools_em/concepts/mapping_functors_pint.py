@@ -24,7 +24,10 @@ import flatdict as fd
 import numpy as np
 import pytz
 
-from pynxtools_em.utils.get_file_checksum import get_sha256_of_file_content
+from pynxtools_em.utils.get_file_checksum import (
+    DEFAULT_CHECKSUM_ALGORITHM,
+    get_sha256_of_file_content,
+)
 from pynxtools_em.utils.interpret_boolean import try_interpret_as_boolean
 from pynxtools_em.utils.pint_custom_unit_registry import is_not_special_unit, ureg
 from pynxtools_em.utils.string_conversions import rchop
@@ -472,7 +475,7 @@ def filehash_functor(
                         template[f"{fragment}checksum"] = get_sha256_of_file_content(fp)
                         template[f"{fragment}type"] = "file"
                         template[f"{fragment}file_name"] = mdata[f"{prfx_src}{cmd[1]}"]
-                        template[f"{fragment}algorithm"] = "sha256"
+                        template[f"{fragment}algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
                 except (FileNotFoundError, IOError):
                     print(f"File {mdata[f'''{prfx_src}{cmd[1]}''']} not found !")
     return template
@@ -536,9 +539,14 @@ def add_specific_metadata_pint(
                 timestamp_functor(
                     cfg["unix_to_iso8601"], mdata, prefix_src, prefix_trg, ids, template
                 )
-            elif functor_key == "sha256":
+            elif functor_key == DEFAULT_CHECKSUM_ALGORITHM:
                 filehash_functor(
-                    cfg["sha256"], mdata, prefix_src, prefix_trg, ids, template
+                    cfg[DEFAULT_CHECKSUM_ALGORITHM],
+                    mdata,
+                    prefix_src,
+                    prefix_trg,
+                    ids,
+                    template,
                 )
             else:
                 raise KeyError(f"Unexpected functor_key {functor_key} !")

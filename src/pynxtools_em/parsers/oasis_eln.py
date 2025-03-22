@@ -21,6 +21,7 @@ import pathlib
 
 import flatdict as fd
 import yaml
+from ase.data import chemical_symbols
 
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.eln_cfg import (
@@ -76,6 +77,7 @@ class NxEmNomadOasisElnSchemaParser:
             )
             self.parse_entry(template)
             self.parse_sample(template)
+            self.parse_atom_types(template)
             self.parse_user(template)
         return template
 
@@ -93,6 +95,29 @@ class NxEmNomadOasisElnSchemaParser:
         add_specific_metadata_pint(
             OASISELN_EM_SAMPLE_TO_NEXUS, self.flat_metadata, identifier, template
         )
+        return template
+
+    def parse_atom_types(self, template: dict) -> dict:
+        """Copy preferentially chemical_formula if provided, atom_types optional fallback."""
+        trg = f"/ENTRY[entry{self.entry_id}]/SAMPLE[sample]"
+        src = "sample/chemical_formula"
+        if src in self.flat_metadata:
+            if self.flat_metadata[src] != "":
+                # assume the chemical formula follows Hill convention
+                # NOMAD will check during parsing and normalization
+                template[f"{trg}/chemical_formula"] = self.flat_metadata[src]
+                return template
+
+        src = "sample/atom_types"
+        if src in self.flat_metadata:
+            unique_elements = set()
+            for token in self.flat_metadata[src].split(","):
+                symbol = token.strip()
+                if symbol in chemical_symbols[1::]:
+                    unique_elements.add(symbol)
+                # silently ignoring all incorrect user input
+            if len(unique_elements) > 0:
+                template[f"{trg}/atom_types"] = ", ".join(list(unique_elements))
         return template
 
     def parse_user(self, template: dict) -> dict:

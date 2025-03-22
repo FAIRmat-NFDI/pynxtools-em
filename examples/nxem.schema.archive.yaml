@@ -51,16 +51,6 @@ definitions:
                 m_annotations:
                   eln:
                     component: RichTextEditQuantity
-              file_with_data_from_the_microscope:
-                type: str
-                description: |
-                  A reference to an uploaded file with the data from the
-                  microscope session that the parser should process.
-                  
-                  Typically these are files with proprietary formatting.
-                m_annotations:
-                  eln:
-                    component: FileEditQuantity  # A form field that allows to drop and select files.
 
         sample:
           section:
@@ -101,6 +91,14 @@ definitions:
                 m_annotations:
                   eln:
                     component: StringEditQuantity
+              chemical_formula:
+                type: str
+                description: |
+                  The chemical formula specified using CIF conventions.
+                  This is the Hill system used by Chemical Abstracts.
+                m_annotations:
+                  eln:
+                    component: StringEditQuantity
               thickness:
                 type: np.float64
                 unit: micrometer
@@ -110,7 +108,7 @@ definitions:
                 m_annotations:
                   eln:
                     component: NumberEditQuantity
-                    defaultDisplayUnit: micrometer
+                    defaultDisplayUnit: nanometer
                     minValue: 0.0
               description:
                 type: str

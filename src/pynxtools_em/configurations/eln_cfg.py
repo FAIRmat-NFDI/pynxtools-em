@@ -38,7 +38,6 @@ OASISELN_EM_SAMPLE_TO_NEXUS: Dict[str, Any] = {
     "prefix_src": "sample/",
     "map_to_str": [
         "name",
-        "atom_types",
         "preparation_date",
         ("type", "method"),
     ],
