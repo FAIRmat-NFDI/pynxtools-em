@@ -40,7 +40,7 @@ class NxEmAtomTypesResolver:
         for key, free_text in template.items():
             if (
                 re.match(
-                    rf"^/ENTRY\[entry{self.entry_id}\]/ROI\[roi1\]/ebsd/indexing/PHASE\[phase[0-9]+\]/phase_name",
+                    rf"^/ENTRY\[entry{self.entry_id}\]/ROI\[roi1\]/ebsd/indexing/PHASE\[phase[0-9]+\]/name",
                     key,
                 )
                 is None
