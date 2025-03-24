@@ -479,28 +479,38 @@ class NionProjectParser:
 
             for idx, axis in enumerate(axes):
                 axis_name = axis_names[idx]
-                axis_dtype = np.float32
-                if axis_name in ["identifier_image", "identifier_spectrum"]:
-                    axis_dtype = np.int32
                 offset = axis["offset"]
                 step = axis["scale"]
                 units = axis["units"]
                 count = np.shape(nparr)[idx]
                 if units == "":
-                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
-                        offset
-                        + np.linspace(0, count - 1, num=count, endpoint=True) * step,
-                        dtype=axis_dtype,
-                    )
                     if unit_combination in NION_WHICH_SPECTRUM:
+                        template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
+                            offset
+                            + np.linspace(0, count - 1, num=count, endpoint=True)
+                            * step,
+                            dtype=np.int32,
+                        )
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
                             f"Identifier spectrum"
                         )
                     elif unit_combination in NION_WHICH_IMAGE:
+                        template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
+                            offset
+                            + np.linspace(0, count - 1, num=count, endpoint=True)
+                            * step,
+                            dtype=np.int32,
+                        )
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
                             f"Identifier image"
                         )
                     else:
+                        template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
+                            offset
+                            + np.linspace(0, count - 1, num=count, endpoint=True)
+                            * step,
+                            dtype=np.float32,
+                        )
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
                             f"{axis_name}"
                             # unitless | dimensionless i.e. no unit in longname
@@ -509,7 +519,7 @@ class NionProjectParser:
                     template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
                         offset
                         + np.linspace(0, count - 1, num=count, endpoint=True) * step,
-                        dtype=axis_dtype,
+                        dtype=np.float32,
                     )
                     template[f"{trg}/AXISNAME[{axis_name}]/@units"] = (
                         f"{ureg.Unit(units)}"
