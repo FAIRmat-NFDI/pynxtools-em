@@ -40,15 +40,15 @@ def specific_to_variadic(token):
 
 
 AXON_STATIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/STAGE_LAB[stage_lab]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/instrument/stage",
     "prefix_src": "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.",
     "use": [("design", "heating_chip")],
-    "map": [("alias", "Name")],
+    "map_to_str": [("alias", "Name")],
 }
 
 
 AXON_STATIC_DETECTOR_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/detectorID[detector*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/instrument/DETECTOR[detector*]",
     "prefix_src": "",
     "use": [
         (
@@ -60,7 +60,7 @@ AXON_STATIC_DETECTOR_NX: Dict[str, Any] = {
 
 
 AXON_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/stage",
     "prefix_src": "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.",
     "map_to_f8": [
         ("position", ureg.meter, ["X", "Y", "Z"], ureg.meter)
@@ -69,64 +69,55 @@ AXON_DYNAMIC_STAGE_NX: Dict[str, Any] = {
 
 
 AXON_DYNAMIC_CHIP_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/heater",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/stage/sample_heater",
     "prefix_src": "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].",
+    "use": [("physical_quantity", "temperature")],
     "map_to_f8": [
-        ("current", ureg.ampere, "HeatingCurrent", ureg.ampere),
-        ("power", ureg.watt, "HeatingPower", ureg.watt),
-        ("voltage", ureg.volt, "HeatingVoltage", ureg.volt),
+        ("heater_current", ureg.ampere, "HeatingCurrent", ureg.ampere),
+        ("heater_power", ureg.watt, "HeatingPower", ureg.watt),
+        ("heater_voltage", ureg.volt, "HeatingVoltage", ureg.volt),
     ],
 }
 
 
 AXON_DYNAMIC_AUX_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/ebeam_column",
     "prefix_src": "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].",
     "use": [
-        ("sensorID[sensor1]/measurement", "temperature"),
-        ("sensorID[sensor2]/measurement", "pressure"),
+        ("SENSOR[sensor1]/measurement", "temperature"),
+        ("SENSOR[sensor2]/measurement", "pressure"),
     ],
     "map_to_f8": [
-        ("sensorID[sensor1]/value", ureg.degC, "HolderTemperature", ureg.degC),
-        ("sensorID[sensor2]/value", ureg.bar, "HolderPressure", ureg.torr),
+        ("SENSOR[sensor1]/value", ureg.degC, "HolderTemperature", ureg.degC),
+        ("SENSOR[sensor2]/value", ureg.bar, "HolderPressure", ureg.torr),
     ],
 }
 
 
 AXON_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "MicroscopeControlImageMetadata.MicroscopeSettings.",
-    "use": [
+    "map_to_str": [
         (
-            "event_type",
-            "As tested with AXON 10.4.4.21, 2021-04-26T22:51:28.4539893-05:00 not included in Protochips PNG metadata",
-        ),
-        (
-            "em_lab/DETECTOR[detector*]/mode",
-            "As tested with AXON 10.4.4.21, 2021-04-26T22:51:28.4539893-05:00 not included in Protochips PNG metadata",
-        ),
-    ],
-    "map": [
-        (
-            "em_lab/EBEAM_COLUMN[ebeam_column]/DEFLECTOR[beam_blanker1]/state",
+            "instrument/ebeam_column/DEFLECTOR[beam_blanker1]/state",
             "BeamBlankerState",
         ),
     ],
     "map_to_f8": [
         (
-            "em_lab/EBEAM_COLUMN[ebeam_column]/electron_source/voltage",
+            "instrument/ebeam_column/electron_source/voltage",
             ureg.volt,
             "AcceleratingVoltage",
             ureg.volt,
         ),
         (
-            "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/camera_length",
+            "instrument/optics/camera_length",
             ureg.meter,
             "CameraLengthValue",
             ureg.meter,
         ),
         (
-            "em_lab/OPTICAL_SYSTEM_EM[optical_system_em]/magnification",
+            "instrument/optics/magnification",
             "MagnificationValue",
         ),
     ],

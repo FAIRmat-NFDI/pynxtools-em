@@ -13,7 +13,7 @@ processing_reference_frame:
   y_alias: transverse direction (TD)
   y_direction: south
   z_alias: normal direction (ND)
-  z_direction: undefined
+  z_direction: in
 sample_reference_frame:
   type: cartesian
   handedness: right_handed
@@ -23,24 +23,21 @@ sample_reference_frame:
   y_alias: transverse direction (TD)
   y_direction: south
   z_alias: normal direction (ND)
-  z_direction: undefined
+  z_direction: in
 detector_reference_frame:
   type: cartesian
   handedness: right_handed
   origin: front_top_left
-  x_alias: undefined
   x_direction: east
-  y_alias: undefined
   y_direction: south
-  z_alias: undefined
-  z_direction: undefined
+  z_direction: in
 gnomonic_reference_frame:
   type: cartesian
   handedness: right_handed
   origin: in_the_pattern_centre
   x_direction: east
   y_direction: south
-  z_direction: undefined
+  z_direction: in
 pattern_centre:
   x_boundary_convention: top
   x_normalization_direction: east

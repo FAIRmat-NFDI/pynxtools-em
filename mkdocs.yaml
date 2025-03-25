@@ -12,12 +12,13 @@ nav:
     # - tutorial/nexusio.md
     # - tutorial/oasis.md
   - How-tos:
-    # - how-tos/howto.md
+    - how-tos/examples.md
     - how-tos/kikuchi.md
     - how-tos/mtex.md
     - how-tos/pyxem.md
   - Learn:
     - explanation/learn.md
+    - explanation/emapp.md
     - explanation/implementation.md
   - Reference:
     - reference/contextualization.md

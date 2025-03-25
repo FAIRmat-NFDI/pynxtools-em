@@ -1,7 +1,6 @@
 # Kikuchi diffraction
 
-The following diagram shows a comprehensive example how diverse datasets from Kikuchi diffraction can be normalized using different tools from the scientific community and `pynxtools-em` as the glue tool to create a NeXus/HDF5 artifact that can be useful for creating supplementary material in publications
-<!--or use in the NOMAD Oasis research data management system-->.
+The following diagram shows a comprehensive example how diverse datasets from Kikuchi diffraction can be normalized using different tools from the scientific community and `pynxtools-em` as the glue tool to create a NeXus/HDF5 artifact that can be useful for creating supplementary material in publications or research data management systems or electronic laboratory notebooks.
 
 <img src="media/kikuchi.png" />
 

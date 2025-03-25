@@ -29,10 +29,10 @@ from pynxtools_em.utils.pint_custom_unit_registry import ureg
 # TODO::changeme need to go elsewhere after the Autumn NIAC meeting NXem
 
 FEI_TECNAI_STATIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab",
+    "prefix_trg": "/ENTRY[entry*]/measurement/instrument",
     "prefix_src": "",
     "use": [("fabrication/vendor", "FEI")],
-    "map": [
+    "map_to_str": [
         ("fabrication/model", "Microscope"),
         ("ebeam_column/electron_source/emitter_type", "Gun type"),
     ],
@@ -40,22 +40,22 @@ FEI_TECNAI_STATIC_VARIOUS_NX: Dict[str, Any] = {
 
 
 FEI_TECNAI_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/optics",
     "prefix_src": "",
-    "map": [("filtermode_tmp", "Filter mode")],
+    "map_to_str": [("filtermode_tmp", "Filter mode")],
     "map_to_u4": [("gunlens_tmp", "Gun lens"), ("spotsize_tmp", "Spot size")],
     "map_to_f8": [
         ("magnification", "Magnification"),
         ("camera_length", ureg.meter, "Camera length", ureg.meter),
         ("defocus", ureg.meter, "Defocus", ureg.micrometer),
-        ("stemrotation_tmp", ureg.radian, "Stem rotation", ureg.degree),
-        ("stemrotation_tmp", ureg.radian, "Stem rotation correction", ureg.degree),
+        ("rotation", ureg.radian, "Stem rotation", ureg.degree),
+        ("rotation_correction", ureg.radian, "Stem rotation correction", ureg.degree),
     ],
 }
 
 
 FEI_TECNAI_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/stage",
     "prefix_src": "",
     "map_to_f8": [
         ("tilt1", ureg.radian, "Stage A", ureg.degree),
@@ -73,24 +73,24 @@ FEI_TECNAI_DYNAMIC_STAGE_NX: Dict[str, Any] = {
 
 
 FEI_TECNAI_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "",
-    "map": [("em_lab/ebeam_column/operation_mode", "Mode")],
+    "map_to_str": [("instrument/ebeam_column/operation_mode", "Mode")],
     "map_to_f8": [
         (
-            "em_lab/ebeam_column/electron_source/voltage",
+            "instrument/ebeam_column/electron_source/voltage",
             ureg.volt,
             "High tension",
             ureg.kilovolt,
         ),
         (
-            "em_lab/ebeam_column/electron_source/extraction_voltage",
+            "instrument/ebeam_column/electron_source/extraction_voltage",
             ureg.volt,
             "Extraction voltage",
             ureg.kilovolt,
         ),
         (
-            "em_lab/ebeam_column/electron_source/emission_current",
+            "instrument/ebeam_column/electron_source/emission_current",
             ureg.ampere,
             "Emission",
             ureg.microampere,
@@ -102,33 +102,38 @@ FEI_TECNAI_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
 # FEI Helios NanoLab FIB/SEM-specific metadata based on prototypic example
 
 FEI_HELIOS_DYNAMIC_DETECTOR_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/detectorID[detector*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/DETECTOR[detector*]",
     "prefix_src": "Metadata.Detectors.ScanningDetector.",
-    "map": [("local_name", "DetectorName")],
+    "map_to_str": [("local_name", "DetectorName")],
 }
 
 
 FEI_HELIOS_STATIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab",
+    "prefix_trg": "/ENTRY[entry*]/measurement/instrument",
     "prefix_src": "Metadata.",
     "use": [("fabrication/vendor", "FEI")],
-    "map": [
+    "map_to_str": [
         ("fabrication/model", "Instrument.InstrumentClass"),
-        ("fabrication/identifier", "Instrument.InstrumentID"),
+        ("fabrication/serial_number", "Instrument.InstrumentID"),
         ("ebeam_column/electron_source/emitter_type", "Acquisition.SourceType"),
     ],
 }
 
 
 FEI_HELIOS_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/OPTICAL_SYSTEM_EM[optical_system_em]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/optics",
     "prefix_src": "Metadata.",
     "map_to_bool": [
-        ("sample_tilt_correction", "Optics.SampleTiltCorrectionOn"),
+        ("tilt_correction", "Optics.SampleTiltCorrectionOn"),
         ("cross_over", "Optics.CrossOverOn"),
     ],
     "map_to_f8": [
-        ("beam_current", ureg.ampere, "Optics.BeamCurrent", ureg.ampere),
+        (
+            "probe_current",
+            ureg.ampere,
+            "Optics.BeamCurrent",
+            ureg.ampere,
+        ),  # probe == beam ?
         ("working_distance", ureg.meter, "Optics.WorkingDistance", ureg.meter),
         (
             "eucentric_distance",
@@ -141,7 +146,7 @@ FEI_HELIOS_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
 
 
 FEI_HELIOS_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/stage",
     "prefix_src": "Metadata.StageSettings.StagePosition.",
     "map_to_f8": [
         ("rotation", ureg.radian, "Rotation", ureg.radian),
@@ -158,89 +163,84 @@ FEI_HELIOS_DYNAMIC_STAGE_NX: Dict[str, Any] = {
 
 
 FEI_HELIOS_DYNAMIC_STIGMATOR_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/ebeam_column/corrector_ax",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/ebeam_column/corrector_ax",
     "prefix_src": "Metadata.Optics.StigmatorRaw.",
     "map_to_f8": [("value_x", "X"), ("value_y", "Y")],  # unit?
 }
 
 
 FEI_HELIOS_DYNAMIC_SCAN_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/scan_controller",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/scan_controller",
     "prefix_src": "Metadata.ScanSettings.",
     "map_to_f8": [("dwell_time", ureg.second, "DwellTime", ureg.second)],
 }
 
 
 FEI_HELIOS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]",
     "prefix_src": "Metadata.",
     "use": [
-        ("em_lab/ebeam_column/sensorID[sensor1]/measurement", "pressure"),
-        ("em_lab/ibeam_column/sensorID[sensor1]/measurement", "pressure"),
+        ("instrument/ebeam_column/SENSOR[sensor1]/measurement", "pressure"),
+        ("instrument/ibeam_column/SENSOR[sensor1]/measurement", "pressure"),
     ],
     "map_to_f8": [
         (
-            "em_lab/ebeam_column/sensorID[sensor1]/value",
+            "instrument/ebeam_column/SENSOR[sensor1]/value",
             ureg.pascal,
             "VacuumProperties.ElectronChamberPressure",
             ureg.pascal,
         ),
         (
-            "em_lab/ibeam_column/sensorID[sensor1]/value",
+            "instrument/ibeam_column/SENSOR[sensor1]/value",
             ureg.pascal,
             "VacuumProperties.IonChamberPressure",
             ureg.pascal,
         ),
         (
-            "em_lab/ebeam_column/electron_source/voltage",
+            "instrument/ebeam_column/electron_source/voltage",
             ureg.volt,
             "Optics.AccelerationVoltage",
             ureg.volt,
         ),
         (
-            "em_lab/ebeam_column/DEFLECTOR[beam_decelerator]/voltage",
+            "instrument/ebeam_column/DEFLECTOR[beam_decelerator]/voltage",
             ureg.volt,
             "Optics.DecelerationVoltage",
             ureg.volt,
         ),
         (
-            "em_lab/ebeam_column/DEFLECTOR[beam_shift1]/value_x",
+            "instrument/ebeam_column/DEFLECTOR[beam_shift1]/value_x",
             ureg.meter,
             "Optics.BeamShift.X",
             ureg.meter,
         ),
         (
-            "em_lab/ebeam_column/DEFLECTOR[beam_shift1]/value_y",
+            "instrument/ebeam_column/DEFLECTOR[beam_shift1]/value_y",
             ureg.meter,
             "Optics.BeamShift.Y",
             ureg.meter,
         ),
         (
-            "em_lab/ebeam_column/electron_source/DEFLECTOR[gun_tilt]/value_x",
+            "instrument/ebeam_column/electron_source/DEFLECTOR[gun_tilt]/value_x",
             "Optics.GunTiltRaw.X",
         ),
         (
-            "em_lab/ebeam_column/electron_source/DEFLECTOR[gun_tilt]/value_y",
+            "instrument/ebeam_column/electron_source/DEFLECTOR[gun_tilt]/value_y",
             "Optics.GunTiltRaw.Y",
         ),
         (
-            "em_lab/ebeam_column/apertureID[aperture1]/diameter",
+            "instrument/ebeam_column/APERTURE[aperture*]/size",
             ureg.meter,
             "Optics.Apertures.Aperture.Diameter",
             ureg.meter,
         ),
-        (
-            "em_lab/ebeam_column/BEAM[beam]/current",
-            ureg.ampere,
-            "OPtics.BeamCurrent",
-            ureg.ampere,
-        ),
-        (
-            "em_lab/ebeam_column/BEAM[beam]/value",
-            ureg.meter,
-            "Optics.SpotSize",
-            ureg.meter,
-        ),
+        # (
+        #     "instrument/ebeam_column/BEAM[beam]/value",
+        #     ureg.meter,
+        #     "Optics.SpotSize",
+        #     ureg.meter,
+        # ),
+        # replace by beam diameter
     ],
 }
 

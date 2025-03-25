@@ -25,6 +25,7 @@ import flatdict as fd
 import numpy as np
 from PIL import Image, ImageSequence
 from pint import UndefinedUnitError
+
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_hitachi_cfg import (
     HITACHI_DYNAMIC_VARIOUS_NX,
@@ -66,7 +67,7 @@ class HitachiTiffParser:
             self.supported = False
         if not self.supported:
             print(
-                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+                f"Parser {self.__class__.__name__} finds no content in {file_paths} that it supports"
             )
 
     def check_if_tiff_hitachi(self):
@@ -136,18 +137,18 @@ class HitachiTiffParser:
         print(
             f"Writing Hitachi TIFF image data to the respective NeXus concept instances..."
         )
-        image_identifier = 1
+        identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
                 nparr = np.array(img)
                 print(
-                    f"Processing image {image_identifier} ... {type(nparr)}, {np.shape(nparr)}, {nparr.dtype}"
+                    f"Processing image {identifier_image} ... {type(nparr)}, {np.shape(nparr)}, {nparr.dtype}"
                 )
                 # eventually similar open discussions points as were raised for tiff_tfs parser
                 trg = (
-                    f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
+                    f"/ENTRY[entry{self.entry_id}]/measurement/events/"
                     f"EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/"
-                    f"IMAGE_SET[image_set{image_identifier}]/image_2d"
+                    f"IMAGE[image{identifier_image}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
                 template[f"{trg}/@signal"] = "real"
@@ -163,7 +164,7 @@ class HitachiTiffParser:
                     template[f"{trg}/@axes"].append(f"axis_{dim}")
                 template[f"{trg}/real"] = {"compress": np.array(fp), "strength": 1}
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
-                template[f"{trg}/real/@long_name"] = f"Signal"
+                template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
                 sxy = {
                     "i": ureg.Quantity(1.0, ureg.meter),
@@ -198,7 +199,7 @@ class HitachiTiffParser:
                         f"Coordinate along {dim}-axis ({sxy[dim].units})"
                     )
                     template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
-                image_identifier += 1
+                identifier_image += 1
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:

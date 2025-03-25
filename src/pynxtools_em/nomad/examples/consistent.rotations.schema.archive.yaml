@@ -1,23 +1,24 @@
 # https://kikuchipy.org/en/stable/tutorials/reference_frames.html#Reference-frames
 definitions:
-  name: 'em_conventions'
+  name: 'consistent_rotations'
   sections:
-    NXemConventions:
+    ConsistentRotations:
       base_sections:
         - 'pynxtools.nomad.dataconverter.NexusDataConverter'
         - 'nomad.datamodel.data.EntryData'
       m_annotations:
-        template: 
+        template:
           reader: em
-          nxdl: NXem.nxdl
-        eln: 
+          nxdl: NXem
+        eln:
           hide: ['nxdl', 'reader', 'input_files', 'output']
       sub_sections:
         rotation_conventions:
           section:
             description: |
-              Mathematical conventions and materials-science-specific conventions
-              required for interpreting every collection of orientation data.
+              The conventions used when reporting crystal orientations.
+              We follow the best practices of the Material Science community
+              that are defined in reference DOI: 10.1088/0965-0393/23/8/083501.
             m_annotations:
               eln:
                 overview: true
@@ -26,15 +27,13 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - counter_clockwise
                     - clockwise
-                # default: undefined
                 description: |
                   Convention how a positive rotation angle is defined when viewing
                   from the end of the rotation unit vector towards its origin,
                   i.e. in accordance with convention 2 of DOI: 10.1088/0965-0393/23/8/083501.
-                  Counter_clockwise is equivalent to a right-handed choice.
+                  Counter-clockwise is equivalent to a right-handed choice.
                   Clockwise is equivalent to a left-handed choice.
                 m_annotations:
                   eln:
@@ -43,7 +42,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - passive
                     - active
                 description: |
@@ -58,8 +56,9 @@ definitions:
                   How are Euler angles interpreted given that there are several
                   choices (e.g. ZXZ, XYZ, etc.) according to convention 4 of
                   DOI: 10.1088/0965-0393/23/8/083501.
-                  The most frequently used convention is ZXZ which is based on
-                  the work of H.-J. Bunge but other conventions are possible.
+                  The most frequently used convention is zxz which is based on
+                  the work of H.-J. Bunge. Using other conventions is possible
+                  but not recommended.
                 m_annotations:
                   eln:
                     component: StringEditQuantity
@@ -67,12 +66,11 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - rotation_angle_on_interval_zero_to_pi
                 description: |
-                  To which angular range is the rotation angle argument of an
-                  axis-angle pair parameterization constrained according to
-                  convention 5 of DOI: 10.1088/0965-0393/23/8/083501.
+                  Which sign convention is followed when converting orientations
+                  between different parameterizations/representations according
+                  to convention 6 of reference DOI: 10.1088/0965-0393/23/8/083501.
                 m_annotations:
                   eln:
                     component: RadioEnumEditQuantity
@@ -80,7 +78,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - p_plus_one
                     - p_minus_one
                 description: |
@@ -94,10 +91,13 @@ definitions:
         processing_reference_frame:
           section:
             description: |
-              Details about eventually relevant named directions that may give reasons for anisotropic
-              properties at the coarsest level (typically the bulk sample). The classical example is cold-rolling
-              where one has to specify how specific processing directions (rolling, transverse, and normal)
-              align with the direction of the base vectors of the sample_reference_frame.
+              Details about the processing_reference_frame.
+              Often processing can lead to cases where external stimuli are not homogeneously and isotropically
+              applied to a sample. This can cause anisotropies of material properties at the coarsest level
+              (typically the bulk sample). The classical example is cold-rolling where one has to specify how
+              specific processing directions (rolling, transverse, and normal) align with the direction of the
+              base vectors of the sample_reference_frame.
+              The sample_reference_frame has coordinates Xp, Yp, Zp.
             m_annotations:
               eln:
                 overview: true
@@ -106,7 +106,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - cartesian
                 description: |
                   Type of coordinate system and reference frame according to
@@ -118,7 +117,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - right_handed
                     - left_handed
                 description: |
@@ -130,7 +128,14 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
+                    - top
+                    - bottom
+                    - left
+                    - right
+                    - top_left
+                    - top_right
+                    - bottom_left
+                    - bottom_right
                     - front_top_left
                     - front_top_right
                     - front_bottom_right
@@ -140,11 +145,8 @@ definitions:
                     - back_bottom_right
                     - back_bottom_left
                 description: |
-                  Location of the origin of the sample_reference_frame. This specifies the location
-                  Xs = 0, Ys = 0, Zs = 0. Assume regions-of-interest in this reference frame form a rectangle in
-                  2D or a cuboid in 3D. Edges are interpreted by inspecting the direction of their outer unit
-                  normals (which point either parallel or antiparallel) along respective base vector direction
-                  of the processing_reference_frame.
+                  Location of the first pixel (in 1D and 2D) or voxel (3D) of an image or image stack.
+                  This specifies the location Xp = 0, Yp = 0, Zp = 0.
                 m_annotations:
                   eln:
                     component: RadioEnumEditQuantity
@@ -159,7 +161,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -184,7 +185,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -209,7 +209,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -236,17 +235,14 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - cartesian
                 description: |
                   Type of coordinate system and reference frame according to convention 1 of DOI: 10.1088/0965-0393/23/8/083501.
                   The sample_reference_frame is used for identifying positions on a (virtual) image which is formed by
-                  information collected from an electron beam scanning the sample surface. We assume the configuration is
+                  information collected from scanning a beam over sample surface. We assume the configuration is
                   inspected by looking towards the sample surface from a position that is located behind the detector.
                   Reference DOI: 10.1016/j.matchar.2016.04.008
-                  The sample_reference_frame has coordinates Xs, Ys, Zs. In three dimensions these coordinates are not necessarily
-                  located on the surface of the sample as there are multiple faces/sides of the sample. Most frequently though
-                  the coordinate system here is used to define the surface which the electron beam scans.
+                  The sample_reference_frame has coordinates Xs, Ys, Zs.
                 m_annotations:
                   eln:
                     component: RadioEnumEditQuantity
@@ -254,7 +250,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - right_handed
                     - left_handed
                 description: |
@@ -266,7 +261,14 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
+                    - top
+                    - bottom
+                    - left
+                    - right
+                    - top_left
+                    - top_right
+                    - bottom_left
+                    - bottom_right
                     - front_top_left
                     - front_top_right
                     - front_bottom_right
@@ -276,10 +278,8 @@ definitions:
                     - back_bottom_right
                     - back_bottom_left
                 description: |
-                  Location of the origin of the sample_reference_frame. This specifies the location Xs = 0, Ys = 0, Zs = 0.
-                  Assume regions-of-interest in this reference frame form a rectangle (in 2D) or a cuboid (in 3D).
-                  Edges are interpreted by inspecting the direction of their outer unit normals (which point
-                  either parallel or antiparallel) along respective base vector direction.
+                  Location of the first pixel (in 1D and 2D) or voxel (3D) of an image or image stack.
+                  This specifies the location Xs = 0, Ys = 0, Zs = 0.
                 m_annotations:
                   eln:
                     component: RadioEnumEditQuantity
@@ -294,7 +294,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -319,7 +318,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -344,7 +342,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -360,17 +357,25 @@ definitions:
                     component: RadioEnumEditQuantity
 
         detector_reference_frame:
+          repeats: true
           section:
             description: |
               Details about the detector_reference_frame.
             m_annotations:
               eln:
+                overview: true
             quantities:
+              detector_local_name:
+                type: str
+                description: |
+                  Local name of the detector for which these definitions apply.
+                m_annotations:
+                  eln:
+                    component: StringEditQuantity
               reference_frame_type:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - cartesian
                 description: |
                   Type of coordinate system/reference frame used for
@@ -383,7 +388,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - right_handed
                     - left_handed
                 description: |
@@ -392,7 +396,14 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
+                    - top
+                    - bottom
+                    - left
+                    - right
+                    - top_left
+                    - top_right
+                    - bottom_left
+                    - bottom_right
                     - front_top_left
                     - front_top_right
                     - front_bottom_right
@@ -402,11 +413,8 @@ definitions:
                     - back_bottom_right
                     - back_bottom_left
                 description: |
-                  Where is the origin of the detector_reference_frame located.
-                  This is the location of Xd = 0, Yd = 0, Zd = 0. Assume regions-of-interest in this reference frame
-                  form a rectangle or cuboid. Edges are interpreted by inspecting the direction of their
-                  outer unit normals (which point either parallel or antiparallel)
-                  along respective base vector direction of the reference frame.
+                  Location of the first pixel (in 1D and 2D) or voxel (3D) of an image or image stack.
+                  This specifies the location Xd = 0, Yd = 0, Zd = 0.
                 m_annotations:
                   eln:
                     component: RadioEnumEditQuantity
@@ -421,7 +429,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -446,7 +453,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -471,7 +477,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -485,7 +490,7 @@ definitions:
                 m_annotations:
                   eln:
                     component: RadioEnumEditQuantity
-        
+
         gnomonic_reference_frame:
           section:
             description: |
@@ -497,7 +502,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - cartesian
                 description: |
                   Type of coordinate system/reference frame used for identifying positions in the Xg, Yg, Zg
@@ -509,12 +513,11 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
-                    - in_the_pattern_centre
-                # just stating in the pattern_centre is not necessarily sufficient
+                    - in_the_pattern_center
+                # just stating in the pattern_center is not necessarily sufficient
                 description: |
                   Is the origin of the gnomonic_reference_frame located where we assume the location of the pattern
-                  centre. This is the location Xg = 0, Yg = 0, Zg = 0 according to reference DOI: 10.1016/j.matchar.2016.04.008.
+                  center. This is the location Xg = 0, Yg = 0, Zg = 0 according to reference DOI: 10.1016/j.matchar.2016.04.008.
                 m_annotations:
                   eln:
                     component: RadioEnumEditQuantity
@@ -522,7 +525,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -530,7 +532,7 @@ definitions:
                     - in
                     - out
                 description: |
-                  Direction of the positively pointing "gnomomic" x-axis base vector when viewing how the diffraction pattern
+                  Direction of the positively pointing gnomomic x-axis base vector when viewing how the diffraction pattern
                   looks on the detector screen. We assume the configuration is inspected by looking towards the sample
                   surface from a position that is located behind the detector.
                 m_annotations:
@@ -540,7 +542,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -548,7 +549,7 @@ definitions:
                     - in
                     - out
                 description: |
-                  Direction of the positively pointing "gnomomic" y-axis base vector when viewing how the diffraction pattern
+                  Direction of the positively pointing gnomomic y-axis base vector when viewing how the diffraction pattern
                   looks on the detector screen. We assume the configuration is inspected by looking towards the sample
                   surface from a position that is located behind the detector.
                 m_annotations:
@@ -558,7 +559,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -566,21 +566,21 @@ definitions:
                     - in
                     - out
                 description: |
-                  Direction of the positively pointing "gnomomic" z-axis base vector when viewing how the diffraction pattern
+                  Direction of the positively pointing gnomomic z-axis base vector when viewing how the diffraction pattern
                   looks on the detector screen. We assume the configuration is inspected by looking towards the sample
                   surface from a position that is located behind the detector.
                 m_annotations:
                   eln:
                     component: RadioEnumEditQuantity
 
-        pattern_centre:
+        pattern_center:
           section:
             description: |
-              Details about the definition and location of the pattern centre which is a
+              Details about the definition and location of the pattern center which is a
               special point in the gnomonic projection space Xg, Yg, Zg.
               The electron backscatter diffraction pattern is a projection on a detector
               (either a real or a virtual one). We assume this projection is a rectangle.
-            # alternatively could use complete spherical pattern with pattern centre in its centre
+            # alternatively could use complete spherical pattern with pattern center in its center
             m_annotations:
               eln:
             quantities:
@@ -588,14 +588,13 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - top
                     - right
                     - bottom
                     - left
                 description: |
-                  From which border of the EBSP (in the detector_reference_frame) is the pattern centre's
-                  x-position (PCx) measured.
+                  From which border of the EBSP (in the detector_reference_frame)
+                  is the pattern center's x-position (PCx) measured.
                 m_annotations:
                   eln:
                     component: RadioEnumEditQuantity
@@ -603,7 +602,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -626,13 +624,12 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - top
                     - right
                     - bottom
                     - left
                 description: |
-                  From which border of the EBSP (in the detector_reference_frame) is the pattern centre's
+                  From which border of the EBSP (in the detector_reference_frame) is the pattern center's
                   y-position (PCy) measured?
                 m_annotations:
                   eln:
@@ -641,7 +638,6 @@ definitions:
                 type:
                   type_kind: Enum
                   type_data:
-                    - undefined
                     - north
                     - east
                     - south
@@ -652,17 +648,16 @@ definitions:
                 m_annotations:
                   eln:
                     component: RadioEnumEditQuantity
-              # pattern_centre_distance_convention:
+              # pattern_center_distance_convention:
               #   type:
               #     type_kind: Enum
               #     type_data:
-              #       - undefined
               #       - Bruker
               #       - JEOL
               #       - FEI
               #       - Oxford
               #   description: |
-              #     How is the third of the three pattern centre parameter values,
+              #     How is the third of the three pattern center parameter values,
               #     the (distance) parameter DD, normalized. Which convention
               #     is followed. We are aware that specifying one of the options here
               #     also implicitly comes with conventions for some of the parameter

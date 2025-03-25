@@ -23,9 +23,9 @@ from typing import Any, Dict
 # f"{dt.datetime.now(dt.timezone.utc).isoformat().replace('+00:00', 'Z')}",
 
 OASISCFG_EM_CSYS_TO_NEXUS: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/coordinate_system_set/COORDINATE_SYSTEM[coordinate_system*]",
+    "prefix_trg": "/ENTRY[entry*]/COORDINATE_SYSTEM[coordinate_system*]",
     "prefix_src": "",
-    "map": [
+    "map_to_str": [
         "alias",
         "type",
         "handedness",
@@ -43,5 +43,5 @@ OASISCFG_EM_CSYS_TO_NEXUS: Dict[str, Any] = {
 OASISCFG_EM_CITATION_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/CITE[cite*]",
     "prefix_src": "",
-    "map": ["authors", "doi", "description", "url"],
+    "map_to_str": ["authors", "doi", "description", "url"],
 }

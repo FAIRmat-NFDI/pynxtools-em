@@ -176,7 +176,7 @@ class FeiLegacyTiffParser:
         # default display of the image(s) representing the data collected in this event
         print(f"Writing legacy FEI TIFF image data to NeXus concept instances...")
         # assuming same image FEI_LEGACY_TECNAI_TEM, FEI_LEGACY_HELIOS_SEM
-        image_identifier = 1
+        identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
                 nparr = np.array(img)
@@ -189,9 +189,9 @@ class FeiLegacyTiffParser:
                 # remember H5Web images can be scaled based on the metadata allowing basically the same
                 # explorative viewing using H5Web than what traditionally typical image viewers are meant for
                 trg = (
-                    f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
+                    f"/ENTRY[entry{self.entry_id}]/measurement/events/"
                     f"EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/"
-                    f"IMAGE_SET[image_set{image_identifier}]/image_2d"
+                    f"IMAGE[image{identifier_image}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
                 template[f"{trg}/@signal"] = "real"
@@ -207,7 +207,7 @@ class FeiLegacyTiffParser:
                     template[f"{trg}/@axes"].append(f"axis_{dim}")
                 template[f"{trg}/real"] = {"compress": np.array(fp), "strength": 1}
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
-                template[f"{trg}/real/@long_name"] = f"Signal"
+                template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
                 if self.supported == FEI_LEGACY_TECNAI_TEM:
                     print(
@@ -287,7 +287,7 @@ class FeiLegacyTiffParser:
                         template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = (
                             f"{sxy[dim].units}"
                         )
-                image_identifier += 1
+                identifier_image += 1
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:

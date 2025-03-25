@@ -23,6 +23,7 @@ from typing import Dict, List
 import flatdict as fd
 import numpy as np
 from PIL import Image, ImageSequence
+
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_jeol_cfg import (
     JEOL_DYNAMIC_VARIOUS_NX,
@@ -140,18 +141,18 @@ class JeolTiffParser:
         print(
             f"Writing JEOL TIFF image data to the respective NeXus concept instances..."
         )
-        image_identifier = 1
+        identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
                 nparr = np.array(img)
                 print(
-                    f"Processing image {image_identifier} ... {type(nparr)}, {np.shape(nparr)}, {nparr.dtype}"
+                    f"Processing image {identifier_image} ... {type(nparr)}, {np.shape(nparr)}, {nparr.dtype}"
                 )
                 # eventually similar open discussions points as were raised for tiff_tfs parser
                 trg = (
-                    f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/"
+                    f"/ENTRY[entry{self.entry_id}]/measurement/events/"
                     f"EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/"
-                    f"IMAGE_SET[image_set{image_identifier}]/image_2d"
+                    f"IMAGE[image{identifier_image}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
                 template[f"{trg}/@signal"] = "real"
@@ -167,7 +168,7 @@ class JeolTiffParser:
                     template[f"{trg}/@axes"].append(f"axis_{dim}")
                 template[f"{trg}/real"] = {"compress": np.array(fp), "strength": 1}
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
-                template[f"{trg}/real/@long_name"] = f"Signal"
+                template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
                 sxy = {
                     "i": ureg.Quantity(1.0, ureg.meter),
@@ -207,7 +208,7 @@ class JeolTiffParser:
                         f"Coordinate along {dim}-axis ({sxy[dim].units})"
                     )
                     template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
-                image_identifier += 1
+                identifier_image += 1
         return template
 
     def add_various_dynamic(self, template: dict) -> dict:

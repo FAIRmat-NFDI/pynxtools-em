@@ -23,7 +23,11 @@ from typing import Any, Dict
 import flatdict as fd
 import numpy as np
 import pytz
-from pynxtools_em.utils.get_file_checksum import get_sha256_of_file_content
+
+from pynxtools_em.utils.get_file_checksum import (
+    DEFAULT_CHECKSUM_ALGORITHM,
+    get_sha256_of_file_content,
+)
 from pynxtools_em.utils.interpret_boolean import try_interpret_as_boolean
 from pynxtools_em.utils.pint_custom_unit_registry import is_not_special_unit, ureg
 from pynxtools_em.utils.string_conversions import rchop
@@ -42,6 +46,7 @@ MAP_TO_DTYPES: Dict[str, type] = {
     "i8": np.int64,
     "f8": np.float64,
     "bool": bool,
+    "str": str,
 }
 
 # general conversion workflow
@@ -163,6 +168,8 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
             # TODO this is not rigorous need to check for null-term also and str arrays
             template[f"{trg}"] = src_val
             # assumes I/O to HDF5 will write specific encoding, typically variable, null-term, utf8
+        elif isinstance(src_val, bool):
+            template[f"{trg}"] = try_interpret_as_boolean(src_val)
         elif isinstance(src_val, ureg.Quantity):
             if isinstance(src_val.magnitude, (np.ndarray, np.generic)) or np.isscalar(
                 src_val.magnitude
@@ -200,7 +207,12 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
             )
     else:  # do an explicit type conversion
         # e.g. in cases when tech partner writes float32 but e.g. NeXus assumes float64
-        if isinstance(src_val, (str, bool)):
+        if isinstance(src_val, str):
+            if trg_dtype != "bool":
+                template[f"{trg}"] = f"{src_val}"
+            else:
+                template[f"{trg}"] = try_interpret_as_boolean(src_val)
+        elif isinstance(src_val, bool):
             template[f"{trg}"] = try_interpret_as_boolean(src_val)
         elif isinstance(src_val, ureg.Quantity):
             if isinstance(src_val.magnitude, (np.ndarray, np.generic)):
@@ -215,7 +227,22 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
                 raise TypeError(
                     f"Unexpected type for explicit src_val.magnitude, set_value, trg {trg} !"
                 )
-        elif isinstance(src_val, (list, np.ndarray, np.generic)):
+        elif isinstance(src_val, list):
+            if trg_dtype == "str":
+                if all(isinstance(val, str) for val in src_val):
+                    template[f"{trg}"] = ", ".join(src_val)
+                else:
+                    template[f"{trg}"] = ", ".join([f"{val}" for val in src_val])
+                print(
+                    f"WARNING::Assuming I/O to HDF5 will serializing to concatenated string !"
+                )
+            else:
+                template[f"{trg}"] = map_to_dtype(trg_dtype, np.asarray(src_val))
+                # units may be required, need to be set explicitly elsewhere in the source code!
+                print(
+                    f"WARNING::Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
+                )
+        elif isinstance(src_val, (np.ndarray, np.generic)):
             template[f"{trg}"] = map_to_dtype(trg_dtype, np.asarray(src_val))
             # units may be required, need to be set explicitly elsewhere in the source code!
             print(
@@ -258,6 +285,11 @@ def map_functor(
     trg_dtype_key: str = "",
 ) -> dict:
     """Process concept mapping, datatype and unit conversion for quantities."""
+    # for debugging set configurable breakpoints like such
+    # prfx_trg == "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument"
+    # either here or on a resolved variadic name in the trg variable
+    # in the set_value function or specific parameterized concept names like
+    # cmd[0] == "optics/operation_mode" (see rsciio_gatan_cfg, GATAN_DYNAMIC_VARIOUS_NX)
     for cmd in cmds:
         case = get_case(cmd)
         if case == "case_one":  # str
@@ -283,23 +315,20 @@ def map_functor(
                 continue
             if not all(src_val is not None and src_val != "" for src_val in src_values):
                 continue
-            if not all(type(val) is type(src_values[0]) for val in src_values):
-                continue
+            if trg_dtype_key != "str":
+                if not all(type(val) is type(src_values[0]) for val in src_values):
+                    continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             set_value(template, trg, src_values, trg_dtype_key)
         elif case == "case_three_str":  # str, ureg.Unit, str
             src_val = mdata.get(f"{prfx_src}{cmd[2]}")
-            if src_val is not None:
-                trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-                if isinstance(src_val, ureg.Quantity):
-                    set_value(template, trg, src_val.to(cmd[1]), trg_dtype_key)
-                else:
-                    set_value(
-                        template,
-                        trg,
-                        ureg.Quantity(src_val, cmd[1].units),
-                        trg_dtype_key,
-                    )
+            if not src_val:
+                continue
+            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+            if isinstance(src_val, ureg.Quantity):
+                set_value(template, trg, src_val.to(cmd[1]), trg_dtype_key)
+            else:
+                set_value(template, trg, ureg.Quantity(src_val, cmd[1]), trg_dtype_key)
         elif case == "case_three_list":  # str, ureg.Unit, list
             if len(cmd[2]) == 0:
                 continue
@@ -336,19 +365,20 @@ def map_functor(
             # both of these cases can be avoided in an implementation when the
             # src quantity is already a pint quantity instead of some
             # pure python or numpy value or array respectively
-            raise ValueError(
+            raise NotImplementedError(
                 f"Hitting unimplemented case_four, instead refactor implementation such"
                 f"that values on the src side are pint.Quantities already!"
             )
         elif case == "case_five_str":
             src_val = mdata.get(f"{prfx_src}{cmd[2]}")
-            if src_val is not None:
-                trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-                if isinstance(src_val, ureg.Quantity):
-                    set_value(template, trg, src_val.to(cmd[1]), trg_dtype_key)
-                else:
-                    pint_src = ureg.Quantity(src_val, cmd[3])
-                    set_value(template, trg, pint_src.to(cmd[1]), trg_dtype_key)
+            if not src_val:
+                continue
+            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+            if isinstance(src_val, ureg.Quantity):
+                set_value(template, trg, src_val.to(cmd[1]), trg_dtype_key)
+            else:
+                pint_src = ureg.Quantity(src_val, cmd[3])
+                set_value(template, trg, pint_src.to(cmd[1]), trg_dtype_key)
         elif case == "case_five_list":
             if len(cmd[2]) == 0:
                 continue
@@ -376,13 +406,14 @@ def map_functor(
                 continue
             src_val = mdata[f"{prfx_src}{cmd[2]}"]
             src_unit = mdata[f"{prfx_src}{cmd[3]}"]
-            if src_val is not None and src_unit is not None:
-                trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-                if isinstance(src_val, ureg.Quantity):
-                    set_value(template, trg, src_val.units.to(cmd[1]), trg_dtype_key)
-                else:
-                    pint_src = ureg.Quantity(src_val, ureg.Unit(src_unit))
-                    set_value(template, trg, pint_src.to(cmd[1]), trg_dtype_key)
+            if not src_val or not src_unit:
+                continue
+            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+            if isinstance(src_val, ureg.Quantity):
+                set_value(template, trg, src_val.units.to(cmd[1]), trg_dtype_key)
+            else:
+                pint_src = ureg.Quantity(src_val, ureg.Unit(src_unit))
+                set_value(template, trg, pint_src.to(cmd[1]), trg_dtype_key)
     return template
 
 
@@ -438,15 +469,15 @@ def filehash_functor(
                 if mdata[f"{prfx_src}{cmd[1]}"] == "":
                     continue
                 trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
-                with open(mdata[f"{prfx_src}{cmd[1]}"], "rb") as fp:
-                    template[f"{rchop(trg, 'checksum')}checksum"] = (
-                        get_sha256_of_file_content(fp)
-                    )
-                    template[f"{rchop(trg, 'checksum')}type"] = "file"
-                    template[f"{rchop(trg, 'checksum')}path"] = mdata[
-                        f"{prfx_src}{cmd[1]}"
-                    ]
-                    template[f"{rchop(trg, 'checksum')}algorithm"] = "sha256"
+                try:
+                    with open(mdata[f"{prfx_src}{cmd[1]}"], "rb") as fp:
+                        fragment = rchop(trg, "checksum")
+                        template[f"{fragment}checksum"] = get_sha256_of_file_content(fp)
+                        template[f"{fragment}type"] = "file"
+                        template[f"{fragment}file_name"] = mdata[f"{prfx_src}{cmd[1]}"]
+                        template[f"{fragment}algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
+                except (FileNotFoundError, IOError):
+                    print(f"File {mdata[f'''{prfx_src}{cmd[1]}''']} not found !")
     return template
 
 
@@ -486,11 +517,11 @@ def add_specific_metadata_pint(
         for functor_key, functor in cfg.items():
             if functor_key in ["prefix_trg", "prefix_src"]:
                 continue
-            if functor_key == "use":
+            elif functor_key == "use":
                 use_functor(cfg["use"], mdata, prefix_trg, ids, template)
-            if functor_key == "map":
+            elif functor_key == "map":
                 map_functor(functor, mdata, prefix_src, prefix_trg, ids, template)
-            if functor_key.startswith("map_to_"):
+            elif functor_key.startswith("map_to_"):
                 dtype_key = functor_key.replace("map_to_", "")
                 if dtype_key in MAP_TO_DTYPES:
                     map_functor(
@@ -504,12 +535,19 @@ def add_specific_metadata_pint(
                     )
                 else:
                     raise KeyError(f"Unexpected dtype_key {dtype_key} !")
-            if functor_key == "unix_to_iso8601":
+            elif functor_key == "unix_to_iso8601":
                 timestamp_functor(
                     cfg["unix_to_iso8601"], mdata, prefix_src, prefix_trg, ids, template
                 )
-            if functor_key == "sha256":
+            elif functor_key == DEFAULT_CHECKSUM_ALGORITHM:
                 filehash_functor(
-                    cfg["sha256"], mdata, prefix_src, prefix_trg, ids, template
+                    cfg[DEFAULT_CHECKSUM_ALGORITHM],
+                    mdata,
+                    prefix_src,
+                    prefix_trg,
+                    ids,
+                    template,
                 )
+            else:
+                raise KeyError(f"Unexpected functor_key {functor_key} !")
     return template

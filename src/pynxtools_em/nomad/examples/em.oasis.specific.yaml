@@ -1,4 +1,4 @@
-coordinate_system_set:
+coordinate_system:
 - alias: Following the idea of McStas that the z-axis points along the beam, electron microscopy as a beam line to study electron/matter interaction.
   type: cartesian
   handedness: right_handed

@@ -27,6 +27,7 @@ import flatdict as fd
 import numpy as np
 import xmltodict
 from PIL import Image
+
 from pynxtools_em.concepts.mapping_functors_pint import (
     add_specific_metadata_pint,
     var_path_to_spcfc_path,
@@ -169,7 +170,7 @@ class ProtochipsPngSetParser:
                             for marker in markers:
                                 if concept.endswith(marker):
                                     grpnm_lookup[
-                                        f"{concept[0:len(concept)-len(marker)]}"
+                                        f"{concept[0 : len(concept) - len(marker)]}"
                                     ] = value
                         else:
                             grpnm_lookup[concept] = value
@@ -191,7 +192,7 @@ class ProtochipsPngSetParser:
                                         and k.endswith(".PositionerName") is False
                                     ):
                                         key = specific_to_variadic(
-                                            f"{grpnms[0]}.{grpnms[1]}.{k[k.rfind('.') + 1:]}"
+                                            f"{grpnms[0]}.{grpnms[1]}.{k[k.rfind('.') + 1 :]}"
                                         )
                                         if key not in self.dict_meta[file]:
                                             self.dict_meta[file][key] = (
@@ -227,7 +228,9 @@ class ProtochipsPngSetParser:
             print(f"Flattening XML metadata content {self.file_path}:{file} failed !")
 
     def get_file_hash(self, file, fp):
-        self.dict_meta[file]["sha256"] = get_sha256_of_file_content(fp)
+        self.dict_meta[file][DEFAULT_CHECKSUM_ALGORITHM] = get_sha256_of_file_content(
+            fp
+        )
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""
@@ -300,7 +303,7 @@ class ProtochipsPngSetParser:
         for file_name, iso8601 in self.event_sequence:
             identifier = [self.entry_id, event_id, 1]
             trg = var_path_to_spcfc_path(
-                f"/ENTRY[entry*]/measurement/event_data_em_set/"
+                f"/ENTRY[entry*]/measurement/events/"
                 f"EVENT_DATA_EM[event_data_em*]/start_time",
                 identifier,
             )
@@ -353,11 +356,11 @@ class ProtochipsPngSetParser:
                 with zip_file_hdl.open(file_name) as fp:
                     with Image.open(fp) as png:
                         nparr = np.array(png)
-                        image_identifier = 1
+                        identifier_image = 1
                         trg = (
-                            f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set"
+                            f"/ENTRY[entry{self.entry_id}]/measurement/events"
                             f"/EVENT_DATA_EM[event_data_em{event_id}]"
-                            f"/IMAGE_SET[image_set{image_identifier}]/image_2d"
+                            f"/IMAGE[image{identifier_image}]/image_2d"
                         )
                         # TODO::writer should decorate automatically!
                         template[f"{trg}/title"] = f"Image"
@@ -374,7 +377,9 @@ class ProtochipsPngSetParser:
                             template[f"{trg}/@axes"].append(f"axis_{dim}")
                         template[f"{trg}/real"] = {"compress": nparr, "strength": 1}
                         #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
-                        template[f"{trg}/real/@long_name"] = f"Signal"
+                        template[f"{trg}/real/@long_name"] = (
+                            f"Real part of the image intensity"
+                        )
 
                         sxy = {
                             "i": ureg.Quantity(1.0, ureg.meter),

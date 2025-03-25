@@ -54,7 +54,7 @@ The following example shows one typical such dictionary.
 
 ```python
 AXON_STATIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/em_lab/STAGE_LAB[stage_lab]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/instrument/stage",
     "prefix_src": "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.",
     "use": [("design", "heating_chip")],
     "map": [("alias", "Name")],
@@ -70,7 +70,7 @@ pointed to by keyword f"{prefix_src}{map[0][1]}".
 Problems with the old algorithm can be exemplified with the following example
 ```
 VELOX_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/stage",
     "use": [
         ("tilt1/@units", "rad"),
         ("tilt2/@units", "rad"),
@@ -90,7 +90,7 @@ independently whether the corresponding value *tilt1* was found. The new approac
 and makes the dictionary more compact:
 ```
 VELOX_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em*]/em_lab/STAGE_LAB[stage_lab]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/stage",
     "map": [("design", "Stage/HolderType")],
     "map_to_float64": [
         ("tilt1", ureg.radiant, "Stage/AlphaTilt"),

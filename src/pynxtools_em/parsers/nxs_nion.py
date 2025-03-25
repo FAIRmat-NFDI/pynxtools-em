@@ -29,6 +29,7 @@ import h5py
 import nion.swift.model.NDataHandler as nsnd
 import numpy as np
 import yaml
+
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.nion_cfg import (
     NION_DYNAMIC_ABERRATION_NX,
@@ -154,7 +155,7 @@ class NionProjectParser:
                     else:
                         continue
         else:
-            nsproj_data_path = f"{self.file_path[0:self.file_path.rfind('.')]} Data"
+            nsproj_data_path = f"{self.file_path[0 : self.file_path.rfind('.')]} Data"
             print(f"nsproj_data_path __{nsproj_data_path}__")
             for file in glob.glob(f"{nsproj_data_path}/**/*", recursive=True):
                 print(f"----->>>> {file}")
@@ -430,7 +431,7 @@ class NionProjectParser:
         if unit_combination == "":
             return template
 
-        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/event_data_em_set/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]"
+        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/events/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]"
         self.id_mgn["event_id"] += 1
 
         # this is the place when you want to skip individually the writing of NXdata
@@ -438,25 +439,26 @@ class NionProjectParser:
 
         axis_names = None
         if unit_combination in NION_WHICH_SPECTRUM:
-            trg = f"{prfx}/SPECTRUM_SET[spectrum_set1]/{NION_WHICH_SPECTRUM[unit_combination][0]}"
+            trg = (
+                f"{prfx}/SPECTRUM[spectrum1]/{NION_WHICH_SPECTRUM[unit_combination][0]}"
+            )
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"intensity"
             template[f"{trg}/intensity"] = {"compress": nparr, "strength": 1}
+            template[f"{trg}/intensity/@long_name"] = f"Counts"
             axis_names = NION_WHICH_SPECTRUM[unit_combination][1]
         elif unit_combination in NION_WHICH_IMAGE:
-            trg = (
-                f"{prfx}/IMAGE_SET[image_set1]/{NION_WHICH_IMAGE[unit_combination][0]}"
-            )
+            trg = f"{prfx}/IMAGE[image1]/{NION_WHICH_IMAGE[unit_combination][0]}"
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
             template[f"{trg}/real"] = {"compress": nparr, "strength": 1}
+            template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
             axis_names = NION_WHICH_IMAGE[unit_combination][1]
         elif not any(
             (value in ["1/", "iteration"]) for value in unit_combination.split(";")
         ):
             trg = f"{prfx}/DATA[data1]"
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
-            template[f"{trg}/@NX_class"] = f"NXdata"
             template[f"{trg}/@signal"] = f"data"
             template[f"{trg}/data"] = {"compress": nparr, "strength": 1}
             axis_names = ["axis_i", "axis_j", "axis_k", "axis_l", "axis_m"][
@@ -482,20 +484,33 @@ class NionProjectParser:
                 units = axis["units"]
                 count = np.shape(nparr)[idx]
                 if units == "":
-                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
-                        offset
-                        + np.linspace(0, count - 1, num=count, endpoint=True) * step,
-                        dtype=np.float32,
-                    )
                     if unit_combination in NION_WHICH_SPECTRUM:
+                        template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
+                            offset
+                            + np.linspace(0, count - 1, num=count, endpoint=True)
+                            * step,
+                            dtype=np.int32,
+                        )
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Spectrum identifier"
+                            f"Identifier spectrum"
                         )
                     elif unit_combination in NION_WHICH_IMAGE:
+                        template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
+                            offset
+                            + np.linspace(0, count - 1, num=count, endpoint=True)
+                            * step,
+                            dtype=np.int32,
+                        )
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Image identifier"
+                            f"Identifier image"
                         )
                     else:
+                        template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
+                            offset
+                            + np.linspace(0, count - 1, num=count, endpoint=True)
+                            * step,
+                            dtype=np.float32,
+                        )
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
                             f"{axis_name}"
                             # unitless | dimensionless i.e. no unit in longname
@@ -503,8 +518,7 @@ class NionProjectParser:
                 else:
                     template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
                         offset
-                        * np.linspace(0, count - 1, num=count, endpoint=True)
-                        * step,
+                        + np.linspace(0, count - 1, num=count, endpoint=True) * step,
                         dtype=np.float32,
                     )
                     template[f"{trg}/AXISNAME[{axis_name}]/@units"] = (

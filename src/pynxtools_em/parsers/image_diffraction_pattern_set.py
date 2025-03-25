@@ -51,6 +51,7 @@ from zipfile import ZipFile
 import numpy as np
 import yaml
 from PIL import Image
+
 from pynxtools_em.examples.diffraction_pattern_set import (
     EXAMPLE_FILE_PREFIX,
     MATERIALS_PROJECT_METADATA,
@@ -166,91 +167,106 @@ class DiffractionPatternSetParser:
                 for sgid in self.mp_entries:
                     print(sgid)
                     for mpid in self.mp_entries[sgid]:
-                        if len(self.mp_entries[sgid][mpid]["files"]) > 0:
-                            print(f"\t\t{mpid}")
-                            dtyp = PIL_DTYPE_TO_NPY_DTYPE[
-                                self.mp_entries[sgid][mpid]["mode"]
-                            ]
-                            stack_2d = np.zeros(
-                                (
-                                    len(self.mp_entries[sgid][mpid]["files"]),
-                                    self.mp_entries[sgid][mpid]["shape"][0],
-                                    self.mp_entries[sgid][mpid]["shape"][1],
-                                ),
-                                dtype=dtyp,
-                            )
-                            for idx, file in enumerate(
-                                self.mp_entries[sgid][mpid]["files"]
-                            ):
-                                with zip_file_hdl.open(file) as fp:
-                                    stack_2d[idx, :, :] = np.asarray(
-                                        Image.open(fp, "r"), dtype=dtyp
-                                    )
+                        if (
+                            len(self.mp_entries[sgid][mpid]["files"]) <= 0
+                            or self.mp_meta[sgid][mpid] == {}
+                        ):
+                            continue
 
-                            self.process_stack_to_template(
-                                template, self.mp_meta[sgid][mpid], stack_2d
-                            )
-                            del stack_2d
+                        print(f"\t\t{mpid}")
+                        dtyp = PIL_DTYPE_TO_NPY_DTYPE[
+                            self.mp_entries[sgid][mpid]["mode"]
+                        ]
+                        stack_2d = np.zeros(
+                            (
+                                len(self.mp_entries[sgid][mpid]["files"]),
+                                self.mp_entries[sgid][mpid]["shape"][0],
+                                self.mp_entries[sgid][mpid]["shape"][1],
+                            ),
+                            dtype=dtyp,
+                        )
+                        for idx, file in enumerate(
+                            self.mp_entries[sgid][mpid]["files"]
+                        ):
+                            with zip_file_hdl.open(file) as fp:
+                                stack_2d[idx, :, :] = np.asarray(
+                                    Image.open(fp, "r"), dtype=dtyp
+                                )
+                        self.process_stack_to_template(
+                            template, self.mp_meta[sgid][mpid], stack_2d
+                        )
+                        del stack_2d
         return template
 
     def process_stack_to_template(
         self, template: dict, meta: dict, stack_2d: np.ndarray
     ) -> dict:
         """Add respective heavy data."""
-
-        # projects[sgid][mpid][f"phase_name"] = f"{mp_entry[0].formula_pretty}"
-        # projects[sgid][mpid][f"a_b_c"] = list(mp_entry[0].structure.lattice.abc)
-        # projects[sgid][mpid][f"angles"] = list(mp_entry[0].structure.lattice.angles)
-        # projects[sgid][mpid][f"emmet_version"] = f"{mp_entry[0].builder_meta.emmet_version}"
-        # projects[sgid][mpid][f"pymatgen_version"] = f"{mp_entry[0].builder_meta.pymatgen_version}"
-        # projects[sgid][mpid][f"database_version"] = f"{mp_entry[0].builder_meta.database_version}"
-        # projects[sgid][mpid][f"build_date"] = mp_entry[0].builder_meta.build_date
-        # projects[sgid][mpid][f"license"] = f"{mp_entry[0].builder_meta.license}"
-        # projects[sgid][mpid][f"space_group"] = sgid
-        trg = f"/ENTRY[entry{self.entry_id}]/simulation/CRYSTAL_STRUCTURE[phase1]"
-        template[f"{trg}/@NX_class"] = "NXcrystal_structure"
-        template[f"{trg}/identifier/@NX_class"] = "NXidentifier"
-        for concept in [
-            "identifier/identifier",
-            "identifier/service",
-            "identifier/is_persistent",
-        ]:
-            if concept in meta:
-                template[f"{trg}/{concept}"] = meta[concept]
-        if "a_b_c" in meta:
-            template[f"{trg}/a_b_c"] = np.asarray(meta["a_b_c"], np.float32)
-            template[f"{trg}/a_b_c/@units"] = f"{ureg.angstrom}"
-        if "angles" in meta:
-            template[f"{trg}/alpha_beta_gamma"] = np.asarray(meta["angles"], np.float32)
-            template[f"{trg}/alpha_beta_gamma/@units"] = f"{ureg.degree}"
+        trg = f"/ENTRY[entry{self.entry_id}]/SIMULATION[simulation1]"
+        template[f"{trg}/PROGRAM[program1]/program"] = "EMsoft"
+        template[f"{trg}/PROGRAM[program1]/program/@version"] = (
+            "not reported in the paper"
+        )
+        trg = f"/ENTRY[entry{self.entry_id}]/SIMULATION[simulation1]/config"
         for concept in [
             "emmet_version",
             "pymatgen_version",
             "database_version",
             # "build_date",
             "license",
-            "space_group",
         ]:
             if concept in meta:
                 template[f"{trg}/{concept}"] = meta[concept]
 
-        trg = f"/ENTRY[entry{self.entry_id}]/simulation/IMAGE_SET[image_set1]/stack_2d"
+        if all(
+            val in meta
+            for val in [
+                "identifier/identifier",
+                "identifier/service",
+                "a_b_c",
+                "angles",
+                "space_group",
+            ]
+        ):
+            template[f"{trg}/identifier"] = meta["identifier/identifier"]
+            template[f"{trg}/identifier/@type"] = meta["identifier/service"]
+            template[f"{trg}/a_b_c"] = np.asarray(meta["a_b_c"], np.float32)
+            template[f"{trg}/a_b_c/@units"] = f"{ureg.angstrom}"
+            template[f"{trg}/alpha_beta_gamma"] = np.asarray(meta["angles"], np.float32)
+            template[f"{trg}/alpha_beta_gamma/@units"] = f"{ureg.degree}"
+            template[f"{trg}/space_group"] = f"{meta['space_group']}"
 
+        # TODO::requery MaterialsProject to get missing information chemical_formula
+        if "atom_types" in meta:
+            template[f"/ENTRY[entry{self.entry_id}]/SAMPLE[sample]/atom_types"] = meta[
+                "atom_types"
+            ]
+        if "chemical_formula" in meta:
+            template[
+                f"/ENTRY[entry{self.entry_id}]/SAMPLE[sample]/chemical_formula"
+            ] = meta["chemical_formula"]
+            # TODO::needs to be Hill
+
+        trg = f"/ENTRY[entry{self.entry_id}]/SIMULATION[simulation1]/results/IMAGE[image1]/stack_2d"
         if "identifier/identifier" in meta and "phase_name" in meta:
             template[f"{trg}/title"] = (
                 f"{meta['identifier/identifier']}, {meta['phase_name']}"
             )
         else:
             template[f"{trg}/title"] = f"MaterialsProject ID was not API-retrievable"
+        # trg = f"/ENTRY[entry{self.entry_id}]/SIMULATION[simulation1]/config/PHASE[phase1]"
+        # template[f"{trg}/@NX_class"] = "NXphase"  # TODO::should be made part of NXem
+        # trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/PHASE[phase1]"
+        # template[f"{trg}/@NX_class"] = "NXdata"  # TODO::should be made part of NXem
         template[f"{trg}/@signal"] = "real"
         template[f"{trg}/@AXISNAME_indices[axis_i_indices]"] = np.uint32(2)
         template[f"{trg}/@AXISNAME_indices[axis_j_indices]"] = np.uint32(1)
-        template[f"{trg}/@AXISNAME_indices[image_identifier_indices]"] = np.uint32(0)
-        template[f"{trg}/@axes"] = ["image_identifier", "axis_j", "axis_i"]
+        template[f"{trg}/@AXISNAME_indices[identifier_image_indices]"] = np.uint32(0)
+        template[f"{trg}/@axes"] = ["identifier_image", "axis_j", "axis_i"]
         template[f"{trg}/real"] = {"compress": stack_2d, "strength": 1}
-        template[f"{trg}/real/@long_name"] = f"Signal"
+        template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
         niyx = {
-            "image_identifier": np.shape(stack_2d)[0],
+            "identifier_image": np.shape(stack_2d)[0],
             "axis_j": np.shape(stack_2d)[1],
             "axis_i": np.shape(stack_2d)[2],
         }
@@ -265,6 +281,6 @@ class DiffractionPatternSetParser:
             template[f"{trg}/AXISNAME[{axis}]/@long_name"] = (
                 f"Coordinate along {axis} (needs proper scaling!)"
             )
-            # template[f"{trg}/AXISNAME[axis_{dim}]/@units"] TODO
+            # TODO::template[f"{trg}/AXISNAME[axis_{dim}]/@units"]
         self.entry_id += 1
         return template

@@ -21,6 +21,7 @@ import pathlib
 
 import flatdict as fd
 import yaml
+
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.conventions_cfg import (
     CONV_DETECTOR_CSYS_TO_NEXUS,
@@ -80,13 +81,14 @@ class NxEmConventionParser:
             add_specific_metadata_pint(cfg, self.flat_metadata, identifier, template)
 
         # check is used convention follows EBSD community suggestions by Rowenhorst et al.
-        prfx = f"/ENTRY[entry{self.entry_id}]/coordinate_system_set"
+        prfx = f"/ENTRY[entry{self.entry_id}]/consistent_rotations"
         cvn_used = {}
         for key in [
             "rotation_handedness",
             "rotation_convention",
             "euler_angle_convention",
             "axis_angle_convention",
+            "sign_convention",
         ]:
             cvn_used[key] = template.undocumented[f"{prfx}/{key}"]
         if is_consistent_with_msmse_convention(cvn_used) == "inconsistent":
@@ -94,7 +96,7 @@ class NxEmConventionParser:
 
         # assess if made conventions are consistent
         for csys_name in ["processing", "sample"]:
-            trg = f"/ENTRY[entry{self.entry_id}]/coordinate_system_set"
+            trg = f"/ENTRY[entry{self.entry_id}]"
             handedness = template.undocumented[
                 f"{trg}/{csys_name}_reference_frame/handedness"
             ]

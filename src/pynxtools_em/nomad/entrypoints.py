@@ -18,11 +18,24 @@
 """Entry points for EM examples."""
 
 try:
-    from nomad.config.models.plugins import ExampleUploadEntryPoint
+    from nomad.config.models.plugins import (
+        AppEntryPoint,
+        ExampleUploadEntryPoint,
+    )
+    from nomad.config.models.ui import (
+        App,
+        Column,
+        Menu,
+        MenuItemHistogram,
+        MenuItemPeriodicTable,
+        MenuItemTerms,
+        SearchQuantities,
+    )
 except ImportError as exc:
     raise ImportError(
         "Could not import nomad package. Please install the package 'nomad-lab'."
     ) from exc
+
 
 em_example = ExampleUploadEntryPoint(
     title="Electron Microscopy",
