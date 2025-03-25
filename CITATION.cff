@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 title: 'pynxtools-em: A pynxtools reader plugin for electron microscopy (EM) data'
-version: 0.3.1
+version: 0.3.2
 message:
   If you use this software, please cite it using the metadata from this file.
 type: software
