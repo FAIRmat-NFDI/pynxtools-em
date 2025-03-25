@@ -73,7 +73,7 @@ em = "pynxtools_em.reader:EMReader"
 
 [project.entry-points.'nomad.plugin']
 em_example = "pynxtools_em.nomad.entrypoints:em_example"
-em_app = "pynxtools_em.nomad.entrypoints:em_app"
+# em_app = "pynxtools_em.nomad.entrypoints:em_app"
 
 [tool.setuptools.packages.find]
 where = [
