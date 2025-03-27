@@ -1,7 +1,7 @@
 definitions:
-  name: 'em'
+  name: 'Electron Microscopy ELN Example'
   sections:
-    ElectronMicroscopy:
+    ELN_for_Electron_Microscopy:
       base_sections:
         - 'pynxtools.nomad.dataconverter.NexusDataConverter'
         - 'nomad.datamodel.data.EntryData'

@@ -248,9 +248,8 @@ class NxEmNxsMTexParser:
                 grp = h5r[f"{src}/{grp_name}"]
                 for dst_name in [
                     "number_of_scan_points",
-                    "identifier_phase",
-                    "unit_cell_abc",
-                    "unit_cell_alphabetagamma",
+                    "unit_cell/a_b_c",
+                    "unit_cell/alpha_beta_gamma",
                 ]:
                     if f"{src}/{grp_name}/{dst_name}" in h5r:
                         dst = h5r[f"{src}/{grp_name}/{dst_name}"]
@@ -262,7 +261,7 @@ class NxEmNxsMTexParser:
                                 dst.attrs["units"]
                             )
 
-                for dst_name in ["phase_name", "point_group"]:
+                for dst_name in ["name", "point_group"]:
                     if f"{src}/{grp_name}/{dst_name}" in h5r:
                         template[f"{trg}[{grp_name}]/{dst_name}"] = hfive_to_template(
                             h5r[f"{src}/{grp_name}/{dst_name}"]

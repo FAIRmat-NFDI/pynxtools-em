@@ -26,26 +26,26 @@ NION_WHICH_SPECTRUM = {
     "nm_eV": ("spectrum_1d", ["axis_i", "axis_energy"]),
     "nm_nm_eV": ("spectrum_2d", ["axis_j", "axis_i", "axis_energy"]),
     "nm_nm_nm_eV": ("spectrum_3d", ["axis_k", "axis_j", "axis_i", "axis_energy"]),
-    "unitless_eV": ("stack_0d", ["identifier_spectrum", "axis_energy"]),
-    "unitless_nm_eV": ("stack_1d", ["identifier_spectrum", "axis_energy"]),
+    "unitless_eV": ("stack_0d", ["indices_spectrum", "axis_energy"]),
+    "unitless_nm_eV": ("stack_1d", ["indices_spectrum", "axis_energy"]),
     "unitless_nm_nm_eV": (
         "stack_2d",
-        ["identifier_spectrum", "axis_j", "axis_i", "axis_energy"],
+        ["indices_spectrum", "axis_j", "axis_i", "axis_energy"],
     ),
     "unitless_nm_nm_nm_eV": (
         "stack_3d",
-        ["identifier_spectrum", "axis_k", "axis_j", "axis_i", "axis_energy"],
+        ["indices_spectrum", "axis_k", "axis_j", "axis_i", "axis_energy"],
     ),
 }
 NION_WHICH_IMAGE = {
     "nm": ("image_1d", ["axis_i"]),
     "nm_nm": ("image_2d", ["axis_j", "axis_i"]),
     "nm_nm_nm": ("image_3d", ["axis_k", "axis_j", "axis_i"]),
-    "unitless_nm": ("stack_1d", ["identifier_image", "axis_i"]),
-    "unitless_nm_nm": ("stack_2d", ["identifier_image", "axis_j", "axis_i"]),
+    "unitless_nm": ("stack_1d", ["indices_image", "axis_i"]),
+    "unitless_nm_nm": ("stack_2d", ["indices_image", "axis_j", "axis_i"]),
     "unitless_nm_nm_nm": (
         "stack_3d",
-        ["identifier_image", "axis_k", "axis_j", "axis_i"],
+        ["indices_image", "axis_k", "axis_j", "axis_i"],
     ),
 }
 # TODO::use mapping to base_units like exemplified for the gatan parser
