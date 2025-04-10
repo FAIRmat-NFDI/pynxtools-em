@@ -22,13 +22,13 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pint==0.17",
     "pynxtools>=0.10.1",
     "hyperspy>=1.7.6",  
     "rosettasciio>=0.6",
     "kikuchipy>=0.9.0",
     "pyxem>=0.16.0",
     "numpy>=1.22.4,<2.0.0",
+    "pint",
     "nionswift",
     "flatdict",
     "xmltodict",
