@@ -402,6 +402,7 @@ def map_functor(
                 pint_src = ureg.Quantity(src_values, cmd[3])
                 set_value(template, trg, pint_src.to(cmd[1]), trg_dtype_key)
         elif case == "case_six":
+            raise NotImplementedError("Check handling of units!")
             if f"{prfx_src}{cmd[2]}" not in mdata or f"{prfx_src}{cmd[3]}" not in mdata:
                 continue
             src_val = mdata[f"{prfx_src}{cmd[2]}"]
