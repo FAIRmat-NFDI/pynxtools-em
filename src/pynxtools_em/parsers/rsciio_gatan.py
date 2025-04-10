@@ -32,7 +32,7 @@ from pynxtools_em.configurations.rsciio_gatan_cfg import (
     GATAN_WHICH_SPECTRUM,
 )
 from pynxtools_em.utils.gatan_utils import gatan_image_spectrum_or_generic_nxdata
-from pynxtools_em.utils.get_file_checksum import (
+from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )

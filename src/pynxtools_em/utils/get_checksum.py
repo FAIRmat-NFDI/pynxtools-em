@@ -31,3 +31,13 @@ def get_sha256_of_file_content(file_hdl) -> str:
     for byte_block in iter(lambda: file_hdl.read(4096), b""):
         sha256_hash.update(byte_block)
     return str(sha256_hash.hexdigest())
+
+
+def get_sha256_of_bytes_object(bytes_obj) -> str:
+    """Compute a hashvalue of given file, here SHA256."""
+    # Read and update hash string value in blocks of 4K
+    sha256_hash = hashlib.sha256()
+    # TODO::evaluate all bytes from bytes_obj
+    # for byte_block in iter(lambda: bytes_obj.read(4096), b""):
+    sha256_hash.update(bytes_obj)
+    return str(sha256_hash.hexdigest())

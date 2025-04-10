@@ -21,6 +21,7 @@ from typing import Dict, List
 
 import h5py
 import numpy as np
+import yaml
 from pynxtools_em.concepts.hfive_concepts import (
     IS_ATTRIBUTE,
     IS_COMPOUND_DATASET,
@@ -29,6 +30,7 @@ from pynxtools_em.concepts.hfive_concepts import (
     IS_REGULAR_DATASET,
     Concept,
 )
+from pynxtools_em.utils.get_checksum import get_sha256_of_bytes_object
 
 # the base parser implements the processing of standardized orientation maps via
 # the pyxem software package from the electron microscopy community
@@ -108,6 +110,7 @@ class HdfFiveBaseParser:
                                 type(h5obj),
                                 np.shape(h5obj),
                                 h5obj[0],
+                                get_sha256_of_bytes_object(h5obj[0]),
                             )
                             self.instances[node_name] = Concept(
                                 node_name,
@@ -148,6 +151,7 @@ class HdfFiveBaseParser:
                                     type(h5obj),
                                     np.shape(h5obj),
                                     h5obj[()],
+                                    get_sha256_of_bytes_object(h5obj[()]),
                                 )
                                 self.instances[node_name] = Concept(
                                     node_name,
@@ -165,6 +169,7 @@ class HdfFiveBaseParser:
                                         type(h5obj),
                                         np.shape(h5obj),
                                         h5obj[0],
+                                        get_sha256_of_bytes_object(h5obj[0]),
                                     )
                                     self.instances[node_name] = Concept(
                                         node_name,
@@ -181,6 +186,7 @@ class HdfFiveBaseParser:
                                         type(h5obj),
                                         np.shape(h5obj),
                                         h5obj[()],
+                                        get_sha256_of_bytes_object(h5obj[()]),
                                     )
                                     self.instances[node_name] = Concept(
                                         node_name,
@@ -197,6 +203,7 @@ class HdfFiveBaseParser:
                                     type(h5obj),
                                     np.shape(h5obj),
                                     h5obj[0, 0],
+                                    get_sha256_of_bytes_object(h5obj[...]),
                                 )
                                 self.instances[node_name] = Concept(
                                     node_name,
@@ -213,6 +220,7 @@ class HdfFiveBaseParser:
                                     type(h5obj),
                                     np.shape(h5obj),
                                     h5obj[0, 0, 0],
+                                    get_sha256_of_bytes_object(h5obj[...]),
                                 )
                                 self.instances[node_name] = Concept(
                                     node_name,
@@ -274,6 +282,7 @@ class HdfFiveBaseParser:
                         np.shape(val),
                         str,
                         val,
+                        get_sha256_of_bytes_object(val.encode("utf-8")),
                     )
                     self.instances[f"{prefix}/{key}"] = Concept(
                         f"{prefix}/@{key}",
@@ -291,6 +300,7 @@ class HdfFiveBaseParser:
                         np.shape(val),
                         val.dtype,
                         val,
+                        get_sha256_of_bytes_object(bytes(val)),
                     )
                     self.instances[f"{prefix}/{key}"] = Concept(
                         f"{prefix}/@{key}",
@@ -310,6 +320,11 @@ class HdfFiveBaseParser:
         """Walk recursively through the file to get content."""
         # if self.h5r is not None:  # if self.file_path is not None:
         with h5py.File(self.file_path, "r") as self.h5r:
+            # parse the root header of the file, which typically has time data
+            self.get_attribute_data_structure("", dict(self.h5r["/"].attrs))
+            # automatic timestamping of objects in the HDF5 tree has already
+            # been deactivated since several years
+
             # first step visit all groups and datasets recursively
             # get their full path within the HDF5 file
             self.h5r.visititems(self)
@@ -323,6 +338,21 @@ class HdfFiveBaseParser:
                     self.get_attribute_data_structure(
                         h5path, dict(self.h5r[h5path].attrs)
                     )
+
+    def report_hashes(self):
+        blacklist = ["/@file_time"]
+        hashes: Dict[str, str] = {}
+        for key, ifo in self.groups.items():
+            if key not in blacklist:
+                hashes[key] = ""
+        for key, ifo in self.datasets.items():
+            if key not in blacklist:
+                hashes[key] = ifo[-1]
+        for key, ifo in self.attributes.items():
+            if key not in blacklist:
+                hashes[key] = ifo[-1]
+        with open(f"{self.file_path}.sha256.yaml", "w") as fp:
+            yaml.dump(hashes, fp, default_flow_style=False, sort_keys=True)
 
     def report_groups(self):
         print(f"{self.file_path} contains the following groups:")
@@ -359,7 +389,7 @@ class HdfFiveBaseParser:
             with open(f"{self.file_path}.EbsdHdfFileInstanceNames.txt", "w") as txt:
                 for instance_name, concept in self.instances.items():
                     txt.write(
-                        f"/{instance_name}, hdf: {concept.hdf}, "
+                        f"{instance_name}, hdf: {concept.hdf}, "
                         f"type: {concept.dtype}, shape: {concept.shape}\n"
                     )
 
@@ -373,7 +403,7 @@ class HdfFiveBaseParser:
                 f"{self.file_path}.EbsdHdfFileInstanceNamesTemplatized.txt", "w"
             ) as txt:
                 for instance_name, concept in self.instances.items():
-                    txt.write(f"/{instance_name}, hdf: {concept.hdf}\n")
+                    txt.write(f"{instance_name}, hdf: {concept.hdf}\n")
 
         if store_templates is True:
             print(
