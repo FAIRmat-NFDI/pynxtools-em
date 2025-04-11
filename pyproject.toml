@@ -55,6 +55,9 @@ dev = [
     "uv",
     "pre-commit"
 ]
+dev-nomad = [
+    "pillow==10.0.1"
+]
 docs = [
     "mkdocs",
     "mkdocs-material",
