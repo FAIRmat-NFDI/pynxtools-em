@@ -15,10 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Get a digital fingerprint (hash) of a file."""
+"""Get a digital fingerprint (hash) of a file or a bytes object."""
 
 import hashlib
-
 
 DEFAULT_CHECKSUM_ALGORITHM = "sha256"
 
@@ -35,9 +34,10 @@ def get_sha256_of_file_content(file_hdl) -> str:
 
 def get_sha256_of_bytes_object(bytes_obj) -> str:
     """Compute a hashvalue of given file, here SHA256."""
-    # Read and update hash string value in blocks of 4K
     sha256_hash = hashlib.sha256()
-    # TODO::evaluate all bytes from bytes_obj
-    # for byte_block in iter(lambda: bytes_obj.read(4096), b""):
+    # when a Python bytes object is created it is a read-only copy of the data in memory
+    # that can be hence as it is anyway in memory already be passed to the hasher
+    # in one update call instead of multiple update calls like in the above-mentioned
+    # example of reading content from a file handler
     sha256_hash.update(bytes_obj)
     return str(sha256_hash.hexdigest())
