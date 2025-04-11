@@ -18,11 +18,12 @@
 """Dict mapping values for a specifically configured NOMAD Oasis."""
 
 from typing import Any, Dict
+
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 GER_BERLIN_KOCH_GROUP_INSTRUMENT_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument",
-    "prefix_src": "instrument",
+    "prefix_src": "instrument/",
     "map_to_str": [
         "location",
         "name",
@@ -35,7 +36,7 @@ GER_BERLIN_KOCH_GROUP_INSTRUMENT_TO_NEXUS: Dict[str, Any] = {
 
 GER_BERLIN_KOCH_GROUP_ECOLUMN_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/EBEAM_COLUMN[ebeam_column]",
-    "prefix_src": "ebeam_column",
+    "prefix_src": "ebeam_column/",
     "map_to_str": [
         ("fabrication/vendor", "vendor"),
         ("fabrication/model", "model"),
@@ -45,12 +46,12 @@ GER_BERLIN_KOCH_GROUP_ECOLUMN_TO_NEXUS: Dict[str, Any] = {
 
 GER_BERLIN_KOCH_GROUP_ESOURCE_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/EBEAM_COLUMN[ebeam_column]/electron_source",
-    "prefix_src": "electron_source",
+    "prefix_src": "electron_source/",
     "map_to_str": [
         "name",
         "emitter_type",
     ],
-    "map_to_f64": [
-        ("voltage", ureg.voltage, "voltage/value", "voltage/unit"),
+    "map_to_f8": [
+        ("voltage", ureg.volt, "voltage/value", "voltage/unit"),
     ],
 }

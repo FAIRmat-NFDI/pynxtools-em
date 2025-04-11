@@ -28,13 +28,16 @@ from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 from pynxtools_em.parsers.conventions import NxEmConventionParser
 from pynxtools_em.parsers.hfive_apex import HdfFiveEdaxApexParser
 from pynxtools_em.parsers.hfive_bruker import HdfFiveBrukerEspritParser
-from pynxtools_em.parsers.hfive_dreamthreed_legacy import HdfFiveDreamThreedLegacyParser
 
+# from pynxtools_em.parsers.hfive_dreamthreed_legacy import HdfFiveDreamThreedLegacyParser
 # from pynxtools_em.parsers.hfive_ebsd import HdfFiveEbsdCommunityParser
 from pynxtools_em.parsers.hfive_edax import HdfFiveEdaxOimAnalysisParser
 
 # from pynxtools_em.parsers.hfive_emsoft import HdfFiveEmSoftParser
 from pynxtools_em.parsers.hfive_oxford import HdfFiveOxfordInstrumentsParser
+from pynxtools_em.parsers.hu_berlin_koch_group import (
+    NxEmNomadOasisGerBerlinKochGroup,
+)
 from pynxtools_em.parsers.image_diffraction_pattern_set import (
     DiffractionPatternSetParser,
 )
@@ -100,7 +103,10 @@ class EMReader(BaseReader):
         if len(case.cfg) == 1:
             print("Parse (meta)data coming from a configuration of an RDM...")
             # having or using a deployment-specific configuration is optional
-            nx_em_cfg = NxEmNomadOasisConfigParser(case.cfg[0], entry_id)
+            # nx_em_cfg = NxEmNomadOasisConfigParser(case.cfg[0], entry_id)
+            nx_em_cfg = NxEmNomadOasisGerBerlinKochGroup(
+                case.cfg[0], entry_id, verbose=True
+            )
             nx_em_cfg.parse(template)
 
         if len(case.eln) == 1:

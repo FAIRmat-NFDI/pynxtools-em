@@ -10,12 +10,12 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "../../.py3.11.11/bin/dataconverter",
-            "args": ["tests/data/eln/eln_data.yaml",
+            "args": ["tests/data/hu_berlin_koch_group/em.nion.oasis.specific.yaml",
                      "--reader",
                      "em",
                      "--nxdl",
                      "NXem",
-                     "--output=tests/prod/data.eln.eln_data.yaml.nxs"]
+                     "--output=tests/prod/data.hu_berlin_koch_group.em.nion.oasis.specific.yaml.nxs"]
         }
     ]
 }
