@@ -29,7 +29,7 @@ from pynxtools_em.configurations.image_tiff_jeol_cfg import (
     JEOL_DYNAMIC_VARIOUS_NX,
     JEOL_STATIC_VARIOUS_NX,
 )
-from pynxtools_em.utils.get_file_checksum import (
+from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )

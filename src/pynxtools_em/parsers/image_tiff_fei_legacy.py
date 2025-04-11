@@ -43,7 +43,7 @@ from pynxtools_em.configurations.image_tiff_fei_cfg import (
     FEI_TECNAI_DYNAMIC_VARIOUS_NX,
     FEI_TECNAI_STATIC_VARIOUS_NX,
 )
-from pynxtools_em.utils.get_file_checksum import (
+from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )

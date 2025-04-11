@@ -41,7 +41,7 @@ from pynxtools_em.configurations.image_png_protochips_cfg import (
     AXON_STATIC_STAGE_NX,
     specific_to_variadic,
 )
-from pynxtools_em.utils.get_file_checksum import (
+from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )

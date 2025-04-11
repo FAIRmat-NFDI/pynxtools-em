@@ -34,7 +34,7 @@ from pynxtools_em.configurations.image_tiff_zeiss_cfg import (
     ZEISS_DYNAMIC_VARIOUS_NX,
     ZEISS_STATIC_VARIOUS_NX,
 )
-from pynxtools_em.utils.get_file_checksum import (
+from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )

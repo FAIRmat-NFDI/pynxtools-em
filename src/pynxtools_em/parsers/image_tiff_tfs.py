@@ -37,7 +37,7 @@ from pynxtools_em.configurations.image_tiff_tfs_cfg import (
     TFS_STATIC_VARIOUS_NX,
     TIFF_TFS_PARENT_CONCEPTS,
 )
-from pynxtools_em.utils.get_file_checksum import (
+from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )

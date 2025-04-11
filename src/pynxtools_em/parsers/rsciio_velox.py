@@ -37,7 +37,7 @@ from pynxtools_em.configurations.rsciio_velox_cfg import (
     VELOX_WHICH_SPECTRUM,
 )
 from pynxtools_em.methods.ebsd import has_hfive_magic_header
-from pynxtools_em.utils.get_file_checksum import (
+from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )
