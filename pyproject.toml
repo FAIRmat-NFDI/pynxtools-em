@@ -68,7 +68,8 @@ docs = [
 ]
 ipynb = [
     "jupyter",
-    "jupyterlab"
+    "jupyterlab",
+    "jupyterlab_h5web"
 ]
 
 [project.entry-points."pynxtools.reader"]
