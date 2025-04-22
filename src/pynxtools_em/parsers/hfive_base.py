@@ -367,7 +367,7 @@ class HdfFiveBaseParser:
                         h5path, dict(self.h5r[h5path].attrs)
                     )
 
-    def store_hashes(self, blacklist):
+    def store_hashes(self, blacklist, suffix: str = ".test"):
         """Generate yaml file with sorted list of HDF5 grp, dst, and attrs
 
         including their datatype and SHA256 checksum computed from the each nodes data.
@@ -406,7 +406,7 @@ class HdfFiveBaseParser:
         for key, ifo in self.attributes.items():
             if key not in blacklist:
                 hashes[key] = f"is_a_attr__{ifo[-1]}"
-        with open(f"{self.file_path}.sha256.yaml", "w") as fp:
+        with open(f"{self.file_path}.sha256{suffix}.yaml", "w") as fp:
             yaml.dump(hashes, fp, default_flow_style=False, sort_keys=True)
 
     def report_groups(self):

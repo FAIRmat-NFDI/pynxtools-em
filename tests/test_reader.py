@@ -17,44 +17,109 @@
 #
 
 import os
-import xml.etree.ElementTree as ET
-from glob import glob
+import pytest
+import yaml
 
-from pynxtools.dataconverter.helpers import (
-    generate_template_from_nxdl,
-    validate_data_dict,
+from pynxtools.dataconverter.convert import get_reader
+from pynxtools.testing.nexus_conversion import ReaderTest
+from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
+
+READER_NAME = "em"
+READER_CLASS = get_reader(READER_NAME)
+# ToDo: make tests for all supported application definitions possible
+NXDLS = ["NXem"]  # READER_CLASS.supported_nxdls
+
+test_cases = [
+    ("CHANGEME", "CHANGE MY DESCRIPTION"),
+]
+
+test_params = []
+
+for test_case in test_cases:
+    # ToDo: make tests for all supported appdefs possible
+    for nxdl in NXDLS:
+        test_params += [pytest.param(nxdl, test_case[0], id=f"{test_case[1]}, {nxdl}")]
+
+NXEM_VOLATILE_METADATA = [
+    "/@HDF5_version",
+    "/@NX_class",
+    "/@NeXus_repository",
+    "/@NeXus_version",
+    "/@default",
+    "/@file_name",
+    "/@file_time",
+    "/@h5py_version",
+]
+
+
+@pytest.mark.parametrize(
+    "nxdl, sub_reader_data_dir",
+    test_params,
 )
-from pynxtools.dataconverter.template import Template
-from pynxtools.definitions.dev_tools.utils.nxdl_utils import get_nexus_definitions_path
-from pynxtools_em.reader import EMReader
-
-
-def test_example_data():
+def test_nexus_conversion(nxdl, sub_reader_data_dir, tmp_path, caplog):
     """
-    Test the example data for the em reader
-    """
-    return
+    Test EM reader
 
-    reader = EMReader
+    Parameters
+    ----------
+    nxdl : str
+        Name of the NXDL application definition that is to be tested by
+        this reader plugin (e.g. NXsts, NXmpes, etc)..
+    sub_reader_data_dir : str
+        Test data directory that contains all the files required for running the data
+        conversion through one of the sub-readers. All of these data dirs
+        are placed within tests/data/...
+    tmp_path : pathlib.PosixPath
+        Pytest fixture variable, used to clean up the files generated during
+        the test.
+    caplog : _pytest.logging.LogCaptureFixture
+        Pytest fixture variable, used to capture the log messages during the
+        test.
+
+    Returns
+    -------
+    None.
+
+    """
+    caplog.clear()
+    reader = READER_NAME
     assert callable(reader.read)
 
-    def_dir = get_nexus_definitions_path()
+    files_or_dir = os.path.join(
+        *[os.path.dirname(__file__), "data", sub_reader_data_dir]
+    )
 
-    data_dir = os.path.join(os.path.dirname(__file__), "data")
-    input_files = sorted(glob(os.path.join(data_dir, "*")))
+    test = ReaderTest(
+        nxdl=nxdl,
+        reader_name=READER_NAME,
+        files_or_dir=files_or_dir,
+        tmp_path=tmp_path,
+        caplog=caplog,
+    )
+    test.convert_to_nexus(caplog_level="WARNING", ignore_undocumented=True)
 
-    for supported_nxdl in reader.supported_nxdls:
-        nxdl_file = os.path.join(
-            def_dir, "contributed_definitions", f"{supported_nxdl}.nxdl.xml"
-        )
+    hfive_parser = HdfFiveBaseParser(
+        file_path=files_or_dir, hashing=True, verbose=False
+    )
+    hfive_parser.get_content()
+    hfive_parser.store_hashes(blacklist=NXEM_VOLATILE_METADATA, suffix=".test")
 
-        root = ET.parse(nxdl_file).getroot()
-        template = Template()
-        generate_template_from_nxdl(root, template)
+    # assert against reference YAML artifact
+    with open(f"CHANGEME.sha256.test.yaml", "r") as fp_test:
+        # try:
+        test_artifact = yaml.safe_load(fp_test)
+        # except Exception as e:
+        # todo
+        # error logs ?
 
-        read_data = reader().read(
-            template=Template(template), file_paths=tuple(input_files)
-        )
+    with open(f"CHANGEME.sha256.ref.yaml", "r") as fp_ref:
+        # try:
+        reference_artifact = yaml.safe_load(fp_ref)
+        # except Exception as e:
+        # todo
+        # erros logs ?
 
-        assert isinstance(read_data, Template)
-        assert validate_data_dict(template, read_data, root)
+    assert test_artifact == reference_artifact
+    # test.check_reproducibility_of_nexus()
+
+    # TODO remove if not working
