@@ -490,7 +490,7 @@ tzlocal==5.3.1
     #   nionswift
 uncertainties==3.2.2
     # via lmfit
-urllib3==2.3.0
+urllib3==2.5.0
     # via
     #   requests
     #   types-requests
