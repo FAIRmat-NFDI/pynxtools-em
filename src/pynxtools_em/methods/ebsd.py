@@ -70,9 +70,7 @@ class EbsdPointCloud:
         self.phases = {}  #  named phases
         self.euler = None  # Bunge-Euler ZXZ angle for each scan point np.nan otherwise
         self.phase_id = None  # phase_id for best solution found for each scan point
-        self.pos: Dict[
-            str, Any
-        ] = {}  # "x", "y", "z" pos for each scan point unmodified/not rediscretized
+        self.pos = {}  # "x", "y", "z" pos for each scan point unmodified/not rediscretized
         self.descr_type = None  # NXem_ebsd/roi/descriptor (band contrast, CI, MAD)
         self.descr_value = None
 
