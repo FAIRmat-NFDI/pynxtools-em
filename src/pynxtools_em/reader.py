@@ -103,10 +103,9 @@ class EMReader(BaseReader):
         if len(case.cfg) == 1:
             print("Parse (meta)data coming from a configuration of an RDM...")
             # having or using a deployment-specific configuration is optional
-            # nx_em_cfg = NxEmNomadOasisConfigParser(case.cfg[0], entry_id)
-            nx_em_cfg = NxEmNomadOasisGerBerlinKochGroup(
-                case.cfg[0], entry_id, verbose=True
-            )
+            nx_em_cfg = NxEmNomadOasisConfigParser(case.cfg[0], entry_id)
+            # currently we have switched this off
+            # nx_em_cfg = NxEmNomadOasisGerBerlinKochGroup(case.cfg[0], entry_id)
             nx_em_cfg.parse(template)
 
         if len(case.eln) == 1:
