@@ -1,0 +1,30 @@
+# url for NeXus
+# - alias: use metadata from this website: https://manual.nexusformat.org/classes/contributed_definitions/NXem.html
+instrument:
+  location: Humboldt-Universitaet zu Berlin, Center for the Science of Materials Berlin (CSMB)
+  name: Nion HERMES
+  vendor: Bruker-Nion
+  model: HERMES
+  serial_number: 1
+  capabilities: monochromated, aberration-corrected
+ebeam_column:
+  vendor: Bruker-Nion
+  model: HERMES
+  serial_number: 1
+electron_source:
+  name: Nion HERMES
+  voltage:
+    unit: V
+    value: 200000
+  emitter_type: field_emission
+coordinate_system:
+- alias: Following the idea of McStas that the z-axis points along the beam, electron microscopy as a beam line to study electron/matter interaction.
+    type: cartesian
+    handedness: right_handed
+    xaxis_direction: Direction 1 that is perpendicular to the z_direction for a right_handed cartesian
+    xaxis_alias: x-axis
+    yaxis_direction: Direction 2 that is perpendicular to the xaxis_direction and the z_direction for a right_handed cartesian
+    yaxis_alias: y-axis
+    zaxis_direction: Direction of an electron travelling hypothetically exactly along the optical axis towards the specimen
+    zaxis_alias: Ideal beam direction
+    origin: E.g. a characteristic point along electron-optical setup such as the point where the probe exits what is considered as the gun (source).
