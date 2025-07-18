@@ -22,7 +22,7 @@ classifiers = [
 ]
 dependencies = [
     # "pynxtools @ git+https://github.com/FAIRmat-NFDI/pynxtools.git@v0.11.0-rc.1",
-    "numpy>=1.22.4,<2.0.0",
+    "numpy",
     "pint",
     "hyperspy>=1.7.6",  
     "rosettasciio>=0.9.0",
@@ -68,8 +68,11 @@ docs = [
     "mkdocs-click",
     "markdown-include"
 ]
+npy1 = [
+    "numpy>=1.22.4,<2.0.0"
+]
 npy2 = [
-    "numpy>=2.0.0",
+    "numpy>=2.0.0"
 ]
 ipynb = [
     "jupyter",
