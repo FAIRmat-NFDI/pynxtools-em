@@ -51,6 +51,8 @@ dev = [
     "types-pyyaml",
     "types-pytz",
     "types-requests",
+    "requests>=2.32.4",
+    "urllib3>=2.5.0",
     "pip-tools",
     "uv",
     "pre-commit"
