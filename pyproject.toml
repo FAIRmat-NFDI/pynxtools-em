@@ -21,7 +21,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pynxtools @ git+https://github.com/FAIRmat-NFDI/pynxtools@emapm_database_reprocessing",
+    # "pynxtools @ git+https://github.com/FAIRmat-NFDI/pynxtools.git@v0.11.0-rc.1",
     "numpy>=1.22.4,<2.0.0",
     "pint",
     "hyperspy>=1.7.6",  
