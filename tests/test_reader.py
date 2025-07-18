@@ -17,11 +17,12 @@
 #
 
 import os
+
 import pytest
 import yaml
-
 from pynxtools.dataconverter.convert import get_reader
 from pynxtools.testing.nexus_conversion import ReaderTest
+
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 
 READER_NAME = "em"
@@ -30,7 +31,7 @@ READER_CLASS = get_reader(READER_NAME)
 NXDLS = ["NXem"]  # READER_CLASS.supported_nxdls
 
 test_cases = [
-    ("CHANGEME", "CHANGE MY DESCRIPTION"),
+    ("eln", "simple ELN"),
 ]
 
 test_params = []
@@ -41,14 +42,13 @@ for test_case in test_cases:
         test_params += [pytest.param(nxdl, test_case[0], id=f"{test_case[1]}, {nxdl}")]
 
 NXEM_VOLATILE_METADATA = [
-    "/@HDF5_version",
-    "/@NX_class",
-    "/@NeXus_repository",
-    "/@NeXus_version",
-    "/@default",
-    "/@file_name",
-    "/@file_time",
-    "/@h5py_version",
+    "/@HDF5_Version",
+    "/@NeXus_release",
+    "/@file_update_time",
+    "entry1/definition/@version",
+    "entry1/profiling/program1/program/@version",
+    "entry1/profiling/template_filling_elapsed_time",
+    # "entry1/profiling/template_filling_elapsed_time/@units"
 ]
 
 
@@ -83,11 +83,20 @@ def test_nexus_conversion(nxdl, sub_reader_data_dir, tmp_path, caplog):
     """
     caplog.clear()
     reader = READER_NAME
-    assert callable(reader.read)
+    # assert callable(reader.read)
 
     files_or_dir = os.path.join(
         *[os.path.dirname(__file__), "data", sub_reader_data_dir]
     )
+    files_or_dir = os.path.join(
+        *[
+            os.path.dirname(__file__),
+            "data",
+            "eln",
+        ]  # "data/eln/em.oasis.specific.yaml"]
+    )
+
+    print(f">>>>>>>> files_or_dir n00b >>>>>>>\n{files_or_dir}")
 
     test = ReaderTest(
         nxdl=nxdl,
@@ -98,21 +107,25 @@ def test_nexus_conversion(nxdl, sub_reader_data_dir, tmp_path, caplog):
     )
     test.convert_to_nexus(caplog_level="WARNING", ignore_undocumented=True)
 
+    print(f">>>>>>>> test.created_nexus n00b >>>>>>>\n{test.created_nexus}")
+
     hfive_parser = HdfFiveBaseParser(
-        file_path=files_or_dir, hashing=True, verbose=False
+        file_path=test.created_nexus, hashing=True, verbose=False
     )
     hfive_parser.get_content()
     hfive_parser.store_hashes(blacklist=NXEM_VOLATILE_METADATA, suffix=".test")
 
     # assert against reference YAML artifact
-    with open(f"CHANGEME.sha256.test.yaml", "r") as fp_test:
+    with open(f"{test.created_nexus}.sha256.test.yaml", "r") as fp_test:
         # try:
         test_artifact = yaml.safe_load(fp_test)
         # except Exception as e:
         # todo
         # error logs ?
 
-    with open(f"CHANGEME.sha256.ref.yaml", "r") as fp_ref:
+    print(files_or_dir)
+
+    with open(f"{files_or_dir}/output.nxs.sha256.ref.yaml", "r") as fp_ref:
         # try:
         reference_artifact = yaml.safe_load(fp_ref)
         # except Exception as e:
