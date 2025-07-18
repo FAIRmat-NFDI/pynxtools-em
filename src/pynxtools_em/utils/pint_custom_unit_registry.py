@@ -36,6 +36,8 @@ ureg.define("nx_unitless = 1")
 ureg.define("nx_dimensionless = 1")
 ureg.define("nx_any = 1")
 
+ureg.define("dose_rate = 1 / angstrom ** 2 / second")
+
 NX_UNITLESS = ureg.Quantity(1, ureg.nx_unitless)
 NX_DIMENSIONLESS = ureg.Quantity(1, ureg.nx_dimensionless)
 NX_ANY = ureg.Quantity(1, ureg.nx_any)
