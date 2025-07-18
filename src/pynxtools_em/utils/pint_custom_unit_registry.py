@@ -41,10 +41,10 @@ NX_DIMENSIONLESS = ureg.Quantity(1, ureg.nx_dimensionless)
 NX_ANY = ureg.Quantity(1, ureg.nx_any)
 
 
-def is_not_special_unit(units: pint.Unit) -> bool:
+def is_not_special_unit(qnt: pint.Quantity) -> bool:
     """True if not a special NeXus unit category."""
     for special_units in [NX_UNITLESS.units, NX_DIMENSIONLESS.units, NX_ANY.units]:
-        if units == special_units:
+        if qnt.units == special_units:
             return False
     return True
 
