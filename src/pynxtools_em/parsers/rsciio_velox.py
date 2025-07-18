@@ -37,7 +37,7 @@ from pynxtools_em.configurations.rsciio_velox_cfg import (
     VELOX_WHICH_SPECTRUM,
 )
 from pynxtools_em.methods.ebsd import has_hfive_magic_header
-from pynxtools_em.utils.get_file_checksum import (
+from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )
@@ -173,10 +173,12 @@ class RsciioVeloxParser:
         for lens_name in [
             "C1",
             "C2",
+            "C3",
             "Diffraction",
             "Gun",
             "Intermediate",
             "MiniCondenser",
+            "Lorentz",
             "Objective",
             "Projector1",
             "Projector2",
@@ -186,7 +188,10 @@ class RsciioVeloxParser:
                 template[f"{trg}/LENS_EM[lens{lens_idx}]/power_setting"] = (
                     string_to_number(flat_orig_meta[f"Optics/{lens_name}LensIntensity"])
                 )
-                # TODO::unit?
+                if lens_name is not "Gun":
+                    template[f"{trg}/LENS_EM[lens{lens_idx}]/power_setting/@units"] = (
+                        "%"
+                    )
                 toggle = True
             if f"Optics/{lens_name}LensMode" in flat_orig_meta:
                 template[f"{trg}/LENS_EM[lens{lens_idx}]/mode"] = string_to_number(
@@ -194,10 +199,43 @@ class RsciioVeloxParser:
                 )
                 toggle = True
             if toggle:
-                # TODO::name should not really be there as it is considered rather a static quantity during the microscope session
-                template[f"{trg}/LENS_EM[lens{lens_idx}]/name"] = f"{lens_name}"
+                template[
+                    f"/ENTRY[entry{identifier[0]}]/measurement/instrument/ebeam_column/LENS_EM[lens{lens_idx}]/name"
+                ] = f"{lens_name}"
                 lens_idx += 1
-        # Optics/GunLensSetting
+
+        aperture_idx = 1
+        # condenser lenses
+        for lens_name in [
+            "C1",
+            "C2",
+            "C3",
+        ]:
+            if f"Optics/{lens_name} Aperture" in flat_orig_meta:
+                qnt = ureg.Quantity(
+                    string_to_number(flat_orig_meta[f"Optics/{lens_name} Aperture"]),
+                    ureg.micrometer,
+                )
+                template[f"{trg}/APERTURE[aperture{aperture_idx}]/setting"] = (
+                    qnt.magnitude
+                )
+                template[f"{trg}/APERTURE[aperture{aperture_idx}]/setting/@units"] = (
+                    qnt.units
+                )
+                template[
+                    f"/ENTRY[entry{identifier[0]}]/measurement/instrument/ebeam_column/APERTURE[aperture{aperture_idx}]/name"
+                ] = f"{lens_name}"
+                aperture_idx += 1
+
+        # other/special lenses
+        for lens_name in ["OBJ", "SA"]:
+            if f"Optics/{lens_name} Aperture" in flat_orig_meta:
+                template[f"{trg}/APERTURE[aperture{aperture_idx}]/status"] = (
+                    flat_orig_meta[f"Optics/{lens_name} Aperture"]
+                )
+                template[
+                    f"/ENTRY[entry{identifier[0]}]/measurement/instrument/ebeam_column/APERTURE[aperture{aperture_idx}]/name"
+                ] = f"{lens_name}"
 
         for cfg in [
             VELOX_STATIC_ENTRY_NX,
