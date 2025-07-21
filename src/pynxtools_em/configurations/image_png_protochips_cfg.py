@@ -40,7 +40,7 @@ def specific_to_variadic(token):
 
 
 AXON_STATIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/instrument/stage",
+    "prefix_trg": "/ENTRY[entry*]/measurement/instrument/MANIPULATOR[stage]",
     "prefix_src": "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.",
     "use": [("design", "heating_chip")],
     "map_to_str": [("alias", "Name")],
@@ -60,7 +60,7 @@ AXON_STATIC_DETECTOR_NX: Dict[str, Any] = {
 
 
 AXON_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/stage",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/MANIPULATOR[stage]",
     "prefix_src": "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.",
     "map_to_f8": [
         ("position", ureg.meter, ["X", "Y", "Z"], ureg.meter)
@@ -69,7 +69,7 @@ AXON_DYNAMIC_STAGE_NX: Dict[str, Any] = {
 
 
 AXON_DYNAMIC_CHIP_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/stage/sample_heater",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/MANIPULATOR[stage]/sample_heater",
     "prefix_src": "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].",
     "use": [("physical_quantity", "temperature")],
     "map_to_f8": [
@@ -81,7 +81,7 @@ AXON_DYNAMIC_CHIP_NX: Dict[str, Any] = {
 
 
 AXON_DYNAMIC_AUX_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/ebeam_column",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/ebeam_column",
     "prefix_src": "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].",
     "use": [
         ("SENSOR[sensor1]/measurement", "temperature"),
@@ -95,11 +95,11 @@ AXON_DYNAMIC_AUX_NX: Dict[str, Any] = {
 
 
 AXON_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]",
     "prefix_src": "MicroscopeControlImageMetadata.MicroscopeSettings.",
     "map_to_str": [
         (
-            "instrument/ebeam_column/DEFLECTOR[beam_blanker1]/state",
+            "instrument/ebeam_column/DEFLECTOR[blanker1]/state",
             "BeamBlankerState",
         ),
     ],

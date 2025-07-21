@@ -39,7 +39,6 @@ OASISELN_EM_SAMPLE_TO_NEXUS: Dict[str, Any] = {
     "map_to_str": [
         "name",
         "preparation_date",
-        ("type", "method"),
     ],
     "map_to_bool": ["is_simulation"],
     "map_to_f8": [("thickness", ureg.meter, "thickness/value", "thickness/unit")],

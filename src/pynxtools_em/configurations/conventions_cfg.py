@@ -36,8 +36,8 @@ CONV_PROCESSING_CSYS_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/processing_reference_frame",
     "prefix_src": "processing_reference_frame/",
     "map_to_str": [
+        "alias",
         "type",
-        "handedness",
         "origin",
         "x_alias",
         "x_direction",
@@ -53,8 +53,8 @@ CONV_SAMPLE_CSYS_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/sample_reference_frame",
     "prefix_src": "sample_reference_frame/",
     "map_to_str": [
+        "alias",
         "type",
-        "handedness",
         "origin",
         "x_alias",
         "x_direction",
@@ -70,8 +70,8 @@ CONV_DETECTOR_CSYS_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/COORDINATE_SYSTEM[detector_reference_frame1]",
     "prefix_src": "detector_reference_frame/",
     "map_to_str": [
+        "alias",
         "type",
-        "handedness",
         "origin",
         "x_alias",
         "x_direction",
@@ -84,11 +84,11 @@ CONV_DETECTOR_CSYS_TO_NEXUS: Dict[str, Any] = {
 
 
 CONV_GNOMONIC_CSYS_TO_NEXUS: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/ROI[roi*]/ebsd/gnomonic_reference_frame",
+    "prefix_trg": "/ENTRY[entry*]/ROI_PROCESS[roi*]/ebsd/gnomonic_reference_frame",
     "prefix_src": "gnomonic_reference_frame/",
     "map_to_str": [
+        "alias",
         "type",
-        "handedness",
         "origin",
         "x_direction",
         "y_direction",
@@ -98,7 +98,7 @@ CONV_GNOMONIC_CSYS_TO_NEXUS: Dict[str, Any] = {
 
 
 CONV_PATTERN_CSYS_TO_NEXUS: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/ROI[roi*]/ebsd/pattern_centre",
+    "prefix_trg": "/ENTRY[entry*]/ROI_PROCESS[roi*]/ebsd/pattern_center",
     "prefix_src": "pattern_centre/",
     "map_to_str": [
         "x_boundary_convention",
