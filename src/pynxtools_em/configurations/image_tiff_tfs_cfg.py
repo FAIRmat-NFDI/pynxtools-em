@@ -50,7 +50,7 @@ TFS_STATIC_VARIOUS_NX: Dict[str, Any] = {
 
 
 TFS_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/optics",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/optics",
     "prefix_src": "",
     "map_to_f8": [
         ("beam_current", ureg.ampere, "EBeam/BeamCurrent", ureg.ampere),
@@ -60,7 +60,7 @@ TFS_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
 
 
 TFS_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/stage",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/stage",
     "prefix_src": "",
     "map_to_f8": [
         ("rotation", ureg.radian, "Stage/StageR", ureg.radian),
@@ -77,14 +77,14 @@ TFS_DYNAMIC_STAGE_NX: Dict[str, Any] = {
 
 
 TFS_DYNAMIC_STIGMATOR_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/ebeam_column/corrector_ax",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/ebeam_column/corrector_ax",
     "prefix_src": "",
     "map_to_f8": [("value_x", "Beam/StigmatorX"), ("value_y", "Beam/StigmatorY")],
 }
 
 
 TFS_DYNAMIC_SCAN_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/scan_controller",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/scan_controller",
     "prefix_src": "",
     "map_to_str": [("scan_schema", "System/Scan")],
     "map_to_f8": [("dwell_time", ureg.second, "Scan/Dwelltime", ureg.second)],
@@ -92,7 +92,7 @@ TFS_DYNAMIC_SCAN_NX: Dict[str, Any] = {
 
 
 TFS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]",
     "prefix_src": "",
     "map_to_str": [
         ("instrument/DETECTOR[detector*]/mode", "Detectors/Mode"),

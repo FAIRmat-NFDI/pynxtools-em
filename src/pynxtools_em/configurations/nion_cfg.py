@@ -53,7 +53,7 @@ NION_WHICH_IMAGE = {
 
 MAG = "magnitude"
 NION_DYNAMIC_ABERRATION_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/ebeam_column/corrector_cs/TABLEAU[tableau1]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/ebeam_column/corrector_cs/PROCESS[tableau1]",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
         "metadata/hardware_source/autostem/ImageScanned/",
@@ -84,7 +84,7 @@ NION_DYNAMIC_ABERRATION_NX: Dict[str, Any] = {
 # more on metadata https://nionswift.readthedocs.io/en/stable/api/scripting.html#managing-session-metadata
 # TODO::check units currently using alibi units!
 NION_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
         "metadata/hardware_source/autostem/ImageRonchigram/",
@@ -132,7 +132,7 @@ NION_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
 
 
 NION_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/stage",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/MANIPULATOR[stage]",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
         "metadata/hardware_source/autostem/ImageRonchigram/",
@@ -163,7 +163,7 @@ NION_DYNAMIC_STAGE_NX: Dict[str, Any] = {
 # instance lens4 only in a NeXus file which might confuse people as they learn that
 # numbering should start from 1
 NION_DYNAMIC_LENS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/ebeam_column",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/ebeam_column",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
         "metadata/hardware_source/autostem/ImageRonchigram/",
@@ -181,10 +181,10 @@ NION_DYNAMIC_LENS_NX: Dict[str, Any] = {
         )
     ],
     "map_to_f8": [
-        ("LENS_EM[lens1]/power_setting", "C1 ConstW"),
-        ("LENS_EM[lens2]/power_setting", "C2 ConstW"),
-        ("LENS_EM[lens3]/power_setting", "C3 ConstW"),
-        ("LENS_EM[lens4]/power_setting", "MajorOL"),
+        ("ELECTROMAGNETIC_LENS[lens1]/power_setting", "C1 ConstW"),
+        ("ELECTROMAGNETIC_LENS[lens2]/power_setting", "C2 ConstW"),
+        ("ELECTROMAGNETIC_LENS[lens3]/power_setting", "C3 ConstW"),
+        ("ELECTROMAGNETIC_LENS[lens4]/power_setting", "MajorOL"),
     ],
 }
 
@@ -193,7 +193,7 @@ NION_DYNAMIC_LENS_NX: Dict[str, Any] = {
 # according to this documentation ac_line_style should be boolean but datasets show
 # 1.0, 2.0, True and False !
 NION_DYNAMIC_SCAN_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/scan_controller",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/scan_controller",
     "prefix_src": [
         "metadata/hardware_source/",
         "metadata/scan/scan_device_parameters/",
@@ -241,7 +241,7 @@ NION_DYNAMIC_SCAN_NX: Dict[str, Any] = {
 C0 = "CIRCUIT[magboard0]"
 C1 = "CIRCUIT[magboard1]"
 NION_DYNAMIC_MAGBOARDS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/scan_controller",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/scan_controller",
     "prefix_src": [
         "metadata/scan/scan_device_properties/",
         "metadata/scan/scan_device_properties/mag_boards/",
@@ -284,7 +284,7 @@ NION_DYNAMIC_MAGBOARDS_NX: Dict[str, Any] = {
 # detector A so writing to detector1 works but not in cases when there are multiple
 # detectors
 NION_DYNAMIC_DETECTOR_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/DETECTOR[detector*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/DETECTOR[detector*]",
     "prefix_src": "metadata/hardware_source/detector_configuration/",
     "use": [
         (
@@ -313,7 +313,7 @@ NION_DYNAMIC_DETECTOR_NX: Dict[str, Any] = {
 
 
 NION_DYNAMIC_EVENT_TIME = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]",
     "prefix_src": "metadata/hardware_source/detector_configuration/",
     "map_to_str": [("start_time", "data_collection_date")],
     # this could be a poor assumption as we do not know when during the acquisition
@@ -359,12 +359,12 @@ NION_STATIC_DETECTOR_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/DETECTOR[detector*]",
     "prefix_src": "metadata/hardware_source/detector_configuration/",
     "map_to_str": [
-        ("FABRICATION[fabrication]/model", "description"),
+        ("fabrication/model", "description"),
         # (
-        #     "FABRICATION[fabrication]/vendor",
+        #     "fabrication/vendor",
         #     "detector_number",
         # ),  # not documented in nion metadata by default
-        ("FABRICATION[fabrication]/serial_number", "detector_number"),
+        ("fabrication/serial_number", "detector_number"),
         "eiger_fw_version",
         "sensor_material",
         "software_version",
@@ -397,9 +397,9 @@ NION_STATIC_LENS_NX: Dict[str, Any] = {
             "operation_mode",
             "Currently, nionswift stores the operation mode relevant settings via multiple metadata keywords and none of them in my opinion fit quite with this concept. The community should decide how to solve this.",
         ),
-        ("LENS_EM[lens1]/name", "C1"),
-        ("LENS_EM[lens2]/name", "C2"),
-        ("LENS_EM[lens3]/name", "C3"),
-        ("LENS_EM[lens4]/name", "MajorOL"),
+        ("ELECTROMAGNETIC_LENS[lens1]/name", "C1"),
+        ("ELECTROMAGNETIC_LENS[lens2]/name", "C2"),
+        ("ELECTROMAGNETIC_LENS[lens3]/name", "C3"),
+        ("ELECTROMAGNETIC_LENS[lens4]/name", "MajorOL"),
     ],
 }
