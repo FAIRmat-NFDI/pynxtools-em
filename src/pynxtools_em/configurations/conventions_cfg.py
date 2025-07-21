@@ -20,7 +20,7 @@
 from typing import Any, Dict
 
 CONV_ROTATIONS_TO_NEXUS: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/consistent_rotations]",
+    "prefix_trg": "/ENTRY[entry*]/consistent_rotations",
     "prefix_src": "consistent_rotations/",
     "map_to_str": [
         "rotation_handedness",
