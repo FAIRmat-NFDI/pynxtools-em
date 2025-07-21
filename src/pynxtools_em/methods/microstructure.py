@@ -101,8 +101,8 @@ def microstructure_to_template(
             new_idx += 1
     del is_consistent
 
-    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/img"
-    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/img/IMAGE[image{id_mgn['img_id']}]"
+    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/img"
+    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/img/imageID[image{id_mgn['img_id']}]"
     template[f"{trg}/imaging_mode"] = f"secondary_electron"
 
     trg += f"/MICROSTRUCTURE[microstructure1]/chemical_composition"
@@ -114,20 +114,20 @@ def microstructure_to_template(
         ):
             continue
         for qnt in ["value", "sigma"]:
-            template[f"{trg}/ELEMENT[{symbol}]/{qnt}"] = {
+            template[f"{trg}/ELEMENT_SPECIFIC_MAP[{symbol}]/{qnt}"] = {
                 "compress": ctable[symbol][qnt],
                 "strength": 1,
             }
-            template[f"{trg}/ELEMENT[{symbol}]/{qnt}/@units"] = "wt%"
+            template[f"{trg}/ELEMENT_SPECIFIC_MAP[{symbol}]/{qnt}/@units"] = "wt%"
             inform_about_atom_types.add(symbol)
     if len(inform_about_atom_types) > 0:
         template[f"{trg}/normalization"] = "weight_percent"
 
-    abbrev = f"/ENTRY[entry{id_mgn['entry_id']}]/SAMPLE[sample]/atom_types"
+    abbrev = f"/ENTRY[entry{id_mgn['entry_id']}]/sampleID[sample]/atom_types"
     if abbrev not in template:
         template[abbrev] = ", ".join(list(inform_about_atom_types))
 
-    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/img/IMAGE[image{id_mgn['img_id']}]/MICROSTRUCTURE[microstructure1]/crystals"
+    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/img/imageID[image{id_mgn['img_id']}]/MICROSTRUCTURE[microstructure1]/crystals"
     template[f"{trg}/number_of_crystals"] = np.uint32(n_cryst)
     template[f"{trg}/number_of_phases"] = np.uint32(1)
     # TODO::generally wrong, only for Vitesh's example!

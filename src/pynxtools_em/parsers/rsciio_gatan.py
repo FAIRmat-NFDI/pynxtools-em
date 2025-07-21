@@ -159,7 +159,7 @@ class RsciioGatanParser:
             print(f"{unit_combination}, {np.shape(obj['data'])}")
             print(f"entry_id {self.entry_id}, event_id {self.id_mgn['event_id']}")
 
-        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/events/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]"
+        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event{self.id_mgn['event_id']}]"
         self.id_mgn["event_id"] += 1
 
         # this is the place when you want to skip individually the writing of NXdata
@@ -169,12 +169,12 @@ class RsciioGatanParser:
         if unit_combination in GATAN_WHICH_SPECTRUM:
             self.annotate_information_source(
                 "",
-                f"{prfx}/SPECTRUM[spectrum1]",
+                f"{prfx}/spectrumID[spectrum1]",
                 self.file_path,
                 self.file_path_sha256,
                 template,
             )
-            trg = f"{prfx}/SPECTRUM[spectrum1]/{GATAN_WHICH_SPECTRUM[unit_combination][0]}"
+            trg = f"{prfx}/spectrumID[spectrum1]/{GATAN_WHICH_SPECTRUM[unit_combination][0]}"
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"intensity"
             template[f"{trg}/intensity"] = {"compress": obj["data"], "strength": 1}
@@ -183,12 +183,12 @@ class RsciioGatanParser:
         elif unit_combination in GATAN_WHICH_IMAGE:
             self.annotate_information_source(
                 "",
-                f"{prfx}/IMAGE[image1]",
+                f"{prfx}/imageID[image1]",
                 self.file_path,
                 self.file_path_sha256,
                 template,
             )
-            trg = f"{prfx}/IMAGE[image1]/{GATAN_WHICH_IMAGE[unit_combination][0]}"
+            trg = f"{prfx}/imageID[image1]/{GATAN_WHICH_IMAGE[unit_combination][0]}"
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
             template[f"{trg}/real"] = {"compress": obj["data"], "strength": 1}
@@ -239,7 +239,7 @@ class RsciioGatanParser:
                         )
                     elif unit_combination in GATAN_WHICH_IMAGE:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Iidentifier image"
+                            f"Identifier image"
                         )
                     else:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (

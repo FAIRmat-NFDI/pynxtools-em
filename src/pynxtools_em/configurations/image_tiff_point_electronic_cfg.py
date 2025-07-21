@@ -22,7 +22,7 @@ from typing import Any, Dict
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 DISS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]",
     "prefix_src": "",
     "map_to_f8": [
         ("instrument/optics/magnification", "Mag"),

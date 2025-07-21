@@ -99,8 +99,8 @@ class NxEmNomadOasisElnSchemaParser:
 
     def parse_atom_types(self, template: dict) -> dict:
         """Copy preferentially chemical_formula if provided, atom_types optional fallback."""
-        trg = f"/ENTRY[entry{self.entry_id}]/SAMPLE[sample]"
         src = "sample/chemical_formula"
+        trg = f"/ENTRY[entry{self.entry_id}]/sampleID[sample]"
         if src in self.flat_metadata:
             if self.flat_metadata[src] != "":
                 # assume the chemical formula follows Hill convention
@@ -139,7 +139,7 @@ class NxEmNomadOasisElnSchemaParser:
                             template,
                         )
                         if "orcid" in user_dict:
-                            trg = f"/ENTRY[entry{self.entry_id}]/USER[user{user_id}]"
+                            trg = f"/ENTRY[entry{self.entry_id}]/userID[user{user_id}]"
                             template[f"{trg}/identifier"] = user_dict["orcid"]
                             template[f"{trg}/identifier/@type"] = "DOI"
                         user_id += 1

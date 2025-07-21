@@ -163,10 +163,7 @@ class RsciioVeloxParser:
 
         if (len(identifier) != 3) or (not all(isinstance(x, int) for x in identifier)):
             print(f"Argument identifier {identifier} needs three int values!")
-        trg = (
-            f"/ENTRY[entry{identifier[0]}]/measurement/events/EVENT_DATA_EM"
-            f"[event_data_em{identifier[1]}]/instrument/ebeam_column"
-        )
+        trg = f"/ENTRY[entry{identifier[0]}]/measurement/eventID[event{identifier[1]}]/instrument/ebeam_column"
         # using an own function like add_dynamic_lens_metadata may be needed
         # if specific NeXus group have some extra formatting
         lens_idx = 1
@@ -185,22 +182,20 @@ class RsciioVeloxParser:
         ]:
             toggle = False
             if f"Optics/{lens_name}LensIntensity" in flat_orig_meta:
-                template[f"{trg}/LENS_EM[lens{lens_idx}]/power_setting"] = (
+                template[f"{trg}/lensID[lens{lens_idx}]/power_setting"] = (
                     string_to_number(flat_orig_meta[f"Optics/{lens_name}LensIntensity"])
                 )
                 if lens_name is not "Gun":
-                    template[f"{trg}/LENS_EM[lens{lens_idx}]/power_setting/@units"] = (
-                        "%"
-                    )
+                    template[f"{trg}/lensID[lens{lens_idx}]/power_setting/@units"] = "%"
                 toggle = True
             if f"Optics/{lens_name}LensMode" in flat_orig_meta:
-                template[f"{trg}/LENS_EM[lens{lens_idx}]/mode"] = string_to_number(
+                template[f"{trg}/lensID[lens{lens_idx}]/mode"] = string_to_number(
                     flat_orig_meta[f"Optics/{lens_name}LensMode"]
                 )
                 toggle = True
             if toggle:
                 template[
-                    f"/ENTRY[entry{identifier[0]}]/measurement/instrument/ebeam_column/LENS_EM[lens{lens_idx}]/name"
+                    f"/ENTRY[entry{identifier[0]}]/measurement/instrument/ebeam_column/lensID[lens{lens_idx}]/name"
                 ] = f"{lens_name}"
                 lens_idx += 1
 
@@ -216,25 +211,25 @@ class RsciioVeloxParser:
                     string_to_number(flat_orig_meta[f"Optics/{lens_name} Aperture"]),
                     ureg.micrometer,
                 )
-                template[f"{trg}/APERTURE[aperture{aperture_idx}]/setting"] = (
+                template[f"{trg}/apertureID[aperture{aperture_idx}]/setting"] = (
                     qnt.magnitude
                 )
-                template[f"{trg}/APERTURE[aperture{aperture_idx}]/setting/@units"] = (
+                template[f"{trg}/apertureID[aperture{aperture_idx}]/setting/@units"] = (
                     qnt.units
                 )
                 template[
-                    f"/ENTRY[entry{identifier[0]}]/measurement/instrument/ebeam_column/APERTURE[aperture{aperture_idx}]/name"
+                    f"/ENTRY[entry{identifier[0]}]/measurement/instrument/ebeam_column/apertureID[aperture{aperture_idx}]/name"
                 ] = f"{lens_name}"
                 aperture_idx += 1
 
         # other/special lenses
         for lens_name in ["OBJ", "SA"]:
             if f"Optics/{lens_name} Aperture" in flat_orig_meta:
-                template[f"{trg}/APERTURE[aperture{aperture_idx}]/status"] = (
+                template[f"{trg}/apertureID[aperture{aperture_idx}]/status"] = (
                     flat_orig_meta[f"Optics/{lens_name} Aperture"]
                 )
                 template[
-                    f"/ENTRY[entry{identifier[0]}]/measurement/instrument/ebeam_column/APERTURE[aperture{aperture_idx}]/name"
+                    f"/ENTRY[entry{identifier[0]}]/measurement/instrument/ebeam_column/apertureID[aperture{aperture_idx}]/name"
                 ] = f"{lens_name}"
 
         for cfg in [
@@ -285,18 +280,18 @@ class RsciioVeloxParser:
             print(f"{unit_combination}, {np.shape(obj['data'])}")
             print(f"entry_id {self.entry_id}, event_id {self.id_mgn['event_id']}")
 
-        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/events/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]"
+        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event{self.id_mgn['event_id']}]"
         # this is the place when you want to skip individually the writing of NXdata
         # return template
         axis_names = None
         if unit_combination in VELOX_WHICH_SPECTRUM:
             self.annotate_information_source(
-                f"{prfx}/SPECTRUM[spectrum1]",
+                f"{prfx}/spectrumID[spectrum1]",
                 self.file_path,
                 self.file_path_sha256,
                 template,
             )
-            trg = f"{prfx}/SPECTRUM[spectrum1]/{VELOX_WHICH_SPECTRUM[unit_combination][0]}"
+            trg = f"{prfx}/spectrumID[spectrum1]/{VELOX_WHICH_SPECTRUM[unit_combination][0]}"
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"intensity"
             template[f"{trg}/intensity"] = {"compress": obj["data"], "strength": 1}
@@ -304,12 +299,12 @@ class RsciioVeloxParser:
             axis_names = VELOX_WHICH_SPECTRUM[unit_combination][1]
         elif unit_combination in VELOX_WHICH_IMAGE:
             self.annotate_information_source(
-                f"{prfx}/IMAGE[image1]",
+                f"{prfx}/imageID[image1]",
                 self.file_path,
                 self.file_path_sha256,
                 template,
             )
-            trg = f"{prfx}/IMAGE[image1]/{VELOX_WHICH_IMAGE[unit_combination][0]}"
+            trg = f"{prfx}/imageID[image1]/{VELOX_WHICH_IMAGE[unit_combination][0]}"
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
             template[f"{trg}/real"] = {"compress": obj["data"], "strength": 1}

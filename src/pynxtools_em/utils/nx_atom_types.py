@@ -40,7 +40,7 @@ class NxEmAtomTypesResolver:
         for key, free_text in template.items():
             if (
                 re.match(
-                    rf"^/ENTRY\[entry{self.entry_id}\]/ROI\[roi1\]/ebsd/indexing/PHASE\[phase[0-9]+\]/name",
+                    rf"^/ENTRY\[entry{self.entry_id}\]/roiID\[roi1\]/ebsd/indexing/phaseID\[phase[0-9]+\]/name",
                     key,
                 )
                 is None
@@ -58,6 +58,6 @@ class NxEmAtomTypesResolver:
                         if symbol in chemical_symbols[1::]:
                             atom_types.add(symbol)
         if len(atom_types) > 0:
-            trg = f"/ENTRY[entry{self.entry_id}]/SAMPLE[sample]/atom_types"
+            trg = f"/ENTRY[entry{self.entry_id}]/sampleID[sample]/atom_types"
             template[trg] = ", ".join(list(atom_types))
         return template

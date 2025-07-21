@@ -98,7 +98,7 @@ class NxEmNxsMTexParser:
         print("Parse MTex content...")
         with h5py.File(self.file_path, "r") as h5r:
             src = "/entry1/roi1/ebsd/indexing/mtex"
-            trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/mtex"
+            trg = f"/ENTRY[entry{self.entry_id}]/roiID[roi1]/ebsd/indexing/mtex"
             template[f"{trg}/@NX_class"] = (
                 "NXms_mtex_config"  # TODO::should be made part of NXem
             )
@@ -167,11 +167,11 @@ class NxEmNxsMTexParser:
                 if f"{src}/program{idx}/program" in h5r:
                     grp = h5r[f"{src}/program{idx}"]
                     dst = h5r[f"{src}/program{idx}/program"]
-                    template[f"{trg}/PROGRAM[program{idx}]/program"] = (
+                    template[f"{trg}/programID[program{idx}]/program"] = (
                         hfive_to_template(dst)
                     )
                     if "version" in dst.attrs:
-                        template[f"{trg}/PROGRAM[program{idx}]/program/@version"] = (
+                        template[f"{trg}/programID[program{idx}]/program/@version"] = (
                             dst.attrs["version"]
                         )
         return template
@@ -181,7 +181,7 @@ class NxEmNxsMTexParser:
         print("Parse various...")
         with h5py.File(self.file_path, "r") as h5r:
             src = "/entry1/roi1/ebsd/indexing"
-            trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing"
+            trg = f"/ENTRY[entry{self.entry_id}]/roiID[roi1]/ebsd/indexing"
             if f"{src}" not in h5r:
                 return template
             grp = h5r[f"{src}"]
@@ -203,7 +203,7 @@ class NxEmNxsMTexParser:
             # but template uses NeXus template path names
             # and HDF5 src has HDF5 instance names
             src = "/entry1/roi1/ebsd/indexing/roi"
-            trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/roi"
+            trg = f"/ENTRY[entry{self.entry_id}]/roiID[roi1]/ebsd/indexing/roi"
             if f"{src}" not in h5r:
                 return template
             grp = h5r[f"{src}"]
@@ -239,7 +239,7 @@ class NxEmNxsMTexParser:
         print("Parse phases...")
         with h5py.File(self.file_path, "r") as h5r:
             src = "/entry1/roi1/ebsd/indexing"
-            trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/PHASE"
+            trg = f"/ENTRY[entry{self.entry_id}]/roiID[roi1]/ebsd/indexing/phaseID"
             if f"{src}" not in h5r:
                 return template
             for grp_name in h5r[f"{src}"]:
@@ -274,8 +274,8 @@ class NxEmNxsMTexParser:
         for ipfid in [1, 2, 3]:  # by default MTex reports three IPFs
             src = f"/entry1/roi1/ebsd/indexing/{phase}/ipf{ipfid}"
             trg = (
-                f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/"
-                f"PHASE[{phase}]/IPF[ipf{ipfid}]"
+                f"/ENTRY[entry{self.entry_id}]/roiID[roi1]/ebsd/indexing/"
+                f"phaseID[{phase}]/ipfID[ipf{ipfid}]"
             )
             if f"{src}/projection_direction" in h5r:
                 template[f"{trg}/projection_direction"] = hfive_to_template(

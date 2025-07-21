@@ -189,9 +189,8 @@ class FeiLegacyTiffParser:
                 # remember H5Web images can be scaled based on the metadata allowing basically the same
                 # explorative viewing using H5Web than what traditionally typical image viewers are meant for
                 trg = (
-                    f"/ENTRY[entry{self.entry_id}]/measurement/events/"
-                    f"EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/"
-                    f"IMAGE[image{identifier_image}]/image_2d"
+                    f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event"
+                    f"{self.id_mgn['event_id']}]/imageID[image{identifier_image}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
                 template[f"{trg}/@signal"] = "real"

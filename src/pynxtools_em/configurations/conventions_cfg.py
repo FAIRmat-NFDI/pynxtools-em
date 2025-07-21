@@ -67,7 +67,7 @@ CONV_SAMPLE_CSYS_TO_NEXUS: Dict[str, Any] = {
 
 
 CONV_DETECTOR_CSYS_TO_NEXUS: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/COORDINATE_SYSTEM[detector_reference_frame1]",
+    "prefix_trg": "/ENTRY[entry*]/NAMED_reference_frameID[detector_reference_frame1]",
     "prefix_src": "detector_reference_frame/",
     "map_to_str": [
         "alias",
@@ -84,7 +84,7 @@ CONV_DETECTOR_CSYS_TO_NEXUS: Dict[str, Any] = {
 
 
 CONV_GNOMONIC_CSYS_TO_NEXUS: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/ROI_PROCESS[roi*]/ebsd/gnomonic_reference_frame",
+    "prefix_trg": "/ENTRY[entry*]/roiID[roi*]/ebsd/gnomonic_reference_frame",
     "prefix_src": "gnomonic_reference_frame/",
     "map_to_str": [
         "alias",
@@ -98,7 +98,7 @@ CONV_GNOMONIC_CSYS_TO_NEXUS: Dict[str, Any] = {
 
 
 CONV_PATTERN_CSYS_TO_NEXUS: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/ROI_PROCESS[roi*]/ebsd/pattern_center",
+    "prefix_trg": "/ENTRY[entry*]/roiID[roi*]/ebsd/pattern_center",
     "prefix_src": "pattern_centre/",
     "map_to_str": [
         "x_boundary_convention",

@@ -150,9 +150,8 @@ class JeolTiffParser:
                 )
                 # eventually similar open discussions points as were raised for tiff_tfs parser
                 trg = (
-                    f"/ENTRY[entry{self.entry_id}]/measurement/events/"
-                    f"EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/"
-                    f"IMAGE[image{identifier_image}]/image_2d"
+                    f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event"
+                    f"{self.id_mgn['event_id']}]/imageID[image{identifier_image}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
                 template[f"{trg}/@signal"] = "real"

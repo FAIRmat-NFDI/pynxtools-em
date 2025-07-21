@@ -286,7 +286,7 @@ def map_functor(
 ) -> dict:
     """Process concept mapping, datatype and unit conversion for quantities."""
     # for debugging set configurable breakpoints like such
-    # prfx_trg == "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument"
+    # prfx_trg == "/ENTRY[entry*]/measurement/eventID[event*]/instrument"
     # either here or on a resolved variadic name in the trg variable
     # in the set_value function or specific parameterized concept names like
     # cmd[0] == "optics/operation_mode" (see rsciio_gatan_cfg, GATAN_DYNAMIC_VARIOUS_NX)

@@ -45,7 +45,7 @@ GATAN_STATIC_VARIOUS_NX: Dict[str, Any] = {
 
 
 GATAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument",
     "prefix_src": "ImageList/TagGroup0/ImageTags/Microscope Info/",
     "map_to_f8": [
         (
@@ -102,7 +102,7 @@ GATAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
 }
 
 GATAN_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/MANIPULATOR[stage]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]",
     "prefix_src": "ImageList/TagGroup0/ImageTags/Microscope Info/Stage Position/",
     "map_to_f8": [
         ("tilt1", ureg.radian, "Stage Alpha", ureg.radian),

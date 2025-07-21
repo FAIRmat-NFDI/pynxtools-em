@@ -22,7 +22,7 @@ from typing import Any, Dict
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 TESCAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]",
     "prefix_src": "",
     "map_to_f8": [
         ("instrument/optics/magnification", "Magnification"),
@@ -67,14 +67,14 @@ TESCAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
 
 
 TESCAN_DYNAMIC_STIGMATOR_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/ebeam_column/corrector_ax",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/corrector_ax",
     "prefix_src": "",
     "map_to_f8": [("value_x", "StigmatorX"), ("value_y", "StigmatorY")],
 }
 
 
 TESCAN_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/MANIPULATOR[stage]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]",
     "prefix_src": "",
     "map_to_f8": [
         ("rotation", ureg.radian, "StageRotation", ureg.degree),

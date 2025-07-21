@@ -303,8 +303,7 @@ class ProtochipsPngSetParser:
         for file_name, iso8601 in self.event_sequence:
             identifier = [self.entry_id, event_id, 1]
             trg = var_path_to_spcfc_path(
-                f"/ENTRY[entry*]/measurement/events/"
-                f"EVENT_DATA_EM[event_data_em*]/start_time",
+                f"/ENTRY[entry*]/measurement/eventID[event*]/start_time",
                 identifier,
             )
             template[trg] = f"{iso8601}".replace(" ", "T")
@@ -358,9 +357,8 @@ class ProtochipsPngSetParser:
                         nparr = np.array(png)
                         identifier_image = 1
                         trg = (
-                            f"/ENTRY[entry{self.entry_id}]/measurement/events"
-                            f"/EVENT_DATA_EM[event_data_em{event_id}]"
-                            f"/IMAGE[image{identifier_image}]/image_2d"
+                            f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event"
+                            f"{event_id}]/imageID[image{identifier_image}]/image_2d"
                         )
                         # TODO::writer should decorate automatically!
                         template[f"{trg}/title"] = f"Image"

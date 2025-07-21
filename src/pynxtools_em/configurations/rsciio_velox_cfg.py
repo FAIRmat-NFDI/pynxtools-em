@@ -35,7 +35,7 @@ VELOX_WHICH_IMAGE = {
 
 
 VELOX_STATIC_ENTRY_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/instrument/PROGRAM[program1]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/instrument/programID[program1]",
     "prefix_src": "",
     "use": [
         (
@@ -67,14 +67,14 @@ VELOX_STATIC_FABRICATION_NX: Dict[str, Any] = {
 
 
 VELOX_DYNAMIC_SCAN_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/scan_controller",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/scan_controller",
     "prefix_src": "",
     "map_to_f8": [("dwell_time", ureg.second, "Scan/DwellTime", ureg.microsecond)],
 }
 
 
 VELOX_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/optics",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/optics",
     "prefix_src": "",
     "map_to_f8": [
         ("magnification", "Optics/NominalMagnification"),
@@ -94,7 +94,7 @@ VELOX_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
 
 
 VELOX_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/MANIPULATOR[stage]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]",
     "prefix_src": "",
     "map_to_str": [("design", "Stage/HolderType")],
     "map_to_f8": [
@@ -116,7 +116,7 @@ VELOX_DYNAMIC_STAGE_NX: Dict[str, Any] = {
 
 
 VELOX_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]",
     "prefix_src": "",
     "unix_to_iso8601": [
         ("start_time", "Acquisition/AcquisitionStartDatetime/DateTime")
@@ -125,7 +125,7 @@ VELOX_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
 
 
 VELOX_DYNAMIC_EBEAM_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/ebeam_column",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column",
     "prefix_src": "",
     "map_to_str": [
         ("operation_mode", ["Optics/OperatingMode", "Optics/TemOperatingSubMode"])

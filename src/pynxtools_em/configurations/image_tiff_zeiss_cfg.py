@@ -25,7 +25,7 @@ ZEISS_CONCEPT_PREFIXES = ("AP_", "DP_", "SV_")
 
 
 ZEISS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument",
     "prefix_src": "",
     "map_to_f8": [
         ("optics/magnification", "AP_MAG"),
@@ -35,7 +35,7 @@ ZEISS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
 }
 
 ZEISS_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/EVENT_DATA_EM[event*]/instrument/MANIPULATOR[stage]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]",
     "prefix_src": "",
     "map_to_f8": [
         ("rotation", ureg.radian, "AP_STAGE_AT_R"),
