@@ -48,6 +48,17 @@ from pynxtools_em.utils.get_checksum import get_sha256_of_bytes_object
 # task for the community and instead focus here on showing a more diverse example
 # towards more interoperability between the different tools in the community
 
+NXEM_VOLATILE_METADATA = [
+    "/@HDF5_Version",
+    "/@NeXus_release",
+    "/@file_time",
+    "/@file_update_time",
+    "entry1/definition/@version",
+    "entry1/profiling/program1/program/@version",
+    "entry1/profiling/template_filling_elapsed_time",
+    # "entry1/profiling/template_filling_elapsed_time/@units"
+]
+
 
 class HdfFiveBaseParser:
     def __init__(
@@ -367,7 +378,7 @@ class HdfFiveBaseParser:
                         h5path, dict(self.h5r[h5path].attrs)
                     )
 
-    def store_hashes(self, blacklist):
+    def store_hashes(self, blacklist, **kwargs):
         """Generate yaml file with sorted list of HDF5 grp, dst, and attrs
 
         including their datatype and SHA256 checksum computed from the each nodes data.
@@ -406,7 +417,13 @@ class HdfFiveBaseParser:
         for key, ifo in self.attributes.items():
             if key not in blacklist:
                 hashes[key] = f"is_a_attr__{ifo[-1]}"
-        with open(f"{self.file_path}.sha256.yaml", "w") as fp:
+        with open(
+            kwargs.get(
+                "file_path",
+                f"""{self.file_path}.sha256{kwargs.get("suffix", "")}.yaml""",
+            ),
+            "w",
+        ) as fp:
             yaml.dump(hashes, fp, default_flow_style=False, sort_keys=True)
 
     def report_groups(self):

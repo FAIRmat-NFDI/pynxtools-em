@@ -9,14 +9,19 @@
             "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "../../.py3.11.11/bin/dataconverter",
-            "args": [//"tests/data/hu_berlin_koch_group/em.nion.oasis.specific.yaml",
-                     "tests/data/nxs_nion/yNmUKFllSK2e8B_y-E8LBQ.zip",
+            "program": "../../.py3.12.3/bin/dataconverter",
+            "args": [//"tests/data/conventions/em.conventions.yaml",
+                     "tests/data/eln_second/em.oasis.specific.yaml",
+                     //"tests/data/hu_berlin_koch_group/em.nion.oasis.specific.yaml",
+                     //"tests/data/nxs_nion/yNmUKFllSK2e8B_y-E8LBQ.zip",
+                     //"tests/data/eln/output.nxs_eln_data.yaml",
                      "--reader",
                      "em",
                      "--nxdl",
                      "NXem",
-                     "--output=tests/prod/data.nxs_nion.yNmUKFllSK2e8B_y-E8LBQ.zip.nxs"]
+                     //"--output=tests/data/eln/output.nxs"]
+                     "--output=tests/data/eln_second/output.nxs"]
+                     //"--output=tests/prod/data.nxs_nion.yNmUKFllSK2e8B_y-E8LBQ.zip.nxs"]
                      //"--output=tests/prod/data.hu_berlin_koch_group.em.nion.oasis.specific.yaml.nxs"]
         }
     ]
