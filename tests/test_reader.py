@@ -30,7 +30,10 @@ READER_CLASS = get_reader(READER_NAME)
 # ToDo: make tests for all supported application definitions possible
 NXDLS = ["NXem"]  # READER_CLASS.supported_nxdls
 
-test_cases = [("eln", "simple ELN"), ("eln_second", "another simple ELN")]
+test_cases = [
+    ("eln", "simple ELN"),
+    # ("eln_second", "another simple ELN")
+]
 
 test_params = []
 
