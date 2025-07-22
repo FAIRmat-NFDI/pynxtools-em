@@ -58,7 +58,7 @@ AXON_STATIC_DETECTOR_NX: Dict[str, Any] = {
     ],
 }
 
-
+"""
 AXON_DYNAMIC_STAGE_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]",
     "prefix_src": "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.",
@@ -66,7 +66,7 @@ AXON_DYNAMIC_STAGE_NX: Dict[str, Any] = {
         ("position", ureg.meter, ["X", "Y", "Z"], ureg.meter)
     ],  # values are much to large to be in m!
 }
-
+"""
 
 AXON_DYNAMIC_CHIP_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]/sample_heater",
@@ -99,7 +99,7 @@ AXON_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_src": "MicroscopeControlImageMetadata.MicroscopeSettings.",
     "map_to_str": [
         (
-            "instrument/ebeam_column/deflectorID[blanker1]/state",
+            "instrument/ebeam_column/blankerID[blanker1]/state",
             "BeamBlankerState",
         ),
     ],
@@ -116,6 +116,8 @@ AXON_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
             "CameraLengthValue",
             ureg.meter,
         ),
+        # deactivated because quite unsure,
+        # example has 200 but no units 200 m seems very long, 200 mm is still long
         (
             "instrument/optics/magnification",
             ureg.nx_dimensionless,

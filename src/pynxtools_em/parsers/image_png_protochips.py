@@ -35,7 +35,7 @@ from pynxtools_em.concepts.mapping_functors_pint import (
 from pynxtools_em.configurations.image_png_protochips_cfg import (
     AXON_DYNAMIC_AUX_NX,
     AXON_DYNAMIC_CHIP_NX,
-    AXON_DYNAMIC_STAGE_NX,
+    # AXON_DYNAMIC_STAGE_NX,
     AXON_DYNAMIC_VARIOUS_NX,
     AXON_STATIC_DETECTOR_NX,
     AXON_STATIC_STAGE_NX,
@@ -331,6 +331,7 @@ class ProtochipsPngSetParser:
                     identifier,
                     template,
                 )
+            """
             # additional dynamic data with currently different formatting
             add_specific_metadata_pint(
                 AXON_DYNAMIC_STAGE_NX,
@@ -338,6 +339,7 @@ class ProtochipsPngSetParser:
                 identifier,
                 template,
             )
+            """
             event_id += 1
         return template
 
@@ -392,11 +394,11 @@ class ProtochipsPngSetParser:
                                 "i": ureg.Quantity(
                                     self.dict_meta[file_name][f"{abbrev}.X"],
                                     ureg.nanometer,
-                                ),
+                                ).to(ureg.meter),
                                 "j": ureg.Quantity(
                                     self.dict_meta[file_name][f"{abbrev}.Y"],
                                     ureg.nanometer,
-                                ),
+                                ).to(ureg.meter),
                             }
                         else:
                             print(
