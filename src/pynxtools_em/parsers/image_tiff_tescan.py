@@ -40,7 +40,7 @@ from pynxtools_em.utils.string_conversions import string_to_number
 
 
 class TescanTiffParser:
-    def __init__(self, file_paths: List[str], entry_id: int = 1, verbose: bool = False):
+    def __init__(self, file_paths: List[str], entry_id: int = 1, verbose: bool = True):
         # file and sidecar file may not come in a specific order need to find which is which if any supported
         tif_hdr = ["", ""]
         if len(file_paths) == 1 and file_paths[0].lower().endswith((".tif", ".tiff")):

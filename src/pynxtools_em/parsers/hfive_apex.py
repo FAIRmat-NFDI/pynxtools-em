@@ -45,7 +45,7 @@ from pynxtools_em.utils.pint_custom_unit_registry import ureg
 class HdfFiveEdaxApexParser(HdfFiveBaseParser):
     """Read APEX edaxh5"""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if file_path:
             self.file_path = file_path
         self.id_mgn: Dict[str, int] = {

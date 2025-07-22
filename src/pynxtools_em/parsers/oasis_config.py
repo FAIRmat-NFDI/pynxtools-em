@@ -36,7 +36,7 @@ from pynxtools_em.utils.get_checksum import (
 class NxEmNomadOasisConfigParser:
     """Parse deployment specific configuration."""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if pathlib.Path(file_path).name.endswith(
             ".oasis.specific.yaml"
         ) or pathlib.Path(file_path).name.endswith(".oasis.specific.yml"):

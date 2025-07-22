@@ -22,6 +22,7 @@ from typing import Dict
 import h5py
 import numpy as np
 from diffpy.structure import Lattice, Structure
+
 from pynxtools_em.examples.ebsd_database import ASSUME_PHASE_NAME_TO_SPACE_GROUP
 from pynxtools_em.methods.ebsd import (
     HEXAGONAL_FLAT_TOP_TILING,
@@ -47,7 +48,7 @@ from pynxtools_em.utils.pint_custom_unit_registry import ureg
 class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
     """Read EDAX (O)H5"""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if file_path:
             self.file_path = file_path
         self.id_mgn: Dict[str, int] = {

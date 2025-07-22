@@ -19,17 +19,18 @@
 
 from typing import Dict, List
 
+from rsciio import bruker
+
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )
-from rsciio import bruker
 
 
 class RsciioBrukerParser:
     """Read Bruker BCF File Format bcf."""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if file_path:
             self.file_path = file_path
         self.entry_id = entry_id if entry_id > 0 else 1

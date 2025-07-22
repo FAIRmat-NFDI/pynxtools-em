@@ -40,7 +40,7 @@ from pynxtools_em.utils.string_conversions import string_to_number
 
 
 class HitachiTiffParser:
-    def __init__(self, file_paths: List[str], entry_id: int = 1, verbose=True):
+    def __init__(self, file_paths: List[str], entry_id: int = 1, verbose: bool = True):
         tif_txt = ["", ""]
         if (
             len(file_paths) == 2

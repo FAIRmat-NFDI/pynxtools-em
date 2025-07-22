@@ -21,6 +21,7 @@ from typing import Dict
 
 import h5py
 import numpy as np
+
 from pynxtools_em.methods.ebsd import (
     SQUARE_TILING,
     EbsdPointCloud,
@@ -89,7 +90,7 @@ from pynxtools_em.utils.pint_custom_unit_registry import ureg
 class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
     """Read some information from (legacy) DREAM3D HDF5 files (Bluequartz's DREAM3D)"""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if file_path:
             self.file_path = file_path
         self.id_mgn: Dict[str, int] = {

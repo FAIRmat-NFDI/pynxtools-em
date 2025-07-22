@@ -38,7 +38,7 @@ from pynxtools_em.geometries.msmse_convention import is_consistent_with_msmse_co
 class NxEmConventionParser:
     """Document rotation and reference frame conventions and choices used."""
 
-    def __init__(self, file_path: str, entry_id: int = 1, verbose: bool = False):
+    def __init__(self, file_path: str, entry_id: int = 1, verbose: bool = True):
         """Fill template with ELN pieces of information."""
         print(f"Extracting conventions from {file_path} ...")
         if pathlib.Path(file_path).name.endswith("conventions.yaml") or pathlib.Path(

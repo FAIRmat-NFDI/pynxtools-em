@@ -27,7 +27,7 @@ from PIL.TiffTags import TAGS
 class TiffParser:
     """Read Tagged Image File Format TIF/TIFF."""
 
-    def __init__(self, file_path: str = "", verbose: bool = False):
+    def __init__(self, file_path: str = "", verbose: bool = True):
         if file_path:
             self.file_path = file_path
         self.verbose = verbose

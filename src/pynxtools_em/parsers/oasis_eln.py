@@ -42,7 +42,7 @@ class NxEmNomadOasisElnSchemaParser:
     pieces of information relevant from the NeXus perspective
     """
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if pathlib.Path(file_path).name.endswith("eln_data.yaml") or pathlib.Path(
             file_path
         ).name.endswith("eln_data.yml"):

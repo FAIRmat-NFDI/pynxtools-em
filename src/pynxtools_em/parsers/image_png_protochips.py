@@ -52,7 +52,7 @@ from pynxtools_em.utils.xml_utils import flatten_xml_to_dict
 
 
 class ProtochipsPngSetParser:
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if file_path:
             self.file_path = file_path
         self.entry_id = entry_id if entry_id > 0 else 1

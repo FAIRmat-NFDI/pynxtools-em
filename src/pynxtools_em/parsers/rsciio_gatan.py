@@ -43,7 +43,7 @@ from pynxtools_em.utils.rsciio_hspy_utils import all_req_keywords_in_dict
 class RsciioGatanParser:
     """Read Gatan Digital Micrograph dm3/dm4 formats."""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if file_path:
             self.file_path = file_path
         self.entry_id = entry_id if entry_id > 0 else 1

@@ -50,7 +50,7 @@ from pynxtools_em.utils.velox_utils import velox_image_spectrum_or_generic_nxdat
 class RsciioVeloxParser:
     """Read Velox EMD File Format emd."""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if file_path:
             self.file_path = file_path
         self.entry_id = entry_id if entry_id > 0 else 1

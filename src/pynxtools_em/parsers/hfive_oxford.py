@@ -23,6 +23,7 @@ import h5py
 import numpy as np
 from ase.data import chemical_symbols
 from diffpy.structure import Lattice, Structure
+
 from pynxtools_em.methods.ebsd import (
     EbsdPointCloud,
     ebsd_roi_overview,
@@ -42,7 +43,7 @@ from pynxtools_em.utils.pint_custom_unit_registry import ureg
 class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
     """Overwrite constructor of hfive_base reader"""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if file_path:
             self.file_path = file_path
         self.id_mgn: Dict[str, int] = {

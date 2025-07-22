@@ -38,7 +38,7 @@ from pynxtools_em.utils.string_conversions import string_to_number
 
 
 class JeolTiffParser:
-    def __init__(self, file_paths: List[str], entry_id: int = 1, verbose=False):
+    def __init__(self, file_paths: List[str], entry_id: int = 1, verbose: bool = True):
         tif_txt = ["", ""]
         if (
             len(file_paths) == 2
@@ -165,7 +165,10 @@ class JeolTiffParser:
                 template[f"{trg}/@axes"] = []
                 for dim in dims[::-1]:
                     template[f"{trg}/@axes"].append(f"axis_{dim}")
-                template[f"{trg}/real"] = {"compress": np.array(fp), "strength": 1}
+                template[f"{trg}/real"] = {
+                    "compress": np.array(fp),
+                    "strength": 1,
+                }
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
@@ -178,8 +181,8 @@ class JeolTiffParser:
                 ):
                     # JEOL-specific conversion for micron bar pixel to physical length
                     resolution = int(self.flat_dict_meta["SM_MICRON_BAR"])
-                    physical_length = (
-                        self.flat_dict_meta["SM_MICRON_MARKER"]  # .to(ureg.meter)
+                    physical_length = self.flat_dict_meta["SM_MICRON_MARKER"].to(
+                        ureg.meter
                     )
                     # resolution many pixel represent physical_length scanned surface
                     # assuming square pixel
