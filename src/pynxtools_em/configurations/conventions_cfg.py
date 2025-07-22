@@ -38,6 +38,7 @@ CONV_PROCESSING_CSYS_TO_NEXUS: Dict[str, Any] = {
     "map_to_str": [
         "alias",
         "type",
+        "handedness",
         "origin",
         "x_alias",
         "x_direction",
@@ -55,6 +56,7 @@ CONV_SAMPLE_CSYS_TO_NEXUS: Dict[str, Any] = {
     "map_to_str": [
         "alias",
         "type",
+        "handedness",
         "origin",
         "x_alias",
         "x_direction",
@@ -72,6 +74,7 @@ CONV_DETECTOR_CSYS_TO_NEXUS: Dict[str, Any] = {
     "map_to_str": [
         "alias",
         "type",
+        "handedness",
         "origin",
         "x_alias",
         "x_direction",
@@ -89,6 +92,7 @@ CONV_GNOMONIC_CSYS_TO_NEXUS: Dict[str, Any] = {
     "map_to_str": [
         "alias",
         "type",
+        "handedness",
         "origin",
         "x_direction",
         "y_direction",
@@ -99,7 +103,7 @@ CONV_GNOMONIC_CSYS_TO_NEXUS: Dict[str, Any] = {
 
 CONV_PATTERN_CSYS_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/roiID[roi*]/ebsd/pattern_center",
-    "prefix_src": "pattern_centre/",
+    "prefix_src": "pattern_center/",
     "map_to_str": [
         "x_boundary_convention",
         "x_normalization_direction",

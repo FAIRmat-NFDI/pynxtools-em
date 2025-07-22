@@ -90,7 +90,8 @@ class NxEmConventionParser:
             "axis_angle_convention",
             "sign_convention",
         ]:
-            cvn_used[key] = template.undocumented[f"{prfx}/{key}"]
+            if f"{prfx}/{key}" in template.undocumented:
+                cvn_used[key] = template.undocumented[f"{prfx}/{key}"]
         if is_consistent_with_msmse_convention(cvn_used) == "inconsistent":
             print("WARNING::Convention set is different from community suggestion!")
 
