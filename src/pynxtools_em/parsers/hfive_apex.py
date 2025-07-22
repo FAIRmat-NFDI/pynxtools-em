@@ -114,6 +114,19 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 # would be cleaner
                 self.supported = True
 
+    def annotate_information_source(
+        self, src: str, trg: str, file_path: str, checksum: str, template: dict
+    ) -> dict:
+        """Add from where the information was obtained."""
+        abbrev = "PROCESS[process]/input"
+        template[f"{trg}/{abbrev}/type"] = "file"
+        template[f"{trg}/{abbrev}/file_name"] = file_path
+        template[f"{trg}/{abbrev}/checksum"] = checksum
+        template[f"{trg}/{abbrev}/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
+        if src != "":
+            template[f"{trg}/{abbrev}/context"] = src
+        return template
+
     def parse(self, template: dict) -> dict:
         """Read and normalize away EDAX/APEX-specific formatting with an equivalent in NXem."""
         if not self.supported:
@@ -441,11 +454,17 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 fp[f"{self.prfx}/FOVIPR"]["MicronsPerPixelX"][0], ureg.micrometer
             ),
         }
+
+        prfx = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/eventID[event{self.id_mgn['event_id']}]"
+        self.annotate_information_source(
+            f"{self.prfx}/FOVIMAGE",
+            f"{prfx}/imageID[image{self.id_mgn['img_id']}]",
+            self.file_path,
+            self.file_path_sha256,
+            template,
+        )
         # is micron because MicronsPerPixel{dim} used by EDAX
-        trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/eventID[event{self.id_mgn['event_id']}]/imageID[image{self.id_mgn['img_id']}]"
-        # TODO:: fill also type, file_name, checksum, algorithm of source(NXnote)
-        # abbrev = "PROCESS[process]/input"
-        # template[f"{trg}/{abbrev}/context"] = f"{self.prfx}/FOVIMAGE"
+        trg = f"{prfx}/imageID[image{self.id_mgn['img_id']}]"
         template[f"{trg}/image_2d/@signal"] = "real"
         template[f"{trg}/image_2d/@axes"] = ["axis_j", "axis_i"]
         template[f"{trg}/image_2d/real"] = {
@@ -497,10 +516,15 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 print(f"Attribute {req} not found in {self.prfx}/SPC !")
                 return template
 
-        trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/eventID[event{self.id_mgn['event_id']}]/spectrumID[spectrum{self.id_mgn['spc_id']}]"
-        # TODO:: fill also type, file_name, checksum, algorithm of source(NXnote)
-        # abbrev = "PROCESS[process]/input"
-        # template[f"{trg}/{abbrev}/context"] = f"{self.prfx}/SPC"
+        prfx = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/eventID[event{self.id_mgn['event_id']}]"
+        self.annotate_information_source(
+            f"{self.prfx}/SPC",
+            f"{prfx}/spectrumID[spectrum{self.id_mgn['spc_id']}]",
+            self.file_path,
+            self.file_path_sha256,
+            template,
+        )
+        trg = f"{prfx}/spectrumID[spectrum{self.id_mgn['spc_id']}]"
         template[f"{trg}/spectrum_0d/@signal"] = "intensity"
         template[f"{trg}/spectrum_0d/@axes"] = ["axis_energy"]
         template[f"{trg}/spectrum_0d/@AXISNAME_indices[axis_energy_indices]"] = (
