@@ -21,6 +21,7 @@ import pathlib
 
 import flatdict as fd
 import yaml
+
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.oasis_cfg import (
     OASISCFG_EM_CITATION_TO_NEXUS,
@@ -73,7 +74,7 @@ class NxEmNomadOasisConfigParser:
 
     def parse_reference_frames(self, template: dict) -> dict:
         """Copy details about frames of reference into template."""
-        src = "coordinate_system_set"
+        src = "custom_coordinate_system"
         if src in self.flat_metadata:
             if isinstance(self.flat_metadata[src], list):
                 if all(isinstance(entry, dict) for entry in self.flat_metadata[src]):

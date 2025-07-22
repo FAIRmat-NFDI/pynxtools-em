@@ -1,0 +1,45 @@
+consistent_rotations:
+  rotation_handedness: counter_clockwise
+  rotation_convention: passive
+  euler_angle_convention: zxz
+  axis_angle_convention: rotation_angle_on_interval_zero_to_pi
+  sign_convention: p_minus_one
+processing_reference_frame:
+  type: cartesian
+  handedness: right_handed
+  origin: front_top_left
+  x_alias: rolling direction (RD)
+  x_direction: east
+  y_alias: transverse direction (TD)
+  y_direction: south
+  z_alias: normal direction (ND)
+  z_direction: in
+sample_reference_frame:
+  type: cartesian
+  handedness: right_handed
+  origin: front_top_left
+  x_alias: rolling direction (RD)
+  x_direction: east
+  y_alias: transverse direction (TD)
+  y_direction: south
+  z_alias: normal direction (ND)
+  z_direction: in
+detector_reference_frame:
+  type: cartesian
+  handedness: right_handed
+  origin: front_top_left
+  x_direction: east
+  y_direction: south
+  z_direction: in
+gnomonic_reference_frame:
+  type: cartesian
+  handedness: right_handed
+  origin: in_the_pattern_center
+  x_direction: east
+  y_direction: south
+  z_direction: in
+pattern_center:
+  x_boundary_convention: top
+  x_normalization_direction: east
+  y_boundary_convention: top
+  y_normalization_direction: south

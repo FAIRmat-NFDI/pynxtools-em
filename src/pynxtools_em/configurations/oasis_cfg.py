@@ -28,6 +28,7 @@ OASISCFG_EM_CSYS_TO_NEXUS: Dict[str, Any] = {
     "map_to_str": [
         "alias",
         "type",
+        "handedness",
         "origin",
         ("x_direction", "xaxis_direction"),
         ("x_alias", "xaxis_alias"),
