@@ -250,9 +250,12 @@ class TfsTiffParser:
                         "strength": 1,
                     }
                     template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                        f"Coordinate along {dim}-axis ({sxy[dim].units})"
+                        f"Coordinate along {dim}-axis ({sxy[dim].units if not sxy[dim].dimensionless else 'pixel'})"
                     )
-                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
+                    if not sxy[dim].dimensionless:
+                        template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = (
+                            f"{sxy[dim].units}"
+                        )
                 identifier_image += 1
         return template
 

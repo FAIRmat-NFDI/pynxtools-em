@@ -269,7 +269,7 @@ class FeiLegacyTiffParser:
                             "strength": 1,
                         }
                         template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                            f"Coordinate along {dim}-axis (needs proper scaling!)"
+                            f"Coordinate along {dim}-axis (pixel)"
                         )
                     elif self.supported == FEI_LEGACY_HELIOS_SEM:
                         template[f"{trg}/AXISNAME[axis_{dim}]"] = {
@@ -283,11 +283,13 @@ class FeiLegacyTiffParser:
                             "strength": 1,
                         }
                         template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                            f"Coordinate along {dim}-axis ({sxy[dim].units})"
+                            f"Coordinate along {dim}-axis ({sxy[dim].units if not sxy[dim].dimensionless else 'pixel'})"
                         )
-                        template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = (
-                            f"{sxy[dim].units}"
-                        )
+                        if not sxy[dim].dimensionless:
+                            template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = (
+                                f"{sxy[dim].units}"
+                            )
+
                 identifier_image += 1
         return template
 

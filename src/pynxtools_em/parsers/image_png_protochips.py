@@ -380,8 +380,8 @@ class ProtochipsPngSetParser:
                         )
 
                         sxy = {
-                            "i": ureg.Quantity(1.0, ureg.meter),
-                            "j": ureg.Quantity(1.0, ureg.meter),
+                            "i": ureg.Quantity(1.0),
+                            "j": ureg.Quantity(1.0),
                         }
                         abbrev = "MicroscopeControlImageMetadata.ImagerSettings.ImagePhysicalSize"
                         if (
@@ -418,10 +418,11 @@ class ProtochipsPngSetParser:
                                 "strength": 1,
                             }
                             template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                                f"Coordinate along {dim}-axis ({sxy[dim].units})"
+                                f"Coordinate along {dim}-axis ({sxy[dim].units if not sxy[dim].dimensionless else 'pixel'})"
                             )
-                            template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = (
-                                f"{sxy[dim].units}"
-                            )
+                            if not sxy[dim].dimensionless:
+                                template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = (
+                                    f"{sxy[dim].units}"
+                                )
                 event_id += 1
         return template

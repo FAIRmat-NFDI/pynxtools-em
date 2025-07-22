@@ -172,7 +172,7 @@ class PointElectronicTiffParser:
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
-                sxy = {"i": ureg.Quantity(1.0), "j": ureg.Quantiy(1.0)}
+                sxy = {"i": ureg.Quantity(1.0), "j": ureg.Quantity(1.0)}
                 if ("PixelSizeX" in self.flat_metadata) and (
                     "PixelSizeY" in self.flat_metadata
                 ):
@@ -200,9 +200,12 @@ class PointElectronicTiffParser:
                         "strength": 1,
                     }
                     template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                        f"Coordinate along {dim}-axis ({sxy[dim].units})"
+                        f"Coordinate along {dim}-axis ({sxy[dim].units if not sxy[dim].dimensionless else 'pixel'})"
                     )
-                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
+                    if not sxy[dim].dimensionless:
+                        template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = (
+                            f"{sxy[dim].units}"
+                        )
                 identifier_image += 1
         return template
 

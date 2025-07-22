@@ -672,7 +672,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                     np.uint32(dim_idx)
                 )
                 template[f"{trg}/image_2d/axis_{dim}/@long_name"] = (
-                    f"Point coordinate along the {dim}-axis ({qnt.units})"
+                    f"Coordinate along the {dim}-axis ({qnt.units})"
                 )
                 template[f"{trg}/image_2d/axis_{dim}/@units"] = f"{qnt.units}"
         if len(atom_types) > 0:
