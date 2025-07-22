@@ -115,6 +115,7 @@ class ZeissTiffParser:
                             TokenError,
                             ValueError,
                             AttributeError,
+                            AssertionError,
                         ):
                             if token[1]:
                                 self.flat_dict_meta[line] = string_to_number(token[1])

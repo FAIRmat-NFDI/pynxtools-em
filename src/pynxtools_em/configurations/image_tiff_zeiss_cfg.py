@@ -28,7 +28,7 @@ ZEISS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument",
     "prefix_src": "",
     "map_to_f8": [
-        ("optics/magnification", "AP_MAG"),
+        ("optics/magnification", ureg.nx_dimensionless, "AP_MAG"),
         ("optics/working_distance", ureg.meter, "AP_WD"),
         ("ebeam_column/electron_source/voltage", ureg.volt, "AP_MANUALKV"),
     ],

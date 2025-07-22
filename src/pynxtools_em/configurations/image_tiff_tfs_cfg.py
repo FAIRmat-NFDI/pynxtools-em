@@ -43,7 +43,7 @@ TFS_STATIC_VARIOUS_NX: Dict[str, Any] = {
     "map_to_str": [
         ("ebeam_column/apertureID[aperture*]/name", "EBeam/Aperture"),
         ("fabrication/model", "System/SystemType"),
-        ("fabrication/serial_number", "System/BuildNr"),
+        ("fabrication/serial_number", "System/BuildNr"),  # System/Dnumber
         ("ebeam_column/electron_source/emitter_type", "System/Source"),
     ],
 }

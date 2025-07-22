@@ -114,7 +114,7 @@ FEI_HELIOS_STATIC_VARIOUS_NX: Dict[str, Any] = {
     "use": [("fabrication/vendor", "FEI")],
     "map_to_str": [
         ("fabrication/model", "Instrument.InstrumentClass"),
-        ("fabrication/serial_number", "Instrument.InstrumentID"),
+        ("fabrication/serial_number", "Instrument.InstrumentID"),  # System.Dnumber
         ("ebeam_column/electron_source/emitter_type", "Acquisition.SourceType"),
     ],
 }

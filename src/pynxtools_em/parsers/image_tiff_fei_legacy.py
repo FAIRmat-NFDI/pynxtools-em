@@ -58,7 +58,7 @@ FEI_LEGACY_HELIOS_SEM = 2
 
 
 class FeiLegacyTiffParser:
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if file_path:
             self.file_path = file_path
         self.entry_id = entry_id if entry_id > 0 else 1
@@ -160,7 +160,7 @@ class FeiLegacyTiffParser:
     def parse(self, template: dict) -> dict:
         """Perform actual parsing."""
         if self.supported == FEI_LEGACY_TECNAI_TEM:
-            # do not use != FEI_LEGACY_UNKNOWN as the FEI_FEI_LEGACY_HELIOS_SEM part
+            # do not use != FEI_LEGACY_UNKNOWN as the FEI_LEGACY_HELIOS_SEM part
             # has been switched off intentionally
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
@@ -169,6 +169,12 @@ class FeiLegacyTiffParser:
             )
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
+        elif self.supported == FEI_LEGACY_HELIOS_SEM:
+            print(
+                f"Detected {self.file_path} qualifies as FEI_LEGACY_HELIOS_SEM."
+                f"These can have conflicting metadata, will currently parse only"
+                f"when the image_tfs_tif parser picks content up!"
+            )
         return template
 
     def process_event_data_em_data(self, template: dict) -> dict:
