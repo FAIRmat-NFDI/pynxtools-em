@@ -25,7 +25,7 @@ TESCAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]",
     "prefix_src": "",
     "map_to_f8": [
-        ("instrument/optics/magnification", "Magnification"),
+        ("instrument/optics/magnification", ureg.nx_dimensionless, "Magnification"),
         (
             "instrument/optics/working_distance",
             ureg.meter,

@@ -77,7 +77,7 @@ VELOX_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/optics",
     "prefix_src": "",
     "map_to_f8": [
-        ("magnification", "Optics/NominalMagnification"),
+        ("magnification", ureg.nx_dimensionless, "Optics/NominalMagnification"),
         ("camera_length", ureg.meter, "Optics/CameraLength", ureg.millimeter),
         ("defocus", ureg.meter, "Optics/Defocus", ureg.nanometer),
         (

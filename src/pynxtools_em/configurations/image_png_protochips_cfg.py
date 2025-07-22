@@ -118,6 +118,7 @@ AXON_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
         ),
         (
             "instrument/optics/magnification",
+            ureg.nx_dimensionless,
             "MagnificationValue",
         ),
     ],

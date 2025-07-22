@@ -45,7 +45,7 @@ FEI_TECNAI_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
     "map_to_str": [("filtermode_tmp", "Filter mode")],
     "map_to_u4": [("gunlens_tmp", "Gun lens"), ("spotsize_tmp", "Spot size")],
     "map_to_f8": [
-        ("magnification", "Magnification"),
+        ("magnification", ureg.nx_dimensionless, "Magnification"),
         ("camera_length", ureg.meter, "Camera length", ureg.meter),
         ("defocus", ureg.meter, "Defocus", ureg.micrometer),
         ("rotation", ureg.radian, "Stem rotation", ureg.degree),

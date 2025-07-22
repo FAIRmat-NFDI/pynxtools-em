@@ -40,7 +40,7 @@ from pynxtools_em.utils.string_conversions import string_to_number
 
 
 class HitachiTiffParser:
-    def __init__(self, file_paths: List[str], entry_id: int = 1, verbose=False):
+    def __init__(self, file_paths: List[str], entry_id: int = 1, verbose=True):
         tif_txt = ["", ""]
         if (
             len(file_paths) == 2
@@ -108,10 +108,15 @@ class HitachiTiffParser:
             for line in txt[idx + 1 :]:  # + 1 to jump over the header line
                 tmp = [token.strip() for token in line.split("=")]
                 if len(tmp) == 2 and all(token != "" for token in tmp):
-                    try:
-                        self.flat_dict_meta[tmp[0]] = ureg.Quantity(tmp[1])
-                    except (UndefinedUnitError, TokenError):
-                        self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
+                    if tmp[0] not in ["SerialNumber"]:
+                        try:
+                            self.flat_dict_meta[tmp[0]] = ureg.Quantity(tmp[1])
+                        except (UndefinedUnitError, TokenError):
+                            self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
+                    else:  # a few special cases need an extra treatment
+                        # otherwise an example 123189-06 would be interpreted
+                        # into 123189 by pint which is wrong
+                        self.flat_dict_meta["SerialNumber"] = f"{tmp[1]}"
 
             if self.verbose:
                 for key, value in self.flat_dict_meta.items():
@@ -172,11 +177,11 @@ class HitachiTiffParser:
                 if "PixelSize" in self.flat_dict_meta:
                     sxy = {
                         "i": ureg.Quantity(
-                            self.flat_dict_meta["PixelSize"], ureg.nanometer
-                        ),
+                            self.flat_dict_meta["PixelSize"].magnitude, ureg.nanometer
+                        ).to(ureg.meter),
                         "j": ureg.Quantity(
-                            self.flat_dict_meta["PixelSize"], ureg.nanometer
-                        ),
+                            self.flat_dict_meta["PixelSize"].magnitude, ureg.nanometer
+                        ).to(ureg.meter),
                     }
                 else:
                     print("WARNING: Assuming pixel width and height unit is unitless!")

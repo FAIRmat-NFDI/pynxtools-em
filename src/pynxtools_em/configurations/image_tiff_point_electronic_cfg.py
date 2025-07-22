@@ -25,7 +25,7 @@ DISS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]",
     "prefix_src": "",
     "map_to_f8": [
-        ("instrument/optics/magnification", "Mag"),
+        ("instrument/optics/magnification", ureg.nx_dimensionless, "Mag"),
         (
             "instrument/optics/working_distance",
             ureg.meter,

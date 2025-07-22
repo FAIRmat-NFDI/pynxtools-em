@@ -79,7 +79,7 @@ GATAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
             "Field of View (µm)",
             ureg.micrometer,
         ),
-        ("optics/magnification", "Actual Magnification"),
+        ("optics/magnification", ureg.nx_dimensionless, "Actual Magnification"),
         (
             "optics/camera_length",
             ureg.meter,
