@@ -111,7 +111,7 @@ class HitachiTiffParser:
                     if tmp[0] not in ["SerialNumber"]:
                         try:
                             self.flat_dict_meta[tmp[0]] = ureg.Quantity(tmp[1])
-                        except (UndefinedUnitError, TokenError):
+                        except (UndefinedUnitError, TokenError, AssertionError):
                             self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
                     else:  # a few special cases need an extra treatment
                         # otherwise an example 123189-06 would be interpreted

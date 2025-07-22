@@ -212,8 +212,8 @@ class ZeissTiffParser:
                 ]:  # assuming square pixel
                     if key in self.flat_dict_meta:
                         sxy = {
-                            "i": self.flat_dict_meta[key],
-                            "j": self.flat_dict_meta[key],
+                            "i": self.flat_dict_meta[key].to(ureg.meter),
+                            "j": self.flat_dict_meta[key].to(ureg.meter),
                         }  # these are ureg.Quantity already
                         found = True
                         break
