@@ -52,7 +52,7 @@ AXON_STATIC_DETECTOR_NX: Dict[str, Any] = {
     "prefix_src": "",
     "use": [
         (
-            "local_name",
+            "name",
             "As tested with AXON 10.4.4.21, 2021-04-26T22:51:28.4539893-05:00 not included in Protochips PNG metadata",
         )
     ],

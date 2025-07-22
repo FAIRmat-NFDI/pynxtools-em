@@ -24,7 +24,7 @@ from pynxtools_em.utils.pint_custom_unit_registry import ureg
 TFS_STATIC_DETECTOR_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/detectorID[detector*]",
     "prefix_src": "",
-    "map_to_str": [("local_name", "Detectors/Name")],
+    "map_to_str": [("name", "Detectors/Name")],
 }
 
 
@@ -53,14 +53,19 @@ TFS_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/optics",
     "prefix_src": "",
     "map_to_f8": [
-        ("beam_current", ureg.ampere, "EBeam/BeamCurrent", ureg.ampere),
+        (
+            "probe_current",
+            ureg.ampere,
+            "EBeam/BeamCurrent",
+            ureg.ampere,
+        ),  # probe == beam ?
         ("working_distance", ureg.meter, "EBeam/WD", ureg.meter),
     ],
 }
 
 
 TFS_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stage",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]",
     "prefix_src": "",
     "map_to_f8": [
         ("rotation", ureg.radian, "Stage/StageR", ureg.radian),
@@ -84,7 +89,7 @@ TFS_DYNAMIC_STIGMATOR_NX: Dict[str, Any] = {
 
 
 TFS_DYNAMIC_SCAN_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/scan_controller",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/scan_controller",
     "prefix_src": "",
     "map_to_str": [("scan_schema", "System/Scan")],
     "map_to_f8": [("dwell_time", ureg.second, "Scan/Dwelltime", ureg.second)],
@@ -95,7 +100,7 @@ TFS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]",
     "prefix_src": "",
     "map_to_str": [
-        ("instrument/detectorID[detector*]/mode", "Detectors/Mode"),
+        ("instrument/detectorID[detector*]/operation_mode", "Detectors/Mode"),
         (
             "instrument/ebeam_column/operation_mode",
             ["EBeam/UseCase", "Beam/ImageMode", "EBeam/BeamMode", "Beam/Spot"],

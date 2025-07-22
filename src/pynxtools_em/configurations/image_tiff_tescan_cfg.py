@@ -39,11 +39,11 @@ TESCAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
             ureg.meter,
         ),
         (
-            "instrument/optics/beam_current",
+            "instrument/optics/probe_current",
             ureg.ampere,
             "PredictedBeamCurrent",
             ureg.ampere,
-        ),
+        ),  # probe == beam ?
         (
             "instrument/optics/specimen_current",
             ureg.ampere,

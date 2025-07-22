@@ -104,7 +104,7 @@ FEI_TECNAI_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
 FEI_HELIOS_DYNAMIC_DETECTOR_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/detectorID[detector*]",
     "prefix_src": "Metadata.Detectors.ScanningDetector.",
-    "map_to_str": [("local_name", "DetectorName")],
+    "map_to_str": [("name", "DetectorName")],
 }
 
 
@@ -170,7 +170,7 @@ FEI_HELIOS_DYNAMIC_STIGMATOR_NX: Dict[str, Any] = {
 
 
 FEI_HELIOS_DYNAMIC_SCAN_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/scan_controller",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/scan_controller",
     "prefix_src": "Metadata.ScanSettings.",
     "map_to_f8": [("dwell_time", ureg.second, "DwellTime", ureg.second)],
 }

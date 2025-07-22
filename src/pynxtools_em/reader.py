@@ -167,7 +167,7 @@ class EMReader(BaseReader):
         smpl = NxEmAtomTypesResolver(entry_id)
         smpl.identify_atomtypes(template)
 
-        debugging = True
+        debugging = False
         if debugging:
             print("Reporting state of template before passing to HDF5 writing...")
             for keyword, value in sorted(template.items()):

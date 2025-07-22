@@ -118,7 +118,7 @@ NION_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
             ureg.ampere,
             "SuperFEG.^EmissionCurrent",
             ureg.ampere,
-        ),
+        ),  # emission will arrive at the probe ?
         (
             "optics/field_of_view",
             ureg.meter,
@@ -193,7 +193,7 @@ NION_DYNAMIC_LENS_NX: Dict[str, Any] = {
 # according to this documentation ac_line_style should be boolean but datasets show
 # 1.0, 2.0, True and False !
 NION_DYNAMIC_SCAN_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/scan_controller",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/scan_controller",
     "prefix_src": [
         "metadata/hardware_source/",
         "metadata/scan/scan_device_parameters/",
@@ -241,7 +241,7 @@ NION_DYNAMIC_SCAN_NX: Dict[str, Any] = {
 C0 = "CIRCUIT[magboard0]"
 C1 = "CIRCUIT[magboard1]"
 NION_DYNAMIC_MAGBOARDS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/scan_controller",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/scan_controller",
     "prefix_src": [
         "metadata/scan/scan_device_properties/",
         "metadata/scan/scan_device_properties/mag_boards/",

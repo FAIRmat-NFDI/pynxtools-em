@@ -67,7 +67,7 @@ VELOX_STATIC_FABRICATION_NX: Dict[str, Any] = {
 
 
 VELOX_DYNAMIC_SCAN_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/scan_controller",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/scan_controller",
     "prefix_src": "",
     "map_to_f8": [("dwell_time", ureg.second, "Scan/DwellTime", ureg.microsecond)],
 }
