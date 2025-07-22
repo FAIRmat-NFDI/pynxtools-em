@@ -170,8 +170,8 @@ class JeolTiffParser:
                 template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
                 sxy = {
-                    "i": ureg.Quantity(1.0, ureg.meter),
-                    "j": ureg.Quantity(1.0, ureg.meter),
+                    "i": ureg.Quantity(1.0),
+                    "j": ureg.Quantity(1.0),
                 }
                 if ("SM_MICRON_BAR" in self.flat_dict_meta) and (
                     "SM_MICRON_MARKER" in self.flat_dict_meta
@@ -189,7 +189,7 @@ class JeolTiffParser:
                         "j": physical_length / resolution,
                     }
                 else:
-                    print("WARNING: Assuming pixel width and height unit is meter!")
+                    print("WARNING: Assuming pixel width and height unit is unitless!")
                 nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # however, these assumptions need to be confirmed by point electronic

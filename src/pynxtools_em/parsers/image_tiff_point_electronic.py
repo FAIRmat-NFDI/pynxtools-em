@@ -32,6 +32,7 @@ from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
 
 
@@ -171,17 +172,20 @@ class PointElectronicTiffParser:
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
-                sxy = {"i": 1.0, "j": 1.0}
-                scan_unit = {"i": "m", "j": "m"}
+                sxy = {"i": ureg.Quantity(1.0), "j": ureg.Quantiy(1.0)}
                 if ("PixelSizeX" in self.flat_metadata) and (
                     "PixelSizeY" in self.flat_metadata
                 ):
                     sxy = {
-                        "i": self.flat_metadata["PixelSizeX"],
-                        "j": self.flat_metadata["PixelSizeY"],
+                        "i": ureg.Quantity(
+                            self.flat_metadata["PixelSizeX"], ureg.meter
+                        ),
+                        "j": ureg.Quantity(
+                            self.flat_metadata["PixelSizeY"], ureg.meter
+                        ),
                     }
                 else:
-                    print("WARNING: Assuming pixel width and height unit is meter!")
+                    print("WARNING: Assuming pixel width and height unit is unitless!")
                 nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # however, these assumptions need to be confirmed by point electronic
@@ -190,15 +194,15 @@ class PointElectronicTiffParser:
                     template[f"{trg}/AXISNAME[axis_{dim}]"] = {
                         "compress": np.asarray(
                             np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
-                            * sxy[dim],
+                            * sxy[dim].magnitude,
                             dtype=np.float32,
                         ),
                         "strength": 1,
                     }
                     template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                        f"Coordinate along {dim}-axis ({scan_unit[dim]})"
+                        f"Coordinate along {dim}-axis ({sxy[dim].units})"
                     )
-                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit[dim]}"
+                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
                 identifier_image += 1
         return template
 

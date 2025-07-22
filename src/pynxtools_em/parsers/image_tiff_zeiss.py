@@ -201,21 +201,23 @@ class ZeissTiffParser:
                 template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
                 sxy = {
-                    "i": ureg.Quantity(1.0, ureg.meter),
-                    "j": ureg.Quantity(1.0, ureg.meter),
+                    "i": ureg.Quantity(1.0),
+                    "j": ureg.Quantity(1.0),
                 }
                 found = False
-                for key in ["AP_PIXEL_SIZE", "APImagePixelSize"]:
+                for key in [
+                    "AP_PIXEL_SIZE",
+                    "APImagePixelSize",
+                ]:  # assuming square pixel
                     if key in self.flat_dict_meta:
                         sxy = {
                             "i": self.flat_dict_meta[key],
                             "j": self.flat_dict_meta[key],
-                        }
-                        # to(ureg.meter).magnitude
+                        }  # these are ureg.Quantity already
                         found = True
                         break
                 if not found:
-                    print("WARNING: Assuming pixel width and height unit is meter!")
+                    print("WARNING: Assuming pixel width and height unit is unitless!")
                 nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # however, these assumptions need to be confirmed by point electronic

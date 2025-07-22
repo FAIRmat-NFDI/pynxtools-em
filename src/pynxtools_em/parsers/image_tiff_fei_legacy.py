@@ -214,8 +214,8 @@ class FeiLegacyTiffParser:
                     )
                 elif self.supported == FEI_LEGACY_HELIOS_SEM:
                     sxy = {
-                        "i": ureg.Quantity(1.0, ureg.meter),
-                        "j": ureg.Quantity(1.0, ureg.meter),
+                        "i": ureg.Quantity(1.0),
+                        "j": ureg.Quantity(1.0),
                     }
                     # may face CCD overview camera of chamber that has no calibration!
                     abbrev = "Metadata.BinaryResult.PixelSize"
@@ -237,7 +237,9 @@ class FeiLegacyTiffParser:
                             ),
                         }
                     else:
-                        print("WARNING: Assuming pixel width and height unit is meter!")
+                        print(
+                            "WARNING: Assuming pixel width and height unit is unitless!"
+                        )
 
                 nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
                 # TODO::be careful we assume here a very specific coordinate system

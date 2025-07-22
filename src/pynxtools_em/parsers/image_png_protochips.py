@@ -398,6 +398,10 @@ class ProtochipsPngSetParser:
                                     ureg.nanometer,
                                 ),
                             }
+                        else:
+                            print(
+                                "WARNING: Assuming pixel width and height unit is unitless!"
+                            )
                         nxy = {"i": np.shape(nparr)[1], "j": np.shape(nparr)[0]}
                         del nparr
                         # TODO::we assume here a very specific coordinate system see image_tiff_tfs.py
