@@ -27,7 +27,7 @@ GER_BERLIN_KOCH_GROUP_INSTRUMENT_TO_NEXUS: Dict[str, Any] = {
     "map_to_str": [
         "location",
         "name",
-        # "capabilities",
+        "capabilities",
         ("fabrication/vendor", "vendor"),
         ("fabrication/model", "model"),
         ("fabrication/serial_number", "serial_number"),
@@ -48,7 +48,7 @@ GER_BERLIN_KOCH_GROUP_ESOURCE_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/ebeam_column/electron_source",
     "prefix_src": "electron_source/",
     "map_to_str": [
-        # "name",
+        "name",
         "emitter_type",
     ],
     "map_to_f8": [

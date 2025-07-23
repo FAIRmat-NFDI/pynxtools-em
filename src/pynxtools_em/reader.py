@@ -35,10 +35,9 @@ from pynxtools_em.parsers.hfive_edax import HdfFiveEdaxOimAnalysisParser
 
 # from pynxtools_em.parsers.hfive_emsoft import HdfFiveEmSoftParser
 from pynxtools_em.parsers.hfive_oxford import HdfFiveOxfordInstrumentsParser
-
-# from pynxtools_em.parsers.hu_berlin_koch_group import (
-#     NxEmNomadOasisGerBerlinKochGroup,
-# )
+from pynxtools_em.parsers.hu_berlin_koch_group import (
+    NxEmNomadOasisGerBerlinKochGroup,
+)
 from pynxtools_em.parsers.image_diffraction_pattern_set import (
     DiffractionPatternSetParser,
 )
