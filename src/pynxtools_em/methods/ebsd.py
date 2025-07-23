@@ -415,13 +415,21 @@ def ebsd_roi_phase_ipf(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dic
         template[f"{trg}/phase_id"] = np.int32(nxem_phase_id)
         template[f"{trg}/name"] = f"{inp.phases[nxem_phase_id]['phase_name']}"
 
-        for concept in ["a_b_c", "alpha_beta_gamma"]:
-            if concept in inp.phases[nxem_phase_id]:
-                template[f"{trg}/UNIT_CELL[unit_cell]/{concept}"] = np.asarray(
-                    inp.phases[nxem_phase_id][concept].magnitude, dtype=np.float32
+        if "a_b_c" in inp.phases[nxem_phase_id]:
+            for idx, key in enumerate(["a", "b", "c"]):
+                template[f"{trg}/UNIT_CELL[unit_cell]/{key}"] = np.float32(
+                    inp.phases[nxem_phase_id]["a_b_c"].magnitude[idx]
                 )
-                template[f"{trg}/UNIT_CELL[unit_cell]/{concept}/@units"] = (
-                    f"{inp.phases[nxem_phase_id][concept].units}"
+                template[f"{trg}/UNIT_CELL[unit_cell]/{key}/@units"] = (
+                    f"{inp.phases[nxem_phase_id]['a_b_c'].units}"
+                )
+        if "alpha_beta_gamma" in inp.phases[nxem_phase_id]:
+            for idx, key in enumerate(["alpha", "beta", "gamma"]):
+                template[f"{trg}/UNIT_CELL[unit_cell]/{key}"] = np.float32(
+                    inp.phases[nxem_phase_id]["alpha_beta_gamma"].magnitude[idx]
+                )
+                template[f"{trg}/UNIT_CELL[unit_cell]/{key}/@units"] = (
+                    f"{inp.phases[nxem_phase_id]['alpha_beta_gamma'].units}"
                 )
         if "space_group" in inp.phases[nxem_phase_id]:
             template[f"{trg}/UNIT_CELL[unit_cell]/space_group"] = (
@@ -499,6 +507,7 @@ def process_roi_phase_ipf(
             f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/ebsd/indexing"
             f"/phaseID[phase{nxem_phase_id}]/ipfID[ipf{idx + 1}]"
         )
+        template[f"{trg}/color_model"] = "tsl"  # as used by kikuchipy/orix
         template[f"{trg}/projection_direction"] = np.asarray(
             PROJECTION_VECTORS[idx].data.flatten(), np.float32
         )
