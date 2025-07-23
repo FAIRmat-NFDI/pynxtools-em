@@ -291,38 +291,37 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                         print(f"Unable to parse ../Lattice Constant {req_field} !")
                         self.ebsd = EbsdPointCloud()
                         return
-                abc = [
-                    ureg.Quantity(
-                        fp[f"{sub_grp_name}/Lattice Constant A"][0], ureg.angstrom
-                    ),
-                    ureg.Quantity(
-                        fp[f"{sub_grp_name}/Lattice Constant B"][0], ureg.angstrom
-                    ),
-                    ureg.Quantity(
-                        fp[f"{sub_grp_name}/Lattice Constant C"][0], ureg.angstrom
-                    ),
-                ]
-                angles = [
-                    ureg.Quantity(
-                        fp[f"{sub_grp_name}/Lattice Constant Alpha"][0], ureg.degree
-                    ).to(ureg.radian),
-                    ureg.Quantity(
-                        fp[f"{sub_grp_name}/Lattice Constant Beta"][0], ureg.degree
-                    ).to(ureg.radian),
-                    ureg.Quantity(
-                        fp[f"{sub_grp_name}/Lattice Constant Gamma"][0], ureg.degree
-                    ).to(ureg.radian),
-                ]
                 # TODO::available examples support reporting in angstroem and degree
+                abc = ureg.Quantity(
+                    np.asarray(
+                        [
+                            fp[f"{sub_grp_name}/Lattice Constant A"][0],
+                            fp[f"{sub_grp_name}/Lattice Constant B"][0],
+                            fp[f"{sub_grp_name}/Lattice Constant C"][0],
+                        ]
+                    ),
+                    ureg.angstrom,
+                )
                 self.ebsd.phases[phase_idx]["a_b_c"] = abc
+                angles = ureg.Quantity(
+                    np.asarray(
+                        [
+                            fp[f"{sub_grp_name}/Lattice Constant Alpha"][0],
+                            fp[f"{sub_grp_name}/Lattice Constant Beta"][0],
+                            fp[f"{sub_grp_name}/Lattice Constant Gamma"][0],
+                        ]
+                    ),
+                    ureg.degree,
+                ).to(ureg.radian)
                 self.ebsd.phases[phase_idx]["alpha_beta_gamma"] = angles
+
                 latt = Lattice(
-                    abc[0].magnitude,
-                    abc[1].magnitude,
-                    abc[2].magnitude,
-                    angles[0].magnitude,
-                    angles[1].magnitude,
-                    angles[2].magnitude,
+                    abc.magnitude[0],
+                    abc.magnitude[1],
+                    abc.magnitude[2],
+                    angles.magnitude[0],
+                    angles.magnitude[1],
+                    angles.magnitude[2],
                 )
 
                 # Space Group not stored, only laue group, point group and symmetry
