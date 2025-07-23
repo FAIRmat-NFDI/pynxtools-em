@@ -19,7 +19,7 @@
 
 import mmap
 from tokenize import TokenError
-from typing import Dict, List
+from typing import Any, Dict, List
 
 import flatdict as fd
 import numpy as np
@@ -173,7 +173,7 @@ class HitachiTiffParser:
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
-                sxy = {
+                sxy: Dict[str, Any] = {
                     "i": ureg.Quantity(1.0),
                     "j": ureg.Quantity(1.0),
                 }

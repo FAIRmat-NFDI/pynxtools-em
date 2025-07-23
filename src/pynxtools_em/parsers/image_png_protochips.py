@@ -20,7 +20,7 @@
 import datetime
 import mmap
 import re
-from typing import Dict, List
+from typing import Any, Dict, List
 from zipfile import ZipFile
 
 import flatdict as fd
@@ -381,7 +381,7 @@ class ProtochipsPngSetParser:
                             f"Real part of the image intensity"
                         )
 
-                        sxy = {
+                        sxy: Dict[str, Any] = {
                             "i": ureg.Quantity(1.0),
                             "j": ureg.Quantity(1.0),
                         }
