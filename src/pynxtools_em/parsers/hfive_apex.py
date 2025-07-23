@@ -298,7 +298,8 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                             fp[f"{sub_grp_name}/Lattice Constant A"][0],
                             fp[f"{sub_grp_name}/Lattice Constant B"][0],
                             fp[f"{sub_grp_name}/Lattice Constant C"][0],
-                        ]
+                        ],
+                        dtype=np.float32,
                     ),
                     ureg.angstrom,
                 )
@@ -309,7 +310,8 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                             fp[f"{sub_grp_name}/Lattice Constant Alpha"][0],
                             fp[f"{sub_grp_name}/Lattice Constant Beta"][0],
                             fp[f"{sub_grp_name}/Lattice Constant Gamma"][0],
-                        ]
+                        ],
+                        dtype=np.float32,
                     ),
                     ureg.degree,
                 ).to(ureg.radian)
@@ -662,18 +664,19 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                         dtype=np.float32,
                     ),
                     sxy[dim].units,
-                )
-                template[f"{trg}/image_2d/axis_{dim}"] = {
-                    "compress": qnt.magnitude,
-                    "strength": 1,
-                }
+                ).to(ureg.meter)
                 template[f"{trg}/image_2d/@AXISNAME_indices[axis_{dim}_indices]"] = (
                     np.uint32(dim_idx)
                 )
-                template[f"{trg}/image_2d/axis_{dim}/@long_name"] = (
+                template[f"{trg}/image_2d/AXISNAME[axis_{dim}]"] = {
+                    "compress": qnt.magnitude,
+                    "strength": 1,
+                }
+
+                template[f"{trg}/image_2d/AXISNAME[axis_{dim}]/@long_name"] = (
                     f"Coordinate along the {dim}-axis ({qnt.units})"
                 )
-                template[f"{trg}/image_2d/axis_{dim}/@units"] = f"{qnt.units}"
+                template[f"{trg}/image_2d/AXISNAME[axis_{dim}]/@units"] = f"{qnt.units}"
         if len(atom_types) > 0:
             template[
                 f"/ENTRY[entry{self.id_mgn['entry_id']}]/roiID[roi{self.id_mgn['roi_id']}]/eds/indexing/atom_types"
