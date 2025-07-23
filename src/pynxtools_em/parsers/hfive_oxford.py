@@ -177,6 +177,14 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                     ms.crystal.append(cryst)
                 if len(ms.crystal) > 0:
                     microstructure_to_template(ms, self.id_mgn, template)
+                # in Vitesh's example the individual second-phase particles have been
+                # identified using SEM/EDS, for each such "crystal" we have a rectangular
+                # ROI with the secondary electron contrast based on which the shape
+                # of the crystals was extracted, one spot (spectrum_0d) EDS for each
+                # crystal, but no offsets of the ROI corners to sample_reference_frame
+                # were reported
+                # therefore, we cannot compose the secondary electron image from the
+                # data in the original sample_reference_frame
                 # end of Vitesh's example
                 self.id_mgn["roi_id"] += 1
                 self.id_mgn["img_id"] += 1

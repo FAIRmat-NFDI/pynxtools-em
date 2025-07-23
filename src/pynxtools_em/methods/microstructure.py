@@ -108,12 +108,12 @@ def microstructure_to_template(
     trg = f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/img/imageID[image{id_mgn['img_id']}]"
     template[f"{trg}/imaging_mode"] = f"secondary_electron"
 
-    trg += f"/microstructureID[microstructure1]/chemical_composition"
+    trg += f"/microstructureID[microstructure1]/crystals/chemical_composition"
     inform_about_atom_types = set()
     for symbol in ctable:
         if (
-            np.sum(np.isnan(ctable[symbol][qnt])) > 0
-            or np.sum(np.isnan(ctable[symbol][qnt])) > 0
+            np.sum(np.isnan(ctable[symbol]["value"])) > 0
+            or np.sum(np.isnan(ctable[symbol]["sigma"])) > 0
         ):
             print(
                 f"Element {symbol} not reported because some descriptor values NaN for some crystals!"
