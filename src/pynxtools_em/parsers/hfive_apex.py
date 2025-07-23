@@ -450,10 +450,10 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         syx = {
             "j": ureg.Quantity(
                 fp[f"{self.prfx}/FOVIPR"]["MicronsPerPixelY"][0], ureg.micrometer
-            ),
+            ).to(ureg.meter),
             "i": ureg.Quantity(
                 fp[f"{self.prfx}/FOVIPR"]["MicronsPerPixelX"][0], ureg.micrometer
-            ),
+            ).to(ureg.meter),
         }
 
         prfx = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/eventID[event{self.id_mgn['event_id']}]"

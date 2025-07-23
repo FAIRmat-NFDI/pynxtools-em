@@ -105,10 +105,10 @@ TFS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
             "instrument/ebeam_column/operation_mode",
             ["EBeam/UseCase", "Beam/ImageMode", "EBeam/BeamMode", "Beam/Spot"],
         ),
-        ("event_type", "T1/Signal"),
-        ("event_type", "T2/Signal"),
-        ("event_type", "T3/Signal"),
-        ("event_type", "ETD/Signal"),
+        ("type", "T1/Signal"),
+        ("type", "T2/Signal"),
+        ("type", "T3/Signal"),
+        ("type", "ETD/Signal"),
     ],
     "map_to_bool": [
         (
