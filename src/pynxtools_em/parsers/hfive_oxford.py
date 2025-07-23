@@ -139,46 +139,45 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                         self.id_mgn["roi_id"] += 1
                         self.ebsd = EbsdPointCloud()
 
-                # Vitesh's example
-                has_microstructural_features = False
+                # start of Vitesh's example
                 ms = Microstructure()
                 for grpnm in h5r:
-                    if grpnm.isdigit():
-                        if f"/{grpnm}/Electron Image/Data/Feature/Area" in h5r:
-                            has_microstructural_features = True
-                            cryst = Crystal()
-                            cryst.id = np.uint32(grpnm)
-                            cryst.props["area"] = ureg.Quantity(
-                                h5r[f"/{grpnm}/Electron Image/Data/Feature/Area"][0]
-                            )  # uses that 'um2' has been customized for pint
-                            abbrev = "EDS/Data/Composition"
-                            if (
-                                f"{grpnm}/{abbrev}" in h5r
-                                and f"/{grpnm}/{abbrev} Sigma" in h5r
-                            ):
-                                has_microstructural_features = False
-                                # TODO::improve the use case
-                                cryst.props["composition"] = {}
-                                for element in h5r[f"/{grpnm}/{abbrev}"]:
-                                    if element in h5r[f"/{grpnm}/{abbrev} Sigma"]:
-                                        if (
-                                            element in chemical_symbols[1:]
-                                            and element
-                                            not in cryst.props["composition"]
-                                        ):
-                                            cryst.props["composition"][element] = {
-                                                "value": h5r[
-                                                    f"/{grpnm}/{abbrev}/{element}"
-                                                ][0],
-                                                "sigma": h5r[
-                                                    f"/{grpnm}/{abbrev} Sigma/{element}"
-                                                ][0],
-                                            }  # in weight percent
-                            ms.crystal.append(cryst)
-                        else:
-                            break
-                if has_microstructural_features:
+                    if not grpnm.isdigit():
+                        continue
+                    suffix_area = "Electron Image/Data/Feature/Area"
+                    if f"/{grpnm}/{suffix_area}" not in h5r:
+                        continue
+                    suffix_comp = "EDS/Data/Composition"
+                    if (
+                        f"{grpnm}/{suffix_comp}" not in h5r
+                        or f"/{grpnm}/{suffix_comp} Sigma" not in h5r
+                    ):
+                        continue
+
+                    cryst = Crystal()
+                    cryst.id = np.uint32(grpnm)
+                    cryst.props["area"] = ureg.Quantity(
+                        h5r[f"/{grpnm}/{suffix_area}"][0],
+                        ureg.micrometer**2,
+                    )  # h5oina reports in micron and micron**2
+                    # TODO::improve the use case
+                    cryst.props["composition"] = {}
+                    for element in h5r[f"/{grpnm}/{suffix_comp}"]:
+                        if element not in h5r[f"/{grpnm}/{suffix_comp} Sigma"]:
+                            continue
+                        if (
+                            element not in chemical_symbols[1:]
+                            or element in cryst.props["composition"]
+                        ):
+                            continue
+                        cryst.props["composition"][element] = {
+                            "value": h5r[f"/{grpnm}/{suffix_comp}/{element}"][0],
+                            "sigma": h5r[f"/{grpnm}/{suffix_comp} Sigma/{element}"][0],
+                        }  # in weight percent
+                    ms.crystal.append(cryst)
+                if len(ms.crystal) > 0:
                     microstructure_to_template(ms, self.id_mgn, template)
+                # end of Vitesh's example
                 self.id_mgn["roi_id"] += 1
                 self.id_mgn["img_id"] += 1
 
