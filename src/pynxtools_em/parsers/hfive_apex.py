@@ -60,7 +60,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         self.spc: Dict[str, Any] = {}
         self.ebsd: EbsdPointCloud = EbsdPointCloud()
         self.eds: Dict[str, Any] = {}
-        self.cache_id: int = 1  # deprecate soon!
+        self.sample_atom_types = set()
         self.version: Dict = {
             "trg": {  # supported ones
                 "tech_partner": ["EDAX, LLC"],
@@ -225,6 +225,11 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             # with respect to parent FOV, SPC
             # Free Draw, TODO: parse ../REGION x,y table (relative coordinate)
             # with respect to parent FOV, SPC
+
+        # use that information to populate sample/atom_types as a fall back
+        trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/sampleID[sample]"
+        if f"{trg}/atom_types" not in template:
+            template[f"{trg}/atom_types"] = ", ".join(list(self.sample_atom_types))
         return template
 
     def parse_and_normalize_group_ebsd_header(self, fp):
@@ -679,8 +684,9 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 template[f"{trg}/image_2d/AXISNAME[axis_{dim}]/@units"] = f"{qnt.units}"
         if len(atom_types) > 0:
             template[
-                f"/ENTRY[entry{self.id_mgn['entry_id']}]/roiID[roi{self.id_mgn['roi_id']}]/eds/indexing/atom_types"
+                f"/ENTRY[entry{self.id_mgn['entry_id']}]/ROI[roi{self.id_mgn['roi_id']}]/eds/indexing/atom_types"
             ] = ", ".join(list(atom_types))
+            self.sample_atom_types = self.sample_atom_types.union(atom_types)
         return template
 
     # TODO::these functions were deactivated as they have few examples and have not been
