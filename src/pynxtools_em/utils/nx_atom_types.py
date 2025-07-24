@@ -38,26 +38,41 @@ class NxEmAtomTypesResolver:
         """Inspect template and find elements to eventually overwrite sample/atom_types."""
         atom_types = set()
         for key, free_text in template.items():
+            if not key.startswith(f"/ENTRY[entry{self.entry_id}]/roiID[roi"):
+                continue
+            # indexed phases from EBSD can be used to identify atom_types
             if (
                 re.match(
                     rf"^/ENTRY\[entry{self.entry_id}\]/roiID\[roi1\]/ebsd/indexing/phaseID\[phase[0-9]+\]/name",
                     key,
                 )
-                is None
+                is not None
             ):
-                continue
-            if free_text in chemical_symbols[1::]:
-                atom_types.add(free_text)
-            elif free_text in FREE_TEXT_TO_CONCEPT:
-                concept = FREE_TEXT_TO_CONCEPT[free_text]
-                if concept in chemical_symbols[1::]:
-                    atom_types.add(concept)
-                elif concept in CONCEPT_TO_ATOM_TYPES:
-                    symbols = CONCEPT_TO_ATOM_TYPES[concept].split(";")
-                    for symbol in symbols:
-                        if symbol in chemical_symbols[1::]:
-                            atom_types.add(symbol)
-        if len(atom_types) > 0:
-            trg = f"/ENTRY[entry{self.entry_id}]/sampleID[sample]/atom_types"
+                if free_text in chemical_symbols[1::]:
+                    atom_types.add(free_text)
+                elif free_text in FREE_TEXT_TO_CONCEPT:
+                    concept = FREE_TEXT_TO_CONCEPT[free_text]
+                    if concept in chemical_symbols[1::]:
+                        atom_types.add(concept)
+                    elif concept in CONCEPT_TO_ATOM_TYPES:
+                        symbols = CONCEPT_TO_ATOM_TYPES[concept].split(";")
+                        for symbol in symbols:
+                            if symbol in chemical_symbols[1::]:
+                                atom_types.add(symbol)
+            # indexed EDS element-specific mappings can be used to identify atom_types
+            if (
+                re.match(
+                    rf"^/ENTRY\[entry{self.entry_id}\]/roiID\[roi1\]/eds/indexing/atom_types",
+                    key,
+                )
+                is not None
+            ):
+                for symbol in [val.strip() for val in free_text.split(",")]:
+                    if symbol in chemical_symbols[1::]:
+                        atom_types.add(symbol)
+
+        trg = f"/ENTRY[entry{self.entry_id}]/sampleID[sample]/atom_types"
+        if len(atom_types) > 0 and trg not in template:
+            # do not overwrite what might have been provided already by an ELN
             template[trg] = ", ".join(list(atom_types))
         return template
