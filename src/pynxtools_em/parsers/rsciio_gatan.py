@@ -105,6 +105,9 @@ class RsciioGatanParser:
                 continue
             if not all_req_keywords_in_dict(obj, reqs):
                 continue
+            if self.verbose:
+                for keyword, value in obj["original_metadata"].items():
+                    print(f"{keyword}____{type(value)}____{value}")
             self.process_event_data_em_metadata(obj, template)
             self.process_event_data_em_data(obj, template)
             self.id_mgn["event_id"] += 1
@@ -137,7 +140,7 @@ class RsciioGatanParser:
         template[f"{trg}/{abbrev}/checksum"] = checksum
         template[f"{trg}/{abbrev}/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
         if src != "":
-            template[f"{trg}/{abbrev}/context"] = src
+            template[f"{trg}/{abbrev}/context"] = f"{src}"
         return template
 
     def process_event_data_em_data(self, obj: dict, template: dict) -> dict:
@@ -206,7 +209,7 @@ class RsciioGatanParser:
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"data"
             template[f"{trg}/data"] = {"compress": obj["data"], "strength": 1}
-            axis_names = ["axis_i", "axis_j", "axis_k", "axis_l", "axis_m"][
+            axis_names = ["axis_i", "axis_j", "axis_k", "axis_m", "axis_n"][
                 0 : len(unit_combination.split("_"))
             ]  # mind, different to Nion and other tech partners here no [::-1] reversal
             # of the indices 241.a2c338fd458e6b7023ec946a5e3ce8c85bd2befcb5d17dae7ae5f44b2dede81b.dm4

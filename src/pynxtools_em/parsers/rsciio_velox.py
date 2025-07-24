@@ -160,6 +160,11 @@ class RsciioVeloxParser:
         """Map some of the TFS/FEI/Velox-specific metadata concepts on NeXus concepts."""
         identifier = [self.entry_id, self.id_mgn["event_id"], 1]
         flat_orig_meta = fd.FlatDict(obj["original_metadata"], "/")
+        for keyword, value in flat_orig_meta.items():
+            flat_orig_meta[keyword] = string_to_number(value)
+        if self.verbose:
+            for keyword, value in flat_orig_meta.items():
+                print(f"{keyword}____{type(value)}____{value}")
 
         if (len(identifier) != 3) or (not all(isinstance(x, int) for x in identifier)):
             print(f"Argument identifier {identifier} needs three int values!")
@@ -185,7 +190,7 @@ class RsciioVeloxParser:
                 template[f"{trg}/lensID[lens{lens_idx}]/power_setting"] = (
                     string_to_number(flat_orig_meta[f"Optics/{lens_name}LensIntensity"])
                 )
-                if lens_name is not "Gun":
+                if lens_name != "Gun":
                     template[f"{trg}/lensID[lens{lens_idx}]/power_setting/@units"] = "%"
                 toggle = True
             if f"Optics/{lens_name}LensMode" in flat_orig_meta:
@@ -253,15 +258,16 @@ class RsciioVeloxParser:
         return template
 
     def annotate_information_source(
-        self, trg: str, file_path: str, checksum: str, template: dict
+        self, src: str, trg: str, file_path: str, checksum: str, template: dict
     ) -> dict:
         """Add from where the information was obtained."""
-        template[f"{trg}/PROCESS[process]/source/type"] = "file"
-        template[f"{trg}/PROCESS[process]/source/file_name"] = file_path
-        template[f"{trg}/PROCESS[process]/source/checksum"] = checksum
-        template[f"{trg}/PROCESS[process]/source/algorithm"] = (
-            DEFAULT_CHECKSUM_ALGORITHM
-        )
+        abbrev = f"PROCESS[process]/input"
+        template[f"{trg}/{abbrev}/type"] = "file"
+        template[f"{trg}/{abbrev}/file_name"] = file_path
+        template[f"{trg}/{abbrev}/checksum"] = checksum
+        template[f"{trg}/{abbrev}/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
+        if src != "":
+            template[f"{trg}/{abbrev}/context"] = f"{src}"
         return template
 
     def process_event_data_em_data(self, obj: dict, template: dict) -> dict:
@@ -285,12 +291,13 @@ class RsciioVeloxParser:
         # return template
         axis_names = None
         if unit_combination in VELOX_WHICH_SPECTRUM:
-            self.annotate_information_source(
-                f"{prfx}/spectrumID[spectrum1]",
-                self.file_path,
-                self.file_path_sha256,
-                template,
-            )
+            # self.annotate_information_source(
+            #     "",
+            #     f"{prfx}/spectrumID[spectrum1]",
+            #     self.file_path,
+            #     self.file_path_sha256,
+            #     template,
+            # )
             trg = f"{prfx}/spectrumID[spectrum1]/{VELOX_WHICH_SPECTRUM[unit_combination][0]}"
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"intensity"
@@ -298,12 +305,13 @@ class RsciioVeloxParser:
             template[f"{trg}/intensity/@long_name"] = f"Counts"
             axis_names = VELOX_WHICH_SPECTRUM[unit_combination][1]
         elif unit_combination in VELOX_WHICH_IMAGE:
-            self.annotate_information_source(
-                f"{prfx}/imageID[image1]",
-                self.file_path,
-                self.file_path_sha256,
-                template,
-            )
+            # self.annotate_information_source(
+            #     "",
+            #     f"{prfx}/imageID[image1]",
+            #     self.file_path,
+            #     self.file_path_sha256,
+            #     template,
+            # )
             trg = f"{prfx}/imageID[image1]/{VELOX_WHICH_IMAGE[unit_combination][0]}"
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
@@ -311,14 +319,18 @@ class RsciioVeloxParser:
             template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
             axis_names = VELOX_WHICH_IMAGE[unit_combination][1]
         else:
-            self.annotate_information_source(
-                f"{prfx}/DATA[data1]", self.file_path, self.file_path_sha256, template
-            )
+            # self.annotate_information_source(
+            #     "",
+            #     f"{prfx}/DATA[data1]",
+            #     self.file_path,
+            #     self.file_path_sha256,
+            #     template,
+            # )
             trg = f"{prfx}/DATA[data1]"
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"data"
             template[f"{trg}/data"] = {"compress": obj["data"], "strength": 1}
-            axis_names = ["axis_i", "axis_j", "axis_k", "axis_l", "axis_m"][
+            axis_names = ["axis_i", "axis_j", "axis_k", "axis_m", "axis_n"][
                 0 : len(unit_combination.split("_"))
             ]  # TODO mind order
 

@@ -80,13 +80,14 @@ GATAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
             ureg.micrometer,
         ),
         ("optics/magnification", ureg.nx_dimensionless, "Actual Magnification"),
-        (
-            "optics/camera_length",
-            ureg.meter,
-            "STEM Camera Length",
-            ureg.meter,
-        ),  # meter?
-        # Cs(mm), Indicated Magnification, Magnification Interpolated, Formatted Actual Mag, Formatted Indicated Mag
+        ("optics/magnification", ureg.nx_dimensionless, "Indicated Magnification"),
+        # (
+        #     "optics/camera_length",
+        #     ureg.meter,
+        #     "STEM Camera Length",
+        #     ureg.meter,
+        # ),  # meter?
+        # Cs(mm), Magnification Interpolated, Formatted Actual Mag, Formatted Indicated Mag
     ],
     "map_to_str": [
         (

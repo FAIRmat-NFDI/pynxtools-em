@@ -18,8 +18,8 @@
 """Utility function to map quantities that have been serialized as strings back to other type."""
 
 
-def string_to_number(arg: str):
-    """Convert input string to int, float, or leave string."""
+def string_to_number(arg):
+    """Convert input string to int, float, str, if all fails return as is."""
     if isinstance(arg, str):
         try:
             float(arg)
@@ -31,7 +31,8 @@ def string_to_number(arg: str):
         else:
             return val
     else:
-        raise TypeError(f"Input argument arg needs to be a string!")
+        return arg
+        # raise TypeError(f"Input argument arg needs to be a string!")
 
 
 def rchop(s: str, suffix: str) -> str:

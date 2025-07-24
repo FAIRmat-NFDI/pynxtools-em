@@ -218,7 +218,7 @@ class NionProjectParser:
         # template[f"{trg}/{abbrev}/checksum"] = checksum
         # template[f"{trg}/{abbrev}/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
         if src != "":
-            template[f"{trg}/{abbrev}/context"] = src
+            template[f"{trg}/{abbrev}/context"] = f"{src}"
         return template
 
     def process_ndata(self, file_hdl, full_path: str, template: dict) -> dict:
