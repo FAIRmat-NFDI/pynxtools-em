@@ -53,7 +53,7 @@ NION_WHICH_IMAGE = {
 
 MAG = "magnitude"
 NION_DYNAMIC_ABERRATION_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/corrector_csID[corrector_cs]/PROCESS[tableau1]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/corrector_csID[corrector_cs]/tableauID[tableau1]",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
         "metadata/hardware_source/autostem/ImageScanned/",
@@ -174,12 +174,12 @@ NION_DYNAMIC_LENS_NX: Dict[str, Any] = {
         "metadata/scan/scan_device_properties/ImageScanned:",
         "metadata/scan_detector/autostem/ImageScanned/",
     ],
-    "use": [
-        (
-            "operation_mode",
-            "Currently, nionswift stores the operation mode relevant settings via multiple metadata keywords and none of them in my opinion fit quite with this concept. The community should decide how to solve this.",
-        )
-    ],
+    # "use": [
+    #     (
+    #         "operation_mode",
+    #         "Currently, nionswift stores the operation mode relevant settings via multiple metadata keywords and none of them in my opinion fit quite with this concept. The community should decide how to solve this.",
+    #     )
+    # ],
     "map_to_f8": [
         ("ELECTROMAGNETIC_LENS[lens1]/power_setting", "C1 ConstW"),
         ("ELECTROMAGNETIC_LENS[lens2]/power_setting", "C2 ConstW"),
@@ -286,12 +286,12 @@ NION_DYNAMIC_MAGBOARDS_NX: Dict[str, Any] = {
 NION_DYNAMIC_DETECTOR_NX: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/detectorID[detector*]",
     "prefix_src": "metadata/hardware_source/detector_configuration/",
-    "use": [
-        (
-            "mode",
-            "Currently, nionswift does not have a metadata key for this although Dectrics detectors use many of the Dectris NeXus keywords also in nionswift.",
-        )
-    ],
+    # "use": [
+    #     (
+    #         "operation_mode",
+    #         "Currently, nionswift does not have a metadata key for this although Dectrics detectors use many of the Dectris NeXus keywords also in nionswift.",
+    #     )
+    # ],
     "map_to_bool": [
         "countrate_correction_applied",
         "pixel_mask_applied",
@@ -393,10 +393,10 @@ NION_STATIC_LENS_NX: Dict[str, Any] = {
         "metadata/scan_detector/autostem/ImageScanned/",
     ],
     "use": [
-        (
-            "operation_mode",
-            "Currently, nionswift stores the operation mode relevant settings via multiple metadata keywords and none of them in my opinion fit quite with this concept. The community should decide how to solve this.",
-        ),
+        # (
+        #     "operation_mode",
+        #     "Currently, nionswift stores the operation mode relevant settings via multiple metadata keywords and none of them in my opinion fit quite with this concept. The community should decide how to solve this.",
+        # ),
         ("ELECTROMAGNETIC_LENS[lens1]/name", "C1"),
         ("ELECTROMAGNETIC_LENS[lens2]/name", "C2"),
         ("ELECTROMAGNETIC_LENS[lens3]/name", "C3"),

@@ -374,7 +374,7 @@ class RsciioVeloxParser:
                         )
                     else:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Point coordinate along {axis_name} ({ureg.Unit(units)})"
+                            f"Coordinate along {axis_name.replace('axis_', '')}-axis ({ureg.Unit(units)})"
                         )
 
         self.process_event_data_em_metadata(obj, template)

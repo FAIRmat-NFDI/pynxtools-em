@@ -212,7 +212,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
                         fp[f"{sub_grp_name}/Lattice Constant c"][()],
                     ),
                     dtype=np.float32,
-                )
+                ).flatten()
                 angles = np.asarray(
                     (
                         fp[f"{sub_grp_name}/Lattice Constant alpha"][()],
@@ -220,7 +220,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
                         fp[f"{sub_grp_name}/Lattice Constant gamma"][()],
                     ),
                     dtype=np.float32,
-                )
+                ).flatten()
                 latt = Lattice(
                     abc[0],
                     abc[1],

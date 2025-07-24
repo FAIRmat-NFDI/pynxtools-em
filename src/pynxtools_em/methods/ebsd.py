@@ -327,7 +327,7 @@ def ebsd_roi_overview(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dict
         }
         template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{trg_grid.s[dim].units}"
         template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-            f"Point coordinate along {dim}-axis ({trg_grid.s[dim].units})"
+            f"Coordinate along {dim}-axis ({trg_grid.s[dim].units})"
         )
 
     template[f"{trg}/@axes"] = []
@@ -544,7 +544,7 @@ def process_roi_phase_ipf(
             }
             template[f"{mpp}/AXISNAME[axis_{dim}]/@units"] = f"{trg_grid.s[dim].units}"
             template[f"{mpp}/AXISNAME[axis_{dim}]/@long_name"] = (
-                f"Point coordinate along {dim}-axis ({trg_grid.s[dim].units})"
+                f"Coordinate along {dim}-axis ({trg_grid.s[dim].units})"
             )
         # add the IPF color map legend/key
         lgd = f"{trg}/legend"

@@ -264,6 +264,6 @@ class RsciioGatanParser:
                         )
                     else:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Point coordinate along {axis_name} ({ureg.Unit(units)})"
+                            f"Coordinate along {axis_name.replace('axis_', '')}-axis ({ureg.Unit(units)})"
                         )
         return template

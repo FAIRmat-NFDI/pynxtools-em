@@ -307,19 +307,23 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                         dtype=np.float32,
                     ),
                     ureg.angstrom,
-                )
+                ).flatten()
                 self.ebsd.phases[phase_idx]["a_b_c"] = abc
-                angles = ureg.Quantity(
-                    np.asarray(
-                        [
-                            fp[f"{sub_grp_name}/Lattice Constant Alpha"][0],
-                            fp[f"{sub_grp_name}/Lattice Constant Beta"][0],
-                            fp[f"{sub_grp_name}/Lattice Constant Gamma"][0],
-                        ],
-                        dtype=np.float32,
-                    ),
-                    ureg.degree,
-                ).to(ureg.radian)
+                angles = (
+                    ureg.Quantity(
+                        np.asarray(
+                            [
+                                fp[f"{sub_grp_name}/Lattice Constant Alpha"][0],
+                                fp[f"{sub_grp_name}/Lattice Constant Beta"][0],
+                                fp[f"{sub_grp_name}/Lattice Constant Gamma"][0],
+                            ],
+                            dtype=np.float32,
+                        ),
+                        ureg.degree,
+                    )
+                    .to(ureg.radian)
+                    .flatten()
+                )
                 self.ebsd.phases[phase_idx]["alpha_beta_gamma"] = angles
 
                 latt = Lattice(
@@ -497,7 +501,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             }
             template[f"{trg}/image_2d/axis_{dim}/@units"] = f"{qnt.units}"
             template[f"{trg}/image_2d/axis_{dim}/@long_name"] = (
-                f"Point coordinate along axis-{dim} ({qnt.units})"
+                f"Coordinate along axis-{dim} ({qnt.units})"
             )
 
             template[f"{trg}/image_2d/@AXISNAME_indices[axis_{dim}_indices]"] = (
@@ -679,7 +683,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 }
 
                 template[f"{trg}/image_2d/AXISNAME[axis_{dim}]/@long_name"] = (
-                    f"Coordinate along the {dim}-axis ({qnt.units})"
+                    f"Coordinate along {dim}-axis ({qnt.units})"
                 )
                 template[f"{trg}/image_2d/AXISNAME[axis_{dim}]/@units"] = f"{qnt.units}"
         if len(atom_types) > 0:
@@ -766,7 +770,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             ureg.micrometer,
         )
         self.spc["spectrum_1d/axis_i/@long_name"] = (
-            f"Point coordinate along x-axis ({ureg.micrometer})"
+            f"Coordinate along i-axis ({ureg.micrometer})"
         )
         self.spc["spectrum_1d/intensity"] = np.asarray(
             fp[f"{self.prfx}/LSD"][0], np.int32

@@ -59,7 +59,7 @@ from pynxtools_em.utils.pint_custom_unit_registry import ureg
 class NionProjectParser:
     """Parse (zip-compressed archive of a) nionswift project with its content."""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
+    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
         """Class wrapping swift parser."""
         if file_path:
             self.file_path = file_path
@@ -459,7 +459,7 @@ class NionProjectParser:
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"data"
             template[f"{trg}/data"] = {"compress": nparr, "strength": 1}
-            axis_names = ["axis_i", "axis_j", "axis_k", "axis_l", "axis_m"][
+            axis_names = ["axis_i", "axis_j", "axis_k", "axis_m", "axis_n"][
                 0 : len(unit_combination.split("_"))
             ][::-1]
         else:
@@ -530,6 +530,6 @@ class NionProjectParser:
                         )
                     else:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Point coordinate along {axis_name} ({ureg.Unit(units)})"
+                            f"Coordinate along {axis_name.replace('axis_', '')}-axis ({ureg.Unit(units)})"
                         )
         return template

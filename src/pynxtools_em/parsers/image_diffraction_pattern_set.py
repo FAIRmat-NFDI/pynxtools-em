@@ -281,7 +281,7 @@ class DiffractionPatternSetParser:
                 "strength": 1,
             }
             template[f"{trg}/AXISNAME[{axis}]/@long_name"] = (
-                f"Coordinate along {axis} (pixel)"
+                f"Coordinate along {axis.replace('axis_', '')}-axis (pixel)"
             )
             # TODO::template[f"{trg}/AXISNAME[axis_{dim}]/@units"]
         self.entry_id += 1

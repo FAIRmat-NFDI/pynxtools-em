@@ -275,7 +275,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                 angles = np.asarray(fp[f"{sub_grp_name}/Lattice Angles"][:].flatten())
                 self.ebsd.phases[phase_idx]["alpha_beta_gamma"] = ureg.Quantity(
                     angles, ureg.radian
-                )
+                ).flatten()
             else:
                 print(f"Unexpected case that Lattice Angles are not reported in rad !")
                 self.ebsd = EbsdPointCloud()
@@ -286,7 +286,9 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                 == "angstrom"
             ):
                 abc = np.asarray(fp[f"{sub_grp_name}/Lattice Dimensions"][:].flatten())
-                self.ebsd.phases[phase_idx]["a_b_c"] = ureg.Quantity(abc, ureg.angstrom)
+                self.ebsd.phases[phase_idx]["a_b_c"] = ureg.Quantity(
+                    abc, ureg.angstrom
+                ).flatten()
             else:
                 print(
                     f"Unexpected case that Lattice Dimensions are not reported in angstrom !"

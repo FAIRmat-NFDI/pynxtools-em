@@ -183,10 +183,12 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
                 abc = values[0:3]
                 angles = values[3:6]
                 # TODO::available examples support that community H5EBSD reports lattice constants in angstroem
-                self.ebsd.phases[phase_idx]["a_b_c"] = ureg.Quantity(abc, ureg.angstrom)
-                self.ebsd.phases[phase_idx]["alpha_beta_gamma"] = ureg.Quantity(
-                    angles, ureg.degree
-                ).to(ureg.radian)
+                self.ebsd.phases[phase_idx]["a_b_c"] = ureg.Quantity(
+                    abc, ureg.angstrom
+                ).flatten()
+                self.ebsd.phases[phase_idx]["alpha_beta_gamma"] = (
+                    ureg.Quantity(angles, ureg.degree).to(ureg.radian).flatten()
+                )
                 latt = Lattice(
                     abc[0],
                     abc[1],
