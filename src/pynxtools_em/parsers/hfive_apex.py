@@ -60,7 +60,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         self.spc: Dict[str, Any] = {}
         self.ebsd: EbsdPointCloud = EbsdPointCloud()
         self.eds: Dict[str, Any] = {}
-        self.sample_atom_types = set()
+        self.sample_atom_types: set[str] = set()
         self.version: Dict = {
             "trg": {  # supported ones
                 "tech_partner": ["EDAX, LLC"],
@@ -458,10 +458,12 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         }
         syx = {
             "j": ureg.Quantity(
-                fp[f"{self.prfx}/FOVIPR"]["MicronsPerPixelY"][0], ureg.micrometer
+                fp[f"{self.prfx}/FOVIPR"]["MicronsPerPixelY"][0],
+                ureg.micrometer,
             ).to(ureg.meter),
             "i": ureg.Quantity(
-                fp[f"{self.prfx}/FOVIPR"]["MicronsPerPixelX"][0], ureg.micrometer
+                fp[f"{self.prfx}/FOVIPR"]["MicronsPerPixelX"][0],
+                ureg.micrometer,
             ).to(ureg.meter),
         }
 
@@ -491,7 +493,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 np.asarray(
                     np.linspace(0, nyx[dim] - 1, num=nyx[dim], endpoint=True)
                     * syx[dim].magnitude,
-                    dtype=syx[dim].dtype,
+                    dtype=np.float32,
                 ),
                 syx[dim].units,
             )
