@@ -207,7 +207,21 @@ class NionProjectParser:
             for key, val in self.hfive_file_dict.items():
                 print(f"hfive: ___{key}___{val}___")
 
-    def process_ndata(self, file_hdl, full_path, template) -> dict:
+    def annotate_information_source(
+        self, src: str, trg: str, file_path: str, checksum: str, template: dict
+    ) -> dict:
+        """Add from where the information was obtained."""
+        abbrev = "PROCESS[process]/input"
+        # template[f"{trg}/{abbrev}/type"] = "file"
+        # template[f"{trg}/{abbrev}/file_name"] = file_path
+        # deactivate checksum computation for to reduce computational costs
+        # template[f"{trg}/{abbrev}/checksum"] = checksum
+        # template[f"{trg}/{abbrev}/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
+        if src != "":
+            template[f"{trg}/{abbrev}/context"] = src
+        return template
+
+    def process_ndata(self, file_hdl, full_path: str, template: dict) -> dict:
         """Handle reading and processing of opened *.ndata inside the ZIP file."""
         # assure that we start reading that file_hdl/pointer from the beginning...
         file_hdl.seek(0)
@@ -263,11 +277,13 @@ class NionProjectParser:
                 # file in that *.ndata file pointed to by file_hdl and only one matching
                 # metadata.json we can now write the data and its metadata into template
                 self.process_event_data_em_metadata(flat_metadata, template)
-                self.process_event_data_em_data(nparr, flat_metadata, template)
+                self.process_event_data_em_data(
+                    full_path, nparr, flat_metadata, template
+                )
                 break
         return template
 
-    def process_hfive(self, file_hdl, full_path, template: dict) -> dict:
+    def process_hfive(self, file_hdl, full_path: str, template: dict) -> dict:
         """Handle reading and processing of opened *.h5 inside the ZIP file."""
         flat_metadata = fd.FlatDict({}, "/")
         file_hdl.seek(0)
@@ -294,7 +310,7 @@ class NionProjectParser:
                 print(
                     f"hfive, data, type, shape, dtype: ___{type(nparr)}___{np.shape(nparr)}___{nparr.dtype}___"
                 )
-            self.process_event_data_em_data(nparr, flat_metadata, template)
+            self.process_event_data_em_data(full_path, nparr, flat_metadata, template)
         return template
 
     def parse_project_file(self, template: dict) -> dict:
@@ -420,7 +436,11 @@ class NionProjectParser:
         return template
 
     def process_event_data_em_data(
-        self, nparr: np.ndarray, flat_metadata: fd.FlatDict, template: dict
+        self,
+        ifo_src: str,
+        nparr: np.ndarray,
+        flat_metadata: fd.FlatDict,
+        template: dict,
     ) -> dict:
         """Map Nion-specifically formatted data arrays on NeXus NXdata/NXimage/NXspectrum."""
         axes = flat_metadata["dimensional_calibrations"]
@@ -440,6 +460,9 @@ class NionProjectParser:
         axis_names = None
         if unit_combination in NION_WHICH_SPECTRUM:
             trg = f"{prfx}/spectrumID[spectrum1]/{NION_WHICH_SPECTRUM[unit_combination][0]}"
+            self.annotate_information_source(
+                ifo_src, f"{prfx}/spectrumID[spectrum1]", "", "", template
+            )
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"intensity"
             template[f"{trg}/intensity"] = {"compress": nparr, "strength": 1}
@@ -447,6 +470,9 @@ class NionProjectParser:
             axis_names = NION_WHICH_SPECTRUM[unit_combination][1]
         elif unit_combination in NION_WHICH_IMAGE:
             trg = f"{prfx}/imageID[image1]/{NION_WHICH_IMAGE[unit_combination][0]}"
+            self.annotate_information_source(
+                ifo_src, f"{prfx}/imageID[image1]", "", "", template
+            )
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
             template[f"{trg}/real"] = {"compress": nparr, "strength": 1}
@@ -456,6 +482,9 @@ class NionProjectParser:
             (value in ["1/", "iteration"]) for value in unit_combination.split(";")
         ):
             trg = f"{prfx}/DATA[data1]"
+            self.annotate_information_source(
+                ifo_src, f"{prfx}/DATA[data1]", "", "", template
+            )
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"data"
             template[f"{trg}/data"] = {"compress": nparr, "strength": 1}
