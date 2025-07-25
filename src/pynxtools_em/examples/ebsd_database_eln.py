@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Parser NOMAD-Oasis-specific configuration serialized as oasis.yaml to NeXus NXem."""
+"""Parse ELN metadata for the EM database use case."""
 
 import pathlib
 
@@ -23,19 +23,19 @@ import flatdict as fd
 import yaml
 
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
-from pynxtools_em.configurations.oasis_eln_config_cfg import (
-    OASISCFG_EM_CITATION_TO_NEXUS,
-    OASISCFG_EM_CSYS_TO_NEXUS,
+from pynxtools_em.examples.ebsd_database_cfg import (
+    EBSD_DATABASE_CITATION_TO_NEXUS,
+    EBSD_DATABASE_SPECIMEN_TO_NEXUS,
 )
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 
 
-class NxEmNomadOasisConfigParser:
-    """Parse deployment specific configuration."""
+class NxEmCustomElnEbsdDatabase:
+    """Parse example-specific metadata like coming from an external src e.g. ELN."""
 
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if pathlib.Path(file_path).name.endswith(
-            (".oasis.specific.yaml", ".oasis.specific.yml")
+            ("custom_eln_data.yaml", "custom_eln_data.yml")
         ):
             self.file_path = file_path
             self.entry_id = entry_id if entry_id > 0 else 1
@@ -48,7 +48,7 @@ class NxEmNomadOasisConfigParser:
                     f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
                 )
         else:
-            print(f"Parser {self.__class__.__name__} needs oasis.specific.yaml file !")
+            print(f"Parser {self.__class__.__name__} needs custom_eln_data.yaml file !")
             self.supported = False
 
     def check_if_supported(self):
@@ -72,51 +72,33 @@ class NxEmNomadOasisConfigParser:
             print(
                 f"Parsing {self.file_path} NOMAD Oasis/config with SHA256 {self.file_path_sha256} ..."
             )
-            self.parse_reference_frames(template)
-            self.parse_example(template)
+            self.parse_metadata(template)
         return template
 
-    def parse_reference_frames(self, template: dict) -> dict:
-        """Copy details about frames of reference into template."""
-        src = "custom_coordinate_system"
-        if src in self.flat_metadata:
-            if isinstance(self.flat_metadata[src], list):
-                if all(isinstance(entry, dict) for entry in self.flat_metadata[src]):
-                    csys_id = 1
-                    # custom schema delivers a list of dictionaries...
-                    for csys_dict in self.flat_metadata[src]:
-                        if len(csys_dict) == 0:
-                            continue
-                        identifier = [self.entry_id, csys_id]
-                        add_specific_metadata_pint(
-                            OASISCFG_EM_CSYS_TO_NEXUS,
-                            csys_dict,
-                            identifier,
-                            template,
-                        )
-                        csys_id += 1
-        return template
-
-    def parse_example(self, template: dict) -> dict:
+    def parse_metadata(self, template: dict) -> dict:
         """Copy data from example-specific section into template."""
+        identifier = [self.entry_id]
+        add_specific_metadata_pint(
+            EBSD_DATABASE_SPECIMEN_TO_NEXUS,
+            self.flat_metadata,
+            identifier,
+            template,
+        )
+
         src = "citation"
         if src in self.flat_metadata:
             if isinstance(self.flat_metadata[src], list):
-                if (
-                    all(isinstance(entry, dict) for entry in self.flat_metadata[src])
-                    is True
-                ):
+                if all(isinstance(entry, dict) for entry in self.flat_metadata[src]):
                     cite_id = 1
                     # custom schema delivers a list of dictionaries...
                     for cite_dict in self.flat_metadata[src]:
-                        if len(cite_dict) == 0:
-                            continue
-                        identifier = [self.entry_id, cite_id]
-                        add_specific_metadata_pint(
-                            OASISCFG_EM_CITATION_TO_NEXUS,
-                            cite_dict,
-                            identifier,
-                            template,
-                        )
-                        cite_id += 1
+                        if len(cite_dict) > 0:
+                            identifier = [self.entry_id, cite_id]
+                            add_specific_metadata_pint(
+                                EBSD_DATABASE_CITATION_TO_NEXUS,
+                                cite_dict,
+                                identifier,
+                                template,
+                            )
+                            cite_id += 1
         return template

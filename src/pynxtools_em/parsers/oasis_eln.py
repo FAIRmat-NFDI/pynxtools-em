@@ -24,15 +24,12 @@ import yaml
 from ase.data import chemical_symbols
 
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
-from pynxtools_em.configurations.eln_cfg import (
+from pynxtools_em.configurations.oasis_eln_cfg import (
     OASISELN_EM_ENTRY_TO_NEXUS,
     OASISELN_EM_SAMPLE_TO_NEXUS,
     OASISELN_EM_USER_TO_NEXUS,
 )
-from pynxtools_em.utils.get_checksum import (
-    DEFAULT_CHECKSUM_ALGORITHM,
-    get_sha256_of_file_content,
-)
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 
 
 class NxEmNomadOasisElnSchemaParser:
@@ -43,15 +40,20 @@ class NxEmNomadOasisElnSchemaParser:
     """
 
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
-        if pathlib.Path(file_path).name.endswith("eln_data.yaml") or pathlib.Path(
-            file_path
-        ).name.endswith("eln_data.yml"):
+        if pathlib.Path(file_path).name.endswith(("eln_data.yaml", "eln_data.yml")):
             self.file_path = file_path
-        self.entry_id = entry_id if entry_id > 0 else 1
-        self.verbose = verbose
-        self.flat_metadata = fd.FlatDict({}, "/")
-        self.supported = False
-        self.check_if_supported()
+            self.entry_id = entry_id if entry_id > 0 else 1
+            self.verbose = verbose
+            self.flat_metadata = fd.FlatDict({}, "/")
+            self.supported = False
+            self.check_if_supported()
+            if not self.supported:
+                print(
+                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                )
+        else:
+            print(f"Parser {self.__class__.__name__} needs eln_data.yaml file !")
+            self.supported = False
 
     def check_if_supported(self):
         self.supported = False

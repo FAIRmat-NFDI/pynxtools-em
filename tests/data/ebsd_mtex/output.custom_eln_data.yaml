@@ -1,0 +1,15 @@
+# first line mandatory hint for pynxtools-em to decide which custom ELN parser to use
+parser: ger_berlin_ebsd_database
+# typical yaml-style ELN output goes below
+specimen:
+  is_simulation: false
+citation:
+- author: Cautaerts, N.
+  description: ONLY AN EXAMPLE !!! Data repository entry shared by the original author(s).
+  doi: 10.5281/zenodo.3407832
+  url: https://dx.doi.org/10.5281/zenodo.3407832
+- author: Cautaerts, N. and Delville, R. and Stergar, E. and Schryvers, D. and Verwerft,
+    M.
+  description: ONLY AN EXAMPLE !!! Associated publication of the original author(s).
+  doi: 10.1016/j.jnucmat.2018.04.041
+  url: https://dx.doi.org/10.1016/j.jnucmat.2018.04.041

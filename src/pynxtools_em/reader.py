@@ -25,7 +25,11 @@ import numpy as np
 from pynxtools.dataconverter.readers.base.reader import BaseReader
 
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
-from pynxtools_em.parsers.conventions import NxEmConventionParser
+from pynxtools_em.examples.custom_reference_frame import (
+    NxEmCustomElnCustomReferenceFrame,
+)
+from pynxtools_em.examples.ebsd_database_eln import NxEmCustomElnEbsdDatabase
+from pynxtools_em.examples.ger_berlin_koch_eln import NxEmCustomElnGerBerlinKoch
 from pynxtools_em.parsers.hfive_apex import HdfFiveEdaxApexParser
 from pynxtools_em.parsers.hfive_bruker import HdfFiveBrukerEspritParser
 
@@ -35,9 +39,6 @@ from pynxtools_em.parsers.hfive_edax import HdfFiveEdaxOimAnalysisParser
 
 # from pynxtools_em.parsers.hfive_emsoft import HdfFiveEmSoftParser
 from pynxtools_em.parsers.hfive_oxford import HdfFiveOxfordInstrumentsParser
-from pynxtools_em.parsers.hu_berlin_koch_group import (
-    NxEmNomadOasisGerBerlinKochGroup,
-)
 from pynxtools_em.parsers.image_diffraction_pattern_set import (
     DiffractionPatternSetParser,
 )
@@ -100,30 +101,37 @@ class EMReader(BaseReader):
             print("Such a combination of input-file(s, if any) is not supported !")
             return {}
 
-        if len(case.cfg) == 1:
-            print("Parse (meta)data coming from a configuration of an RDM...")
-            # having or using a deployment-specific configuration is optional
+        if len(case.cfg) == 1:  # optional deployment-specific configurations
+            print("Parse (meta)data coming from a custom NOMAD OASIS RDM...")
             nx_em_cfg = NxEmNomadOasisConfigParser(case.cfg[0], entry_id)
-            # currently we have switched this off
-            # nx_em_cfg = NxEmNomadOasisGerBerlinKochGroup(case.cfg[0], entry_id)
             nx_em_cfg.parse(template)
 
         if len(case.eln) == 1:
-            print("Parse (meta)data coming from an ELN...")
+            print("Parse (meta)data coming from a NOMAD OASIS ELN...")
             nx_em_eln = NxEmNomadOasisElnSchemaParser(case.eln[0], entry_id)
             nx_em_eln.parse(template)
+
+        # difference between the two above-mentioned yaml parsers is that they
+        # do not have a header line that identifies them as a specific parser
+        # TODO make even better connected to NOMAD
+        if len(case.cst) == 1:
+            print("Parse (meta)data coming from a customized ELN...")
+            custom_eln_parser_types: List[Tuple[str, type]] = [
+                ("ger_berlin_koch_group", NxEmCustomElnGerBerlinKoch),
+                ("ger_berlin_ebsd_database", NxEmCustomElnEbsdDatabase),
+                ("custom_reference_frame", NxEmCustomElnCustomReferenceFrame),
+            ]
+            for parser_id, parser_type in custom_eln_parser_types:
+                if case.cst[0]["parser"] == parser_id:
+                    custom_parser = parser_type(case.cst[0]["file"], entry_id)
+                    custom_parser.parse(template)
 
         print("Parse NeXus appdef-specific content...")
         nxs = NxEmAppDef(entry_id)
         nxs.parse(template)
 
-        print("Parse conventions of reference frames...")
-        if len(case.cvn) == 1:
-            # using conventions currently is optional
-            conventions = NxEmConventionParser(case.cvn[0], entry_id)
-            conventions.parse(template)
-
         print("Parse and map pieces of information within files from tech partners...")
+        # there are parsers with no, opt(ional), or req(uired) sidecar file
         if len(case.dat) == 1:
             parsers_no_sidecar_file: List[type] = [
                 HdfFiveBrukerEspritParser,
@@ -149,14 +157,14 @@ class EMReader(BaseReader):
                 parser.parse(template)
 
         if len(case.dat) >= 1:
-            parsers_optional_sidecar_file: List[type] = [TescanTiffParser]
-            for parser_type in parsers_optional_sidecar_file:
+            parsers_opt_sidecar: List[type] = [TescanTiffParser]
+            for parser_type in parsers_opt_sidecar:
                 parser = parser_type(case.dat, entry_id)
                 parser.parse(template)
 
         if len(case.dat) == 2:
-            parsers_needs_sidecar_file: List[type] = [JeolTiffParser, HitachiTiffParser]
-            for parser_type in parsers_needs_sidecar_file:
+            parsers_req_sidecar: List[type] = [JeolTiffParser, HitachiTiffParser]
+            for parser_type in parsers_req_sidecar:
                 parser = parser_type(case.dat, entry_id)
                 parser.parse(template)
 
@@ -175,12 +183,9 @@ class EMReader(BaseReader):
 
         print("Forward instantiated template to the NXS writer...")
         toc = perf_counter_ns()
-        trg = f"/ENTRY[entry{entry_id}]/profiling"
-        # template[f"{trg}/current_working_directory"] = getcwd()
-        template[f"{trg}/template_filling_elapsed_time"] = np.float64(
-            (toc - tic) / 1.0e9
-        )
-        template[f"{trg}/template_filling_elapsed_time/@units"] = "s"
+        trg = f"/ENTRY[entry{entry_id}]/profiling/template_filling_elapsed_time"
+        template[f"{trg}"] = np.float64((toc - tic) / 1.0e9)
+        template[f"{trg}/@units"] = "s"
         return template
 
 

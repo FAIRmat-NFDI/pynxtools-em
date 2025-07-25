@@ -1,3 +1,6 @@
+# first line mandatory hint for pynxtools-em to decide which custom ELN parser to use
+parser: custom_reference_frame
+# typical yaml-style ELN output goes below
 consistent_rotations:
   rotation_handedness: counter_clockwise
   rotation_convention: passive

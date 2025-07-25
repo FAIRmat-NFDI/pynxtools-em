@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Parse specific configurations for C. Koch's NOMAD OASIS at HU Berlin, CSMB."""
+"""Parse ELN metadata for C. Koch's NOMAD OASIS at HU Berlin, CSMB."""
 
 import pathlib
 
@@ -23,30 +23,34 @@ import flatdict as fd
 import yaml
 
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
-from pynxtools_em.configurations.ger_berlin_koch_group_cfg import (
+from pynxtools_em.examples.ger_berlin_koch_cfg import (
     GER_BERLIN_KOCH_GROUP_ECOLUMN_TO_NEXUS,
     GER_BERLIN_KOCH_GROUP_ESOURCE_TO_NEXUS,
     GER_BERLIN_KOCH_GROUP_INSTRUMENT_TO_NEXUS,
 )
-from pynxtools_em.utils.get_checksum import (
-    DEFAULT_CHECKSUM_ALGORITHM,
-    get_sha256_of_file_content,
-)
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 
 
-class NxEmNomadOasisGerBerlinKochGroup:
+class NxEmCustomElnGerBerlinKoch:
     """Parse deployment specific configuration."""
 
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if pathlib.Path(file_path).name.endswith(
-            ".oasis.specific.yaml"
-        ) or pathlib.Path(file_path).name.endswith(".oasis.specific.yml"):
+            ("custom_eln_data.yaml", "custom_eln_data.yml")
+        ):
             self.file_path = file_path
-        self.entry_id = entry_id if entry_id > 0 else 1
-        self.verbose = verbose
-        self.flat_metadata = fd.FlatDict({}, "/")
-        self.supported = False
-        self.check_if_supported()
+            self.entry_id = entry_id if entry_id > 0 else 1
+            self.verbose = verbose
+            self.flat_metadata = fd.FlatDict({}, "/")
+            self.supported = False
+            self.check_if_supported()
+            if not self.supported:
+                print(
+                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                )
+        else:
+            print(f"Parser {self.__class__.__name__} needs custom_eln_data.yaml file !")
+            self.supported = False
 
     def check_if_supported(self):
         self.supported = False

@@ -35,15 +35,15 @@ from pynxtools_em.geometries.handed_cartesian import is_cartesian_cs_well_define
 from pynxtools_em.geometries.msmse_convention import is_consistent_with_msmse_convention
 
 
-class NxEmConventionParser:
+class NxEmCustomElnCustomReferenceFrame:
     """Document rotation and reference frame conventions and choices used."""
 
     def __init__(self, file_path: str, entry_id: int = 1, verbose: bool = True):
         """Fill template with ELN pieces of information."""
         print(f"Extracting conventions from {file_path} ...")
-        if pathlib.Path(file_path).name.endswith("conventions.yaml") or pathlib.Path(
-            file_path
-        ).name.endswith("conventions.yml"):
+        if pathlib.Path(file_path).name.endswith(
+            ("custom_eln_data.yaml", "custom_eln_data.yml")
+        ):
             self.file_path = file_path
             self.entry_id = entry_id if entry_id > 0 else 1
             self.verbose = verbose
@@ -53,6 +53,9 @@ class NxEmConventionParser:
                 print(
                     f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
                 )
+        else:
+            print(f"Parser {self.__class__.__name__} needs custom_eln_data.yaml file !")
+            self.supported = False
 
     def check_if_supported(self):
         try:

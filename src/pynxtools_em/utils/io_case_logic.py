@@ -19,6 +19,9 @@
 
 from typing import Dict, List, Tuple
 
+import flatdict as fd
+import yaml
+
 VALID_FILE_NAME_SUFFIX_CONFIG = [".yaml", ".yml"]
 VALID_FILE_NAME_SUFFIX_DATA = [
     ".emd",
@@ -52,7 +55,7 @@ class EmUseCaseSelector:
         self.case: Dict[str, list] = {}
         self.cfg: List[str] = []
         self.eln: List[str] = []
-        self.cvn: List[str] = []
+        self.cst: List[Dict[str, str]] = []
         self.dat: List[str] = []
         self.is_valid = False
         self.supported_file_name_suffixes = (
@@ -88,7 +91,6 @@ class EmUseCaseSelector:
                 other_input += len(value)
             else:
                 continue
-        # print(f"{dat_input}, {other_input}")
         if 0 <= other_input <= 3:
             self.is_valid = True
             self.dat: List[str] = []
@@ -98,20 +100,21 @@ class EmUseCaseSelector:
             for suffix in VALID_FILE_NAME_SUFFIX_CONFIG:
                 yml += self.case[suffix]
             for entry in yml:
-                if entry.endswith(".oasis.specific.yaml") or entry.endswith(
-                    ".oasis.specific.yml"
-                ):
+                if entry.endswith((".oasis.specific.yaml", ".oasis.specific.yml")):
                     self.cfg += [entry]
-                elif entry.endswith("eln_data.yaml") or entry.endswith("eln_data.yml"):
+                elif entry.endswith(("nxs_eln_data.yaml", "nxs_eln_data.yml")):
                     self.eln += [entry]
-                elif entry.endswith("conventions.yaml") or entry.endswith(
-                    "conventions.yml"
-                ):
-                    self.cvn += [entry]
+                elif entry.endswith(("custom_eln_data.yaml", "custom_eln_data.yml")):
+                    with open(entry, "r", encoding="utf-8") as stream:
+                        flat_metadata = fd.FlatDict(yaml.safe_load(stream), "/")
+                        if "parser" in flat_metadata:
+                            self.cst += [
+                                {"parser": flat_metadata["parser"], "file": entry}
+                            ]
             print(
                 f"Oasis local config: {self.cfg}\n"
                 f"Oasis ELN: {self.eln}\n"
-                f"Conventions ELN: {self.cvn}\n"
+                f"Custom ELN: {self.cst}\n"
                 f"Tech (meta)data: {self.dat}\n"
             )
 
