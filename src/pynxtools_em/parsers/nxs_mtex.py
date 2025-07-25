@@ -383,7 +383,7 @@ class NxEmNxsMTexParser:
                         )
                     else:
                         hfive_dataset_to_template(src, dst_name, trg, h5r, template)
-                for idx in [1, 2, 3]:
+                for idx in [1]:  # skip 2, 3
                     src = f"{src_prfx}/{grp_name}/ipf{idx}"
                     trg = f"{trg_prfx}[{grp_name}]/ipfID[ipf{idx}]"
                     self.parse_phase_ipf(src, trg, h5r, template)
@@ -394,11 +394,232 @@ class NxEmNxsMTexParser:
         return template
 
     def parse_microstructure(self, template: dict) -> dict:
-        """Parse various quantities."""
+        """Parse microstructure geometry."""
+        if self.verbose:
+            print("Parse microstructure geometry...")
+        with h5py.File(self.file_path, "r") as h5r:
+            src_prfx = "/entry1/roi1/ebsd/indexing/microstructure1"
+            trg_prfx = f"/ENTRY[entry{self.entry_id}]/roiID[roi1]/ebsd/indexing/microstructureID[microstructure1]"
+
+            src = src_prfx
+            trg = trg_prfx
+            for dst_name in ["dimensionality"]:
+                hfive_dataset_to_template(src, dst_name, trg, h5r, template)
+
+            src = f"{src_prfx}/cg_point"
+            trg = f"{trg_prfx}/CG_POINT[cg_point]"
+            for dst_name in ["cardinality", "dimensionality", "index_offset"]:
+                hfive_dataset_to_template(src, dst_name, trg, h5r, template)
+            hfive_dataset_to_template(src, "position", trg, h5r, template)
+            hfive_attribute_to_template(
+                src, "position", "units", trg, "position", "units", h5r, template
+            )
+
+            src = f"{src_prfx}/cg_polyline"
+            trg = f"{trg_prfx}/CG_POLYLINE[cg_polyline]"
+            for dst_name in [
+                "cardinality",
+                "dimensionality",
+                "index_offset",
+                "number_of_vertices",
+            ]:
+                hfive_dataset_to_template(src, dst_name, trg, h5r, template)
+            for dst_name in ["length"]:
+                hfive_dataset_to_template(src, dst_name, trg, h5r, template)
+                hfive_attribute_to_template(
+                    src, dst_name, "units", trg, dst_name, "units", h5r, template
+                )
+            for dst_name in ["indices_interface", "polylines"]:
+                hfive_dataset_to_template(src, dst_name, trg, h5r, template)
+                hfive_attribute_to_template(
+                    src,
+                    dst_name,
+                    "use_these",
+                    trg,
+                    dst_name,
+                    "depends_on",
+                    h5r,
+                    template,
+                )  # BUG in the MTex script use_these should be depends_on
+
+            src = f"{src_prfx}/configuration"
+            trg = f"{trg_prfx}/PARAMETERS[configuration]"
+            for dst_name in ["algorithm", "comments", "discretization_threshold"]:
+                hfive_dataset_to_template(src, dst_name, trg, h5r, template)
+            for dst_name in ["disorientation_threshold"]:
+                hfive_dataset_to_template(src, dst_name, trg, h5r, template)
+                hfive_attribute_to_template(
+                    src, dst_name, "units", trg, dst_name, "units", h5r, template
+                )
+
+            src = f"{src_prfx}/crystals"
+            trg = f"{trg_prfx}/MICROSTRUCTURAL_FEATURE[crystals]"
+            for dst_name in [
+                "area_by_pixel",
+                "boundary_contact",
+                "index_offset",
+                "indices_phase",
+                "number_of_crystals",
+            ]:
+                hfive_dataset_to_template(src, dst_name, trg, h5r, template)
+            if f"{src}/area_by_mtex" in h5r:
+                template[f"{trg}/area_by_mtex"] = {
+                    "compress": h5r[f"{src}/area_by_mtex"][...],
+                    "strength": h5r[f"{src}/area_by_mtex"].compression_opts,
+                }
+                template[f"{trg}/area_by_mtex/@units"] = (
+                    "micrometer ** 2"  # BUG in MTex
+                )
+            # TODO orientation
+
+            src = f"{src_prfx}/interfaces"
+            trg = f"{trg_prfx}/MICROSTRUCTURAL_FEATURE[interfaces]"
+            for dst_name in ["index_offset", "number_of_interfaces", "indices_phase"]:
+                hfive_dataset_to_template(src, dst_name, trg, h5r, template)
+            for dst_name in ["indices_crystal", "indices_polylines"]:
+                hfive_dataset_to_template(src, dst_name, trg, h5r, template)
+                hfive_attribute_to_template(
+                    src,
+                    dst_name,
+                    "use_these",
+                    trg,
+                    dst_name,
+                    "depends_on",
+                    h5r,
+                    template,
+                )
+            # TODO misorientation
+
+            src = f"{src_prfx}/triple_junctions"
+            trg = f"{trg_prfx}/MICROSTRUCTURAL_FEATURE[triple_junctions]"
+            for dst_name in ["index_offset", "number_of_junctions"]:
+                hfive_dataset_to_template(src, dst_name, trg, h5r, template)
+            for dst_name in ["crystal", "polylines", "interfaces"]:
+                hfive_dataset_to_template(
+                    src, f"indices_{dst_name}", trg, h5r, template
+                )
+                hfive_attribute_to_template(
+                    src,
+                    f"indices_{dst_name}",
+                    "use_these",
+                    trg,
+                    f"indices_{dst_name}",
+                    "depends_on",
+                    h5r,
+                    template,
+                )
+
         return template
 
-    def parse_phase_ipf(self, src: str, trg: str, h5r, template: dict) -> dict:
+    def parse_phase_ipf(
+        self, src_prfx: str, trg_prfx: str, h5r, template: dict
+    ) -> dict:
+        """Parse phase-specific inverse pole figure mapping."""
+        src = src_prfx
+        trg = trg_prfx
+        for dst_name in ["color_model", "projection_direction"]:
+            hfive_dataset_to_template(src, dst_name, trg, h5r, template)
+
+        for fig in ["map", "legend"]:
+            src = f"{src_prfx}/map"
+            trg = f"{trg_prfx}/map"
+            for att_name in ["axes", "axis_x_indices", "axis_y_indices", "signal"]:
+                hfive_attribute_to_template(
+                    src, "", att_name, trg, "", att_name, h5r, template
+                )
+            for dst_name in ["axis_x", "axis_y"]:
+                hfive_dataset_to_template(src, dst_name, trg, h5r, template)
+                for attr in ["long_name", "units"]:
+                    if not (fig == "legend" and attr == "units"):
+                        hfive_attribute_to_template(
+                            src,
+                            dst_name,
+                            attr,
+                            trg,
+                            dst_name,
+                            attr,
+                            h5r,
+                            template,
+                        )
+                # INCONVENIENCE of the pre-processed MTex data, the data array for IPF
+                # is y-axis mirrored for both map and legend
+                # START OF TODO this we need to reprocessed here explicitly
+                # hfive_dataset_to_template(src, "data", trg, h5r, template)
+                # END OF TODO
+                for att_name in [
+                    "CLASS",
+                    "IMAGE_VERSION",
+                    "SUBCLASS_VERSION",
+                    "long_name",
+                ]:
+                    hfive_attribute_to_template(
+                        src, "data", att_name, trg, "data", att_name, h5r, template
+                    )
+                for dst_name in ["title"]:
+                    hfive_dataset_to_template(src, dst_name, trg, h5r, template)
         return template
 
-    def parse_phase_odf(self, src: str, trg: str, h5r, template: dict) -> dict:
+    def parse_phase_odf(
+        self, src_prfx: str, trg_prfx: str, h5r, template: dict
+    ) -> dict:
+        """Parse phase-specific orientation distribution function."""
+        src = f"{src_prfx}/characteristics"
+        trg = f"{trg_prfx}/PROCESS[characteristics]"
+        for dst_name in ["texture_index"]:
+            hfive_dataset_to_template(src, dst_name, trg, h5r, template)
+
+        src = f"{src_prfx}/configuration"
+        trg = f"{trg_prfx}/configuration"  # PARAMETERS[configuration]
+        for dst_name in ["kernel_halfwidth", "resolution"]:
+            hfive_dataset_to_template(src, dst_name, trg, h5r, template)
+            hfive_attribute_to_template(
+                src, dst_name, "units", trg, dst_name, "units", h5r, template
+            )
+        for dst_name in [
+            "crystal_symmetry_point_group",
+            "specimen_symmetry_point_group",
+            "kernel_name",
+        ]:
+            hfive_dataset_to_template(src, dst_name, trg, h5r, template)
+
+        src = f"{src_prfx}/phi_two_plot"
+        trg = f"{trg_prfx}/phi_two_plot"
+        for att_name in [
+            "axes",
+            "capital_phi_indices",
+            "signal",
+            "varphi_one_indices",
+            "varphi_two_indices",
+        ]:
+            hfive_attribute_to_template(
+                src, "", att_name, trg, "", att_name, h5r, template
+            )
+        # data
+        hfive_dataset_to_template(src, "intensity", trg, h5r, template)
+        for att_name in [
+            "CLASS",
+            "IMAGE_VERSION",
+            "SUBCLASS_VERSION",
+            "long_name",
+        ]:
+            hfive_attribute_to_template(
+                src, "data", att_name, trg, "data", att_name, h5r, template
+            )
+        # axes
+        for dst_name in ["capital_phi", "varphi_one", "varphi_two"]:
+            hfive_dataset_to_template(src, dst_name, trg, h5r, template)
+            for attr in ["long_name", "units"]:
+                hfive_attribute_to_template(
+                    src,
+                    dst_name,
+                    attr,
+                    trg,
+                    dst_name,
+                    attr,
+                    h5r,
+                    template,
+                )
+        # title
+        for dst_name in ["title"]:
+            hfive_dataset_to_template(src, dst_name, trg, h5r, template)
         return template
