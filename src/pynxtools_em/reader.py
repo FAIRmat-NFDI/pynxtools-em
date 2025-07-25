@@ -50,8 +50,7 @@ from pynxtools_em.parsers.image_tiff_point_electronic import PointElectronicTiff
 from pynxtools_em.parsers.image_tiff_tescan import TescanTiffParser
 from pynxtools_em.parsers.image_tiff_tfs import TfsTiffParser
 from pynxtools_em.parsers.image_tiff_zeiss import ZeissTiffParser
-
-# from pynxtools_em.parsers.nxs_mtex import NxEmNxsMTexParser
+from pynxtools_em.parsers.nxs_mtex import NxEmNxsMTexParser
 from pynxtools_em.parsers.nxs_nion import NionProjectParser
 from pynxtools_em.parsers.oasis_config import NxEmNomadOasisConfigParser
 from pynxtools_em.parsers.oasis_eln import NxEmNomadOasisElnSchemaParser
@@ -147,7 +146,7 @@ class EMReader(BaseReader):
                 ProtochipsPngSetParser,
                 RsciioVeloxParser,
                 RsciioGatanParser,
-                # NxEmNxsMTexParser,
+                NxEmNxsMTexParser,
                 NionProjectParser,
                 DiffractionPatternSetParser,
                 FeiLegacyTiffParser,

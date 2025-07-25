@@ -23,7 +23,7 @@ import flatdict as fd
 import yaml
 
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
-from pynxtools_em.examples.ebsd_database_cfg import (
+from pynxtools_em.examples.ebsd_database_eln_cfg import (
     EBSD_DATABASE_CITATION_TO_NEXUS,
     EBSD_DATABASE_SPECIMEN_TO_NEXUS,
 )

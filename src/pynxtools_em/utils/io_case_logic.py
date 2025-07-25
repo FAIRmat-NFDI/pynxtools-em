@@ -27,20 +27,26 @@ VALID_FILE_NAME_SUFFIX_DATA = [
     ".emd",
     ".dm3",
     ".dm4",
+    ".dm5",
     ".tiff",
     ".tif",
     ".zip",
     ".nsproj",
     ".edaxh5",
+    ".h5oina",
+    ".oh5",
+    ".dream3d",
+    ".mtex.h5",
     ".h5",
     ".hdf5",
-    ".h5oina",
-    ".mtex.h5",
-    ".dream3d",
     ".txt",
     ".hdr",
-    ".oh5",
 ]
+# the order of this list is significant to assure that whatever is found first and
+# valid will trigger acceptance but avoiding to load one dataset twice e.g.
+# if .h5 would be tested before .mtex.h5 the .mtex.h5 qualifies two times if we
+# do not break, however, if we do break and test .mtex.h5 first it will be found only
+# one time
 
 
 class EmUseCaseSelector:
@@ -84,21 +90,25 @@ class EmUseCaseSelector:
         """Check if this combination of types of files is supported."""
         dat_input = 0  # tech-partner relevant (meta)file e.g. HDF5, EMD, ...
         other_input = 0  # generic ELN or Oasis-specific configurations
-        for suffix, value in self.case.items():
-            if suffix in VALID_FILE_NAME_SUFFIX_DATA:
-                dat_input += len(value)
-            elif suffix in VALID_FILE_NAME_SUFFIX_CONFIG:
-                other_input += len(value)
-            else:
-                continue
-        if 0 <= other_input <= 3:
+        for suffix in VALID_FILE_NAME_SUFFIX_DATA:
+            if len(self.case[suffix]) > 0:
+                dat_input += len(self.case[suffix])
+                break
+        for suffix in VALID_FILE_NAME_SUFFIX_CONFIG:
+            if len(self.case[suffix]) > 0:
+                other_input += len(self.case[suffix])
+
+        if 0 <= dat_input <= 2 and 0 <= other_input <= 3:
             self.is_valid = True
             self.dat: List[str] = []
             for suffix in VALID_FILE_NAME_SUFFIX_DATA:
-                self.dat += self.case[suffix]
+                if len(self.case[suffix]) > 0:
+                    self.dat += self.case[suffix]
+                    break
             yml: List[str] = []
             for suffix in VALID_FILE_NAME_SUFFIX_CONFIG:
-                yml += self.case[suffix]
+                if len(self.case[suffix]) > 0:
+                    yml += self.case[suffix]
             for entry in yml:
                 if entry.endswith((".oasis.specific.yaml", ".oasis.specific.yml")):
                     self.cfg += [entry]
