@@ -175,7 +175,7 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
                 src_val.magnitude
             ):  # bool case typically not expected!
                 template[f"{trg}"] = src_val.magnitude
-                if is_not_special_unit(src_val.units):
+                if is_not_special_unit(src_val):
                     template[f"{trg}/@units"] = f"{src_val.units}"
                 print(
                     f"WARNING::Assuming writing to HDF5 will auto-convert Python types to numpy type, trg {trg} !"
@@ -217,11 +217,11 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
         elif isinstance(src_val, ureg.Quantity):
             if isinstance(src_val.magnitude, (np.ndarray, np.generic)):
                 template[f"{trg}"] = map_to_dtype(trg_dtype, src_val.magnitude)
-                if is_not_special_unit(src_val.units):
+                if is_not_special_unit(src_val):
                     template[f"{trg}/@units"] = f"{src_val.units}"
             elif np.isscalar(src_val.magnitude):  # bool typically not expected
                 template[f"{trg}"] = map_to_dtype(trg_dtype, src_val.magnitude)
-                if is_not_special_unit(src_val.units):
+                if is_not_special_unit(src_val):
                     template[f"{trg}/@units"] = f"{src_val.units}"
             else:
                 raise TypeError(
@@ -410,7 +410,7 @@ def map_functor(
                 continue
             trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_val, ureg.Quantity):
-                set_value(template, trg, src_val.units.to(cmd[1]), trg_dtype_key)
+                set_value(template, trg, src_val.to(cmd[1]), trg_dtype_key)
             else:
                 pint_src = ureg.Quantity(src_val, ureg.Unit(src_unit))
                 set_value(template, trg, pint_src.to(cmd[1]), trg_dtype_key)
