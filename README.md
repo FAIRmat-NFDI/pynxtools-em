@@ -11,7 +11,7 @@
 # Parse and normalize electron microscopy data
 
 ## Installation
-It is recommended to use python 3.11 with a dedicated virtual environment for this package.
+It is recommended to use python 3.12 with a dedicated virtual environment for this package.
 Learn how to manage [python versions](https://github.com/pyenv/pyenv) and
 [virtual environments](https://realpython.com/python-virtual-environments-a-primer/).
 
