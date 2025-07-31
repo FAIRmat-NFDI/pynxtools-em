@@ -15,22 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Entry points for EM examples."""
+"""Entry points for electron microscopy examples."""
 
 try:
-    from nomad.config.models.plugins import (
-        AppEntryPoint,
-        ExampleUploadEntryPoint,
-    )
-    from nomad.config.models.ui import (
-        App,
-        Column,
-        Menu,
-        MenuItemHistogram,
-        MenuItemPeriodicTable,
-        MenuItemTerms,
-        SearchQuantities,
-    )
+    from nomad.config.models.plugins import ExampleUploadEntryPoint
 except ImportError as exc:
     raise ImportError(
         "Could not import nomad package. Please install the package 'nomad-lab'."
@@ -38,14 +26,14 @@ except ImportError as exc:
 
 
 em_example = ExampleUploadEntryPoint(
-    title="Electron Microscopy",
-    category="FAIRmat examples",
+    title="Electron Microscopy (EM)",
+    category="NeXus Experiment Examples",
     description="""
-        This example presents the capabilities of the NOMAD platform to store and standardize electron microscopy.
+        This example presents the capabilities of the NOMAD platform to store and standardize electron microscopy data.
         It shows the generation of a NeXus file according to the
-        [NXem](https://fairmat-nfdi.github.io/nexus_definitions/classes/contributed_definitions/NXem.html#nxem)
+        [`NXem`](https://fairmat-nfdi.github.io/nexus_definitions/classes/applications/NXem.html#nxem)
         application definition.
-        The example contains a small set of electron microscopy datasets to get started and keep the size of your
+        The example contains a small SEM dataset to get started and keep the size of your
         NOMAD installation small. Ones started, we recommend to change the respective input file in the NOMAD Oasis
         ELN to run the example with your own datasets.
     """,
