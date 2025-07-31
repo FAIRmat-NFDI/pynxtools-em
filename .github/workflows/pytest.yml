@@ -32,7 +32,14 @@ jobs:
           uv pip install ".[dev]"
       - name: Install pynxtools master branch
         run: |
-          uv pip install pynxtools@git+https://github.com/FAIRmat-NFDI/pynxtools@master
+          uv pip install pynxtools@git+https://github.com/FAIRmat-NFDI/pynxtools
       - name: Test with pytest
         run: |
-          coverage run -m pytest -sv --show-capture=no tests
+          pytest -sv --show-capture=no tests
+        #  coverage run -m pytest -sv --show-capture=no tests
+      # - name: Submit to coveralls
+      #   continue-on-error: true
+      #   env:
+      #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #       coveralls --service=github
