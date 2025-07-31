@@ -6,13 +6,14 @@ build-backend = "setuptools.build_meta"
 name = "pynxtools-em"
 dynamic = ["version"]
 authors = [
-    { name = "Markus Kühbach", email = "markus.kuehbach@physik.hu-berlin.de" },
+    { name = "The NOMAD Authors" },
 ]
-description = "Make electron microscopy results interoperable via NeXus"
+description = "A reader for transferring EM from vendor formats to NeXus and NOMAD."
 readme = "README.md"
-license= {text = "Apache-2.0"}
-requires-python = ">=3.10"
+license= { file = "LICENSE" }
+requires-python = ">=3.9"
 classifiers = [
+    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -21,44 +22,35 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    # "pynxtools @ git+https://github.com/FAIRmat-NFDI/pynxtools.git@v0.11.0-rc.1",
+    "h5py>=3.6.0",
     "numpy>=1.22.4,<2.0.0",
-    "pint",
-    "hyperspy>=1.7.6",  
+    "pynxtools>=0.11.0",
+    "hyperspy>=1.7.6",
     "rosettasciio>=0.9.0",
     "kikuchipy>=0.11.2",
     "pyxem",
     "nionswift",
+    "pint",
     "flatdict",
     "xmltodict",
     "xraydb",
     "tzlocal"
 ]
 
-[project.urls]
-"Homepage" = "https://github.com/FAIRmat-NFDI/pynxtools-em"
-"Bug Tracker" = "https://github.com/FAIRmat-NFDI/pynxtools-em/issues"
 
 [project.optional-dependencies]
 dev = [
     "mypy",
     "ruff>=0.12.0",
     "pytest",
-    "pytest-timeout",
     "pytest-cov",
-    "pytest-xdist",
+    "pytest-timeout",
     "structlog",
     "types-pyyaml",
     "types-pytz",
     "types-requests",
-    "requests>=2.32.4",
-    "urllib3>=2.5.0",
-    "pip-tools",
     "uv",
     "pre-commit"
-]
-dev-nomad = [
-    "pillow==10.0.1"
 ]
 docs = [
     "mkdocs",
@@ -66,13 +58,18 @@ docs = [
     "mkdocs-material-extensions",
     "mkdocs-macros-plugin",
     "mkdocs-click",
-    "markdown-include"
+    "pymdown-extensions",
+    "mkdocs-click"
 ]
 ipynb = [
     "jupyter",
     "jupyterlab",
     "jupyterlab_h5web"
 ]
+
+[project.urls]
+"Homepage" = "https://github.com/FAIRmat-NFDI/pynxtools-em"
+"Bug Tracker" = "https://github.com/FAIRmat-NFDI/pynxtools-em/issues"
 
 [project.entry-points."pynxtools.reader"]
 em = "pynxtools_em.reader:EMReader"
@@ -101,6 +98,7 @@ select = [
     "E", # pycodestyle
     "W", # pycodestyle
     "PL", # pylint
+    # "NPY201", # reactivate when using numpy > 2.0
 ]
 ignore = [
     "E501", # Line too long ({width} > {limit} characters)
