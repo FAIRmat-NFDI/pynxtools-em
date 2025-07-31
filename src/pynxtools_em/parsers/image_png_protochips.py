@@ -41,6 +41,7 @@ from pynxtools_em.configurations.image_png_protochips_cfg import (
     AXON_STATIC_STAGE_NX,
     specific_to_variadic,
 )
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -55,19 +56,24 @@ class ProtochipsPngSetParser:
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if file_path:
             self.file_path = file_path
-        self.entry_id = entry_id if entry_id > 0 else 1
-        self.event_id = 1
-        self.dict_meta: Dict[str, fd.FlatDict] = {}
-        self.version: Dict = {}
-        self.png_info: Dict = {}
-        self.supported = False
-        self.event_sequence: List = []
-        self.verbose = verbose
-        self.check_if_zipped_png_protochips()
-        if not self.supported:
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+            self.entry_id = entry_id if entry_id > 0 else 1
+            self.event_id = 1
+            self.dict_meta: Dict[str, fd.FlatDict] = {}
+            self.version: Dict = {}
+            self.png_info: Dict = {}
+            self.supported = False
+            self.event_sequence: List = []
+            self.verbose = verbose
+            self.check_if_zipped_png_protochips()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                )
+        else:
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs Protochips zipped set with at least one PNG !"
             )
+            self.supported = False
 
     def check_if_zipped_png_protochips(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file."""
@@ -82,10 +88,10 @@ class ProtochipsPngSetParser:
                 if (
                     magic != b"PK\x03\x04"
                 ):  # https://en.wikipedia.org/wiki/List_of_file_signatures
-                    # print(f"Test 1 failed, {self.file_path} is not a ZIP archive !")
+                    # logger.warning(f"Test 1 failed, {self.file_path} is not a ZIP archive !")
                     return
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
         # test 2: check if there are at all PNG files with iTXt metadata from Protochips in this zip file
@@ -114,7 +120,7 @@ class ProtochipsPngSetParser:
                                         nparr = np.array(png)
                                         self.png_info[file] = np.shape(nparr)
                                     except IOError:
-                                        print(
+                                        logger.warning(
                                             f"Loading image data in-place from {self.file_path}:{file} failed !"
                                         )
                             if (
@@ -134,7 +140,7 @@ class ProtochipsPngSetParser:
 
         # test 3: check there are some PNGs
         if len(self.png_info.keys()) == 0:
-            print("Test 3 failed, there are no PNGs !")
+            logger.warning("Test 3 failed, there are no PNGs !")
             return
         # test 4: check that all PNGs have the same dimensions, TODO::could check for other things here
         target_dims = None
@@ -143,11 +149,13 @@ class ProtochipsPngSetParser:
                 if tpl == target_dims:
                     continue
                 else:
-                    print("Test 4 failed, not all PNGs have the same dimensions")
+                    logger.warning(
+                        "Test 4 failed, not all PNGs have the same dimensions"
+                    )
                     return
             else:
                 target_dims = tpl
-        print("All tests passed successfully")
+        logger.debug("All tests passed successfully")
         self.supported = True
 
     def get_xml_metadata(self, file, fp):
@@ -199,9 +207,9 @@ class ProtochipsPngSetParser:
                                                 string_to_number(v)
                                             )
                                         else:
-                                            print(
+                                            logger.info(
                                                 "Trying to register a duplicated key {key}"
-                                            )
+                                            )  # maybe a warning?
                                     if k.endswith(".Value"):
                                         key = specific_to_variadic(
                                             f"{grpnms[0]}.{grpnms[1]}"
@@ -211,21 +219,25 @@ class ProtochipsPngSetParser:
                                                 string_to_number(v)
                                             )
                                         else:
-                                            print(
+                                            logger.info(
                                                 f"Trying to register duplicated key {key}"
-                                            )
+                                            )  # warn?
                         else:
                             key = f"{k}"
                             if key not in self.dict_meta[file]:
                                 self.dict_meta[file][key] = string_to_number(v)
                             else:
-                                print(f"Trying to register duplicated key {key}")
+                                logger.info(
+                                    f"Trying to register duplicated key {key}"
+                                )  # warn?
                         # TODO::simplify and check that metadata end up correctly in self.dict_meta[file]
                     if self.verbose:
                         for key, value in self.dict_meta[file].items():
-                            print(f"{key}____{type(value)}____{type(value)}")
+                            logger.info(f"{key}____{type(value)}____{type(value)}")
         except ValueError:
-            print(f"Flattening XML metadata content {self.file_path}:{file} failed !")
+            logger.warning(
+                f"Flattening XML metadata content {self.file_path}:{file} failed !"
+            )
 
     def get_file_hash(self, file, fp):
         self.dict_meta[file][DEFAULT_CHECKSUM_ALGORITHM] = get_sha256_of_file_content(
@@ -235,7 +247,7 @@ class ProtochipsPngSetParser:
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""
         if self.supported:
-            print(
+            logger.info(
                 f"Parsing via Protochips AXON Studio ZIP-compressed project parser..."
             )
             # may need to set self.supported = False on error
@@ -247,8 +259,8 @@ class ProtochipsPngSetParser:
                         # if self.verbose:
                         # for k, v in self.dict_meta[file].items():
                         #     if k == "MicroscopeControlImageMetadata.MicroscopeDateTime":
-                        #     print(f"{k}: {v}")
-            print(
+                        #     logger.info(f"{k}: {v}")
+            logger.info(
                 f"{self.file_path} metadata within PNG collection processed "
                 f"successfully ({len(self.dict_meta)} PNGs evaluated)."
             )
@@ -276,11 +288,11 @@ class ProtochipsPngSetParser:
         events_sorted = sort_ascendingly_by_second_argument_iso8601(events)
         del events
         time_series_start = events_sorted[0][1]
-        print(f"Time series start: {time_series_start}")
+        logger.debug(f"Time series start: {time_series_start}")
         for file_name, iso8601 in events_sorted:
             continue
-            # print(f"{file_name}, {iso8601}, {(iso8601 - time_series_start).total_seconds()} s")
-        print(
+            # logger.debug(f"{file_name}, {iso8601}, {(iso8601 - time_series_start).total_seconds()} s")
+        logger.debug(
             f"Time series end: {events_sorted[-1][1]}, {(events_sorted[-1][1] - time_series_start).total_seconds()} s"
         )
         return events_sorted
@@ -288,7 +300,7 @@ class ProtochipsPngSetParser:
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
-        print(
+        logger.debug(
             f"Mapping some of the Protochips metadata on respective NeXus concepts..."
         )
         # individual PNGs in self.file_path may include time/date information in the file name
@@ -346,7 +358,7 @@ class ProtochipsPngSetParser:
     def process_event_data_em_data(self, template: dict) -> dict:
         """Add respective heavy data."""
         # default display of the image(s) representing the data collected in this event
-        print(
+        logger.debug(
             f"Writing Protochips PNG images into respective NeXus event_data_em concept instances"
         )
         # read image in-place
@@ -401,8 +413,8 @@ class ProtochipsPngSetParser:
                                 ).to(ureg.meter),
                             }
                         else:
-                            print(
-                                "WARNING: Assuming pixel width and height unit is unitless!"
+                            logger.warning(
+                                "Assuming pixel width and height unit is unitless!"
                             )
                         nxy = {"i": np.shape(nparr)[1], "j": np.shape(nparr)[0]}
                         del nparr

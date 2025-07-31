@@ -34,6 +34,7 @@ from pynxtools_em.configurations.image_tiff_zeiss_cfg import (
     ZEISS_DYNAMIC_VARIOUS_NX,
     ZEISS_STATIC_VARIOUS_NX,
 )
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
@@ -43,30 +44,33 @@ class ZeissTiffParser:
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if file_path:
             self.file_path = file_path
-        self.entry_id = entry_id if entry_id > 0 else 1
-        self.verbose = verbose
-        self.id_mgn: Dict[str, int] = {"event_id": 1}
-        self.flat_dict_meta = fd.FlatDict({}, "/")
-        self.version: Dict = {
-            "trg": {
-                "tech_partner": ["Zeiss"],
-                "schema_name": ["Zeiss"],
-                "schema_version": [
-                    "V06.00.00.00 : 09-Jun-16",
-                    "V06.03.00.00 : 15-Dec-17",
-                ],
+            self.entry_id = entry_id if entry_id > 0 else 1
+            self.verbose = verbose
+            self.id_mgn: Dict[str, int] = {"event_id": 1}
+            self.flat_dict_meta = fd.FlatDict({}, "/")
+            self.version: Dict = {
+                "trg": {
+                    "tech_partner": ["Zeiss"],
+                    "schema_name": ["Zeiss"],
+                    "schema_version": [
+                        "V06.00.00.00 : 09-Jun-16",
+                        "V06.03.00.00 : 15-Dec-17",
+                    ],
+                }
             }
-        }
-        self.supported = False
-        self.check_if_tiff_zeiss()
-        if not self.supported:
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
-            )
+            self.supported = False
+            self.check_if_tiff_zeiss()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+                )
+        else:
+            logger.warning(f"Parser {self.__class__.__name__} needs Zeiss TIFF file !")
+            self.supported = False
 
     def get_metadata(self, payload: str):
         """Extract metadata in Zeiss-specific tags if present, return version if success."""
-        print("Parsing Zeiss tags...")
+        logger.debug("Parsing Zeiss tags...")
         txt = [line.strip() for line in payload.split("\r") if line.strip() != ""]
 
         # skip over undocumented data to the first line of Zeiss metadata concepts
@@ -91,7 +95,7 @@ class ZeissTiffParser:
                         if token[0].replace("Date :", ""):
                             self.flat_dict_meta[line] = token[0].replace("Date :", "")
                     else:
-                        print(f"WARNING::Ignoring line {line} token {token} !")
+                        logger.warning(f"Ignoring line {line} token {token} !")
                 else:
                     tmp = [value.strip() for value in token[1].split()]
                     if len(tmp) == 1 and tmp[0] in ["On", "Yes"]:
@@ -122,12 +126,12 @@ class ZeissTiffParser:
                 # if isinstance(value, ureg.Quantity):
                 # try:
                 #     if not value.dimensionless:
-                #         print(f"{value}, {type(value)}, {key}")
+                #         logger.debug(f"{value}, {type(value)}, {key}")
                 # except:
-                #     print(f"{value}, {type(value)}, {key}")
+                #     logger.debug(f"{value}, {type(value)}, {key}")
                 # continue
                 # else:
-                print(f"{key}____{type(value)}____{value}")
+                logger.debug(f"{key}____{type(value)}____{value}")
         if "SV_VERSION" in self.flat_dict_meta:
             return self.flat_dict_meta["SV_VERSION"]
 
@@ -141,7 +145,7 @@ class ZeissTiffParser:
                 if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                     return
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
         with Image.open(self.file_path, mode="r") as fp:
@@ -159,7 +163,7 @@ class ZeissTiffParser:
         if self.supported:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} Zeiss with SHA256 {self.file_path_sha256} ..."
             )
             # metadata have at this point already been collected into an fd.FlatDict
@@ -169,12 +173,14 @@ class ZeissTiffParser:
 
     def process_event_data_em_data(self, template: dict) -> dict:
         """Add respective heavy data."""
-        print(f"Writing Zeiss image data to the respective NeXus concept instances...")
+        logger.debug(
+            f"Writing Zeiss image data to the respective NeXus concept instances..."
+        )
         identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
                 nparr = np.array(img)
-                print(
+                logger.debug(
                     f"Processing image {identifier_image} ... {type(nparr)}, {np.shape(nparr)}, {nparr.dtype}"
                 )
                 # eventually similar open discussions points as were raised for tiff_tfs parser
@@ -215,7 +221,7 @@ class ZeissTiffParser:
                         found = True
                         break
                 if not found:
-                    print("WARNING: Assuming pixel width and height unit is unitless!")
+                    logger.warning("Assuming pixel width and height unit is unitless!")
                 nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # however, these assumptions need to be confirmed by point electronic
@@ -242,7 +248,9 @@ class ZeissTiffParser:
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
-        print(f"Mapping some of the Zeiss metadata on respective NeXus concepts...")
+        logger.debug(
+            f"Mapping some of the Zeiss metadata on respective NeXus concepts..."
+        )
         identifier = [self.entry_id, self.id_mgn["event_id"], 1]
         for cfg in [
             ZEISS_DYNAMIC_VARIOUS_NX,

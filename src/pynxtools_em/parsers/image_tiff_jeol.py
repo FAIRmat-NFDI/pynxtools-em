@@ -29,6 +29,7 @@ from pynxtools_em.configurations.image_tiff_jeol_cfg import (
     JEOL_DYNAMIC_VARIOUS_NX,
     JEOL_STATIC_VARIOUS_NX,
 )
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -61,10 +62,10 @@ class JeolTiffParser:
             self.supported = False
             self.check_if_tiff_jeol()
         else:
-            print(f"Parser {self.__class__.__name__} needs TIF and TXT file !")
+            logger.warning(f"Parser {self.__class__.__name__} needs TIF and TXT file !")
             self.supported = False
         if not self.supported:
-            print(
+            logger.debug(
                 f"Parser {self.__class__.__name__} finds no content in {tif_txt} that it supports"
             )
 
@@ -82,7 +83,7 @@ class JeolTiffParser:
                 if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                     return
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
         with open(self.txt_file_path, "r") as txt:
@@ -96,7 +97,7 @@ class JeolTiffParser:
             for line in txt:
                 tmp = line.split()
                 if len(tmp) == 1:
-                    print(f"WARNING::{line} is currently ignored !")
+                    logger.warning(f"{line} is currently ignored !")
                 elif len(tmp) == 2:
                     if tmp[0] not in self.flat_dict_meta:
                         # replace with pint parsing and catching multiple exceptions
@@ -106,13 +107,13 @@ class JeolTiffParser:
                         else:
                             self.flat_dict_meta[tmp[0]] = ureg.Quantity(tmp[1])
                     else:
-                        print(f"Found duplicated key {tmp[0]} !")
+                        logger.warning(f"Found duplicated key {tmp[0]} !")
                 else:
-                    print(f"WARNING::{line} is currently ignored !")
+                    logger.warning(f"WARNING::{line} is currently ignored !")
 
             if self.verbose:
                 for key, value in self.flat_dict_meta.items():
-                    print(f"{key}______{type(value)}____{value}")
+                    logger.info(f"{key}______{type(value)}____{value}")
 
             if all(
                 key in self.flat_dict_meta for key in ["SEM_DATA_VERSION", "CM_LABEL"]
@@ -128,7 +129,7 @@ class JeolTiffParser:
             # metadata have at this point already been collected into an fd.FlatDict
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} JEOL with SHA256 {self.file_path_sha256} ..."
             )
             self.process_event_data_em_metadata(template)
@@ -138,14 +139,14 @@ class JeolTiffParser:
     def process_event_data_em_data(self, template: dict) -> dict:
         """Add respective heavy data."""
         # default display of the image(s) representing the data collected in this event
-        print(
+        logger.debug(
             f"Writing JEOL TIFF image data to the respective NeXus concept instances..."
         )
         identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
                 nparr = np.array(img)
-                print(
+                logger.debug(
                     f"Processing image {identifier_image} ... {type(nparr)}, {np.shape(nparr)}, {nparr.dtype}"
                 )
                 # eventually similar open discussions points as were raised for tiff_tfs parser
@@ -186,13 +187,13 @@ class JeolTiffParser:
                     )
                     # resolution many pixel represent physical_length scanned surface
                     # assuming square pixel
-                    print(f"resolution {resolution}, L {physical_length}")
+                    logger.debug(f"resolution {resolution}, L {physical_length}")
                     sxy = {
                         "i": physical_length / resolution,
                         "j": physical_length / resolution,
                     }
                 else:
-                    print("WARNING: Assuming pixel width and height unit is unitless!")
+                    logger.warning("Assuming pixel width and height unit is unitless!")
                 nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # however, these assumptions need to be confirmed by point electronic
@@ -241,7 +242,7 @@ class JeolTiffParser:
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
-        print(f"Mapping some of JEOL metadata on respective NeXus concepts...")
+        logger.debug(f"Mapping some of JEOL metadata on respective NeXus concepts...")
         self.add_various_dynamic(template)
         self.add_various_static(template)
         # ... add more as required ...

@@ -31,6 +31,7 @@ from pynxtools_em.configurations.image_tiff_tescan_cfg import (
     TESCAN_DYNAMIC_VARIOUS_NX,
     TESCAN_STATIC_VARIOUS_NX,
 )
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -66,10 +67,12 @@ class TescanTiffParser:
             self.hdr_file_path = tif_hdr[1]
             self.check_if_tiff_tescan()
         else:
-            print(f"Parser {self.__class__.__name__} needs TIF and eventual HDR file !")
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs TIF and eventual HDR file !"
+            )
             self.supported = False
         if not self.supported:
-            print(
+            logger.debug(
                 f"Parser {self.__class__.__name__} finds no content in {file_paths} that it supports"
             )
 
@@ -84,7 +87,7 @@ class TescanTiffParser:
                 if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                     return
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
         self.flat_dict_meta = fd.FlatDict({}, "/")
@@ -97,8 +100,8 @@ class TescanTiffParser:
                     try:
                         txt = payload[pos:].decode("utf8")
                     except UnicodeDecodeError:
-                        print(
-                            f"WARNING::{self.file_path} TESCAN TIFF tag {tescan_key} cannot be decoded using UTF8, trying to use sidecar file instead if available !"
+                        logger.warning(
+                            f"{self.file_path} TESCAN TIFF tag {tescan_key} cannot be decoded using UTF8, trying to use sidecar file instead if available !"
                         )
                         if hasattr(self, "hdr_file_path"):
                             continue
@@ -109,12 +112,12 @@ class TescanTiffParser:
                     for line in txt.split():
                         tmp = [value.strip() for value in line.split("=")]
                         if len(tmp) == 1:
-                            print(f"Ignore line {line} !")
+                            logger.debug(f"Ignore line {line} !")
                         elif len(tmp) == 2:
                             if tmp[0] and tmp[0] not in self.flat_dict_meta:
                                 self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
                         else:
-                            print(f"Ignore line {line} !")
+                            logger.debug(f"Ignore line {line} !")
         # very frequently using sidecar files create ambiguities: are the metadata in the
         # image and the sidecar file exactly the same, a subset, which information to
         # give preference in case of inconsistencies, system time when the sidecar file
@@ -131,25 +134,25 @@ class TescanTiffParser:
                         if line.strip() != "" and line.startswith("#") is False
                     ]
                     if not all(value in txt for value in ["[MAIN]", "[SEM]"]):
-                        print(
-                            f"WARNING::TESCAN HDR sidecar file exists but does not contain expected section headers !"
+                        logger.warning(
+                            f"TESCAN HDR sidecar file exists but does not contain expected section headers !"
                         )
                     txt = [line for line in txt if line not in ["[MAIN]", "[SEM]"]]
                     for line in txt:
                         tmp = [value.strip() for value in line.split("=")]
                         if len(tmp) == 1:
-                            print(f"Ignore line {line} !")
+                            logger.debug(f"Ignore line {line} !")
                         elif len(tmp) == 2:
                             if tmp[0] and (tmp[0] not in self.flat_dict_meta):
                                 self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
                         else:
-                            print(f"Ignore line {line} !")
+                            logger.debug(f"Ignore line {line} !")
             else:
-                print(f"WARNING::Potential TESCAN TIF without metadata !")
+                logger.warning(f"Potential TESCAN TIF without metadata !")
 
         if self.verbose:
             for key, value in self.flat_dict_meta.items():
-                print(f"{key}____{type(value)}____{value}")
+                logger.info(f"{key}____{type(value)}____{value}")
 
         # check if written about with supported DISS version
         supported_versions = ["TIMA", "MIRA3 LMH"]
@@ -165,7 +168,7 @@ class TescanTiffParser:
             # metadata have at this point already been collected into an fd.FlatDict
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} TESCAN with SHA256 {self.file_path_sha256} ..."
             )
             self.process_event_data_em_metadata(template)
@@ -174,12 +177,14 @@ class TescanTiffParser:
 
     def process_event_data_em_data(self, template: dict) -> dict:
         """Add respective heavy data."""
-        print(f"Writing TESCAN image data to the respective NeXus concept instances...")
+        logger.debug(
+            f"Writing TESCAN image data to the respective NeXus concept instances..."
+        )
         identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
                 nparr = np.array(img)
-                print(
+                logger.debug(
                     f"Processing image {identifier_image} ... {type(nparr)}, {np.shape(nparr)}, {nparr.dtype}"
                 )
                 # eventually similar open discussions points as were raised for tiff_tfs parser
@@ -220,7 +225,7 @@ class TescanTiffParser:
                         ),
                     }
                 else:
-                    print("WARNING: Assuming pixel width and height unit is unitless!")
+                    logger.warning("Assuming pixel width and height unit is unitless!")
                 nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # however, these assumptions need to be confirmed by point electronic
@@ -247,7 +252,9 @@ class TescanTiffParser:
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
-        print(f"Mapping some of the TESCAN metadata on respective NeXus concepts...")
+        logger.debug(
+            f"Mapping some of the TESCAN metadata on respective NeXus concepts..."
+        )
         identifier = [self.entry_id, self.id_mgn["event_id"], 1]
         for cfg in [
             TESCAN_DYNAMIC_STIGMATOR_NX,

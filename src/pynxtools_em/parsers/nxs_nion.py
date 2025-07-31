@@ -45,6 +45,7 @@ from pynxtools_em.configurations.nion_cfg import (
     NION_WHICH_IMAGE,
     NION_WHICH_SPECTRUM,
 )
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -89,7 +90,7 @@ class NionProjectParser:
         elif self.file_path.endswith(".nsproj"):
             self.is_zipped = False
         else:
-            print(
+            logger.debug(
                 f"Parser NionProject finds no content in {self.file_path} that it supports"
             )
             return
@@ -106,11 +107,11 @@ class NionProjectParser:
                     if self.verbose:
                         fp.seek(0, 2)
                         eof_byte_offset = fp.tell()
-                        print(
+                        logger.info(
                             f"Expecting zip-compressed file: ___{self.file_path}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
                         )
             except (FileNotFoundError, IOError):
-                print(f"{self.file_path} either FileNotFound or IOError !")
+                logger.warning(f"{self.file_path} either FileNotFound or IOError !")
                 return
 
             # analyze information content of the project and its granularization
@@ -122,7 +123,7 @@ class NionProjectParser:
                             if self.verbose:
                                 fp.seek(0, 2)
                                 eof_byte_offset = fp.tell()
-                                print(
+                                logger.info(
                                     f"Expecting hfive: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
                                 )
                             key = file[file.rfind("/") + 1 :].replace(".h5", "")
@@ -134,7 +135,7 @@ class NionProjectParser:
                             if self.verbose:
                                 fp.seek(0, 2)
                                 eof_byte_offset = fp.tell()
-                                print(
+                                logger.info(
                                     f"Expecting ndata: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
                                 )
                             key = file[file.rfind("/") + 1 :].replace(".ndata", "")
@@ -146,7 +147,7 @@ class NionProjectParser:
                             if self.verbose:
                                 fp.seek(0, 2)
                                 eof_byte_offset = fp.tell()
-                                print(
+                                logger.info(
                                     f"Expecting nsproj: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
                                 )
                             key = file[file.rfind("/") + 1 :].replace(".nsproj", "")
@@ -156,9 +157,9 @@ class NionProjectParser:
                         continue
         else:
             nsproj_data_path = f"{self.file_path[0 : self.file_path.rfind('.')]} Data"
-            print(f"nsproj_data_path __{nsproj_data_path}__")
+            logger.debug(f"nsproj_data_path __{nsproj_data_path}__")
             for file in glob.glob(f"{nsproj_data_path}/**/*", recursive=True):
-                print(f"----->>>> {file}")
+                logger.debug(f"----->>>> {file}")
                 if file.endswith((".h5", ".hdf", ".hdf5")):
                     with open(file, "rb") as fp:
                         magic = fp.read(8)
@@ -166,7 +167,7 @@ class NionProjectParser:
                             fp.seek(0, 2)
                             eof_byte_offset = fp.tell()
                             # get_sha256_of_file_content(fp)
-                            print(
+                            logger.info(
                                 f"Expecting hfive: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
                             )
                         key = file[file.rfind("/") + 1 :].replace(".h5", "")
@@ -178,7 +179,7 @@ class NionProjectParser:
                         if self.verbose:
                             fp.seek(0, 2)
                             eof_byte_offset = fp.tell()
-                            print(
+                            logger.info(
                                 f"Expecting ndata: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
                             )
                         key = file[file.rfind("/") + 1 :].replace(".ndata", "")
@@ -186,26 +187,26 @@ class NionProjectParser:
                             self.ndata_file_dict[key] = file
 
         if not self.ndata_file_dict.keys().isdisjoint(self.hfive_file_dict.keys()):
-            print(
+            logger.warning(
                 "Test 2 failed, UUID keys of *.ndata and *.h5 files in project are not disjoint!"
             )
             return
         if self.is_zipped and len(self.proj_file_dict.keys()) != 1:
-            print(
+            logger.warning(
                 "Test 3 failed, he project contains either no or more than one nsproj file!"
             )
             return
-        print(
+        logger.info(
             f"Content in zip-compressed nionswift project {self.file_path} passed all tests"
         )
         self.supported = True
         if self.verbose:
             for key, val in self.proj_file_dict.items():
-                print(f"nsprj: ___{key}___{val}___")
+                logger.info(f"nsprj: ___{key}___{val}___")
             for key, val in self.ndata_file_dict.items():
-                print(f"ndata: ___{key}___{val}___")
+                logger.info(f"ndata: ___{key}___{val}___")
             for key, val in self.hfive_file_dict.items():
-                print(f"hfive: ___{key}___{val}___")
+                logger.info(f"hfive: ___{key}___{val}___")
 
     def annotate_information_source(
         self, src: str, trg: str, file_path: str, checksum: str, template: dict
@@ -227,16 +228,16 @@ class NionProjectParser:
         file_hdl.seek(0)
         local_files, dir_files, eocd = nsnd.parse_zip(file_hdl)
         flat_metadata = fd.FlatDict({}, "/")
-        print(
+        logger.debug(
             f"Inspecting {full_path} with len(local_files.keys()) ___{len(local_files.keys())}___"
         )
         for offset, tpl in local_files.items():
             if self.verbose:
-                print(f"{offset}___{tpl}")
+                logger.debug(f"{offset}___{tpl}")
             # report to know there are more than metadata.json files in the ndata swift container format
             if tpl[0] == b"metadata.json":
                 if self.verbose:
-                    print(
+                    logger.debug(
                         f"Extract metadata.json from ___{full_path}___ at offset ___{offset}___"
                     )
                 # ... explicit jump back to beginning of the file
@@ -247,9 +248,11 @@ class NionProjectParser:
                 )
 
                 if self.verbose:
-                    print(f"Flattened content of this metadata.json")
+                    logger.info(f"Flattened content of this metadata.json")
                     for key, value in flat_metadata.items():
-                        print(f"ndata, metadata.json, flat: ___{key}___{value}___")
+                        logger.info(
+                            f"ndata, metadata.json, flat: ___{key}___{value}___"
+                        )
                 else:
                     break
                 # previously no break here because we used verbose == True to log the analysis
@@ -264,13 +267,13 @@ class NionProjectParser:
         for offset, tpl in local_files.items():
             if tpl[0] == b"data.npy":
                 if self.verbose:
-                    print(
+                    logger.debug(
                         f"Extract data.npy from ___{full_path}___ at offset ___{offset}___"
                     )
                 file_hdl.seek(0)
                 nparr = nsnd.read_data(file_hdl, local_files, dir_files, b"data.npy")
                 if isinstance(nparr, np.ndarray):
-                    print(
+                    logger.debug(
                         f"ndata, data.npy, type, shape, dtype: ___{type(nparr)}___{np.shape(nparr)}___{nparr.dtype}___"
                     )
                 # because we expect (based on Benedikt's example) to find only one npy
@@ -288,17 +291,17 @@ class NionProjectParser:
         flat_metadata = fd.FlatDict({}, "/")
         file_hdl.seek(0)
         with h5py.File(file_hdl, "r") as h5r:
-            print(
+            logger.debug(
                 f"Inspecting {full_path} with len(h5r.keys()) ___{len(h5r.keys())}___"
             )
-            print(f"{h5r.keys()}")
+            logger.debug(f"{h5r.keys()}")
             flat_metadata = fd.FlatDict(
                 json.loads(h5r["data"].attrs["properties"]), "/"
             )
             if self.verbose:
-                print(f"Flattened content of this metadata.json")
+                logger.info(f"Flattened content of this metadata.json")
                 for key, value in flat_metadata.items():
-                    print(f"hfive, data, flat: ___{key}___{value}___")
+                    logger.info(f"hfive, data, flat: ___{key}___{value}___")
 
             if len(flat_metadata) == 0:
                 return template
@@ -307,7 +310,7 @@ class NionProjectParser:
 
             nparr = h5r["data"][()]
             if isinstance(nparr, np.ndarray):
-                print(
+                logger.debug(
                     f"hfive, data, type, shape, dtype: ___{type(nparr)}___{np.shape(nparr)}___{nparr.dtype}___"
                 )
             self.process_event_data_em_data(full_path, nparr, flat_metadata, template)
@@ -329,11 +332,11 @@ class NionProjectParser:
         # TODO::inspection phase, maybe with yaml to file?
         if self.verbose:
             if self.is_zipped:
-                print(f"Flattened content of {proj_file_name}")
+                logger.info(f"Flattened content of {proj_file_name}")
             else:
-                print(f"Flattened content of {self.file_path}")
+                logger.info(f"Flattened content of {self.file_path}")
             for key, value in nionswift_proj_mdata.items():  # ["display_items"]:
-                print(f"nsprj, flat: ___{key}___{value}___")
+                logger.info(f"nsprj, flat: ___{key}___{value}___")
         if nionswift_proj_mdata == {}:
             return template
 
@@ -349,8 +352,8 @@ class NionProjectParser:
                         # file_name without the mime type
                         if key in self.ndata_file_dict.keys():
                             this_file = self.ndata_file_dict[key]
-                            print(f"Key {key} is *.ndata maps to {this_file}")
-                            print(f"Parsing {this_file}...")
+                            logger.debug(f"Key {key} is *.ndata maps to {this_file}")
+                            logger.debug(f"Parsing {this_file}...")
                             if self.is_zipped:
                                 with ZipFile(self.file_path) as zip_file_hdl:
                                     with zip_file_hdl.open(this_file) as file_hdl:
@@ -368,8 +371,8 @@ class NionProjectParser:
                                     )
                         elif key in self.hfive_file_dict.keys():
                             this_file = self.hfive_file_dict[key]
-                            print(f"Key {key} is *.h5 maps to {this_file}")
-                            print(f"Parsing {this_file}...")
+                            logger.debug(f"Key {key} is *.h5 maps to {this_file}")
+                            logger.debug(f"Parsing {this_file}...")
                             if self.is_zipped:
                                 with ZipFile(self.file_path) as zip_file_hdl:
                                     with zip_file_hdl.open(this_file) as file_hdl:
@@ -386,25 +389,27 @@ class NionProjectParser:
                                         template,
                                     )
                         else:
-                            print(f"Key {key} has no corresponding data file")
+                            logger.warning(f"Key {key} has no corresponding data file")
         return template
 
     def parse(self, template: dict) -> dict:
         """Parse NOMAD OASIS relevant data and metadata from swift project."""
         if self.supported:
             if self.is_zipped:
-                print(
+                logger.info(
                     "Parsing in-place zip-compressed nionswift project (nsproj + data)..."
                 )
             else:
-                print("Parsing in-place nionswift project (nsproj + data)...")
+                logger.info("Parsing in-place nionswift project (nsproj + data)...")
             self.parse_project_file(template)
         return template
 
     def process_event_data_em_metadata(
         self, flat_metadata: fd.FlatDict, template: dict
     ) -> dict:
-        print(f"Mapping some of the Nion metadata on respective NeXus concepts...")
+        logger.debug(
+            f"Mapping some of the Nion metadata on respective NeXus concepts..."
+        )
         # we assume for now dynamic quantities can just be repeated
         identifier = [self.entry_id, self.id_mgn["event_id"], 1]
         for cfg in [
@@ -445,9 +450,9 @@ class NionProjectParser:
         """Map Nion-specifically formatted data arrays on NeXus NXdata/NXimage/NXspectrum."""
         axes = flat_metadata["dimensional_calibrations"]
         unit_combination = nion_image_spectrum_or_generic_nxdata(axes)
-        print(f"{unit_combination}, {np.shape(nparr)}")
-        print(axes)
-        print(f"entry_id {self.entry_id}, event_id {self.id_mgn['event_id']}")
+        logger.debug(f"{unit_combination}, {np.shape(nparr)}")
+        logger.debug(axes)
+        logger.debug(f"entry_id {self.entry_id}, event_id {self.id_mgn['event_id']}")
         if unit_combination == "":
             return template
 
@@ -492,7 +497,7 @@ class NionProjectParser:
                 0 : len(unit_combination.split("_"))
             ][::-1]
         else:
-            print(f"WARNING::{unit_combination} unsupported unit_combination !")
+            logger.warning(f"{unit_combination} unsupported unit_combination !")
             return template
 
         if len(axis_names) >= 1:
