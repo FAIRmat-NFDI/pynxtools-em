@@ -28,6 +28,7 @@ from pynxtools_em.methods.ebsd import (
     has_hfive_magic_header,
 )
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -93,44 +94,49 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if file_path:
             self.file_path = file_path
-        self.id_mgn: Dict[str, int] = {
-            "entry_id": entry_id if entry_id > 0 else 1,
-            "roi_id": 1,
-        }
-        self.verbose = verbose
-        self.prfx = ""  # template path handling
-        # strictly speaking Bluequartz refers the above-mentioned here as File Version
-        # but content is expected adaptive depends on filters used, their versions, and
-        # the sequence in which the execution of these filters was instructed
-        self.version: Dict = {  # Dict[str, Dict[str, List[str]]]
-            "trg": {
-                "tech_partner": ["Bluequartz"],
-                "schema_name": ["DREAM3D"],
-                "schema_version": ["6.0", "7.0"],
-                "writer_name": ["DREAM3D"],
-                "writer_version": [
-                    "1.2.812.508bf5f37",
-                    "2.0.170.4eecce207",
-                    "1.0.107.2080f4e",
-                    "2014.03.05",
-                    "2014.03.13",
-                    "2014.03.15",
-                    "2014.03.16",
-                    "4.3.6052.263064d",
-                    "1.2.828.f45085c83",
-                    "2.0.170.4eecce207",
-                    "1.2.826.7c66a0e77",
-                ],
-            },
-            "src": {},
-        }
-        self.path_registry: Dict = {}
-        self.supported = False
-        self.check_if_supported()
-        if not self.supported:
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+            self.id_mgn: Dict[str, int] = {
+                "entry_id": entry_id if entry_id > 0 else 1,
+                "roi_id": 1,
+            }
+            self.verbose = verbose
+            self.prfx = ""  # template path handling
+            # strictly speaking Bluequartz refers the above-mentioned here as File Version
+            # but content is expected adaptive depends on filters used, their versions, and
+            # the sequence in which the execution of these filters was instructed
+            self.version: Dict = {  # Dict[str, Dict[str, List[str]]]
+                "trg": {
+                    "tech_partner": ["Bluequartz"],
+                    "schema_name": ["DREAM3D"],
+                    "schema_version": ["6.0", "7.0"],
+                    "writer_name": ["DREAM3D"],
+                    "writer_version": [
+                        "1.2.812.508bf5f37",
+                        "2.0.170.4eecce207",
+                        "1.0.107.2080f4e",
+                        "2014.03.05",
+                        "2014.03.13",
+                        "2014.03.15",
+                        "2014.03.16",
+                        "4.3.6052.263064d",
+                        "1.2.828.f45085c83",
+                        "2.0.170.4eecce207",
+                        "1.2.826.7c66a0e77",
+                    ],
+                },
+                "src": {},
+            }
+            self.path_registry: Dict = {}
+            self.supported = False
+            self.check_if_supported()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                )
+        else:
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs legacy DREAM3D (not DREAM3D-NX) HDF5 file !"
             )
+            self.supported = False
 
     def check_if_supported(self):
         # check if instance to process matches any of these constraints
@@ -293,9 +299,9 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
         self.path_registry["group_phases"] = group_phases
         self.path_registry["is_simulated"] = is_simulated
         self.path_registry["roi_info"] = roi_info
-        print(f"Relevant 3D EBSD content found")
+        logger.debug(f"Relevant 3D EBSD content found")
         for key, val in self.path_registry.items():
-            print(f"{key}: {val}")
+            logger.debug(f"{key}: {val}")
 
         # but see if that logic does not also check the shape and numerical content
         # there are still possibilities where this logic fails to detect a concept
@@ -316,7 +322,7 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
         if self.supported:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} DREAM3D legacy with SHA256 {self.file_path_sha256} ..."
             )
             if self.search_normalizable_ebsd_content():
@@ -356,15 +362,15 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
             fp[f"{self.path_registry['group_phases']}/CrystalStructures"][:].flatten(),
             np.uint32,
         )
-        print(f"csys {np.shape(idx)}, {idx}")
+        logger.debug(f"csys {np.shape(idx)}, {idx}")
         nms = None
         if f"{self.path_registry['group_phases']}/MaterialName" in fp:
             nms = read_strings(
                 fp[f"{self.path_registry['group_phases']}/MaterialName"][:]
             )
-            print(f"nms ---------> {nms}")
+            logger.debug(f"nms ---------> {nms}")
             if len(idx) != len(nms):
-                print(
+                logger.warning(
                     f"{__name__} MaterialName was recoverable but array has different length than for CrystalStructures!"
                 )
                 self.ebsd = EbsdPointCloud()
@@ -372,9 +378,9 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
         # alternatively
         if f"{self.path_registry['group_phases']}/PhaseName" in fp:
             nms = read_strings(fp[f"{self.path_registry['group_phases']}/PhaseName"][:])
-            print(f"nms ---------> {nms}")
+            logger.debug(f"nms ---------> {nms}")
             if len(idx) != len(nms):
-                print(
+                logger.warning(
                     f"{__name__} PhaseName was recoverable but array has different length than for CrystalStructures!"
                 )
                 self.ebsd = EbsdPointCloud()
@@ -423,7 +429,7 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
         self.ebsd.phase_id = np.reshape(
             self.ebsd.phase_id, (int(np.prod(old_shp[0:3])),), order="C"
         )
-        print(np.unique(self.ebsd.phase_id))
+        logger.debug(np.unique(self.ebsd.phase_id))
         # Phases here stores C-style index which Phase of the possible ones
         # we are facing, the marker 999 is equivalent to the null-model notIndexed
         # in all examples 999 was the first (0th) entry in the list of possible ones
@@ -431,8 +437,8 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
 
         # normalize pixel coordinates to physical positions even though the origin can still dangle somewhere
         if self.ebsd.grid_type != SQUARE_TILING:
-            print(
-                f"WARNING: Check carefully correct interpretation of scan_point coords!"
+            logger.warning(
+                "Check carefully correct interpretation of scan_point coords!"
             )
         # TODO::all other hfive parsers normalize scan_point_{dim} arrays into
         # tiled and repeated coordinate tuples and not like below

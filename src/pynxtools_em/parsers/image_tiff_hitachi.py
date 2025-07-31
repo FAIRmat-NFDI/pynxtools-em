@@ -31,6 +31,7 @@ from pynxtools_em.configurations.image_tiff_hitachi_cfg import (
     HITACHI_DYNAMIC_VARIOUS_NX,
     HITACHI_STATIC_VARIOUS_NX,
 )
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -63,10 +64,10 @@ class HitachiTiffParser:
             self.supported = False
             self.check_if_tiff_hitachi()
         else:
-            print(f"Parser {self.__class__.__name__} needs TIF and TXT file !")
+            logger.warning(f"Parser {self.__class__.__name__} needs TIF and TXT file !")
             self.supported = False
         if not self.supported:
-            print(
+            logger.debug(
                 f"Parser {self.__class__.__name__} finds no content in {file_paths} that it supports"
             )
 
@@ -80,7 +81,7 @@ class HitachiTiffParser:
                 if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                     return
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
         with open(self.txt_file_path, "r", encoding="utf8") as fp:
@@ -101,7 +102,9 @@ class HitachiTiffParser:
                 if not txt[idx].startswith(("[SemImageFile]", "[TemImageFile]")):
                     return
             else:
-                print(f"Parser {self.__class__.__name__} metadata section is empty !")
+                logger.warning(
+                    f"Parser {self.__class__.__name__} metadata section is empty !"
+                )
                 return
 
             self.flat_dict_meta = fd.FlatDict({}, "/")
@@ -120,7 +123,7 @@ class HitachiTiffParser:
 
             if self.verbose:
                 for key, value in self.flat_dict_meta.items():
-                    print(f"{key}______{type(value)}____{value}")
+                    logger.info(f"{key}______{type(value)}____{value}")
             self.supported = True
 
     def parse(self, template: dict) -> dict:
@@ -129,7 +132,7 @@ class HitachiTiffParser:
             # metadata have at this point already been collected into an fd.FlatDict
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} Hitachi with SHA256 {self.file_path_sha256} ..."
             )
             self.process_event_data_em_metadata(template)
@@ -139,14 +142,14 @@ class HitachiTiffParser:
     def process_event_data_em_data(self, template: dict) -> dict:
         """Add respective heavy data."""
         # default display of the image(s) representing the data collected in this event
-        print(
+        logger.debug(
             f"Writing Hitachi TIFF image data to the respective NeXus concept instances..."
         )
         identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
                 nparr = np.array(img)
-                print(
+                logger.debug(
                     f"Processing image {identifier_image} ... {type(nparr)}, {np.shape(nparr)}, {nparr.dtype}"
                 )
                 # eventually similar open discussions points as were raised for tiff_tfs parser
@@ -187,7 +190,7 @@ class HitachiTiffParser:
                         ).to(ureg.meter),
                     }
                 else:
-                    print("WARNING: Assuming pixel width and height unit is unitless!")
+                    logger.warning("Assuming pixel width and height unit is unitless!")
 
                 nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
                 # TODO::be careful we assume here a very specific coordinate system
@@ -214,7 +217,9 @@ class HitachiTiffParser:
 
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
-        print(f"Mapping some of the Hitachi metadata on respective NeXus concepts...")
+        logger.debug(
+            f"Mapping some of the Hitachi metadata on respective NeXus concepts..."
+        )
         # we assume for now dynamic quantities can just be repeated
         identifier = [self.entry_id, self.id_mgn["event_id"], 1]
         for cfg in [HITACHI_DYNAMIC_VARIOUS_NX, HITACHI_STATIC_VARIOUS_NX]:

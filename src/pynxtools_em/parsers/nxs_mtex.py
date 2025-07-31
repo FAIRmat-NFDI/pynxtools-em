@@ -40,6 +40,7 @@ import re
 import h5py
 import numpy as np
 
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 
 
@@ -111,11 +112,13 @@ class NxEmNxsMTexParser:
             self.supported = False
             self.check_if_mtex_hfive()
             if not self.supported:
-                print(
+                logger.debug(
                     f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
                 )
         else:
-            print(f"Parser {self.__class__.__name__} needs custom_eln_data.yaml file !")
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs custom_eln_data.yaml file !"
+            )
             self.supported = False
 
     def check_if_mtex_hfive(self):
@@ -130,7 +133,7 @@ class NxEmNxsMTexParser:
                 if magic != b"\x89HDF":
                     return
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
         # TODO add code which checks for available content
         # the file written out by MTex/Matlab this file is already preformatted for NeXus
@@ -141,7 +144,7 @@ class NxEmNxsMTexParser:
         if self.supported:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} MTex with SHA256 {self.file_path_sha256} ..."
             )
             # BUG in MTex script still sometimes () values written not as a scalar dataset
@@ -159,7 +162,7 @@ class NxEmNxsMTexParser:
     def parse_profiling(self, template: dict) -> dict:
         """Parse profiling data."""
         if self.verbose:
-            print("Parse profiling...")
+            logger.debug("Parse profiling...")
         with h5py.File(self.file_path, "r") as h5r:
             src = "/entry1/profiling"
             trg = f"/ENTRY[entry{self.entry_id}]/profiling/eventID[event_mtex]"
@@ -187,7 +190,7 @@ class NxEmNxsMTexParser:
     def parse_mtex_config(self, template: dict) -> dict:
         """Parse MTex content."""
         if self.verbose:
-            print("Parse MTex content...")
+            logger.debug("Parse MTex content...")
         with h5py.File(self.file_path, "r") as h5r:
             src_prfx = "/entry1/roi1/ebsd/indexing/mtex"
             trg_prfx = f"/ENTRY[entry{self.entry_id}]/roiID[roi1]/ebsd/indexing/MICROSTRUCTURE_MTEX_CONFIG[mtex]"
@@ -291,7 +294,7 @@ class NxEmNxsMTexParser:
     def parse_various(self, template: dict) -> dict:
         """Parse various quantities."""
         if self.verbose:
-            print("Parse various...")
+            logger.debug("Parse various...")
         with h5py.File(self.file_path, "r") as h5r:
             src = "/entry1/roi1/ebsd/indexing"
             trg = f"/ENTRY[entry{self.entry_id}]/roiID[roi1]/ebsd/indexing"
@@ -310,7 +313,7 @@ class NxEmNxsMTexParser:
     def parse_roi(self, template: dict) -> dict:
         """Parse data for the region-of-interest default plot."""
         if self.verbose:
-            print("Parse ROI default plot...")
+            logger.debug("Parse ROI default plot...")
         with h5py.File(self.file_path, "r") as h5r:
             src = "/entry1/roi1/ebsd/indexing/roi"
             trg = f"/ENTRY[entry{self.entry_id}]/roiID[roi1]/ebsd/indexing/roi"
@@ -351,7 +354,7 @@ class NxEmNxsMTexParser:
     def parse_phases(self, template: dict) -> dict:
         """Parse data for the phase-specific content."""
         if self.verbose:
-            print("Parse phases...")
+            logger.debug("Parse phases...")
         with h5py.File(self.file_path, "r") as h5r:
             src_prfx = "/entry1/roi1/ebsd/indexing"
             trg_prfx = f"/ENTRY[entry{self.entry_id}]/roiID[roi1]/ebsd/indexing/phaseID"
@@ -414,7 +417,7 @@ class NxEmNxsMTexParser:
     def parse_microstructure(self, template: dict) -> dict:
         """Parse microstructure geometry."""
         if self.verbose:
-            print("Parse microstructure geometry...")
+            logger.debug("Parse microstructure geometry...")
         with h5py.File(self.file_path, "r") as h5r:
             src_prfx = "/entry1/roi1/ebsd/indexing/microstructure1"
             trg_prfx = f"/ENTRY[entry{self.entry_id}]/roiID[roi1]/ebsd/indexing/microstructureID[microstructure1]"

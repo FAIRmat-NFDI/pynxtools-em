@@ -23,6 +23,8 @@ from typing import Dict
 from PIL import Image
 from PIL.TiffTags import TAGS
 
+from pynxtools_em.utils.custom_logging import logger
+
 
 class TiffParser:
     """Read Tagged Image File Format TIF/TIFF."""
@@ -75,12 +77,12 @@ class TiffParser:
                     return
                 self.supported = True
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
     def get_tags(self):
         """Extract tags if present."""
-        print("Reporting the tags found in this TIFF file...")
+        logger.debug("Reporting the tags found in this TIFF file...")
         # for an overview of tags
         # https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
         with Image.open(self.file_path, mode="r") as fp:
@@ -90,4 +92,4 @@ class TiffParser:
                     self.tags[TAGS[key]] = fp.tag_v2[key]
             if self.verbose:
                 for key, val in self.tags.items():
-                    print(f"{key}, {val}")
+                    logger.info(f"{key}, {val}")

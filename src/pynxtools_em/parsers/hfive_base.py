@@ -31,6 +31,7 @@ from pynxtools_em.concepts.hfive_concepts import (
     IS_REGULAR_DATASET,
     Concept,
 )
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import get_sha256_of_bytes_object
 
 # the base parser implements the processing of standardized orientation maps via
@@ -427,19 +428,19 @@ class HdfFiveBaseParser:
             yaml.dump(hashes, fp, default_flow_style=False, sort_keys=True)
 
     def report_groups(self):
-        print(f"{self.file_path} contains the following groups:")
+        logger.info(f"{self.file_path} contains the following groups:")
         for key, ifo in self.groups.items():
-            print(f"{key}, {ifo}")
+            logger.info(f"{key}, {ifo}")
 
     def report_datasets(self):
-        print(f"{self.file_path} contains the following datasets:")
+        logger.info(f"{self.file_path} contains the following datasets:")
         for key, ifo in self.datasets.items():
-            print(f"{key}, {ifo}")
+            logger.info(f"{key}, {ifo}")
 
     def report_attributes(self):
-        print(f"{self.file_path} contains the following attributes:")
+        logger.info(f"{self.file_path} contains the following attributes:")
         for key, ifo in self.attributes.items():
-            print(f"{key}, {ifo}")
+            logger.info(f"{key}, {ifo}")
 
     def report_content(self):
         self.report_groups()
@@ -453,7 +454,7 @@ class HdfFiveBaseParser:
         store_templates=False,
     ):
         if store_instances is True:
-            print(
+            logger.info(
                 f"Storing analysis results in "
                 f"{self.file_path[self.file_path.rfind('/') + 1 :]}."
                 f"EbsdHdfFileInstanceNames.txt..."
@@ -466,7 +467,7 @@ class HdfFiveBaseParser:
                     )
 
         if store_instances_templatized is True:
-            print(
+            logger.info(
                 f"Storing analysis results in "
                 f"{self.file_path[self.file_path.rfind('/') + 1 :]}"
                 f".EbsdHdfFileInstanceNamesTemplatized.txt..."
@@ -478,7 +479,7 @@ class HdfFiveBaseParser:
                     txt.write(f"{instance_name}, hdf: {concept.hdf}\n")
 
         if store_templates is True:
-            print(
+            logger.info(
                 f"Storing analysis results in "
                 f"{self.file_path[self.file_path.rfind('/') + 1 :]}"
                 f".EbsdHdfFileTemplateNames.txt..."
