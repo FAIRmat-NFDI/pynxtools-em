@@ -22,6 +22,7 @@ from typing import Any, Dict, List, Set
 import numpy as np
 from ase.data import chemical_symbols
 
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 
@@ -63,9 +64,9 @@ def microstructure_to_template(
             else:
                 disjoint = False
     if not disjoint:
-        print(f"At least one crystal identifier is not disjoint !")
+        logger.warning(f"At least one crystal identifier is not disjoint !")
         return template
-    print(elements)
+    logger.debug(elements)
 
     # ms.crystal is a contigous array of crystal class instances, ut their ids might not be contiguous
     # in Vitesh's example the "crystals" are of a second-phase in order to characterize
@@ -77,7 +78,7 @@ def microstructure_to_template(
     for idx, cryst in enumerate(ms.crystal):
         if "area" in cryst.props and "composition" in cryst.props:
             is_consistent[idx] = True
-    print(
+    logger.info(
         f"{len(ms.crystal)} crystals in total, {np.sum(is_consistent)} of these values for all desired descriptors."
     )
 
@@ -115,7 +116,7 @@ def microstructure_to_template(
             np.sum(np.isnan(ctable[symbol]["value"])) > 0
             or np.sum(np.isnan(ctable[symbol]["sigma"])) > 0
         ):
-            print(
+            logger.warning(
                 f"Element {symbol} not reported because some descriptor values NaN for some crystals!"
             )
             continue

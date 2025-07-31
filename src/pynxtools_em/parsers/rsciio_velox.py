@@ -37,6 +37,7 @@ from pynxtools_em.configurations.rsciio_velox_cfg import (
     VELOX_WHICH_SPECTRUM,
 )
 from pynxtools_em.methods.ebsd import has_hfive_magic_header
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -53,33 +54,36 @@ class RsciioVeloxParser:
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if file_path:
             self.file_path = file_path
-        self.entry_id = entry_id if entry_id > 0 else 1
-        self.verbose = verbose
-        # for id_mgn check pynxtools-em v0.2 of this velox reader
-        self.id_mgn: Dict = {
-            "event_id": 1,
-            "event_img": 1,
-            "event_spc": 1,
-            "roi": 1,
-            "eds_img": 1,
-        }
-        self.version: Dict = {
-            "trg": {
-                "Core/MetadataDefinitionVersion": ["7.9"],
-                "Core/MetadataSchemaVersion": ["v1/2013/07"],
-            },
-            "src": {
-                "Core/MetadataDefinitionVersion": None,
-                "Core/MetadataSchemaVersion": None,
-            },
-        }
-        self.obj_idx_supported: List = []
-        self.supported = False
-        self.check_if_supported()
-        if not self.supported:
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
-            )
+            self.entry_id = entry_id if entry_id > 0 else 1
+            self.verbose = verbose
+            # for id_mgn check pynxtools-em v0.2 of this velox reader
+            self.id_mgn: Dict = {
+                "event_id": 1,
+                "event_img": 1,
+                "event_spc": 1,
+                "roi": 1,
+                "eds_img": 1,
+            }
+            self.version: Dict = {
+                "trg": {
+                    "Core/MetadataDefinitionVersion": ["7.9"],
+                    "Core/MetadataSchemaVersion": ["v1/2013/07"],
+                },
+                "src": {
+                    "Core/MetadataDefinitionVersion": None,
+                    "Core/MetadataSchemaVersion": None,
+                },
+            }
+            self.obj_idx_supported: List = []
+            self.supported = False
+            self.check_if_supported()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                )
+        else:
+            logger.warning(f"Parser {self.__class__.__name__} needs Velox EMD file !")
+            self.supported = False
 
     def check_if_supported(self):
         self.supported = False
@@ -99,7 +103,9 @@ class RsciioVeloxParser:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
 
-            print(f"Parsing {self.file_path} with SHA256 {self.file_path_sha256} ...")
+            logger.info(
+                f"Parsing {self.file_path} with SHA256 {self.file_path_sha256} ..."
+            )
 
             reqs = ["data", "axes", "metadata", "original_metadata", "mapping"]
             for idx, obj in enumerate(self.objs):
@@ -123,13 +129,13 @@ class RsciioVeloxParser:
                         continue
                 self.obj_idx_supported.append(idx)
                 if self.verbose:
-                    print(f"{idx}-th obj is supported")
+                    logger.debug(f"{idx}-th obj is supported")
             if (
                 len(self.obj_idx_supported) > 0
             ):  # there is at least some supported content
                 self.supported = True
         except (FileNotFoundError, IOError, ValueError):
-            print(f"{self.file_path} FileNotFound, IOError, or ValueError !")
+            logger.warning(f"{self.file_path} FileNotFound, IOError, or ValueError !")
             return
 
     def parse(self, template: dict) -> dict:
@@ -137,7 +143,7 @@ class RsciioVeloxParser:
         if self.supported:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} Velox with SHA256 {self.file_path_sha256} ..."
             )
             self.parse_content(template)
@@ -153,7 +159,7 @@ class RsciioVeloxParser:
                 continue
             self.process_event_data_em_data(obj, template)
             if self.verbose:
-                print(f"obj{idx}, dims {obj['axes']}")
+                logger.debug(f"obj{idx}, dims {obj['axes']}")
         return template
 
     def process_event_data_em_metadata(self, obj: dict, template: dict) -> dict:
@@ -164,10 +170,10 @@ class RsciioVeloxParser:
             flat_orig_meta[keyword] = string_to_number(value)
         if self.verbose:
             for keyword, value in flat_orig_meta.items():
-                print(f"{keyword}____{type(value)}____{value}")
+                logger.info(f"{keyword}____{type(value)}____{value}")
 
         if (len(identifier) != 3) or (not all(isinstance(x, int) for x in identifier)):
-            print(f"Argument identifier {identifier} needs three int values!")
+            logger.warning(f"Argument identifier {identifier} needs three int values!")
         trg = f"/ENTRY[entry{identifier[0]}]/measurement/eventID[event{identifier[1]}]/instrument/ebeam_column"
         # using an own function like add_dynamic_lens_metadata may be needed
         # if specific NeXus group have some extra formatting
@@ -282,9 +288,11 @@ class RsciioVeloxParser:
         if unit_combination == "":
             return template
         if self.verbose:
-            print(axes)
-            print(f"{unit_combination}, {np.shape(obj['data'])}")
-            print(f"entry_id {self.entry_id}, event_id {self.id_mgn['event_id']}")
+            logger.debug(axes)
+            logger.debug(f"{unit_combination}, {np.shape(obj['data'])}")
+            logger.debug(
+                f"entry_id {self.entry_id}, event_id {self.id_mgn['event_id']}"
+            )
 
         prfx = f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event{self.id_mgn['event_id']}]"
         # this is the place when you want to skip individually the writing of NXdata

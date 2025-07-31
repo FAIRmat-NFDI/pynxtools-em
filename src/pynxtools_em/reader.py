@@ -56,6 +56,7 @@ from pynxtools_em.parsers.oasis_config import NxEmNomadOasisConfigParser
 from pynxtools_em.parsers.oasis_eln import NxEmNomadOasisElnSchemaParser
 from pynxtools_em.parsers.rsciio_gatan import RsciioGatanParser
 from pynxtools_em.parsers.rsciio_velox import RsciioVeloxParser
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.io_case_logic import EmUseCaseSelector
 from pynxtools_em.utils.nx_atom_types import NxEmAtomTypesResolver
 
@@ -80,7 +81,7 @@ class EMReader(BaseReader):
     ) -> dict:
         """Read data from given file, return filled template dictionary em."""
         # pylint: disable=duplicate-code
-        print(os.getcwd())
+        logger.info(os.getcwd())
         tic = perf_counter_ns()
         template.clear()
 
@@ -92,21 +93,23 @@ class EMReader(BaseReader):
         # functionalities for creating NeXus default plots
 
         entry_id = 1
-        print(
+        logger.debug(
             "Identify information sources (RDM config, ELN, tech-partner files) to deal with..."
         )
         case = EmUseCaseSelector(file_paths)
         if not case.is_valid:
-            print("Such a combination of input-file(s, if any) is not supported !")
+            logger.warning(
+                "Such a combination of input-file(s, if any) is not supported !"
+            )
             return {}
 
         if len(case.cfg) == 1:  # optional deployment-specific configurations
-            print("Parse (meta)data coming from a custom NOMAD OASIS RDM...")
+            logger.debug("Parse (meta)data coming from a custom NOMAD OASIS RDM...")
             nx_em_cfg = NxEmNomadOasisConfigParser(case.cfg[0], entry_id)
             nx_em_cfg.parse(template)
 
         if len(case.eln) == 1:
-            print("Parse (meta)data coming from a NOMAD OASIS ELN...")
+            logger.debug("Parse (meta)data coming from a NOMAD OASIS ELN...")
             nx_em_eln = NxEmNomadOasisElnSchemaParser(case.eln[0], entry_id)
             nx_em_eln.parse(template)
 
@@ -114,7 +117,7 @@ class EMReader(BaseReader):
         # do not have a header line that identifies them as a specific parser
         # TODO make even better connected to NOMAD
         if len(case.cst) == 1:
-            print("Parse (meta)data coming from a customized ELN...")
+            logger.debug("Parse (meta)data coming from a customized ELN...")
             custom_eln_parser_types: List[Tuple[str, type]] = [
                 ("ger_berlin_koch_group", NxEmCustomElnGerBerlinKoch),
                 ("ger_berlin_ebsd_database", NxEmCustomElnEbsdDatabase),
@@ -125,11 +128,13 @@ class EMReader(BaseReader):
                     custom_parser = parser_type(case.cst[0]["file"], entry_id)
                     custom_parser.parse(template)
 
-        print("Parse NeXus appdef-specific content...")
+        logger.debug("Parse NeXus appdef-specific content...")
         nxs = NxEmAppDef(entry_id)
         nxs.parse(template)
 
-        print("Parse and map pieces of information within files from tech partners...")
+        logger.debug(
+            "Parse and map pieces of information within files from tech partners..."
+        )
         # there are parsers with no, opt(ional), or req(uired) sidecar file
         if len(case.dat) == 1:
             parsers_no_sidecar_file: List[type] = [
@@ -175,12 +180,13 @@ class EMReader(BaseReader):
 
         debugging = False
         if debugging:
-            print("Reporting state of template before passing to HDF5 writing...")
+            logger.debug(
+                "Reporting state of template before passing to HDF5 writing..."
+            )
             for keyword, value in sorted(template.items()):
-                # if keyword.endswith("dynamic_focus_correction"):
-                print(f"{keyword}____{type(value)}____{value}")
+                logger.debug(f"{keyword}____{type(value)}____{value}")
 
-        print("Forward instantiated template to the NXS writer...")
+        logger.debug("Forward instantiated template to the NXS writer...")
         toc = perf_counter_ns()
         trg = f"/ENTRY[entry{entry_id}]/profiling/template_filling_elapsed_time"
         template[f"{trg}"] = np.float64((toc - tic) / 1.0e9)

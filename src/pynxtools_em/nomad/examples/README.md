@@ -1,6 +1,11 @@
 # Tutorial for parsing data from electron microscopy
 
+This example presents the capabilities of the NOMAD platform to store and standardize electron microscopy data. It shows the generation of a NeXus file according to the [NXem](https://fairmat-nfdi.github.io/nexus_definitions/classes/applications/NXem.html#nxem) application definition and a successive analysis of an example data set.
+
 ## Scope
+
+
+
 This example shows how a set of preconfigured components of NOMAD can be used
 to concatenate data and metadata from an electronic lab notebook with a
 reconstructed and ranged atom probe dataset to obtain a atom-probe-domain-specific

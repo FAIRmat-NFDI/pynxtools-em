@@ -19,6 +19,8 @@
 
 from typing import Dict
 
+from pynxtools_em.utils.custom_logging import logger
+
 IS_GROUP = 0
 IS_REGULAR_DATASET = 1
 IS_COMPOUND_DATASET = 2
@@ -31,7 +33,6 @@ VERSION_MANAGEMENT: Dict = {
     "writer_name": [],
     "writer_version": [],
 }
-0
 
 
 class Concept:
@@ -95,7 +96,7 @@ class Concept:
     def report(self):
         members = vars(self)
         for key, val in members.items():
-            print(f"{key}, type: {type(val)}, value: {val}")
+            logger.info(f"{key}, type: {type(val)}, value: {val}")
 
 
 # test = Concept("1/@Test", "*/@Test", 1, type(1), np.shape(1),

@@ -30,6 +30,7 @@ from orix.vector import Vector3d
 from PIL import Image as pil
 from scipy.spatial import KDTree
 
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.hfive_web import (
     HFIVE_WEB_MAXIMUM_RGB,
     HFIVE_WEB_MAXIMUM_ROI,
@@ -111,7 +112,7 @@ def has_hfive_magic_header(file_path: str) -> bool:
             if magic == b"\x89HDF":
                 return True
     except (FileNotFoundError, IOError):
-        print(f"{file_path} either FileNotFound or IOError !")
+        logger.warning(f"{file_path} either FileNotFound or IOError !")
     return False
 
 
@@ -121,7 +122,7 @@ def regrid_onto_equisized_scan_points(
     """Discretize point cloud in R^d (d=1, 2, 3) and mark data to grid with equisized bins."""
 
     if src_grid.dimensionality not in [1, 2]:
-        print(f"Facing unsupported dimensionality !")
+        logger.warning(f"Facing unsupported dimensionality !")
         return src_grid
     # take discretization of the source grid as a guide for the target_grid
     # optimization possible if square grid and matching maximum_extent
@@ -154,7 +155,7 @@ def regrid_onto_equisized_scan_points(
                 src_grid.pos[f"{dim}"].magnitude + 0.5 * src_grid.s[f"{dim}"].magnitude
             ),
         ]
-    print(f"{aabb}")
+    logger.debug(f"{aabb}")
 
     trg_s = {}
     trg_n = {}
@@ -179,12 +180,12 @@ def regrid_onto_equisized_scan_points(
             trg_n["y"] = max_extent
             n_pts = trg_n["x"] * trg_n["y"]
     elif src_grid.dimensionality == 3:
-        print("TODO !!!!")
+        logger.warning("TODO LEFT FOR IMPLEMENTATION !!!!")
 
-    print(f"H5Web default plot generation")
+    logger.debug(f"H5Web default plot generation")
     for dim in dims:
-        print(f"src_s {dim}: {src_grid.s[dim]} >>>> trg_s {dim}: {trg_s[dim]}")
-        print(f"src_n {dim}: {src_grid.n[dim]} >>>> trg_n {dim}: {trg_n[dim]}")
+        logger.debug(f"src_s {dim}: {src_grid.s[dim]} >>>> trg_s {dim}: {trg_s[dim]}")
+        logger.debug(f"src_n {dim}: {src_grid.n[dim]} >>>> trg_n {dim}: {trg_n[dim]}")
     # the above estimate is not exactly correct (may create a slight real space shift)
     # of the EBSD map TODO:: regrid the real world axis-aligned bounding box aabb with
     # a regular tiling of squares or hexagons
@@ -379,10 +380,10 @@ def ebsd_roi_phase_ipf(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dic
     for dim in dims:
         n_pts *= inp.n[dim]
     if n_pts == 1:
-        print(f"Spot measurements are currently not supported !")
+        logger.warning(f"Spot measurements are currently not supported !")
         return template
     if n_pts >= np.iinfo(np.uint32).max:
-        print(
+        logger.warning(
             f"EBSD maps with more than {np.iinfo(np.uint32).max} scan points are currently not supported !"
         )
         return template
@@ -392,7 +393,7 @@ def ebsd_roi_phase_ipf(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dic
     )
 
     n_pts_indexed = np.sum(inp.phase_id != 0)
-    print(f"n_pts {n_pts}, n_pts_indexed {n_pts_indexed}")
+    logger.debug(f"n_pts {n_pts}, n_pts_indexed {n_pts_indexed}")
     template[f"{prfx}/number_of_scan_points"] = np.uint32(n_pts)
     template[f"{prfx}/indexing_rate"] = np.float64(n_pts_indexed / n_pts)
     grp_name = f"{prfx}/phaseID[phase{nxem_phase_id}]"
@@ -400,12 +401,12 @@ def ebsd_roi_phase_ipf(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dic
     template[f"{grp_name}/phase_id"] = np.int32(nxem_phase_id)
     template[f"{grp_name}/name"] = f"notIndexed"
 
-    print(f"----unique inp phase_id--->{np.unique(inp.phase_id)}")
+    logger.debug(f"----unique inp phase_id--->{np.unique(inp.phase_id)}")
     for nxem_phase_id in np.arange(1, np.max(np.unique(inp.phase_id)) + 1):
         # starting here at ID 1 because the specific parsers have already normalized the
         # tech-partner specific phase_id conventions to follow the NXem NeXus convention
         # that is 0 is notIndexed, all other phase contiguously, start count from 1
-        print(f"inp[phases].keys(): {inp.phases.keys()}")
+        logger.debug(f"inp[phases].keys(): {inp.phases.keys()}")
         if nxem_phase_id not in inp.phases:
             raise KeyError(f"{nxem_phase_id} is not a key in inp['phases'] !")
         trg = f"{prfx}/phaseID[phase{nxem_phase_id}]"
@@ -476,7 +477,7 @@ def process_roi_phase_ipf(
         direction="lab2crystal",
         degrees=False,
     )
-    # print(f"shape rotations -----> {np.shape(rotations)}")
+    # logger.debug(f"shape rotations -----> {np.shape(rotations)}")
 
     for idx in np.arange(0, len(PROJECTION_VECTORS)):
         point_group = get_point_group(space_group, proper=False)
@@ -489,7 +490,7 @@ def process_roi_phase_ipf(
             np.asarray(ipf_key.orientation2color(rotations) * 255.0, np.uint32),
             np.uint8,
         )
-        # print(f"shape rgb_px_with_phase_id -----> {np.shape(rgb_px_with_phase_id)}")
+        # logger.debug(f"shape rgb_px_with_phase_id -----> {np.shape(rgb_px_with_phase_id)}")
 
         ipf_rgb_map = np.zeros((n_pts, 3), np.uint8)
         # background is black instead of white (which would be more pleasing)

@@ -31,6 +31,7 @@ from pynxtools_em.configurations.rsciio_gatan_cfg import (
     GATAN_WHICH_IMAGE,
     GATAN_WHICH_SPECTRUM,
 )
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.gatan_utils import gatan_image_spectrum_or_generic_nxdata
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
@@ -46,16 +47,21 @@ class RsciioGatanParser:
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if file_path:
             self.file_path = file_path
-        self.entry_id = entry_id if entry_id > 0 else 1
-        self.verbose = verbose
-        self.id_mgn: Dict[str, int] = {"event_id": 1}
-        self.version: Dict = {}
-        self.supported = False
-        self.check_if_supported()
-        if not self.supported:
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+            self.entry_id = entry_id if entry_id > 0 else 1
+            self.verbose = verbose
+            self.id_mgn: Dict[str, int] = {"event_id": 1}
+            self.version: Dict = {}
+            self.supported = False
+            self.check_if_supported()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                )
+        else:
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs Gatan DM(3,4,5) file !"
             )
+            self.supported = False
 
     def check_if_supported(self):
         self.supported = False
@@ -79,11 +85,11 @@ class RsciioGatanParser:
                 # TODO::add version distinction logic from rsciio_velox
                 obj_idx_supported.append(idx)
                 if self.verbose:
-                    print(f"{idx}-th obj is supported")
+                    logger.debug(f"{idx}-th obj is supported")
             if len(obj_idx_supported) > 0:  # at least some supported content
                 self.supported = True
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
     def parse(self, template: dict) -> dict:
@@ -91,7 +97,7 @@ class RsciioGatanParser:
         if self.supported:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} Gatan with SHA256 {self.file_path_sha256} ..."
             )
             self.parse_content(template)
@@ -107,12 +113,12 @@ class RsciioGatanParser:
                 continue
             if self.verbose:
                 for keyword, value in obj["original_metadata"].items():
-                    print(f"{keyword}____{type(value)}____{value}")
+                    logger.info(f"{keyword}____{type(value)}____{value}")
             self.process_event_data_em_metadata(obj, template)
             self.process_event_data_em_data(obj, template)
             self.id_mgn["event_id"] += 1
             if self.verbose:
-                print(f"obj{idx}, dims {obj['axes']}")
+                logger.debug(f"obj{idx}, dims {obj['axes']}")
         return template
 
     def process_event_data_em_metadata(self, obj: dict, template: dict) -> dict:
@@ -158,9 +164,11 @@ class RsciioGatanParser:
         if unit_combination == "":
             return template
         if self.verbose:
-            print(axes)
-            print(f"{unit_combination}, {np.shape(obj['data'])}")
-            print(f"entry_id {self.entry_id}, event_id {self.id_mgn['event_id']}")
+            logger.debug(axes)
+            logger.debug(f"{unit_combination}, {np.shape(obj['data'])}")
+            logger.debug(
+                f"entry_id {self.entry_id}, event_id {self.id_mgn['event_id']}"
+            )
 
         prfx = f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event{self.id_mgn['event_id']}]"
         self.id_mgn["event_id"] += 1

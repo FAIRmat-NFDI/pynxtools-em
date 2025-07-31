@@ -19,6 +19,8 @@
 
 import uuid
 
+from pynxtools_em.utils.custom_logging import logger
+
 # see https://github.com/nion-software/nionswift/blob/e95839c5602d009006ea88a648e5f78dc77c1ea4/
 # nion/swift/model/Profile.py line 146 and following
 
@@ -50,9 +52,11 @@ def nion_image_spectrum_or_generic_nxdata(list_of_dict) -> str:
                     else:
                         token.append(obj["units"])
                 else:
-                    print(f"{obj.keys()} are not exactly the expected keywords!")
+                    logger.warning(
+                        f"{obj.keys()} are not exactly the expected keywords!"
+                    )
             else:
-                print(f"{obj} is not a dict!")
+                logger.warning(f"{obj} is not a dict!")
         if len(token) >= 1:
             return "_".join(token)
     return ""

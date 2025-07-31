@@ -27,6 +27,7 @@ from pynxtools_em.examples.ebsd_database_eln_cfg import (
     EBSD_DATABASE_CITATION_TO_NEXUS,
     EBSD_DATABASE_SPECIMEN_TO_NEXUS,
 )
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 
 
@@ -44,11 +45,13 @@ class NxEmCustomElnEbsdDatabase:
             self.supported = False
             self.check_if_supported()
             if not self.supported:
-                print(
+                logger.debug(
                     f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
                 )
         else:
-            print(f"Parser {self.__class__.__name__} needs custom_eln_data.yaml file !")
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs custom_eln_data.yaml file !"
+            )
             self.supported = False
 
     def check_if_supported(self):
@@ -58,10 +61,10 @@ class NxEmCustomElnEbsdDatabase:
                 self.flat_metadata = fd.FlatDict(yaml.safe_load(stream), "/")
                 if self.verbose:
                     for key, val in self.flat_metadata.items():
-                        print(f"key: {key}, val: {val}")
+                        logger.info(f"key: {key}, val: {val}")
                 self.supported = True
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
     def parse(self, template: dict) -> dict:
@@ -69,7 +72,7 @@ class NxEmCustomElnEbsdDatabase:
         if self.supported:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} NOMAD Oasis/config with SHA256 {self.file_path_sha256} ..."
             )
             self.parse_metadata(template)

@@ -21,6 +21,7 @@ from typing import Dict, List
 
 from rsciio import bruker
 
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -33,16 +34,19 @@ class RsciioBrukerParser:
     def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
         if file_path:
             self.file_path = file_path
-        self.entry_id = entry_id if entry_id > 0 else 1
-        self.verbose = verbose
-        self.objs: List = []
-        self.version: Dict = {}
-        self.supported = False
-        self.check_if_supported()
-        if not self.supported:
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
-            )
+            self.entry_id = entry_id if entry_id > 0 else 1
+            self.verbose = verbose
+            self.objs: List = []
+            self.version: Dict = {}
+            self.supported = False
+            self.check_if_supported()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                )
+        else:
+            logger.warning(f"Parser {self.__class__.__name__} needs Bruker HDF5 file !")
+            self.supported = False
 
     def check_if_supported(self):
         """Check if provided content matches Bruker concepts."""
@@ -56,7 +60,7 @@ class RsciioBrukerParser:
             # in the template and stream out accordingly
             self.supported = True
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
     def parse(self, template: dict) -> dict:
@@ -64,7 +68,7 @@ class RsciioBrukerParser:
         if self.supported:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} Bruker with SHA256 {self.file_path_sha256} ..."
             )
             self.normalize_eds_content(template)

@@ -15,12 +15,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Utility class to analyze which vendor/community files are passed to apm reader."""
+"""Utility class to analyze which vendor/community files are passed to em reader."""
 
 from typing import Dict, List, Tuple
 
 import flatdict as fd
 import yaml
+
+from pynxtools_em.utils.custom_logging import logger
 
 VALID_FILE_NAME_SUFFIX_CONFIG = [".yaml", ".yml"]
 VALID_FILE_NAME_SUFFIX_DATA = [
@@ -67,7 +69,9 @@ class EmUseCaseSelector:
         self.supported_file_name_suffixes = (
             VALID_FILE_NAME_SUFFIX_CONFIG + VALID_FILE_NAME_SUFFIX_DATA
         )
-        print(f"Supported file format suffixes: {self.supported_file_name_suffixes}")
+        logger.debug(
+            f"Supported file format suffixes: {self.supported_file_name_suffixes}"
+        )
         self.sort_files_by_file_name_suffix(file_paths)
         self.check_validity_of_file_combinations()
 
@@ -121,7 +125,7 @@ class EmUseCaseSelector:
                             self.cst += [
                                 {"parser": flat_metadata["parser"], "file": entry}
                             ]
-            print(
+            logger.info(
                 f"Oasis local config: {self.cfg}\n"
                 f"Oasis ELN: {self.eln}\n"
                 f"Custom ELN: {self.cst}\n"

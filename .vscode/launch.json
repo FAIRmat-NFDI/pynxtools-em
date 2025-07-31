@@ -9,13 +9,13 @@
             "type": "python", //"debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "../../.py3.12.3/bin/dataconverter",
+            "program": "../../.py/bin/dataconverter",  //../../.py3.12.3/bin/dataconverter",
             "args": [//"tests/data/custom_reference_frame/output.custom_eln_data.yaml",
-                     //"tests/data/default/em.oasis.specific.yaml",
-                     //"tests/data/default/InGaN_nanowires_spectra.edaxh5",
-                     //"tests/data/default/output.nxs_eln_data.yaml",
+                     "tests/data/default/em.oasis.specific.yaml",
+                     "tests/data/default/InGaN_nanowires_spectra.edaxh5",
+                     "tests/data/default/output.nxs_eln_data.yaml",
                      //"tests/data/ebsd_mtex/output.custom_eln_data.yaml",
-                     "tests/data/ebsd_mtex/032.39c6e5a5083b0eef64e2fd93aaa155ea5fa00650eaf715f167a38cfcc5e6cf67.ctf.mtex.h5",
+                     //"tests/data/ebsd_mtex/032.39c6e5a5083b0eef64e2fd93aaa155ea5fa00650eaf715f167a38cfcc5e6cf67.ctf.mtex.h5",
                      //"tests/data/ebsd_oina/093.98c4ce3a524cadfe060485ec8206143ac02ff112c92bccd2d19df7f331f00a4b.h5oina.nxs",
                      //"tests/data/ger_berlin_koch_group/output.custom_eln_data.yaml",
                      //"tests/data/hfive_apex_algao/AlGaO.h5",
@@ -63,8 +63,8 @@
                      "--nxdl",
                      "NXem",
                      //"--output=tests/prod/custom_reference_frame/output.nxs"]
-                     //"--output=tests/prod/default/output.nxs"]
-                     "--output=tests/prod/ebsd_mtex/output.nxs"]
+                     "--output=tests/prod/default/output.nxs"]
+                     //"--output=tests/prod/ebsd_mtex/output.nxs"]
                      //"--output=tests/prod/ebsd_oina/output.nxs"]
                      //"--output=tests/prod/ger_berlin_koch_group/output.nxs"]
                      //"--output=tests/prod/hfive_apex_algao/output.nxs"]

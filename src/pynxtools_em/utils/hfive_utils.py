@@ -21,6 +21,7 @@ from itertools import groupby
 from typing import Dict
 
 import numpy as np
+
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 EBSD_MAP_SPACEGROUP = {
@@ -68,9 +69,6 @@ def apply_euler_space_symmetry(triplet_set):
 
 
 def read_strings(obj):
-    # print(f"type {type(obj)}, np.shape {np.shape(obj)}, obj {obj}")
-    # if hasattr(obj, "dtype"):
-    #     print(obj.dtype)
     if isinstance(obj, np.ndarray):
         retval = []
         for entry in obj:

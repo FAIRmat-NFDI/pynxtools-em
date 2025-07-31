@@ -33,6 +33,7 @@ from pynxtools_em.configurations.conventions_cfg import (
 )
 from pynxtools_em.geometries.handed_cartesian import is_cartesian_cs_well_defined
 from pynxtools_em.geometries.msmse_convention import is_consistent_with_msmse_convention
+from pynxtools_em.utils.custom_logging import logger
 
 
 class NxEmCustomElnCustomReferenceFrame:
@@ -40,7 +41,7 @@ class NxEmCustomElnCustomReferenceFrame:
 
     def __init__(self, file_path: str, entry_id: int = 1, verbose: bool = True):
         """Fill template with ELN pieces of information."""
-        print(f"Extracting conventions from {file_path} ...")
+        logger.debug(f"Extracting conventions from {file_path} ...")
         if pathlib.Path(file_path).name.endswith(
             ("custom_eln_data.yaml", "custom_eln_data.yml")
         ):
@@ -50,11 +51,13 @@ class NxEmCustomElnCustomReferenceFrame:
             self.supported = False
             self.check_if_supported()
             if not self.supported:
-                print(
+                logger.debug(
                     f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
                 )
         else:
-            print(f"Parser {self.__class__.__name__} needs custom_eln_data.yaml file !")
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs custom_eln_data.yaml file !"
+            )
             self.supported = False
 
     def check_if_supported(self):
@@ -64,14 +67,14 @@ class NxEmCustomElnCustomReferenceFrame:
                 self.supported = True
                 if self.verbose:
                     for key, val in self.flat_metadata.items():
-                        print(f"key: {key}, value: {val}")
+                        logger.info(f"key: {key}, value: {val}")
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
     def parse(self, template) -> dict:
         """Extract metadata from generic ELN text file to respective NeXus objects."""
-        print("Parsing conventions...")
+        logger.debug("Parsing conventions...")
         identifier = [self.entry_id, 1]
         for cfg in [
             CONV_ROTATIONS_TO_NEXUS,
@@ -96,7 +99,7 @@ class NxEmCustomElnCustomReferenceFrame:
             if f"{prfx}/{key}" in template.undocumented:
                 cvn_used[key] = template.undocumented[f"{prfx}/{key}"]
         if is_consistent_with_msmse_convention(cvn_used) == "inconsistent":
-            print("WARNING::Convention set is different from community suggestion!")
+            logger.warning("Convention set is different from community suggestion!")
 
         # assess if made conventions are consistent
         for csys_name in ["processing", "sample"]:
@@ -112,7 +115,7 @@ class NxEmCustomElnCustomReferenceFrame:
                     ]
                 )
             if not is_cartesian_cs_well_defined(handedness, directions):
-                print(f"{csys_name}_reference_frame is not well defined!")
+                logger.warning(f"{csys_name}_reference_frame is not well defined!")
 
         # could add tests for gnomonic and pattern_centre as well
         return template
