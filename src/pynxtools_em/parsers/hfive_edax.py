@@ -339,7 +339,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
             )
             if self.ebsd.grid_type != SQUARE_TILING:
                 logger.warning(
-                    f"WARNING: Check carefully correct interpretation of scan_point coords!"
+                    f"Check carefully correct interpretation of scan_point coords!"
                 )
             for dim in ["X", "Y"]:
                 self.ebsd.pos[dim.lower()] = ureg.Quantity(
@@ -352,7 +352,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
             )
             if self.ebsd.grid_type != SQUARE_TILING:
                 logger.warning(
-                    f"WARNING: Check carefully correct interpretation of scan_point coords!"
+                    f"Check carefully correct interpretation of scan_point coords!"
                 )
             for dim in ["X", "Y"]:
                 self.ebsd.pos[dim.lower()] = ureg.Quantity(

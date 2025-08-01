@@ -109,7 +109,7 @@ class JeolTiffParser:
                     else:
                         logger.warning(f"Found duplicated key {tmp[0]} !")
                 else:
-                    logger.warning(f"WARNING::{line} is currently ignored !")
+                    logger.warning(f"{line} is currently ignored !")
 
             if self.verbose:
                 for key, value in self.flat_dict_meta.items():
@@ -145,7 +145,7 @@ class JeolTiffParser:
         identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
-                nparr = np.array(img)
+                nparr = np.flipud(np.array(img))
                 logger.debug(
                     f"Processing image {identifier_image} ... {type(nparr)}, {np.shape(nparr)}, {nparr.dtype}"
                 )
@@ -167,7 +167,7 @@ class JeolTiffParser:
                 for dim in dims[::-1]:
                     template[f"{trg}/@axes"].append(f"axis_{dim}")
                 template[f"{trg}/real"] = {
-                    "compress": np.array(fp),
+                    "compress": nparr,
                     "strength": 1,
                 }
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
@@ -194,7 +194,7 @@ class JeolTiffParser:
                     }
                 else:
                     logger.warning("Assuming pixel width and height unit is unitless!")
-                nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
+                nxy = {"i": np.shape(nparr)[1], "j": np.shape(nparr)[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # however, these assumptions need to be confirmed by point electronic
                 # additional points as discussed already in comments to TFS TIFF reader
@@ -215,6 +215,7 @@ class JeolTiffParser:
                             f"{sxy[dim].units}"
                         )
                 identifier_image += 1
+                del nparr
         return template
 
     def add_various_dynamic(self, template: dict) -> dict:

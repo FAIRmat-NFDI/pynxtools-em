@@ -252,7 +252,7 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
         elif np.isscalar(src_val):
             template[f"{trg}"] = map_to_dtype(trg_dtype, src_val)
             logger.warning(
-                f"WARNING::Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
+                f"Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
             )
         else:
             raise TypeError(

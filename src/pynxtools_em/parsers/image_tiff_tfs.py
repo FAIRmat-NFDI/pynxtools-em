@@ -187,7 +187,7 @@ class TfsTiffParser:
         identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
-                nparr = np.array(img)
+                nparr = np.flipud(np.array(img))
                 # logger.debug(f"type: {type(nparr)}, dtype: {nparr.dtype}, shape: {np.shape(nparr)}")
                 # TODO::discussion points
                 # - how do you know we have an image of real space vs. imaginary space (from the metadata?)
@@ -212,7 +212,7 @@ class TfsTiffParser:
                 template[f"{trg}/@axes"] = []
                 for dim in dims[::-1]:
                     template[f"{trg}/@axes"].append(f"axis_{dim}")
-                template[f"{trg}/real"] = {"compress": np.array(fp), "strength": 1}
+                template[f"{trg}/real"] = {"compress": nparr, "strength": 1}
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
@@ -234,7 +234,7 @@ class TfsTiffParser:
                     }
                 else:
                     logger.warning("Assuming pixel width and height unit is unitless!")
-                nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
+                nxy = {"i": np.shape(nparr)[1], "j": np.shape(nparr)[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # however the TIFF file gives no clue, TIFF just documents in which order
                 # it arranges a bunch of pixels that have stream in into a n-d tiling
@@ -265,6 +265,7 @@ class TfsTiffParser:
                             f"{sxy[dim].units}"
                         )
                 identifier_image += 1
+                del nparr
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:

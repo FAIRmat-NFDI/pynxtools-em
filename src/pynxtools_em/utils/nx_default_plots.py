@@ -161,5 +161,5 @@ class NxEmDefaultPlotResolver:
                 break
 
         if not has_default_plot:
-            logger.warning("WARNING::No default plot!")
+            logger.warning("No default plot!")
         return template
