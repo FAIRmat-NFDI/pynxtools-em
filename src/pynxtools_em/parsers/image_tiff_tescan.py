@@ -56,25 +56,25 @@ class TescanTiffParser:
                     tif_hdr[0] = entry
                 elif entry.lower().endswith((".hdr")) and entry != "":
                     tif_hdr[1] = entry
-        if any(value != "" and value is not None for value in tif_hdr):
-            self.file_path = tif_hdr[0]
-            self.entry_id = entry_id if entry_id > 0 else 1
-            self.verbose = verbose
-            self.id_mgn: Dict[str, int] = {"event_id": 1}
-            self.flat_dict_meta = fd.FlatDict({}, "/")
-            self.version: Dict = {}
-            self.supported = False
-            self.hdr_file_path = tif_hdr[1]
-            self.check_if_tiff_tescan()
+            if any(value != "" for value in tif_hdr):
+                self.file_path = tif_hdr[0]
+                self.entry_id = entry_id if entry_id > 0 else 1
+                self.verbose = verbose
+                self.id_mgn: Dict[str, int] = {"event_id": 1}
+                self.flat_dict_meta = fd.FlatDict({}, "/")
+                self.version: Dict = {}
+                self.supported = False
+                self.hdr_file_path = tif_hdr[1]
+                self.check_if_tiff_tescan()
+            else:
+                logger.warning(
+                    f"Parser {self.__class__.__name__} needs TIF and eventual HDR file !"
+                )
         else:
-            logger.warning(
-                f"Parser {self.__class__.__name__} needs TIF and eventual HDR file !"
-            )
-            self.supported = False
-        if not self.supported:
             logger.debug(
                 f"Parser {self.__class__.__name__} finds no content in {file_paths} that it supports"
             )
+            self.supported = False
 
     def check_if_tiff_tescan(self):
         self.supported = False

@@ -53,23 +53,26 @@ class HitachiTiffParser:
                     tif_txt[0] = entry
                 elif entry.lower().endswith((".txt")):
                     tif_txt[1] = entry
-        if all(value != "" for value in tif_txt):
-            self.file_path = tif_txt[0]
-            self.entry_id = entry_id if entry_id > 0 else 1
-            self.verbose = verbose
-            self.id_mgn: Dict[str, int] = {"event_id": 1}
-            self.txt_file_path = tif_txt[1]
-            self.flat_dict_meta = fd.FlatDict({}, "/")
-            self.version: Dict = {}
-            self.supported = False
-            self.check_if_tiff_hitachi()
+            if all(value != "" for value in tif_txt):
+                self.file_path = tif_txt[0]
+                self.entry_id = entry_id if entry_id > 0 else 1
+                self.verbose = verbose
+                self.id_mgn: Dict[str, int] = {"event_id": 1}
+                self.txt_file_path = tif_txt[1]
+                self.flat_dict_meta = fd.FlatDict({}, "/")
+                self.version: Dict = {}
+                self.supported = False
+                self.check_if_tiff_hitachi()
+            else:
+                logger.warning(
+                    f"Parser {self.__class__.__name__} needs TIF and TXT file !"
+                )
+                self.supported = False
         else:
-            logger.warning(f"Parser {self.__class__.__name__} needs TIF and TXT file !")
-            self.supported = False
-        if not self.supported:
             logger.debug(
                 f"Parser {self.__class__.__name__} finds no content in {file_paths} that it supports"
             )
+            self.supported = False
 
     def check_if_tiff_hitachi(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file."""
