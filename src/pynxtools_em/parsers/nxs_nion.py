@@ -21,7 +21,7 @@
 import glob
 import json
 import mmap
-from typing import Dict, List
+from typing import Dict
 from zipfile import ZipFile
 
 import flatdict as fd

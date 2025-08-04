@@ -587,8 +587,8 @@ class NxEmNxsMTexParser:
             hfive_dataset_to_template(src, dst_name, trg, dst_name, h5r, template)
 
         for fig in ["map", "legend"]:
-            src = f"{src_prfx}/map"
-            trg = f"{trg_prfx}/map"
+            src = f"{src_prfx}/{fig}"
+            trg = f"{trg_prfx}/{fig}"
             for att_name in ["axes", "axis_x_indices", "axis_y_indices", "signal"]:
                 hfive_attribute_to_template(
                     src, "", att_name, trg, "", att_name, h5r, template

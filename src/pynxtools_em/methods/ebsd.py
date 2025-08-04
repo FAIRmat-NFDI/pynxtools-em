@@ -580,6 +580,6 @@ def process_roi_phase_ipf(
                 "strength": 1,
             }
             template[f"{lgd}/AXISNAME[axis_{dim}]/@long_name"] = (
-                f"Pixel coordinate along {dim}-axis"
+                f"Pixel along {dim}-axis"
             )
     return template
