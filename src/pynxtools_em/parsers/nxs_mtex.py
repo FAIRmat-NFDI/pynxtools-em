@@ -607,12 +607,8 @@ class NxEmNxsMTexParser:
                             h5r,
                             template,
                         )
-            # INCONVENIENCE of the pre-processed MTex data, the data array for IPF
-            # is y-axis mirrored for both map and legend
-            # START OF TODO this we need to reprocessed here explicitly
             for dst_name in ["data"]:
                 hfive_dataset_to_template(src, dst_name, trg, dst_name, h5r, template)
-                # END OF TODO
                 for att_name in [
                     "CLASS",
                     "IMAGE_VERSION",
