@@ -173,7 +173,7 @@ class HdfFiveBaseParser:
                                     type(h5obj),
                                     np.shape(h5obj),
                                     h5obj[()],
-                                    f"{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                    f"{h5obj.ndim}__{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
                                     if self.hashing
                                     else "",
                                 )
@@ -193,7 +193,7 @@ class HdfFiveBaseParser:
                                         type(h5obj),
                                         np.shape(h5obj),
                                         h5obj[0],
-                                        f"{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                        f"{h5obj.ndim}__{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
                                         if self.hashing
                                         else "",
                                     )
@@ -212,7 +212,7 @@ class HdfFiveBaseParser:
                                         type(h5obj),
                                         np.shape(h5obj),
                                         h5obj[()],
-                                        f"{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                        f"{h5obj.ndim}__{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
                                         if self.hashing
                                         else "",
                                     )
@@ -231,7 +231,7 @@ class HdfFiveBaseParser:
                                     type(h5obj),
                                     np.shape(h5obj),
                                     h5obj[0, 0],
-                                    f"{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                    f"{h5obj.ndim}__{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
                                     if self.hashing
                                     else "",
                                 )
@@ -250,7 +250,7 @@ class HdfFiveBaseParser:
                                     type(h5obj),
                                     np.shape(h5obj),
                                     h5obj[0, 0, 0],
-                                    f"{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                    f"{h5obj.ndim}__{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
                                     if self.hashing
                                     else "",
                                 )
@@ -269,7 +269,7 @@ class HdfFiveBaseParser:
                                     type(h5obj),
                                     np.shape(h5obj),
                                     None,
-                                    f"{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                    f"{h5obj.ndim}__{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
                                     if self.hashing
                                     else "",
                                     "Inspect in HDF5 file directly!",

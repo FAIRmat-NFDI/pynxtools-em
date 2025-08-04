@@ -147,6 +147,7 @@ class NxEmNxsMTexParser:
             logger.info(
                 f"Parsing {self.file_path} MTex with SHA256 {self.file_path_sha256} ..."
             )
+            # KNOWN BUGS
             # BUG in MTex script still sometimes () values written not as a scalar dataset
             # BUG in MTex script still sometimes booleans mapped to uint8
             # BUG in nxdata model memory should not be unitless
@@ -193,7 +194,7 @@ class NxEmNxsMTexParser:
             logger.debug("Parse MTex content...")
         with h5py.File(self.file_path, "r") as h5r:
             src_prfx = "/entry1/roi1/ebsd/indexing/mtex"
-            trg_prfx = f"/ENTRY[entry{self.entry_id}]/roiID[roi1]/ebsd/indexing/MICROSTRUCTURE_MTEX_CONFIG[mtex]"
+            trg_prfx = f"/ENTRY[entry{self.entry_id}]/roiID[roi1]/ebsd/indexing/microstructureID[microstructure1]/configuration/programID[program1]/mtex"
             trg = trg_prfx
             # template[f"{trg}/@NX_class"] = "NXmicrostructure_mtex_config"
             # for grp_name in [
@@ -214,7 +215,8 @@ class NxEmNxsMTexParser:
                 # "x_axis_direction",
                 # "z_axis_direction",
             ]:
-                hfive_dataset_to_template(src, dst_name, trg, dst_name, h5r, template)
+                template[f"{trg}/euler_angle"] = "bunge"  # BUG in MTex script
+                # hfive_dataset_to_template(src, dst_name, trg, dst_name, h5r, template)
 
             """
             src = f"{src_prfx}/plotting"
@@ -259,6 +261,10 @@ class NxEmNxsMTexParser:
                 "methods_advise",
                 "mosek",
                 "stop_on_symmetry_mismatch",
+            ]:
+                template[f"{trg}/{dst_name}"] = bool(h5r[f"{src}/{dst_name}"])
+            # BUG in MTex script, does not write pure HDF5 booleans but promotes these to uint8
+            for dst_name in [
                 "text_interpreter",
                 "voronoi_method",
             ]:
@@ -317,9 +323,20 @@ class NxEmNxsMTexParser:
         with h5py.File(self.file_path, "r") as h5r:
             src = "/entry1/roi1/ebsd/indexing/roi"
             trg = f"/ENTRY[entry{self.entry_id}]/roiID[roi1]/ebsd/indexing/roi"
-            for att_name in ["axes", "axis_x_indices", "axis_y_indices", "signal"]:
+            for att_name in ["axes", "signal"]:
                 hfive_attribute_to_template(
                     src, "", att_name, trg, "", att_name, h5r, template
+                )
+            for att_name in ["axis_x_indices", "axis_y_indices"]:
+                hfive_attribute_to_template(
+                    src,
+                    "",
+                    att_name,
+                    trg,
+                    "",
+                    f"AXISNAME_indices[@{att_name}]",
+                    h5r,
+                    template,
                 )
 
             # process payload of the NXdata instance
@@ -428,7 +445,7 @@ class NxEmNxsMTexParser:
                 hfive_dataset_to_template(src, dst_name, trg, dst_name, h5r, template)
 
             src = f"{src_prfx}/cg_point"
-            trg = f"{trg_prfx}/CG_POINT[cg_point]"
+            trg = f"{trg_prfx}/points"
             for dst_name in ["cardinality", "dimensionality", "index_offset"]:
                 hfive_dataset_to_template(src, dst_name, trg, dst_name, h5r, template)
             for dst_name in ["position"]:
@@ -438,7 +455,7 @@ class NxEmNxsMTexParser:
                 )
 
             src = f"{src_prfx}/cg_polyline"
-            trg = f"{trg_prfx}/CG_POLYLINE[cg_polyline]"
+            trg = f"{trg_prfx}/polylines"
             for dst_name in [
                 "cardinality",
                 "dimensionality",
@@ -486,13 +503,21 @@ class NxEmNxsMTexParser:
 
             src = f"{src_prfx}/configuration"
             trg = f"{trg_prfx}/configuration"
-            for dst_name in ["algorithm", "comments", "discretization_threshold"]:
+            template[f"{trg}/algorithm"] = (
+                "disorientation_clustering"  # BUG in MTex script
+            )
+            for dst_name in ["comments", "discretization_threshold"]:
                 hfive_dataset_to_template(src, dst_name, trg, dst_name, h5r, template)
-            for dst_name in ["disorientation_threshold"]:
-                hfive_dataset_to_template(src, dst_name, trg, dst_name, h5r, template)
-                hfive_attribute_to_template(
-                    src, dst_name, "units", trg, dst_name, "units", h5r, template
-                )
+            template[f"{trg}/disorientation_threshold"] = np.float64(15.0)
+            template[f"{trg}/disorientation_threshold/@units"] = "°"
+            # for dst_name in ["disorientation_threshold"]:
+            #     hfive_dataset_to_template(src, dst_name, trg, dst_name, h5r, template)
+            #     hfive_attribute_to_template(
+            #         src, dst_name, "units", trg, dst_name, "units", h5r, template
+            #     )
+            # not stored by the MTex script
+            # https://github.com/FAIRmat-NFDI/mtex/blob/91ef5185388419acdb75559fd4252099dcbf24de/
+            # userScripts/FairmatNfdi/nexus_write_ebsd_microstructure.m#L25
 
             src = f"{src_prfx}/crystals"
             trg = f"{trg_prfx}/crystals"
@@ -505,13 +530,11 @@ class NxEmNxsMTexParser:
             ]:
                 hfive_dataset_to_template(src, dst_name, trg, dst_name, h5r, template)
             if f"{src}/area_by_mtex" in h5r:
-                template[f"{trg}/area_by_mtex"] = {
+                template[f"{trg}/area"] = {
                     "compress": h5r[f"{src}/area_by_mtex"][...],
                     "strength": h5r[f"{src}/area_by_mtex"].compression_opts,
                 }
-                template[f"{trg}/area_by_mtex/@units"] = (
-                    "micrometer ** 2"  # BUG in MTex
-                )
+                template[f"{trg}/area/@units"] = "micrometer ** 2"  # BUG in MTex
             # TODO orientation
 
             src = f"{src_prfx}/interfaces"
@@ -589,9 +612,20 @@ class NxEmNxsMTexParser:
         for fig in ["map", "legend"]:
             src = f"{src_prfx}/{fig}"
             trg = f"{trg_prfx}/{fig}"
-            for att_name in ["axes", "axis_x_indices", "axis_y_indices", "signal"]:
+            for att_name in ["axes", "signal"]:
                 hfive_attribute_to_template(
                     src, "", att_name, trg, "", att_name, h5r, template
+                )
+            for att_name in ["axis_x_indices", "axis_y_indices"]:
+                hfive_attribute_to_template(
+                    src,
+                    "",
+                    att_name,
+                    trg,
+                    "",
+                    f"AXISNAME_indices[@{att_name}]",
+                    h5r,
+                    template,
                 )
             for dst_name in ["axis_x", "axis_y"]:
                 hfive_dataset_to_template(src, dst_name, trg, dst_name, h5r, template)
@@ -649,14 +683,27 @@ class NxEmNxsMTexParser:
         trg = f"{trg_prfx}/phi_two_plot"
         for att_name in [
             "axes",
-            "capital_phi_indices",
             "signal",
-            "varphi_one_indices",
-            "varphi_two_indices",
         ]:
             hfive_attribute_to_template(
                 src, "", att_name, trg, "", att_name, h5r, template
             )
+        for att_name in [
+            "capital_phi_indices",
+            "varphi_one_indices",
+            "varphi_two_indices",
+        ]:
+            hfive_attribute_to_template(
+                src,
+                "",
+                att_name,
+                trg,
+                "",
+                f"AXISNAME_indices[@{att_name}]",
+                h5r,
+                template,
+            )
+
         for dst_name in ["intensity"]:
             hfive_dataset_to_template(src, dst_name, trg, dst_name, h5r, template)
             for att_name in [

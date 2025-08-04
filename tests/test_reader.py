@@ -31,7 +31,7 @@ READER_CLASS = get_reader(READER_NAME)
 NXDLS = ["NXem"]  # READER_CLASS.supported_nxdls
 
 test_cases = [
-    ("eln", "simple ELN"),
+    ("default", "simple ELN"),
     # ("eln_second", "another simple ELN")
 ]
 

@@ -9,7 +9,7 @@
             "type": "python", //"debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "../../.py/bin/dataconverter",  //../../.py3.12.3/bin/dataconverter",
+            "program": "../../.pytmp/bin/dataconverter",  //../../.py3.12.3/bin/dataconverter",
             "args": [//"tests/data/custom_reference_frame/output.custom_eln_data.yaml",
                      //"tests/data/default/em.oasis.specific.yaml",
                      //"tests/data/default/InGaN_nanowires_spectra.edaxh5",
@@ -62,7 +62,7 @@
                      "em",
                      "--nxdl",
                      "NXem",
-                     "--skip-verify",
+                     //"--skip-verify",
                      //"--output=tests/prod/custom_reference_frame/output.nxs"]
                      //"--output=tests/prod/default/output.nxs"]
                      "--output=tests/prod/ebsd_mtex/output.nxs"]
