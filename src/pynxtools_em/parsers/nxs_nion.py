@@ -45,6 +45,7 @@ from pynxtools_em.configurations.nion_cfg import (
     NION_WHICH_IMAGE,
     NION_WHICH_SPECTRUM,
 )
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
@@ -60,7 +61,9 @@ from pynxtools_em.utils.pint_custom_unit_registry import ureg
 class NionProjectParser:
     """Parse (zip-compressed archive of a) nionswift project with its content."""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         """Class wrapping swift parser."""
         if file_path:
             self.file_path = file_path

@@ -29,6 +29,7 @@ from pynxtools_em.configurations.image_tiff_jeol_cfg import (
     JEOL_DYNAMIC_VARIOUS_NX,
     JEOL_STATIC_VARIOUS_NX,
 )
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
@@ -39,7 +40,12 @@ from pynxtools_em.utils.string_conversions import string_to_number
 
 
 class JeolTiffParser:
-    def __init__(self, file_paths: List[str], entry_id: int = 1, verbose: bool = True):
+    def __init__(
+        self,
+        file_paths: List[str],
+        entry_id: int = 1,
+        verbose: bool = DEFAULT_VERBOSITY,
+    ):
         tif_txt = ["", ""]
         if (
             len(file_paths) == 2

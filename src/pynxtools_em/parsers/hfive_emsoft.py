@@ -23,13 +23,16 @@ import h5py
 
 from pynxtools_em.methods.ebsd import has_hfive_magic_header
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
 
 
 class HdfFiveEmSoftParser(HdfFiveBaseParser):
     """Read EMsoft H5 (Marc deGraeff Carnegie Mellon)"""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         if file_path:
             self.file_path = file_path
             self.id_mgn: Dict[str, int] = {

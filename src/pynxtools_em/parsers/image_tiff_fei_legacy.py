@@ -43,6 +43,7 @@ from pynxtools_em.configurations.image_tiff_fei_cfg import (
     FEI_TECNAI_DYNAMIC_VARIOUS_NX,
     FEI_TECNAI_STATIC_VARIOUS_NX,
 )
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
@@ -59,7 +60,9 @@ FEI_LEGACY_HELIOS_SEM = 2
 
 
 class FeiLegacyTiffParser:
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         if file_path:
             self.file_path = file_path
             self.entry_id = entry_id if entry_id > 0 else 1

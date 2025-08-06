@@ -29,6 +29,7 @@ from pynxtools_em.configurations.oasis_eln_cfg import (
     OASISELN_EM_SAMPLE_TO_NEXUS,
     OASISELN_EM_USER_TO_NEXUS,
 )
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 
@@ -40,7 +41,9 @@ class NxEmNomadOasisElnSchemaParser:
     pieces of information relevant from the NeXus perspective
     """
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         if pathlib.Path(file_path).name.endswith(("eln_data.yaml", "eln_data.yml")):
             self.file_path = file_path
             self.entry_id = entry_id if entry_id > 0 else 1

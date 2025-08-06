@@ -1,6 +1,7 @@
 # tool-specific
 debug/
 dbg/
+tests/run_tests.sh
 
 # https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
 # General

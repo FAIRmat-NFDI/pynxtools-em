@@ -33,13 +33,16 @@ from pynxtools_em.configurations.conventions_cfg import (
 )
 from pynxtools_em.geometries.handed_cartesian import is_cartesian_cs_well_defined
 from pynxtools_em.geometries.msmse_convention import is_consistent_with_msmse_convention
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
 
 
 class NxEmCustomElnCustomReferenceFrame:
     """Document rotation and reference frame conventions and choices used."""
 
-    def __init__(self, file_path: str, entry_id: int = 1, verbose: bool = True):
+    def __init__(
+        self, file_path: str, entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         """Fill template with ELN pieces of information."""
         logger.debug(f"Extracting conventions from {file_path} ...")
         if pathlib.Path(file_path).name.endswith(

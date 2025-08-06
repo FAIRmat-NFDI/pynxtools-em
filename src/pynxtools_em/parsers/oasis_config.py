@@ -27,6 +27,7 @@ from pynxtools_em.configurations.oasis_eln_config_cfg import (
     OASISCFG_EM_CITATION_TO_NEXUS,
     OASISCFG_EM_CSYS_TO_NEXUS,
 )
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 
@@ -34,7 +35,9 @@ from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 class NxEmNomadOasisConfigParser:
     """Parse deployment specific configuration."""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         if pathlib.Path(file_path).name.endswith(
             (".oasis.specific.yaml", ".oasis.specific.yml")
         ):

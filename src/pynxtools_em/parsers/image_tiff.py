@@ -23,13 +23,14 @@ from typing import Dict
 from PIL import Image
 from PIL.TiffTags import TAGS
 
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
 
 
 class TiffParser:
     """Read Tagged Image File Format TIF/TIFF."""
 
-    def __init__(self, file_path: str = "", verbose: bool = True):
+    def __init__(self, file_path: str = "", verbose: bool = DEFAULT_VERBOSITY):
         if file_path:
             self.file_path = file_path
         self.verbose = verbose

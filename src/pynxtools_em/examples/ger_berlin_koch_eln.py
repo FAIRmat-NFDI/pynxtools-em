@@ -35,7 +35,9 @@ from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 class NxEmCustomElnGerBerlinKoch:
     """Parse deployment specific configuration."""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         if pathlib.Path(file_path).name.endswith(
             ("custom_eln_data.yaml", "custom_eln_data.yml")
         ):

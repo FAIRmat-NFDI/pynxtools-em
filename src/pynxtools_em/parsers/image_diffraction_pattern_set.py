@@ -60,13 +60,16 @@ from pynxtools_em.examples.diffraction_pattern_set import (
     SUPPORTED_MODES,
     get_materialsproject_id_and_spacegroup,
 )
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.hfive_web import HFIVE_WEB_MAXIMUM_ROI
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 
 class DiffractionPatternSetParser:
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         if file_path:
             self.file_path = file_path
             self.entry_id = entry_id if entry_id > 0 else 1

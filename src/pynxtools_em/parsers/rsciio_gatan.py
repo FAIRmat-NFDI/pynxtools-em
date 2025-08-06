@@ -31,6 +31,7 @@ from pynxtools_em.configurations.rsciio_gatan_cfg import (
     GATAN_WHICH_IMAGE,
     GATAN_WHICH_SPECTRUM,
 )
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.gatan_utils import gatan_image_spectrum_or_generic_nxdata
 from pynxtools_em.utils.get_checksum import (
@@ -44,7 +45,9 @@ from pynxtools_em.utils.rsciio_hspy_utils import all_req_keywords_in_dict
 class RsciioGatanParser:
     """Read Gatan Digital Micrograph dm3/dm4 formats."""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         if file_path:
             self.file_path = file_path
             self.entry_id = entry_id if entry_id > 0 else 1

@@ -41,6 +41,7 @@ from pynxtools_em.configurations.image_png_protochips_cfg import (
     AXON_STATIC_STAGE_NX,
     specific_to_variadic,
 )
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
@@ -53,7 +54,9 @@ from pynxtools_em.utils.xml_utils import flatten_xml_to_dict
 
 
 class ProtochipsPngSetParser:
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = True):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         if file_path:
             self.file_path = file_path
             self.entry_id = entry_id if entry_id > 0 else 1
