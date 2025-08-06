@@ -143,7 +143,6 @@ def test_nexus_conversion(nxdl, sub_reader_data_dir, tmp_path, caplog):
     # )
     test_nexus_path = f"{tmp_path}/{os.sep}/output.nxs"
     convert_using_example_data(files_or_dir, tmp_path, caplog)
-    print(f">>>>{test_nexus_path}")
 
     hfive_parser = HdfFiveBaseParser(
         file_path=test_nexus_path, hashing=True, verbose=False
@@ -154,7 +153,6 @@ def test_nexus_conversion(nxdl, sub_reader_data_dir, tmp_path, caplog):
         blacklist_by_suffix=NXEM_VOLATILE_SUFFIX_HDF_PATHS,
         file_path=f"{test_nexus_path}.sha256.test.yaml",
     )
-    print(f">>>>{test_nexus_path}.sha256.test.yaml")
 
     # assert against reference YAML artifact
     test_artifact_file_path = f"{test_nexus_path}.sha256.test.yaml"
@@ -163,7 +161,6 @@ def test_nexus_conversion(nxdl, sub_reader_data_dir, tmp_path, caplog):
             test_artifact = yaml.safe_load(fp_test)
         except yaml.YAMLError as exc:
             print(f"Unable to load test_artifact {test_artifact_file_path} !")
-    print(f">>>>{test_artifact_file_path}")
 
     ref_artifact_file_path = os.path.join(
         *[
@@ -178,11 +175,8 @@ def test_nexus_conversion(nxdl, sub_reader_data_dir, tmp_path, caplog):
             reference_artifact = yaml.safe_load(fp_ref)
         except yaml.YAMLError as exc:
             print(f"Unable to load ref_artifact {ref_artifact_file_path} !")
-    print(f">>>>{ref_artifact_file_path}")
 
     assert test_artifact == reference_artifact
     # test.check_reproducibility_of_nexus()
-
-    print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>test change working")
 
     # TODO remove if not working
