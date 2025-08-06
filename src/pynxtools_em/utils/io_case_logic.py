@@ -118,8 +118,6 @@ class EmUseCaseSelector:
             for entry in yml:
                 if entry.endswith((".oasis.specific.yaml", ".oasis.specific.yml")):
                     self.cfg += [entry]
-                elif entry.endswith(("nxs_eln_data.yaml", "nxs_eln_data.yml")):
-                    self.eln += [entry]
                 elif entry.endswith(("custom_eln_data.yaml", "custom_eln_data.yml")):
                     with open(entry, "r", encoding="utf-8") as stream:
                         flat_metadata = fd.FlatDict(yaml.safe_load(stream), "/")
@@ -127,6 +125,9 @@ class EmUseCaseSelector:
                             self.cst += [
                                 {"parser": flat_metadata["parser"], "file": entry}
                             ]
+                elif entry.endswith(("eln_data.yaml", "nxs_eln_data.yml")):
+                    self.eln += [entry]
+
             logger.info(
                 f"Oasis local config: {self.cfg}\n"
                 f"Oasis ELN: {self.eln}\n"

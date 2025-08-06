@@ -1,7 +1,6 @@
-coordinate_system:
+custom_coordinate_system:
 - alias: Following the idea of McStas that the z-axis points along the beam, electron microscopy as a beam line to study electron/matter interaction.
   type: cartesian
-  handedness: right_handed
   xaxis_direction: Direction 1 that is perpendicular to the z_direction for a right_handed cartesian
   xaxis_alias: x-axis
   yaxis_direction: Direction 2 that is perpendicular to the xaxis_direction and the z_direction for a right_handed cartesian
