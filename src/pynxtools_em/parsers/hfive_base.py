@@ -49,7 +49,7 @@ from pynxtools_em.utils.get_checksum import get_sha256_of_bytes_object
 # task for the community and instead focus here on showing a more diverse example
 # towards more interoperability between the different tools in the community
 
-NXEM_VOLATILE_METADATA = [
+NXEM_VOLATILE_NAMED_HDF_PATHS = (
     "/@HDF5_Version",
     "/@NeXus_release",
     "/@file_time",
@@ -58,7 +58,11 @@ NXEM_VOLATILE_METADATA = [
     "entry1/profiling/program1/program/@version",
     "entry1/profiling/template_filling_elapsed_time",
     # "entry1/profiling/template_filling_elapsed_time/@units"
-]
+)
+NXEM_VOLATILE_SUFFIX_HDF_PATHS = (
+    "@axes",  # as these are stored as by default as byte objects vlen string array
+    "file_name",  # cuz if these include the full path the absolute path may differ
+)
 
 
 class HdfFiveBaseParser:
@@ -379,7 +383,7 @@ class HdfFiveBaseParser:
                         h5path, dict(self.h5r[h5path].attrs)
                     )
 
-    def store_hashes(self, blacklist, **kwargs):
+    def store_hashes(self, blacklist_by_key: List, blacklist_by_suffix: List, **kwargs):
         """Generate yaml file with sorted list of HDF5 grp, dst, and attrs
 
         including their datatype and SHA256 checksum computed from the each nodes data.
@@ -400,7 +404,8 @@ class HdfFiveBaseParser:
         # two long text outputs via stdout that are maybe more difficult to
         # compare
         #
-        # blacklist = ["/@HDF5_version",
+        # blacklist = ["@axes"
+        #              "/@HDF5_version",
         #              "/@NX_class",
         #              "/@NeXus_repository",
         #              "/@NeXus_version",
@@ -410,13 +415,13 @@ class HdfFiveBaseParser:
         #              "/@h5py_version"]
         hashes: Dict[str, str] = {}
         for key, ifo in self.groups.items():
-            if key not in blacklist:
+            if key not in blacklist_by_key and not key.endswith(blacklist_by_suffix):
                 hashes[key] = "is_a_grp"
         for key, ifo in self.datasets.items():
-            if key not in blacklist:
+            if key not in blacklist_by_key and not key.endswith(blacklist_by_suffix):
                 hashes[key] = f"is_a_dst__{ifo[-1]}"
         for key, ifo in self.attributes.items():
-            if key not in blacklist:
+            if key not in blacklist_by_key and not key.endswith(blacklist_by_suffix):
                 hashes[key] = f"is_a_attr__{ifo[-1]}"
         with open(
             kwargs.get(

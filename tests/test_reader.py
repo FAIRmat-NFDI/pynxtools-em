@@ -17,13 +17,22 @@
 #
 
 import os
+from glob import glob
+from typing import Literal
 
 import pytest
 import yaml
-from pynxtools.dataconverter.convert import get_reader
-from pynxtools.testing.nexus_conversion import ReaderTest
+from pynxtools.dataconverter.convert import convert, get_reader
+from pynxtools.dataconverter.helpers import (
+    get_nxdl_root_and_path,
+)
 
-from pynxtools_em.parsers.hfive_base import NXEM_VOLATILE_METADATA, HdfFiveBaseParser
+# from pynxtools.testing.nexus_conversion import ReaderTest
+from pynxtools_em.parsers.hfive_base import (
+    NXEM_VOLATILE_NAMED_HDF_PATHS,
+    NXEM_VOLATILE_SUFFIX_HDF_PATHS,
+    HdfFiveBaseParser,
+)
 
 READER_NAME = "em"
 READER_CLASS = get_reader(READER_NAME)
@@ -43,10 +52,55 @@ for test_case in test_cases:
         test_params += [pytest.param(nxdl, test_case[0], id=f"{test_case[1]}, {nxdl}")]
 
 
+def convert_using_example_data(files_or_dir, tmp_path, caplog, **kwargs) -> None:
+    """Run the converter during the test."""
+    # see pynxtools/testing/nexus_conversion/ReaderTest
+
+    nxdl = "NXem"
+    reader_name = "em"
+    created_nexus = f"{tmp_path}/{os.sep}/output.nxs"
+    caplog_level: Literal["ERROR", "WARNING"] = "WARNING"
+
+    reader = get_reader(reader_name)
+    assert hasattr(reader, "supported_nxdls"), (
+        f"Reader{reader} must have supported_nxdls attribute"
+    )
+    assert nxdl in reader.supported_nxdls, f"Reader does not support {nxdl} NXDL."
+    assert callable(reader.read), f"Reader{reader} must have read method"
+
+    if isinstance(files_or_dir, (list, tuple)):
+        example_files = files_or_dir
+    else:
+        example_files = sorted(glob(os.path.join(files_or_dir, "*")))
+    input_files = [file for file in example_files]
+
+    nxdl_root, nxdl_file = get_nxdl_root_and_path(nxdl)
+    assert os.path.exists(nxdl_file), f"NXDL file {nxdl_file} not found"
+
+    # Clear the log of `convert`
+    caplog.clear()
+
+    with caplog.at_level(caplog_level):
+        _ = convert(
+            input_file=tuple(input_files),
+            reader=reader_name,
+            nxdl=nxdl,
+            skip_verify=False,
+            ignore_undocumented=True,
+            output=created_nexus,
+            **kwargs,
+        )
+
+
 @pytest.mark.parametrize(
     "nxdl, sub_reader_data_dir",
     test_params,
 )
+@pytest.mark.skip(
+    reason="Working for the default example location of large test data should be clarified though"
+)
+# explores an alternative testing strategy which checks for binary
+# reproducibility at the individual HDF5 node using per node checksums
 def test_nexus_conversion(nxdl, sub_reader_data_dir, tmp_path, caplog):
     """
     Test EM reader
@@ -73,38 +127,43 @@ def test_nexus_conversion(nxdl, sub_reader_data_dir, tmp_path, caplog):
 
     """
     caplog.clear()
-    reader = READER_NAME
+    # reader = READER_NAME
     # assert callable(reader.read)
 
     files_or_dir = os.path.join(
         *[os.path.dirname(__file__), "data", sub_reader_data_dir]
     )
 
-    test = ReaderTest(
-        nxdl=nxdl,
-        reader_name=READER_NAME,
-        files_or_dir=files_or_dir,
-        tmp_path=tmp_path,
-        caplog=caplog,
-    )
-    test.convert_to_nexus(caplog_level="WARNING", ignore_undocumented=True)
+    # test = ReaderTest(
+    #     nxdl=nxdl,
+    #     reader_name=READER_NAME,
+    #     files_or_dir=files_or_dir,
+    #     tmp_path=tmp_path,
+    #     caplog=caplog,
+    # )
+    test_nexus_path = f"{tmp_path}/{os.sep}/output.nxs"
+    convert_using_example_data(files_or_dir, tmp_path, caplog)
+    print(f">>>>{test_nexus_path}")
 
     hfive_parser = HdfFiveBaseParser(
-        file_path=test.created_nexus, hashing=True, verbose=False
+        file_path=test_nexus_path, hashing=True, verbose=False
     )
     hfive_parser.get_content()
     hfive_parser.store_hashes(
-        blacklist=NXEM_VOLATILE_METADATA,
-        file_path=f"{test.created_nexus}.sha256.test.yaml",
+        blacklist_by_key=NXEM_VOLATILE_NAMED_HDF_PATHS,
+        blacklist_by_suffix=NXEM_VOLATILE_SUFFIX_HDF_PATHS,
+        file_path=f"{test_nexus_path}.sha256.test.yaml",
     )
+    print(f">>>>{test_nexus_path}.sha256.test.yaml")
 
     # assert against reference YAML artifact
-    test_artifact_file_path = f"{test.created_nexus}.sha256.test.yaml"
+    test_artifact_file_path = f"{test_nexus_path}.sha256.test.yaml"
     with open(test_artifact_file_path, "r") as fp_test:
         try:
             test_artifact = yaml.safe_load(fp_test)
         except yaml.YAMLError as exc:
             print(f"Unable to load test_artifact {test_artifact_file_path} !")
+    print(f">>>>{test_artifact_file_path}")
 
     ref_artifact_file_path = os.path.join(
         *[
@@ -119,8 +178,11 @@ def test_nexus_conversion(nxdl, sub_reader_data_dir, tmp_path, caplog):
             reference_artifact = yaml.safe_load(fp_ref)
         except yaml.YAMLError as exc:
             print(f"Unable to load ref_artifact {ref_artifact_file_path} !")
+    print(f">>>>{ref_artifact_file_path}")
 
     assert test_artifact == reference_artifact
     # test.check_reproducibility_of_nexus()
+
+    print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>test change working")
 
     # TODO remove if not working
