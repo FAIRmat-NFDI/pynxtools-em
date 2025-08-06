@@ -167,7 +167,7 @@ def microstructure_to_template(
     # manual addition needed because currently not part of the NeXus schema
     template[f"{trg}/{abbrev}/@signal"] = "cumsum"
     template[f"{trg}/{abbrev}/@axes"] = ["axis_area"]
-    template[f"{trg}/{abbrev}/@AXISNAME_indices[axis_area]"] = np.uint32(0)
+    template[f"{trg}/{abbrev}/@AXISNAME_indices[@axis_area]"] = np.uint32(0)
     template[f"{trg}/{abbrev}/title"] = f"Feature area CDF"
     # only reporting those crystals for which we have values for all their descriptors!
     template[f"{trg}/{abbrev}/cumsum"] = {"compress": cumsum, "strength": 1}

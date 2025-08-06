@@ -62,24 +62,25 @@ class TescanTiffParser:
                     tif_hdr[0] = entry
                 elif entry.lower().endswith((".hdr")) and entry != "":
                     tif_hdr[1] = entry
-            if any(value != "" for value in tif_hdr):
-                self.file_path = tif_hdr[0]
-                self.entry_id = entry_id if entry_id > 0 else 1
-                self.verbose = verbose
-                self.id_mgn: Dict[str, int] = {"event_id": 1}
-                self.flat_dict_meta = fd.FlatDict({}, "/")
-                self.version: Dict = {}
-                self.supported = False
-                self.hdr_file_path = tif_hdr[1]
-                self.check_if_tiff_tescan()
-            else:
-                logger.warning(
-                    f"Parser {self.__class__.__name__} needs TIF and eventual HDR file !"
+
+        if tif_hdr[0] != "":
+            self.file_path = tif_hdr[0]
+            self.entry_id = entry_id if entry_id > 0 else 1
+            self.verbose = verbose
+            self.id_mgn: Dict[str, int] = {"event_id": 1}
+            self.flat_dict_meta = fd.FlatDict({}, "/")
+            self.version: Dict = {}
+            self.supported = False
+            self.hdr_file_path = tif_hdr[1]
+            self.check_if_tiff_tescan()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
                 )
         else:
-            logger.debug(
-                f"Parser {self.__class__.__name__} finds no content in {file_paths} that it supports"
-            )
+            # logger.warning(
+            #     f"Parser {self.__class__.__name__} needs TIF and eventual HDR file !"
+            # )
             self.supported = False
 
     def check_if_tiff_tescan(self):
@@ -153,8 +154,6 @@ class TescanTiffParser:
                                 self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
                         else:
                             logger.debug(f"Ignore line {line} !")
-            else:
-                logger.warning(f"Potential TESCAN TIF without metadata !")
 
         if self.verbose:
             for key, value in self.flat_dict_meta.items():

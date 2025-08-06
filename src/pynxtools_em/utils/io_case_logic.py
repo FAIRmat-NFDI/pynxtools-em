@@ -32,6 +32,7 @@ VALID_FILE_NAME_SUFFIX_DATA = [
     ".dm5",
     ".tiff",
     ".tif",
+    ".txt",
     ".zip",
     ".nsproj",
     ".edaxh5",
@@ -41,7 +42,6 @@ VALID_FILE_NAME_SUFFIX_DATA = [
     ".mtex.h5",
     ".h5",
     ".hdf5",
-    ".txt",
     ".hdr",
 ]
 # the order of this list is significant to assure that whatever is found first and
@@ -97,7 +97,8 @@ class EmUseCaseSelector:
         for suffix in VALID_FILE_NAME_SUFFIX_DATA:
             if len(self.case[suffix]) > 0:
                 dat_input += len(self.case[suffix])
-                break
+                if suffix == ".mtex.h5":
+                    break
         for suffix in VALID_FILE_NAME_SUFFIX_CONFIG:
             if len(self.case[suffix]) > 0:
                 other_input += len(self.case[suffix])
@@ -108,7 +109,8 @@ class EmUseCaseSelector:
             for suffix in VALID_FILE_NAME_SUFFIX_DATA:
                 if len(self.case[suffix]) > 0:
                     self.dat += self.case[suffix]
-                    break
+                    if suffix == ".mtex.h5":
+                        break
             yml: List[str] = []
             for suffix in VALID_FILE_NAME_SUFFIX_CONFIG:
                 if len(self.case[suffix]) > 0:

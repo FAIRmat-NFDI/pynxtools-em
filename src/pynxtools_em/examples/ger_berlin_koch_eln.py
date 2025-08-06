@@ -28,6 +28,7 @@ from pynxtools_em.examples.ger_berlin_koch_cfg import (
     GER_BERLIN_KOCH_GROUP_ESOURCE_TO_NEXUS,
     GER_BERLIN_KOCH_GROUP_INSTRUMENT_TO_NEXUS,
 )
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 

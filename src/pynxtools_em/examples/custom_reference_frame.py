@@ -35,6 +35,7 @@ from pynxtools_em.geometries.handed_cartesian import is_cartesian_cs_well_define
 from pynxtools_em.geometries.msmse_convention import is_consistent_with_msmse_convention
 from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 
 
 class NxEmCustomElnCustomReferenceFrame:
@@ -77,48 +78,55 @@ class NxEmCustomElnCustomReferenceFrame:
 
     def parse(self, template) -> dict:
         """Extract metadata from generic ELN text file to respective NeXus objects."""
-        logger.debug("Parsing conventions...")
-        identifier = [self.entry_id, 1]
-        for cfg in [
-            CONV_ROTATIONS_TO_NEXUS,
-            CONV_PROCESSING_CSYS_TO_NEXUS,
-            CONV_SAMPLE_CSYS_TO_NEXUS,
-            CONV_DETECTOR_CSYS_TO_NEXUS,
-            CONV_GNOMONIC_CSYS_TO_NEXUS,
-            CONV_PATTERN_CSYS_TO_NEXUS,
-        ]:
-            add_specific_metadata_pint(cfg, self.flat_metadata, identifier, template)
-
-        # check is used convention follows EBSD community suggestions by Rowenhorst et al.
-        prfx = f"/ENTRY[entry{self.entry_id}]/consistent_rotations"
-        cvn_used = {}
-        for key in [
-            "rotation_handedness",
-            "rotation_convention",
-            "euler_angle_convention",
-            "axis_angle_convention",
-            "sign_convention",
-        ]:
-            if f"{prfx}/{key}" in template.undocumented:
-                cvn_used[key] = template.undocumented[f"{prfx}/{key}"]
-        if is_consistent_with_msmse_convention(cvn_used) == "inconsistent":
-            logger.warning("Convention set is different from community suggestion!")
-
-        # assess if made conventions are consistent
-        for csys_name in ["processing", "sample"]:
-            trg = f"/ENTRY[entry{self.entry_id}]"
-            handedness = template.undocumented[
-                f"{trg}/{csys_name}_reference_frame/handedness"
-            ]
-            directions = []
-            for dir_name in ["x", "y", "z"]:
-                directions.append(
-                    template.undocumented[
-                        f"{trg}/{csys_name}_reference_frame/{dir_name}_direction"
-                    ]
+        if self.supported:
+            with open(self.file_path, "rb", 0) as fp:
+                self.file_path_sha256 = get_sha256_of_file_content(fp)
+            logger.info(
+                f"Parsing {self.file_path} NOMAD Oasis/ELN with SHA256 {self.file_path_sha256} ..."
+            )
+            identifier = [self.entry_id, 1]
+            for cfg in [
+                CONV_ROTATIONS_TO_NEXUS,
+                CONV_PROCESSING_CSYS_TO_NEXUS,
+                CONV_SAMPLE_CSYS_TO_NEXUS,
+                CONV_DETECTOR_CSYS_TO_NEXUS,
+                CONV_GNOMONIC_CSYS_TO_NEXUS,
+                CONV_PATTERN_CSYS_TO_NEXUS,
+            ]:
+                add_specific_metadata_pint(
+                    cfg, self.flat_metadata, identifier, template
                 )
-            if not is_cartesian_cs_well_defined(handedness, directions):
-                logger.warning(f"{csys_name}_reference_frame is not well defined!")
 
-        # could add tests for gnomonic and pattern_centre as well
+            # check is used convention follows EBSD community suggestions by Rowenhorst et al.
+            prfx = f"/ENTRY[entry{self.entry_id}]/consistent_rotations"
+            cvn_used = {}
+            for key in [
+                "rotation_handedness",
+                "rotation_convention",
+                "euler_angle_convention",
+                "axis_angle_convention",
+                "sign_convention",
+            ]:
+                if f"{prfx}/{key}" in template.undocumented:
+                    cvn_used[key] = template.undocumented[f"{prfx}/{key}"]
+            if is_consistent_with_msmse_convention(cvn_used) == "inconsistent":
+                logger.warning("Convention set is different from community suggestion!")
+
+            # assess if made conventions are consistent
+            for csys_name in ["processing", "sample"]:
+                trg = f"/ENTRY[entry{self.entry_id}]"
+                handedness = template.undocumented[
+                    f"{trg}/{csys_name}_reference_frame/handedness"
+                ]
+                directions = []
+                for dir_name in ["x", "y", "z"]:
+                    directions.append(
+                        template.undocumented[
+                            f"{trg}/{csys_name}_reference_frame/{dir_name}_direction"
+                        ]
+                    )
+                if not is_cartesian_cs_well_defined(handedness, directions):
+                    logger.warning(f"{csys_name}_reference_frame is not well defined!")
+
+            # could add tests for gnomonic and pattern_centre as well
         return template

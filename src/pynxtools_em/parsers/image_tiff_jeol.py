@@ -105,9 +105,7 @@ class JeolTiffParser:
             self.flat_dict_meta = fd.FlatDict({}, "/")
             for line in txt:
                 tmp = line.split()
-                if len(tmp) == 1:
-                    logger.warning(f"{line} is currently ignored !")
-                elif len(tmp) == 2:
+                if len(tmp) == 2:
                     if tmp[0] not in self.flat_dict_meta:
                         # replace with pint parsing and catching multiple exceptions
                         # as it is exemplified in the tiff_zeiss parser

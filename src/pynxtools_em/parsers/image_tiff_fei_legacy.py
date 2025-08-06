@@ -180,8 +180,8 @@ class FeiLegacyTiffParser:
             self.process_event_data_em_data(template)
         elif self.supported == FEI_LEGACY_HELIOS_SEM:
             logger.info(
-                f"Detected {self.file_path} qualifies as FEI_LEGACY_HELIOS_SEM."
-                f"These can have conflicting metadata, will currently parse only"
+                f"Detected {self.file_path} qualifies as FEI_LEGACY_HELIOS_SEM. "
+                f"These can have conflicting metadata, will currently parse only "
                 f"when the image_tfs_tif parser picks content up!"
             )
         return template

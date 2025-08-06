@@ -119,9 +119,6 @@ class NxEmNxsMTexParser:
                     f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
                 )
         else:
-            logger.warning(
-                f"Parser {self.__class__.__name__} needs custom_eln_data.yaml file !"
-            )
             self.supported = False
 
     def check_if_mtex_hfive(self):

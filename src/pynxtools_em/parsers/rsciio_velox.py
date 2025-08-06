@@ -102,14 +102,6 @@ class RsciioVeloxParser:
             # only the collection of the concepts without the actual instance data
             # based on this one could then plan how much memory has to be reserved
             # in the template and stream out accordingly
-
-            with open(self.file_path, "rb", 0) as fp:
-                self.file_path_sha256 = get_sha256_of_file_content(fp)
-
-            logger.info(
-                f"Parsing {self.file_path} with SHA256 {self.file_path_sha256} ..."
-            )
-
             reqs = ["data", "axes", "metadata", "original_metadata", "mapping"]
             for idx, obj in enumerate(self.objs):
                 if not isinstance(obj, dict):

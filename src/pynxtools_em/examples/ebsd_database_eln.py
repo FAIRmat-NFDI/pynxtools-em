@@ -27,6 +27,7 @@ from pynxtools_em.examples.ebsd_database_eln_cfg import (
     EBSD_DATABASE_CITATION_TO_NEXUS,
     EBSD_DATABASE_SPECIMEN_TO_NEXUS,
 )
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 

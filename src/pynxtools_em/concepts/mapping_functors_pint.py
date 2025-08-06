@@ -234,24 +234,24 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
                     template[f"{trg}"] = ", ".join(src_val)
                 else:
                     template[f"{trg}"] = ", ".join([f"{val}" for val in src_val])
-                logger.warning(
+                logger.debug(
                     f"Assuming I/O to HDF5 will serializing to concatenated string !"
                 )
             else:
                 template[f"{trg}"] = map_to_dtype(trg_dtype, np.asarray(src_val))
                 # units may be required, need to be set explicitly elsewhere in the source code!
-                logger.warning(
+                logger.debug(
                     f"Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
                 )
         elif isinstance(src_val, (np.ndarray, np.generic)):
             template[f"{trg}"] = map_to_dtype(trg_dtype, np.asarray(src_val))
             # units may be required, need to be set explicitly elsewhere in the source code!
-            logger.warning(
+            logger.debug(
                 f"Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
             )
         elif np.isscalar(src_val):
             template[f"{trg}"] = map_to_dtype(trg_dtype, src_val)
-            logger.warning(
+            logger.debug(
                 f"Assuming I/O to HDF5 will auto-convert to numpy type, trg: {trg} !"
             )
         else:
@@ -403,7 +403,7 @@ def map_functor(
                 pint_src = ureg.Quantity(src_values, cmd[3])
                 set_value(template, trg, pint_src.to(cmd[1]), trg_dtype_key)
         elif case == "case_six":
-            logger.warning(">>>> Hitting case_six, check handling of units!")
+            # logger.debug(">>>> Hitting case_six, check handling of units!")
             if f"{prfx_src}{cmd[2]}" not in mdata or f"{prfx_src}{cmd[3]}" not in mdata:
                 continue
             src_val = mdata[f"{prfx_src}{cmd[2]}"]

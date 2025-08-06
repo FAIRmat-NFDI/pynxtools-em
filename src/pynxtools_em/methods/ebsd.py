@@ -39,12 +39,9 @@ from pynxtools_em.utils.hfive_web_utils import hfive_web_decorate_nxdata
 from pynxtools_em.utils.image_processing import thumbnail
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-PROJECTION_VECTORS = [Vector3d.xvector(), Vector3d.yvector(), Vector3d.zvector()]
-PROJECTION_DIRECTIONS = [
-    ("X", Vector3d.xvector().data.flatten()),
-    ("Y", Vector3d.yvector().data.flatten()),
-    ("Z", Vector3d.zvector().data.flatten()),
-]
+IPF_COLORMODEL_USED_BY_ORIX = "tsl"
+
+PROJECTION_VECTORS = [("X", Vector3d.xvector())]
 
 # typical scan schemes used for EBSD
 HEXAGONAL_FLAT_TOP_TILING = "hexagonal_flat_top_tiling"
@@ -482,7 +479,7 @@ def process_roi_phase_ipf(
     for idx in np.arange(0, len(PROJECTION_VECTORS)):
         point_group = get_point_group(space_group, proper=False)
         ipf_key = plot.IPFColorKeyTSL(
-            point_group.laue, direction=PROJECTION_VECTORS[idx]
+            point_group.laue, direction=PROJECTION_VECTORS[idx][1]
         )
         img = get_ipfdir_legend(ipf_key)
 
@@ -510,13 +507,13 @@ def process_roi_phase_ipf(
         )
         template[f"{trg}/color_model"] = "tsl"  # as used by kikuchipy/orix
         template[f"{trg}/projection_direction"] = np.asarray(
-            PROJECTION_VECTORS[idx].data.flatten(), np.float32
+            PROJECTION_VECTORS[idx][1].data.flatten(), np.float32
         )
 
         # add the IPF color map fundamental unit SO3 obeying crystal symmetry
         mpp = f"{trg}/map"
         template[f"{mpp}/title"] = (
-            f"Inverse pole figure {PROJECTION_DIRECTIONS[idx][0]} {phase_name}"
+            f"IPF, {PROJECTION_VECTORS[idx][0]}, {IPF_COLORMODEL_USED_BY_ORIX}, phase{nxem_phase_id}, {phase_name}"  # TODO add symmetry to follow the pattern for MTex: IPF, X, -1, tsl, phase1, BYTOWNITE An
         )
         template[f"{mpp}/@signal"] = "data"
         template[f"{mpp}/@axes"] = []
@@ -550,7 +547,7 @@ def process_roi_phase_ipf(
         # add the IPF color map legend/key
         lgd = f"{trg}/legend"
         template[f"{lgd}/title"] = (
-            f"Inverse pole figure {PROJECTION_DIRECTIONS[idx][0]} {phase_name}"
+            f"IPF, {PROJECTION_VECTORS[idx][0]}, {IPF_COLORMODEL_USED_BY_ORIX}, phase{nxem_phase_id}, {phase_name}"  # TODO add symmetry to follow the pattern for MTex: IPF, X, -1, tsl, phase1, BYTOWNITE An
         )
         # template[f"{trg}/title"] = f"Inverse pole figure color key with SST"
         template[f"{lgd}/@signal"] = "data"
