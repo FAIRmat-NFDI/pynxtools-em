@@ -116,7 +116,7 @@ class JeolTiffParser:
                     else:
                         logger.warning(f"Found duplicated key {tmp[0]} !")
                 else:
-                    logger.warning(f"{line} is currently ignored !")
+                    logger.debug(f"{line} is currently ignored !")
 
             if self.verbose:
                 for key, value in self.flat_dict_meta.items():
