@@ -4,6 +4,8 @@ The pynxtools-em parser and normalizer reads the following content and maps them
 
 | Concept | NeXus/HDF5 |
 | --------------- | --------------  |
+| metadata/hardware_source/EHT | :heavy_check_mark: |
+| metadata/hardware_source/GeometricProbeSize | :heavy_check_mark: |
 | metadata/hardware_source/ImageRonchigram/C1 ConstW | :heavy_check_mark: |
 | metadata/hardware_source/ImageRonchigram/C10 | :heavy_check_mark: |
 | metadata/hardware_source/ImageRonchigram/C12.a | :heavy_check_mark: |
@@ -31,6 +33,8 @@ The pynxtools-em parser and normalizer reads the following content and maps them
 | metadata/hardware_source/ImageRonchigram/SuperFEG.^EmissionCurrent | :heavy_check_mark: |
 | metadata/hardware_source/ImageRonchigram/fov_nm | :heavy_check_mark: |
 | metadata/hardware_source/ImageRonchigram/probe_ha | :heavy_check_mark: |
+| metadata/hardware_source/ImageRonchigram/rotation_rad | :heavy_check_mark: |
+| metadata/hardware_source/SuperFEG.^EmissionCurrent | :heavy_check_mark: |
 | metadata/hardware_source/ac_frame_sync | :heavy_check_mark: |
 | metadata/hardware_source/ac_line_sync | :heavy_check_mark: |
 | metadata/hardware_source/autostem/ImageRonchigram/C1 ConstW | :heavy_check_mark: |
@@ -47,6 +51,7 @@ The pynxtools-em parser and normalizer reads the following content and maps them
 | metadata/hardware_source/autostem/ImageRonchigram/SuperFEG.^EmissionCurrent | :heavy_check_mark: |
 | metadata/hardware_source/autostem/ImageRonchigram/fov_nm | :heavy_check_mark: |
 | metadata/hardware_source/autostem/ImageRonchigram/probe_ha | :heavy_check_mark: |
+| metadata/hardware_source/autostem/ImageRonchigram/rotation_rad | :heavy_check_mark: |
 | metadata/hardware_source/autostem/ImageScanned/C1 ConstW | :heavy_check_mark: |
 | metadata/hardware_source/autostem/ImageScanned/C10 | :heavy_check_mark: |
 | metadata/hardware_source/autostem/ImageScanned/C12.a | :heavy_check_mark: |
@@ -74,6 +79,7 @@ The pynxtools-em parser and normalizer reads the following content and maps them
 | metadata/hardware_source/autostem/ImageScanned/SuperFEG.^EmissionCurrent | :heavy_check_mark: |
 | metadata/hardware_source/autostem/ImageScanned/fov_nm | :heavy_check_mark: |
 | metadata/hardware_source/autostem/ImageScanned/probe_ha | :heavy_check_mark: |
+| metadata/hardware_source/autostem/ImageScanned/rotation_rad | :heavy_check_mark: |
 | metadata/hardware_source/calibration_style | :heavy_check_mark: |
 | metadata/hardware_source/center_x_nm | :heavy_check_mark: |
 | metadata/hardware_source/center_y_nm | :heavy_check_mark: |
@@ -103,8 +109,10 @@ The pynxtools-em parser and normalizer reads the following content and maps them
 | metadata/hardware_source/external_clock_mode | :heavy_check_mark: |
 | metadata/hardware_source/external_clock_wait_time_ms | :heavy_check_mark: |
 | metadata/hardware_source/flyback_time_us | :heavy_check_mark: |
+| metadata/hardware_source/fov_nm | :heavy_check_mark: |
 | metadata/hardware_source/line_time_us | :heavy_check_mark: |
 | metadata/hardware_source/pixel_time_us | :heavy_check_mark: |
+| metadata/hardware_source/probe_ha | :heavy_check_mark: |
 | metadata/hardware_source/rotation_rad | :heavy_check_mark: |
 | metadata/instrument/ImageRonchigram/C1 ConstW | :heavy_check_mark: |
 | metadata/instrument/ImageRonchigram/C10 | :heavy_check_mark: |
@@ -133,6 +141,7 @@ The pynxtools-em parser and normalizer reads the following content and maps them
 | metadata/instrument/ImageRonchigram/SuperFEG.^EmissionCurrent | :heavy_check_mark: |
 | metadata/instrument/ImageRonchigram/fov_nm | :heavy_check_mark: |
 | metadata/instrument/ImageRonchigram/probe_ha | :heavy_check_mark: |
+| metadata/instrument/ImageRonchigram/rotation_rad | :heavy_check_mark: |
 | metadata/instrument/ImageScanned/C1 ConstW | :heavy_check_mark: |
 | metadata/instrument/ImageScanned/C10 | :heavy_check_mark: |
 | metadata/instrument/ImageScanned/C12.a | :heavy_check_mark: |
@@ -160,6 +169,7 @@ The pynxtools-em parser and normalizer reads the following content and maps them
 | metadata/instrument/ImageScanned/SuperFEG.^EmissionCurrent | :heavy_check_mark: |
 | metadata/instrument/ImageScanned/fov_nm | :heavy_check_mark: |
 | metadata/instrument/ImageScanned/probe_ha | :heavy_check_mark: |
+| metadata/instrument/ImageScanned/rotation_rad | :heavy_check_mark: |
 | metadata/instrument/autostem/ImageRonchigram/C1 ConstW | :heavy_check_mark: |
 | metadata/instrument/autostem/ImageRonchigram/C2 ConstW | :heavy_check_mark: |
 | metadata/instrument/autostem/ImageRonchigram/C3 ConstW | :heavy_check_mark: |
@@ -174,6 +184,7 @@ The pynxtools-em parser and normalizer reads the following content and maps them
 | metadata/instrument/autostem/ImageRonchigram/SuperFEG.^EmissionCurrent | :heavy_check_mark: |
 | metadata/instrument/autostem/ImageRonchigram/fov_nm | :heavy_check_mark: |
 | metadata/instrument/autostem/ImageRonchigram/probe_ha | :heavy_check_mark: |
+| metadata/instrument/autostem/ImageRonchigram/rotation_rad | :heavy_check_mark: |
 | metadata/instrument/autostem/ImageScanned/C10 | :heavy_check_mark: |
 | metadata/instrument/autostem/ImageScanned/C12.a | :heavy_check_mark: |
 | metadata/instrument/autostem/ImageScanned/C12.b | :heavy_check_mark: |
@@ -197,6 +208,10 @@ The pynxtools-em parser and normalizer reads the following content and maps them
 | metadata/instrument/autostem/ImageScanned/SuperFEG.^EmissionCurrent | :heavy_check_mark: |
 | metadata/instrument/autostem/ImageScanned/fov_nm | :heavy_check_mark: |
 | metadata/instrument/autostem/ImageScanned/probe_ha | :heavy_check_mark: |
+| metadata/instrument/autostem/ImageScanned/rotation_rad | :heavy_check_mark: |
+| metadata/scan/scan_device_parameters/EHT | :heavy_check_mark: |
+| metadata/scan/scan_device_parameters/GeometricProbeSize | :heavy_check_mark: |
+| metadata/scan/scan_device_parameters/SuperFEG.^EmissionCurrent | :heavy_check_mark: |
 | metadata/scan/scan_device_parameters/ac_frame_sync | :heavy_check_mark: |
 | metadata/scan/scan_device_parameters/ac_line_sync | :heavy_check_mark: |
 | metadata/scan/scan_device_parameters/calibration_style | :heavy_check_mark: |
@@ -206,9 +221,13 @@ The pynxtools-em parser and normalizer reads the following content and maps them
 | metadata/scan/scan_device_parameters/external_clock_mode | :heavy_check_mark: |
 | metadata/scan/scan_device_parameters/external_clock_wait_time_ms | :heavy_check_mark: |
 | metadata/scan/scan_device_parameters/flyback_time_us | :heavy_check_mark: |
+| metadata/scan/scan_device_parameters/fov_nm | :heavy_check_mark: |
 | metadata/scan/scan_device_parameters/line_time_us | :heavy_check_mark: |
 | metadata/scan/scan_device_parameters/pixel_time_us | :heavy_check_mark: |
+| metadata/scan/scan_device_parameters/probe_ha | :heavy_check_mark: |
 | metadata/scan/scan_device_parameters/rotation_rad | :heavy_check_mark: |
+| metadata/scan/scan_device_properties/EHT | :heavy_check_mark: |
+| metadata/scan/scan_device_properties/GeometricProbeSize | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/ImageScanned:C1 ConstW | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/ImageScanned:C10 | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/ImageScanned:C12.a | :heavy_check_mark: |
@@ -236,6 +255,7 @@ The pynxtools-em parser and normalizer reads the following content and maps them
 | metadata/scan/scan_device_properties/ImageScanned:SuperFEG.^EmissionCurrent | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/ImageScanned:fov_nm | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/ImageScanned:probe_ha | :heavy_check_mark: |
+| metadata/scan/scan_device_properties/ImageScanned:rotation_rad | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/MagBoard 0 DAC 0 | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/MagBoard 0 DAC 1 | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/MagBoard 0 DAC 10 | :heavy_check_mark: |
@@ -262,6 +282,7 @@ The pynxtools-em parser and normalizer reads the following content and maps them
 | metadata/scan/scan_device_properties/MagBoard 1 DAC 8 | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/MagBoard 1 DAC 9 | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/MagBoard 1 Relay | :heavy_check_mark: |
+| metadata/scan/scan_device_properties/SuperFEG.^EmissionCurrent | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/ac_frame_sync | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/ac_line_sync | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/calibration_style | :heavy_check_mark: |
@@ -271,6 +292,7 @@ The pynxtools-em parser and normalizer reads the following content and maps them
 | metadata/scan/scan_device_properties/external_clock_mode | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/external_clock_wait_time_ms | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/flyback_time_us | :heavy_check_mark: |
+| metadata/scan/scan_device_properties/fov_nm | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/line_time_us | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/mag_boards/MagBoard 0 DAC 0 | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/mag_boards/MagBoard 0 DAC 1 | :heavy_check_mark: |
@@ -299,6 +321,7 @@ The pynxtools-em parser and normalizer reads the following content and maps them
 | metadata/scan/scan_device_properties/mag_boards/MagBoard 1 DAC 9 | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/mag_boards/MagBoard 1 Relay | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/pixel_time_us | :heavy_check_mark: |
+| metadata/scan/scan_device_properties/probe_ha | :heavy_check_mark: |
 | metadata/scan/scan_device_properties/rotation_rad | :heavy_check_mark: |
 | metadata/scan_detector/autostem/ImageScanned/C1 ConstW | :heavy_check_mark: |
 | metadata/scan_detector/autostem/ImageScanned/C10 | :heavy_check_mark: |
@@ -327,3 +350,4 @@ The pynxtools-em parser and normalizer reads the following content and maps them
 | metadata/scan_detector/autostem/ImageScanned/SuperFEG.^EmissionCurrent | :heavy_check_mark: |
 | metadata/scan_detector/autostem/ImageScanned/fov_nm | :heavy_check_mark: |
 | metadata/scan_detector/autostem/ImageScanned/probe_ha | :heavy_check_mark: |
+| metadata/scan_detector/autostem/ImageScanned/rotation_rad | :heavy_check_mark: |

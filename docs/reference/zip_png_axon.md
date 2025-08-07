@@ -5,9 +5,6 @@ The pynxtools-em parser and normalizer reads the following content and maps them
 | Concept | NeXus/HDF5 |
 | --------------- | --------------  |
 | MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.Name | :heavy_check_mark: |
-| MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.X | :heavy_check_mark: |
-| MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.Y | :heavy_check_mark: |
-| MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.Z | :heavy_check_mark: |
 | MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].HeatingCurrent | :heavy_check_mark: |
 | MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].HeatingPower | :heavy_check_mark: |
 | MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].HeatingVoltage | :heavy_check_mark: |

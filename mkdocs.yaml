@@ -1,24 +1,25 @@
-site_name: pynxtools-em
+site_name: Documentation
 site_description: |
-  The documentation for the pynxtools-em plugin
-site_author: The NOMAD authors
+  The documentation for the pynxtools-em plugin.
+site_author: The NOMAD Authors
 repo_url: https://github.com/FAIRmat-NFDI/pynxtools-em
 edit_uri: ""
 
 nav:
   - Home: index.md
   - Tutorials:
+    - tutorial/installation.md
     - tutorial/standalone.md
     # - tutorial/nexusio.md
     # - tutorial/oasis.md
-  - How-tos:
+  - How-To:
     - how-tos/examples.md
     - how-tos/kikuchi.md
     - how-tos/mtex.md
     - how-tos/pyxem.md
-  - Learn:
+  - Explanation:
     - explanation/learn.md
-    - explanation/emapp.md
+    # - explanation/emapp.md
     - explanation/implementation.md
   - Reference:
     - reference/contextualization.md
@@ -55,14 +56,11 @@ theme:
     - navigation.footer
     - content.code.copy
     - content.code.annotate
-    - search.suggest
   custom_dir: docs/theme
   icon:
     repo: fontawesome/brands/github
 
 markdown_extensions:
-  - markdown_include.include:
-      base_path: docs
   - attr_list
   - md_in_html
   - admonition
@@ -86,7 +84,6 @@ markdown_extensions:
 
 extra:
   generator: false
-  homepage: https://nomad-lab.eu
 
 use_directory_urls: false
 
