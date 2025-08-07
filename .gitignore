@@ -2,6 +2,9 @@
 debug/
 dbg/
 tests/run_tests.sh
+.virtual_documents
+tests/data
+tests/prod
 
 # https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
 # General

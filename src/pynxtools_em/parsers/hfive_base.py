@@ -49,6 +49,18 @@ from pynxtools_em.utils.get_checksum import get_sha256_of_bytes_object
 # task for the community and instead focus here on showing a more diverse example
 # towards more interoperability between the different tools in the community
 
+# object timestamps are low-level features of HDF5 that if activated
+# would still render HDF5 files binarily different even though each
+# entry and payload in the content tree is the same binary content
+# however, these internal library administrative timestamps have been
+# are in newer versions of hdf5 deactivated by default see here:
+# https://github.com/h5py/h5py/issues/1953
+# https://forum.hdfgroup.org/t/object-timestamps-useful-or-not/8901/7
+# h5diff does not allow such a lean and customizable blacklist of nodes
+# to the best of my knowledge hence comparing two versions of HDF5 files
+# with h5diff is useful but if done in unit testing typically generate
+# two long text outputs via stdout that are maybe more difficult to
+
 NXEM_VOLATILE_NAMED_HDF_PATHS = (
     "/@HDF5_Version",
     "/@NeXus_release",
@@ -61,7 +73,8 @@ NXEM_VOLATILE_NAMED_HDF_PATHS = (
 )
 NXEM_VOLATILE_SUFFIX_HDF_PATHS = (
     "@axes",  # as these are stored as by default as byte objects vlen string array
-    "file_name",  # cuz if these include the full path the absolute path may differ
+    "file_name",  # if these include the full path the absolute path may differ between
+    # test and production data
 )
 
 
@@ -177,7 +190,7 @@ class HdfFiveBaseParser:
                                     type(h5obj),
                                     np.shape(h5obj),
                                     h5obj[()],
-                                    f"{h5obj.ndim}__{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                    f"{h5obj.ndim}__{h5obj.shape}__{h5obj.dtype.name}__{get_sha256_of_bytes_object(h5obj[()])}"
                                     if self.hashing
                                     else "",
                                 )
@@ -197,7 +210,7 @@ class HdfFiveBaseParser:
                                         type(h5obj),
                                         np.shape(h5obj),
                                         h5obj[0],
-                                        f"{h5obj.ndim}__{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                        f"{h5obj.ndim}__{h5obj.shape}__{h5obj.dtype.name}__{get_sha256_of_bytes_object(h5obj[()])}"
                                         if self.hashing
                                         else "",
                                     )
@@ -216,7 +229,7 @@ class HdfFiveBaseParser:
                                         type(h5obj),
                                         np.shape(h5obj),
                                         h5obj[()],
-                                        f"{h5obj.ndim}__{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                        f"{h5obj.ndim}__{h5obj.shape}__{h5obj.dtype.name}__{get_sha256_of_bytes_object(h5obj[()])}"
                                         if self.hashing
                                         else "",
                                     )
@@ -235,7 +248,7 @@ class HdfFiveBaseParser:
                                     type(h5obj),
                                     np.shape(h5obj),
                                     h5obj[0, 0],
-                                    f"{h5obj.ndim}__{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                    f"{h5obj.ndim}__{h5obj.shape}__{h5obj.dtype.name}__{get_sha256_of_bytes_object(h5obj[()])}"
                                     if self.hashing
                                     else "",
                                 )
@@ -254,7 +267,7 @@ class HdfFiveBaseParser:
                                     type(h5obj),
                                     np.shape(h5obj),
                                     h5obj[0, 0, 0],
-                                    f"{h5obj.ndim}__{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                    f"{h5obj.ndim}__{h5obj.shape}__{h5obj.dtype.name}__{get_sha256_of_bytes_object(h5obj[()])}"
                                     if self.hashing
                                     else "",
                                 )
@@ -273,10 +286,9 @@ class HdfFiveBaseParser:
                                     type(h5obj),
                                     np.shape(h5obj),
                                     None,
-                                    f"{h5obj.ndim}__{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                    f"{h5obj.ndim}__{h5obj.shape}__{h5obj.dtype.name}__{get_sha256_of_bytes_object(h5obj[()])}"
                                     if self.hashing
                                     else "",
-                                    "Inspect in HDF5 file directly!",
                                 )
                                 self.instances[node_name] = Concept(
                                     node_name,
@@ -342,7 +354,7 @@ class HdfFiveBaseParser:
                         np.shape(val),
                         val.dtype,
                         val,
-                        f"{val.dtype}__{get_sha256_of_bytes_object(bytes(val))}"
+                        f"{val.ndim}__{val.shape}__{val.dtype.name}__{get_sha256_of_bytes_object(bytes(val))}"
                         if self.hashing
                         else "",
                     )
@@ -391,38 +403,16 @@ class HdfFiveBaseParser:
         when differences in timestamps are expected but should not trigger
         the test to fail. The blacklist allows to exclude those HDF5 paths
         that should not be included in the yaml file."""
-        # object timestamps are low-level features of HDF5 that if activated
-        # would still render HDF5 files binarily different even though each
-        # entry and payload in the content tree is the same binary content
-        # however, these internal library administrative timestamps have been
-        # are in newer versions of hdf5 deactivated by default see here:
-        # https://github.com/h5py/h5py/issues/1953
-        # https://forum.hdfgroup.org/t/object-timestamps-useful-or-not/8901/7
-        # h5diff does not allow such a lean and customizable blacklist of nodes
-        # to the best of my knowledge hence comparing two versions of HDF5 files
-        # with h5diff is useful but if done in unit testing typically generate
-        # two long text outputs via stdout that are maybe more difficult to
-        # compare
-        #
-        # blacklist = ["@axes"
-        #              "/@HDF5_version",
-        #              "/@NX_class",
-        #              "/@NeXus_repository",
-        #              "/@NeXus_version",
-        #              "/@default",
-        #              "/@file_name",
-        #              "/@file_time",
-        #              "/@h5py_version"]
         hashes: Dict[str, str] = {}
         for key, ifo in self.groups.items():
             if key not in blacklist_by_key and not key.endswith(blacklist_by_suffix):
-                hashes[key] = "is_a_grp"
+                hashes[key] = "grp"
         for key, ifo in self.datasets.items():
             if key not in blacklist_by_key and not key.endswith(blacklist_by_suffix):
-                hashes[key] = f"is_a_dst__{ifo[-1]}"
+                hashes[key] = f"dst__{ifo[-1]}"
         for key, ifo in self.attributes.items():
             if key not in blacklist_by_key and not key.endswith(blacklist_by_suffix):
-                hashes[key] = f"is_a_attr__{ifo[-1]}"
+                hashes[key] = f"att__{ifo[-1]}"
         with open(
             kwargs.get(
                 "file_path",

@@ -23,9 +23,7 @@ from typing import Literal
 import pytest
 import yaml
 from pynxtools.dataconverter.convert import convert, get_reader
-from pynxtools.dataconverter.helpers import (
-    get_nxdl_root_and_path,
-)
+from pynxtools.dataconverter.helpers import get_nxdl_root_and_path
 
 # from pynxtools.testing.nexus_conversion import ReaderTest
 from pynxtools_em.parsers.hfive_base import (
@@ -36,12 +34,10 @@ from pynxtools_em.parsers.hfive_base import (
 
 READER_NAME = "em"
 READER_CLASS = get_reader(READER_NAME)
-# ToDo: make tests for all supported application definitions possible
-NXDLS = ["NXem"]  # READER_CLASS.supported_nxdls
+NXDLS = ["NXem"]
 
 test_cases = [
-    ("default", "simple ELN"),
-    # ("eln_second", "another simple ELN")
+    ("default", "NOMAD simple EM example"),
 ]
 
 test_params = []
