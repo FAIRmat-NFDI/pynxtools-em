@@ -1,0 +1,34 @@
+name: Spell Check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "docs/tutorial/**/*"
+      - "docs/explanation/**/*"
+      - "docs/how-tos/**/*"
+      - "docs/reference/**/*"
+      - "docs/*"
+
+jobs:
+  spellcheck:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        npm install -g cspell jq
+
+    - name: Run cspell
+      run: |
+        cspell --config cspell.json "docs/tutorial/**/*" "docs/how-tos/**/*" "docs/explanation/**/*" "docs/reference/**/*" "docs/*"
+
+    - name: Fail on errors
+      run: |
+        if [[ $? -ne 0 ]]; then
+          echo "There are spelling errors in your code. Please fix them and try again."
+          exit 1
+        fi
