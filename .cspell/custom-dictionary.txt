@@ -29,6 +29,7 @@ autostem
 backscatter
 dataconverter
 datatypes
+diátaxis
 dtype
 eiger
 flatfield
@@ -43,5 +44,6 @@ modularizability
 pathes
 pynxtools
 pyxem
+rosettasciio
 unitless
 ureg
