@@ -28,34 +28,44 @@ from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pi
 from pynxtools_em.configurations.image_tiff_point_electronic_cfg import (
     DISS_DYNAMIC_VARIOUS_NX,
 )
-from pynxtools_em.utils.get_file_checksum import (
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
 
 
 class PointElectronicTiffParser:
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         if file_path:
             self.file_path = file_path
-        self.entry_id = entry_id if entry_id > 0 else 1
-        self.verbose = verbose
-        self.id_mgn: Dict[str, int] = {"event_id": 1}
-        self.flat_metadata = fd.FlatDict({}, "/")
-        self.version: Dict = {
-            "trg": {
-                "tech_partner": ["point electronic"],
-                "schema_name": ["DISS"],
-                "schema_version": ["5.15.31.0"],
+            self.entry_id = entry_id if entry_id > 0 else 1
+            self.verbose = verbose
+            self.id_mgn: Dict[str, int] = {"event_id": 1}
+            self.flat_metadata = fd.FlatDict({}, "/")
+            self.version: Dict = {
+                "trg": {
+                    "tech_partner": ["point electronic"],
+                    "schema_name": ["DISS"],
+                    "schema_version": ["5.15.31.0"],
+                }
             }
-        }
-        self.supported = False
-        self.check_if_tiff_point_electronic()
-        if not self.supported:
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+            self.supported = False
+            self.check_if_tiff_point_electronic()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                )
+        else:
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs point electronic DISS TIFF file !"
             )
+            self.supported = False
 
     def xmpmeta_to_flat_dict(self, meta: fd.FlatDict):
         """Flatten point-electronic formatting of XMPMeta data."""
@@ -76,7 +86,7 @@ class PointElectronicTiffParser:
                     if key not in self.flat_metadata:
                         self.flat_metadata[key] = string_to_number(obj)
                     else:
-                        print(f"Duplicated key {key} !")
+                        logger.warning(f"Duplicated key {key} !")
 
     def check_if_tiff_point_electronic(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file.
@@ -92,7 +102,7 @@ class PointElectronicTiffParser:
                 if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                     return
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
         votes_for_support = 0  # voting-based
@@ -109,7 +119,7 @@ class PointElectronicTiffParser:
 
                         if self.verbose:
                             for key, value in self.flat_metadata.items():
-                                print(f"{key}____{type(value)}____{value}")
+                                logger.info(f"{key}____{type(value)}____{value}")
 
                         # check if written about with supported DISS version
                         prefix = f"{self.version['trg']['tech_partner'][0]} {self.version['trg']['schema_name'][0]}"
@@ -117,7 +127,7 @@ class PointElectronicTiffParser:
                             f"{prefix} {val}"
                             for val in self.version["trg"]["schema_version"]
                         ]
-                        print(supported_versions)
+                        logger.debug(supported_versions)
                         if self.flat_metadata["CreatorTool"] in supported_versions:
                             votes_for_support += 1  # found specific XMP metadata
         if votes_for_support == 1:
@@ -129,7 +139,7 @@ class PointElectronicTiffParser:
             # metadata have at this point already been collected into an fd.FlatDict
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} point electronic DISS with SHA256 {self.file_path_sha256} ..."
             )
             self.process_event_data_em_metadata(template)
@@ -139,22 +149,21 @@ class PointElectronicTiffParser:
     def process_event_data_em_data(self, template: dict) -> dict:
         """Add respective heavy data."""
         # default display of the image(s) representing the data collected in this event
-        print(
+        logger.debug(
             f"Writing point electronic DISS TIFF image data to the respective NeXus concept instances..."
         )
         # read image in-place
         identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
-                nparr = np.array(img)
-                print(
+                nparr = np.flipud(np.array(img))
+                logger.debug(
                     f"Processing image {identifier_image} ... {type(nparr)}, {np.shape(nparr)}, {nparr.dtype}"
                 )
                 # eventually similar open discussions points as were raised for tiff_tfs parser
                 trg = (
-                    f"/ENTRY[entry{self.entry_id}]/measurement/events/"
-                    f"EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/"
-                    f"IMAGE[image{identifier_image}]/image_2d"
+                    f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event"
+                    f"{self.id_mgn['event_id']}]/imageID[image{identifier_image}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
                 template[f"{trg}/@signal"] = "real"
@@ -168,22 +177,25 @@ class PointElectronicTiffParser:
                 template[f"{trg}/@axes"] = []
                 for dim in dims[::-1]:
                     template[f"{trg}/@axes"].append(f"axis_{dim}")
-                template[f"{trg}/real"] = {"compress": np.array(fp), "strength": 1}
+                template[f"{trg}/real"] = {"compress": nparr, "strength": 1}
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
-                sxy = {"i": 1.0, "j": 1.0}
-                scan_unit = {"i": "m", "j": "m"}
+                sxy = {"i": ureg.Quantity(1.0), "j": ureg.Quantity(1.0)}
                 if ("PixelSizeX" in self.flat_metadata) and (
                     "PixelSizeY" in self.flat_metadata
                 ):
                     sxy = {
-                        "i": self.flat_metadata["PixelSizeX"],
-                        "j": self.flat_metadata["PixelSizeY"],
+                        "i": ureg.Quantity(
+                            self.flat_metadata["PixelSizeX"], ureg.meter
+                        ),
+                        "j": ureg.Quantity(
+                            self.flat_metadata["PixelSizeY"], ureg.meter
+                        ),
                     }
                 else:
-                    print("WARNING: Assuming pixel width and height unit is meter!")
-                nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
+                    logger.warning("Assuming pixel width and height unit is unitless!")
+                nxy = {"i": np.shape(nparr)[1], "j": np.shape(nparr)[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # however, these assumptions need to be confirmed by point electronic
                 # additional points as discussed already in comments to TFS TIFF reader
@@ -191,22 +203,26 @@ class PointElectronicTiffParser:
                     template[f"{trg}/AXISNAME[axis_{dim}]"] = {
                         "compress": np.asarray(
                             np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
-                            * sxy[dim],
+                            * sxy[dim].magnitude,
                             dtype=np.float32,
                         ),
                         "strength": 1,
                     }
                     template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                        f"Coordinate along {dim}-axis ({scan_unit[dim]})"
+                        f"Coordinate along {dim}-axis ({sxy[dim].units if not sxy[dim].dimensionless else 'pixel'})"
                     )
-                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{scan_unit[dim]}"
+                    if not sxy[dim].dimensionless:
+                        template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = (
+                            f"{sxy[dim].units}"
+                        )
                 identifier_image += 1
+                del nparr
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
-        print(
+        logger.debug(
             f"Mapping some of the point electronic DISS metadata on respective NeXus concepts..."
         )
         identifier = [self.entry_id, self.id_mgn["event_id"], 1]

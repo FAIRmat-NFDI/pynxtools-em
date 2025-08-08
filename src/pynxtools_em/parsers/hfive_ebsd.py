@@ -22,6 +22,7 @@ from typing import Dict
 import h5py
 import numpy as np
 from diffpy.structure import Lattice, Structure
+
 from pynxtools_em.examples.ebsd_database import ASSUME_PHASE_NAME_TO_SPACE_GROUP
 from pynxtools_em.methods.ebsd import (
     EbsdPointCloud,
@@ -30,7 +31,9 @@ from pynxtools_em.methods.ebsd import (
     has_hfive_magic_header,
 )
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
-from pynxtools_em.utils.get_file_checksum import (
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )
@@ -46,31 +49,38 @@ from pynxtools_em.utils.pint_custom_unit_registry import ureg
 class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
     """Read modified H5EBSD (likely from Britton group)"""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         if file_path:
             self.file_path = file_path
-        self.id_mgn: Dict[str, int] = {
-            "entry_id": entry_id if entry_id > 0 else 1,
-            "roi_id": 1,
-        }
-        self.verbose = verbose
-        self.prfx = ""  # template path handling
-        self.version: Dict = {  # Dict[str, Dict[str, List[str]]]
-            "trg": {
-                "tech_partner": ["xcdskd"],
-                "schema_name": ["H5EBSD"],
-                "schema_version": ["0.1"],
-                "writer_name": ["not standardized"],
-                "writer_version": ["0.1"],
-            },
-            "src": {},
-        }
-        self.supported = False
-        self.check_if_supported()
-        if not self.supported:
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+            self.id_mgn: Dict[str, int] = {
+                "entry_id": entry_id if entry_id > 0 else 1,
+                "roi_id": 1,
+            }
+            self.verbose = verbose
+            self.prfx = ""  # template path handling
+            self.version: Dict = {  # Dict[str, Dict[str, List[str]]]
+                "trg": {
+                    "tech_partner": ["xcdskd"],
+                    "schema_name": ["H5EBSD"],
+                    "schema_version": ["0.1"],
+                    "writer_name": ["not standardized"],
+                    "writer_version": ["0.1"],
+                },
+                "src": {},
+            }
+            self.supported = False
+            self.check_if_supported()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                )
+        else:
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs EBSD community HDF5 file !"
             )
+            self.supported = False
 
     def check_if_supported(self):
         # check if instance to process matches any of these constraints
@@ -103,7 +113,7 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
         if self.supported:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} H5EBSD community with SHA256 {self.file_path_sha256} ..."
             )
             with h5py.File(f"{self.file_path}", "r") as h5r:
@@ -126,7 +136,7 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
     def parse_and_normalize_group_ebsd_header(self, fp):
         grp_name = f"{self.prfx}/EBSD/Header"
         if f"{grp_name}" not in fp:
-            print(f"Unable to parse {grp_name} !")
+            logger.warning(f"Unable to parse {grp_name} !")
             self.ebsd = EbsdPointCloud()
             return
 
@@ -134,7 +144,7 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
         # read_strings(fp[f"{grp_name}/Grid Type"][()]) == "isometric":
         for req_field in ["NCOLS", "NROWS", "XSTEP", "YSTEP"]:
             if f"{grp_name}/{req_field}" not in fp:
-                print(f"Unable to parse {grp_name}/{req_field} !")
+                logger.warning(f"Unable to parse {grp_name}/{req_field} !")
                 self.ebsd = EbsdPointCloud()
                 return
 
@@ -150,7 +160,7 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
     def parse_and_normalize_group_ebsd_phases(self, fp):
         grp_name = f"{self.prfx}/EBSD/Header/Phases"
         if f"{grp_name}" not in fp:
-            print(f"Unable parse {grp_name} !")
+            logger.warning(f"Unable parse {grp_name} !")
             self.ebsd = EbsdPointCloud()
             return
 
@@ -167,7 +177,7 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
                 sub_grp_name = f"/{grp_name}/{phase_id}"
                 for req_field in ["Name", "LatticeConstants", "SpaceGroup"]:
                     if f"{sub_grp_name}/{req_field}" not in fp:
-                        print(f"Unable to parse {sub_grp_name}/{req_field} !")
+                        logger.warning(f"Unable to parse {sub_grp_name}/{req_field} !")
                         self.ebsd = EbsdPointCloud()
                         return
                 # Name
@@ -182,10 +192,12 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
                 abc = values[0:3]
                 angles = values[3:6]
                 # TODO::available examples support that community H5EBSD reports lattice constants in angstroem
-                self.ebsd.phases[phase_idx]["a_b_c"] = ureg.Quantity(abc, ureg.angstrom)
-                self.ebsd.phases[phase_idx]["alpha_beta_gamma"] = ureg.Quantity(
-                    angles, ureg.degree
-                ).to(ureg.radian)
+                self.ebsd.phases[phase_idx]["a_b_c"] = ureg.Quantity(
+                    abc, ureg.angstrom
+                ).flatten()
+                self.ebsd.phases[phase_idx]["alpha_beta_gamma"] = (
+                    ureg.Quantity(angles, ureg.degree).to(ureg.radian).flatten()
+                )
                 latt = Lattice(
                     abc[0],
                     abc[1],
@@ -207,7 +219,7 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
                     space_group = ASSUME_PHASE_NAME_TO_SPACE_GROUP[phase_name]
                     self.ebsd.phases[phase_idx]["space_group"] = space_group
                 else:
-                    print(
+                    logger.warning(
                         f"Unable to decode improperly formatted space group {spc_grp} !"
                     )
                     self.ebsd = EbsdPointCloud()
@@ -228,7 +240,7 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
         # no official documentation yet from Bruker but seems inspired by H5EBSD
         grp_name = f"{self.prfx}/EBSD/Data"
         if f"{grp_name}" not in fp:
-            print(f"Unable to parse {grp_name} !")
+            logger.warning(f"Unable to parse {grp_name} !")
             self.ebsd = EbsdPointCloud()
             return
 
@@ -242,7 +254,7 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
             "MAD",
         ]:
             if f"{grp_name}/{req_field}" not in fp:
-                print(f"Unable to parse {grp_name}/{req_field} !")
+                logger.warning(f"Unable to parse {grp_name}/{req_field} !")
                 self.ebsd = EbsdPointCloud()
                 return
 
@@ -271,7 +283,7 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
         if np.shape(fp[f"{grp_name}/Phase"][:])[0] == n_pts:
             self.ebsd.phase_id = np.asarray(fp[f"{grp_name}/Phase"][:], np.int32)
         else:
-            print(f"{grp_name}/Phase has unexpected shape !")
+            logger.warning(f"{grp_name}/Phase has unexpected shape !")
             self.ebsd = EbsdPointCloud()
             return
 
@@ -317,6 +329,6 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
                 np.asarray(fp[f"{grp_name}/MAD"][:], np.float32), ureg.radian
             )
         else:
-            print(f"{grp_name}/MAD has unexpected shape !")
+            logger.warning(f"{grp_name}/MAD has unexpected shape !")
             self.ebsd = EbsdPointCloud()
             return

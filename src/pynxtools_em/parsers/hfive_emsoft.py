@@ -20,38 +20,46 @@
 from typing import Dict
 
 import h5py
+
 from pynxtools_em.methods.ebsd import has_hfive_magic_header
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.custom_logging import logger
 
 
 class HdfFiveEmSoftParser(HdfFiveBaseParser):
     """Read EMsoft H5 (Marc deGraeff Carnegie Mellon)"""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         if file_path:
             self.file_path = file_path
-        self.id_mgn: Dict[str, int] = {
-            "entry_id": entry_id if entry_id > 0 else 1,
-            "roi_id": 1,
-        }
-        self.verbose = verbose
-        self.prfx = ""  # template path handling
-        self.version: Dict = {
-            "trg": {
-                "tech_partner": ["EMsoft"],
-                "schema_name": ["EMsoft"],
-                "schema_version": ["EMsoft"],
-                "writer_name": ["EMsoft"],
-                "writer_version": ["EMsoft"],
-            },
-            "src": {},
-        }
-        self.supported = False
-        self.check_if_supported()
-        if not self.supported:
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
-            )
+            self.id_mgn: Dict[str, int] = {
+                "entry_id": entry_id if entry_id > 0 else 1,
+                "roi_id": 1,
+            }
+            self.verbose = verbose
+            self.prfx = ""  # template path handling
+            self.version: Dict = {
+                "trg": {
+                    "tech_partner": ["EMsoft"],
+                    "schema_name": ["EMsoft"],
+                    "schema_version": ["EMsoft"],
+                    "writer_name": ["EMsoft"],
+                    "writer_version": ["EMsoft"],
+                },
+                "src": {},
+            }
+            self.supported = False
+            self.check_if_supported()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                )
+        else:
+            logger.warning(f"Parser {self.__class__.__name__} needs EMsoft HDF5 file !")
+            self.supported = False
 
     def check_if_supported(self):
         """Check if instance matches all constraints to EMsoft"""
@@ -81,6 +89,6 @@ class HdfFiveEmSoftParser(HdfFiveBaseParser):
 
     def parse(self, template: dict) -> dict:
         if self.supported:
-            print(f"Parsing via Carnegie/Mellon EMsoft parser...")
-            # TODO::add functionality
+            logger.info(f"Parsing via Carnegie/Mellon EMsoft parser...")
+            logger.critical("TODO::add functionality")
         return template

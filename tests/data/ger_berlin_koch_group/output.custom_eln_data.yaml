@@ -1,0 +1,20 @@
+# first line mandatory hint for pynxtools-em to decide which custom ELN parser to use
+parser: ger_berlin_koch_group
+# typical yaml-style ELN output goes below
+instrument:
+  location: Humboldt-Universität zu Berlin, Center for the Science of Materials Berlin (CSMB)
+  name: Nion HERMES
+  vendor: Bruker-Nion
+  model: HERMES
+  serial_number: 1
+  capabilities: monochromated, aberration-corrected
+ebeam_column:
+  vendor: Bruker-Nion
+  model: HERMES
+  serial_number: 1
+electron_source:
+  name: Nion HERMES
+  voltage:
+    unit: V
+    value: 200000
+  emitter_type: field_emission

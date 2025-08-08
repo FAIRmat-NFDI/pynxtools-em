@@ -60,26 +60,34 @@ from pynxtools_em.examples.diffraction_pattern_set import (
     SUPPORTED_MODES,
     get_materialsproject_id_and_spacegroup,
 )
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.hfive_web import HFIVE_WEB_MAXIMUM_ROI
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 
 class DiffractionPatternSetParser:
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
-        self.file_path = file_path
-        self.entry_id = entry_id if entry_id > 0 else 1
-        self.verbose = verbose
-        self.mp_entries: Dict[int, Any] = {}
-        # details about the images of a specific space group and materials project
-        self.mp_meta: Dict[int, Any] = {}
-        # metadata to each space group and materials id project as cached in projects.yaml
-        self.version: Dict = {}
-        self.supported = False
-        self.check_if_zipped_pattern()
-        if not self.supported:
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
-            )
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
+        if file_path:
+            self.file_path = file_path
+            self.entry_id = entry_id if entry_id > 0 else 1
+            self.verbose = verbose
+            self.mp_entries: Dict[int, Any] = {}
+            # details about the images of a specific space group and materials project
+            self.mp_meta: Dict[int, Any] = {}
+            # metadata to each space group and materials id project as cached in projects.yaml
+            self.version: Dict = {}
+            self.supported = False
+            self.check_if_zipped_pattern()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                )
+        else:
+            logger.warning(f"Parser {self.__class__.__name__} needs zipped content !")
+            self.supported = False
 
     def check_if_zipped_pattern(self):
         """Check if resource behind self.file_path is a ZIP file with diffraction pattern."""
@@ -91,24 +99,24 @@ class DiffractionPatternSetParser:
                 if (
                     magic != b"PK\x03\x04"
                 ):  # https://en.wikipedia.org/wiki/List_of_file_signatures
-                    # print(f"Test 1 failed, {self.file_path} is not a ZIP archive !")
+                    # logger.warning(f"Test 1 failed, {self.file_path} is not a ZIP archive !")
                     return
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
         try:
             with open(MATERIALS_PROJECT_METADATA, "r") as yml:
                 self.mp_meta = yaml.safe_load(yml)
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
         # inspect zipfile for groups of pattern with the same properties and sub-sets
         with ZipFile(self.file_path) as zip_file_hdl:
             for fpath in zip_file_hdl.namelist():
                 if fpath.startswith(EXAMPLE_FILE_PREFIX) and not fpath.endswith("/"):
-                    # print(file)
+                    # logger.debug(file)
                     # authors studied sets of space_groups with each
                     # sets of materialsproject crystal structures
                     # mp_entries maps this hierarchy
@@ -160,12 +168,12 @@ class DiffractionPatternSetParser:
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""
         if self.supported:
-            print(
+            logger.info(
                 f"Parsing via DiffractionPatternSetParser ZIP-compressed project parser..."
             )
             with ZipFile(self.file_path) as zip_file_hdl:
                 for sgid in self.mp_entries:
-                    print(sgid)
+                    logger.debug(sgid)
                     for mpid in self.mp_entries[sgid]:
                         if (
                             len(self.mp_entries[sgid][mpid]["files"]) <= 0
@@ -173,7 +181,7 @@ class DiffractionPatternSetParser:
                         ):
                             continue
 
-                        print(f"\t\t{mpid}")
+                        logger.debug(f"\t\t{mpid}")
                         dtyp = PIL_DTYPE_TO_NPY_DTYPE[
                             self.mp_entries[sgid][mpid]["mode"]
                         ]
@@ -202,12 +210,12 @@ class DiffractionPatternSetParser:
         self, template: dict, meta: dict, stack_2d: np.ndarray
     ) -> dict:
         """Add respective heavy data."""
-        trg = f"/ENTRY[entry{self.entry_id}]/SIMULATION[simulation1]"
-        template[f"{trg}/PROGRAM[program1]/program"] = "EMsoft"
-        template[f"{trg}/PROGRAM[program1]/program/@version"] = (
+        trg = f"/ENTRY[entry{self.entry_id}]/simulation"
+        template[f"{trg}/programID[program1]/program"] = "EMsoft"
+        template[f"{trg}/programID[program1]/program/@version"] = (
             "not reported in the paper"
         )
-        trg = f"/ENTRY[entry{self.entry_id}]/SIMULATION[simulation1]/config"
+        trg = f"/ENTRY[entry{self.entry_id}]/simulation/config"
         for concept in [
             "emmet_version",
             "pymatgen_version",
@@ -238,25 +246,27 @@ class DiffractionPatternSetParser:
 
         # TODO::requery MaterialsProject to get missing information chemical_formula
         if "atom_types" in meta:
-            template[f"/ENTRY[entry{self.entry_id}]/SAMPLE[sample]/atom_types"] = meta[
-                "atom_types"
-            ]
+            template[f"/ENTRY[entry{self.entry_id}]/sampleID[sample]/atom_types"] = (
+                meta["atom_types"]
+            )
         if "chemical_formula" in meta:
             template[
-                f"/ENTRY[entry{self.entry_id}]/SAMPLE[sample]/chemical_formula"
+                f"/ENTRY[entry{self.entry_id}]/sampleID[sample]/chemical_formula"
             ] = meta["chemical_formula"]
             # TODO::needs to be Hill
 
-        trg = f"/ENTRY[entry{self.entry_id}]/SIMULATION[simulation1]/results/IMAGE[image1]/stack_2d"
+        trg = (
+            f"/ENTRY[entry{self.entry_id}]/simulation/results/imageID[image1]/stack_2d"
+        )
         if "identifier/identifier" in meta and "phase_name" in meta:
             template[f"{trg}/title"] = (
                 f"{meta['identifier/identifier']}, {meta['phase_name']}"
             )
         else:
             template[f"{trg}/title"] = f"MaterialsProject ID was not API-retrievable"
-        # trg = f"/ENTRY[entry{self.entry_id}]/SIMULATION[simulation1]/config/PHASE[phase1]"
+        # trg = f"/ENTRY[entry{self.entry_id}]/simulation/config/phaseID[phase1]"
         # template[f"{trg}/@NX_class"] = "NXphase"  # TODO::should be made part of NXem
-        # trg = f"/ENTRY[entry{self.entry_id}]/ROI[roi1]/ebsd/indexing/PHASE[phase1]"
+        # trg = f"/ENTRY[entry{self.entry_id}]/roiID[roi1]/ebsd/indexing/phaseID[phase1]"
         # template[f"{trg}/@NX_class"] = "NXdata"  # TODO::should be made part of NXem
         template[f"{trg}/@signal"] = "real"
         template[f"{trg}/@AXISNAME_indices[axis_i_indices]"] = np.uint32(2)
@@ -279,7 +289,7 @@ class DiffractionPatternSetParser:
                 "strength": 1,
             }
             template[f"{trg}/AXISNAME[{axis}]/@long_name"] = (
-                f"Coordinate along {axis} (needs proper scaling!)"
+                f"Coordinate along {axis.replace('axis_', '')}-axis (pixel)"
             )
             # TODO::template[f"{trg}/AXISNAME[axis_{dim}]/@units"]
         self.entry_id += 1

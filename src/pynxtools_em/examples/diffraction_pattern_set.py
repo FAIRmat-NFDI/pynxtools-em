@@ -29,6 +29,7 @@ EXAMPLE_FILE_PREFIX = "original_data/original_data_0/train/"
 MATERIALS_PROJECT_METADATA = f"{THIS_MODULE_PATH}/diffraction_pattern_meta.yaml"
 SUPPORTED_FORMATS = ["bmp", "gif", "jpg", "png", "tif", "tiff"]
 SUPPORTED_MODES = ["L", "I"]
+from pynxtools_em.utils.custom_logging import logger
 
 
 def get_materialsproject_id_and_spacegroup(
@@ -46,11 +47,9 @@ def get_materialsproject_id_and_spacegroup(
             f"{materialsproject_id.group()}{spacegroup_id.group()}", ""
         )
         if verbose:
-            print(fpath)
-            print(fname)
-            print(f"{mp}____{type(mp)}")
-            print(f"{spc}____{type(spc)}")
-            print(f"{tail}____{type(tail)}")
+            logger.debug(
+                f"{fpath}\n{fname}\n{mp}____{type(mp)}\n{spc}____{type(spc)}\n{tail}____{type(tail)}"
+            )
         return mp, int(spc)
     return None, None
 

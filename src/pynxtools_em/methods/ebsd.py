@@ -30,6 +30,7 @@ from orix.vector import Vector3d
 from PIL import Image as pil
 from scipy.spatial import KDTree
 
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.hfive_web import (
     HFIVE_WEB_MAXIMUM_RGB,
     HFIVE_WEB_MAXIMUM_ROI,
@@ -38,12 +39,9 @@ from pynxtools_em.utils.hfive_web_utils import hfive_web_decorate_nxdata
 from pynxtools_em.utils.image_processing import thumbnail
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-PROJECTION_VECTORS = [Vector3d.xvector(), Vector3d.yvector(), Vector3d.zvector()]
-PROJECTION_DIRECTIONS = [
-    ("X", Vector3d.xvector().data.flatten()),
-    ("Y", Vector3d.yvector().data.flatten()),
-    ("Z", Vector3d.zvector().data.flatten()),
-]
+IPF_COLORMODEL_USED_BY_ORIX = "tsl"
+
+PROJECTION_VECTORS = [("X", Vector3d.xvector())]
 
 # typical scan schemes used for EBSD
 HEXAGONAL_FLAT_TOP_TILING = "hexagonal_flat_top_tiling"
@@ -111,7 +109,7 @@ def has_hfive_magic_header(file_path: str) -> bool:
             if magic == b"\x89HDF":
                 return True
     except (FileNotFoundError, IOError):
-        print(f"{file_path} either FileNotFound or IOError !")
+        logger.warning(f"{file_path} either FileNotFound or IOError !")
     return False
 
 
@@ -121,7 +119,7 @@ def regrid_onto_equisized_scan_points(
     """Discretize point cloud in R^d (d=1, 2, 3) and mark data to grid with equisized bins."""
 
     if src_grid.dimensionality not in [1, 2]:
-        print(f"Facing unsupported dimensionality !")
+        logger.warning(f"Facing unsupported dimensionality !")
         return src_grid
     # take discretization of the source grid as a guide for the target_grid
     # optimization possible if square grid and matching maximum_extent
@@ -154,7 +152,7 @@ def regrid_onto_equisized_scan_points(
                 src_grid.pos[f"{dim}"].magnitude + 0.5 * src_grid.s[f"{dim}"].magnitude
             ),
         ]
-    print(f"{aabb}")
+    logger.debug(f"{aabb}")
 
     trg_s = {}
     trg_n = {}
@@ -179,12 +177,12 @@ def regrid_onto_equisized_scan_points(
             trg_n["y"] = max_extent
             n_pts = trg_n["x"] * trg_n["y"]
     elif src_grid.dimensionality == 3:
-        print("TODO !!!!")
+        logger.warning("TODO LEFT FOR IMPLEMENTATION !!!!")
 
-    print(f"H5Web default plot generation")
+    logger.debug(f"H5Web default plot generation")
     for dim in dims:
-        print(f"src_s {dim}: {src_grid.s[dim]} >>>> trg_s {dim}: {trg_s[dim]}")
-        print(f"src_n {dim}: {src_grid.n[dim]} >>>> trg_n {dim}: {trg_n[dim]}")
+        logger.debug(f"src_s {dim}: {src_grid.s[dim]} >>>> trg_s {dim}: {trg_s[dim]}")
+        logger.debug(f"src_n {dim}: {src_grid.n[dim]} >>>> trg_n {dim}: {trg_n[dim]}")
     # the above estimate is not exactly correct (may create a slight real space shift)
     # of the EBSD map TODO:: regrid the real world axis-aligned bounding box aabb with
     # a regular tiling of squares or hexagons
@@ -291,7 +289,7 @@ def regrid_onto_equisized_scan_points(
 
 
 def ebsd_roi_overview(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dict:
-    """Create an H5Web-capable ENTRY[entry]/ROI[roi*]/ebsd/indexing/roi."""
+    """Create an H5Web-capable ENTRY[entry]/roiID[roi*]/ebsd/indexing/roi."""
     # EBSD maps are collected using different scan strategies but RDMs may not be
     # able to show all of them at the provided size and grid type
     # here a default plot is generated taking the OIM data per scan point
@@ -306,7 +304,7 @@ def ebsd_roi_overview(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dict
     if not trg_grid.descr_type:
         return template
 
-    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/ebsd/indexing/roi"
+    trg = f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/ebsd/indexing/roi"
     template[f"{trg}/descriptor"] = trg_grid.descr_type
     template[f"{trg}/title"] = (
         f"Region-of-interest overview image ({trg_grid.descr_type})"
@@ -327,7 +325,7 @@ def ebsd_roi_overview(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dict
         }
         template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{trg_grid.s[dim].units}"
         template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-            f"Point coordinate along {dim}-axis ({trg_grid.s[dim].units})"
+            f"Coordinate along {dim}-axis ({trg_grid.s[dim].units})"
         )
 
     template[f"{trg}/@axes"] = []
@@ -366,7 +364,9 @@ def ebsd_roi_phase_ipf(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dic
         return template
 
     nxem_phase_id = 0
-    prfx = f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/ebsd/indexing"
+    prfx = (
+        f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/ebsd/indexing"
+    )
     # bookkeeping for how many scan points solutions were found is always for src_grid
     # because the eventual discretization for h5web is solely
     # for the purpose of showing users a readily consumable default plot
@@ -377,10 +377,10 @@ def ebsd_roi_phase_ipf(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dic
     for dim in dims:
         n_pts *= inp.n[dim]
     if n_pts == 1:
-        print(f"Spot measurements are currently not supported !")
+        logger.warning(f"Spot measurements are currently not supported !")
         return template
     if n_pts >= np.iinfo(np.uint32).max:
-        print(
+        logger.warning(
             f"EBSD maps with more than {np.iinfo(np.uint32).max} scan points are currently not supported !"
         )
         return template
@@ -390,36 +390,44 @@ def ebsd_roi_phase_ipf(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dic
     )
 
     n_pts_indexed = np.sum(inp.phase_id != 0)
-    print(f"n_pts {n_pts}, n_pts_indexed {n_pts_indexed}")
+    logger.debug(f"n_pts {n_pts}, n_pts_indexed {n_pts_indexed}")
     template[f"{prfx}/number_of_scan_points"] = np.uint32(n_pts)
     template[f"{prfx}/indexing_rate"] = np.float64(n_pts_indexed / n_pts)
-    grp_name = f"{prfx}/PHASE[phase{nxem_phase_id}]"
+    grp_name = f"{prfx}/phaseID[phase{nxem_phase_id}]"
     template[f"{grp_name}/number_of_scan_points"] = np.uint32(np.sum(inp.phase_id == 0))
     template[f"{grp_name}/phase_id"] = np.int32(nxem_phase_id)
     template[f"{grp_name}/name"] = f"notIndexed"
 
-    print(f"----unique inp phase_id--->{np.unique(inp.phase_id)}")
+    logger.debug(f"----unique inp phase_id--->{np.unique(inp.phase_id)}")
     for nxem_phase_id in np.arange(1, np.max(np.unique(inp.phase_id)) + 1):
         # starting here at ID 1 because the specific parsers have already normalized the
         # tech-partner specific phase_id conventions to follow the NXem NeXus convention
         # that is 0 is notIndexed, all other phase contiguously, start count from 1
-        print(f"inp[phases].keys(): {inp.phases.keys()}")
+        logger.debug(f"inp[phases].keys(): {inp.phases.keys()}")
         if nxem_phase_id not in inp.phases:
             raise KeyError(f"{nxem_phase_id} is not a key in inp['phases'] !")
-        trg = f"{prfx}/PHASE[phase{nxem_phase_id}]"
+        trg = f"{prfx}/phaseID[phase{nxem_phase_id}]"
         template[f"{trg}/number_of_scan_points"] = np.uint32(
             np.sum(inp.phase_id == nxem_phase_id)
         )
         template[f"{trg}/phase_id"] = np.int32(nxem_phase_id)
         template[f"{trg}/name"] = f"{inp.phases[nxem_phase_id]['phase_name']}"
 
-        for concept in ["a_b_c", "alpha_beta_gamma"]:
-            if concept in inp.phases[nxem_phase_id]:
-                template[f"{trg}/UNIT_CELL[unit_cell]/{concept}"] = np.asarray(
-                    inp.phases[nxem_phase_id][concept].magnitude, dtype=np.float32
+        if "a_b_c" in inp.phases[nxem_phase_id]:
+            for idx, key in enumerate(["a", "b", "c"]):
+                template[f"{trg}/UNIT_CELL[unit_cell]/{key}"] = np.float32(
+                    inp.phases[nxem_phase_id]["a_b_c"].magnitude[idx]
                 )
-                template[f"{trg}/UNIT_CELL[unit_cell]/{concept}/@units"] = (
-                    f"{inp.phases[nxem_phase_id][concept].units}"
+                template[f"{trg}/UNIT_CELL[unit_cell]/{key}/@units"] = (
+                    f"{inp.phases[nxem_phase_id]['a_b_c'].units}"
+                )
+        if "alpha_beta_gamma" in inp.phases[nxem_phase_id]:
+            for idx, key in enumerate(["alpha", "beta", "gamma"]):
+                template[f"{trg}/UNIT_CELL[unit_cell]/{key}"] = np.float32(
+                    inp.phases[nxem_phase_id]["alpha_beta_gamma"].magnitude[idx]
+                )
+                template[f"{trg}/UNIT_CELL[unit_cell]/{key}/@units"] = (
+                    f"{inp.phases[nxem_phase_id]['alpha_beta_gamma'].units}"
                 )
         if "space_group" in inp.phases[nxem_phase_id]:
             template[f"{trg}/UNIT_CELL[unit_cell]/space_group"] = (
@@ -466,12 +474,12 @@ def process_roi_phase_ipf(
         direction="lab2crystal",
         degrees=False,
     )
-    # print(f"shape rotations -----> {np.shape(rotations)}")
+    # logger.debug(f"shape rotations -----> {np.shape(rotations)}")
 
     for idx in np.arange(0, len(PROJECTION_VECTORS)):
         point_group = get_point_group(space_group, proper=False)
         ipf_key = plot.IPFColorKeyTSL(
-            point_group.laue, direction=PROJECTION_VECTORS[idx]
+            point_group.laue, direction=PROJECTION_VECTORS[idx][1]
         )
         img = get_ipfdir_legend(ipf_key)
 
@@ -479,7 +487,7 @@ def process_roi_phase_ipf(
             np.asarray(ipf_key.orientation2color(rotations) * 255.0, np.uint32),
             np.uint8,
         )
-        # print(f"shape rgb_px_with_phase_id -----> {np.shape(rgb_px_with_phase_id)}")
+        # logger.debug(f"shape rgb_px_with_phase_id -----> {np.shape(rgb_px_with_phase_id)}")
 
         ipf_rgb_map = np.zeros((n_pts, 3), np.uint8)
         # background is black instead of white (which would be more pleasing)
@@ -494,17 +502,18 @@ def process_roi_phase_ipf(
         # 2D, 0 > y, 1 > x
         # 1D, 0 > x
         trg = (
-            f"/ENTRY[entry{id_mgn['entry_id']}]/ROI[roi{id_mgn['roi_id']}]/ebsd/indexing"
-            f"/PHASE[phase{nxem_phase_id}]/IPF[ipf{idx + 1}]"
+            f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/ebsd/indexing"
+            f"/phaseID[phase{nxem_phase_id}]/ipfID[ipf{idx + 1}]"
         )
+        template[f"{trg}/color_model"] = "tsl"  # as used by kikuchipy/orix
         template[f"{trg}/projection_direction"] = np.asarray(
-            PROJECTION_VECTORS[idx].data.flatten(), np.float32
+            PROJECTION_VECTORS[idx][1].data.flatten(), np.float32
         )
 
         # add the IPF color map fundamental unit SO3 obeying crystal symmetry
         mpp = f"{trg}/map"
         template[f"{mpp}/title"] = (
-            f"Inverse pole figure {PROJECTION_DIRECTIONS[idx][0]} {phase_name}"
+            f"IPF, {PROJECTION_VECTORS[idx][0]}, {IPF_COLORMODEL_USED_BY_ORIX}, phase{nxem_phase_id}, {phase_name}"  # TODO add symmetry to follow the pattern for MTex: IPF, X, -1, tsl, phase1, BYTOWNITE An
         )
         template[f"{mpp}/@signal"] = "data"
         template[f"{mpp}/@axes"] = []
@@ -533,12 +542,12 @@ def process_roi_phase_ipf(
             }
             template[f"{mpp}/AXISNAME[axis_{dim}]/@units"] = f"{trg_grid.s[dim].units}"
             template[f"{mpp}/AXISNAME[axis_{dim}]/@long_name"] = (
-                f"Point coordinate along {dim}-axis ({trg_grid.s[dim].units})"
+                f"Coordinate along {dim}-axis ({trg_grid.s[dim].units})"
             )
         # add the IPF color map legend/key
         lgd = f"{trg}/legend"
         template[f"{lgd}/title"] = (
-            f"Inverse pole figure {PROJECTION_DIRECTIONS[idx][0]} {phase_name}"
+            f"IPF, {PROJECTION_VECTORS[idx][0]}, {IPF_COLORMODEL_USED_BY_ORIX}, phase{nxem_phase_id}, {phase_name}"  # TODO add symmetry to follow the pattern for MTex: IPF, X, -1, tsl, phase1, BYTOWNITE An
         )
         # template[f"{trg}/title"] = f"Inverse pole figure color key with SST"
         template[f"{lgd}/@signal"] = "data"
@@ -568,6 +577,6 @@ def process_roi_phase_ipf(
                 "strength": 1,
             }
             template[f"{lgd}/AXISNAME[axis_{dim}]/@long_name"] = (
-                f"Pixel coordinate along {dim}-axis"
+                f"Pixel along {dim}-axis"
             )
     return template

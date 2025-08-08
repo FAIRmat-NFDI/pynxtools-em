@@ -21,6 +21,7 @@ from typing import Dict
 
 import pint
 
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 RSCIIO_AXES_MIN = ["name", "navigate", "offset", "scale", "size", "units"]
@@ -40,11 +41,13 @@ def velox_image_spectrum_or_generic_nxdata(list_of_dict) -> str:
                     else:
                         token.append(obj["units"])
                 else:
-                    print(f"{obj.keys()} are not exactly the expected keywords!")
+                    logger.warning(
+                        f"{obj.keys()} are not exactly the expected keywords!"
+                    )
             else:
-                print(f"{obj} is not a dict!")
+                logger.warning(f"{obj} is not a dict!")
         if len(token) >= 1:
-            print("_".join(token))
+            logger.debug("_".join(token))
             unit_categories = []
             for unit in token:
                 if unit != "unitless":

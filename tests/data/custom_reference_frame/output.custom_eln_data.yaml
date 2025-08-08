@@ -1,4 +1,7 @@
-rotation_conventions:
+# first line mandatory hint for pynxtools-em to decide which custom ELN parser to use
+parser: custom_reference_frame
+# typical yaml-style ELN output goes below
+consistent_rotations:
   rotation_handedness: counter_clockwise
   rotation_convention: passive
   euler_angle_convention: zxz
@@ -34,11 +37,11 @@ detector_reference_frame:
 gnomonic_reference_frame:
   type: cartesian
   handedness: right_handed
-  origin: in_the_pattern_centre
+  origin: in_the_pattern_center
   x_direction: east
   y_direction: south
   z_direction: in
-pattern_centre:
+pattern_center:
   x_boundary_convention: top
   x_normalization_direction: east
   y_boundary_convention: top

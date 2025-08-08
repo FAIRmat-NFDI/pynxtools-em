@@ -24,15 +24,14 @@ import yaml
 from ase.data import chemical_symbols
 
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
-from pynxtools_em.configurations.eln_cfg import (
+from pynxtools_em.configurations.oasis_eln_cfg import (
     OASISELN_EM_ENTRY_TO_NEXUS,
     OASISELN_EM_SAMPLE_TO_NEXUS,
     OASISELN_EM_USER_TO_NEXUS,
 )
-from pynxtools_em.utils.get_file_checksum import (
-    DEFAULT_CHECKSUM_ALGORITHM,
-    get_sha256_of_file_content,
-)
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 
 
 class NxEmNomadOasisElnSchemaParser:
@@ -42,16 +41,25 @@ class NxEmNomadOasisElnSchemaParser:
     pieces of information relevant from the NeXus perspective
     """
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
-        if pathlib.Path(file_path).name.endswith("eln_data.yaml") or pathlib.Path(
-            file_path
-        ).name.endswith("eln_data.yml"):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
+        if pathlib.Path(file_path).name.endswith(("eln_data.yaml", "eln_data.yml")):
             self.file_path = file_path
-        self.entry_id = entry_id if entry_id > 0 else 1
-        self.verbose = verbose
-        self.flat_metadata = fd.FlatDict({}, "/")
-        self.supported = False
-        self.check_if_supported()
+            self.entry_id = entry_id if entry_id > 0 else 1
+            self.verbose = verbose
+            self.flat_metadata = fd.FlatDict({}, "/")
+            self.supported = False
+            self.check_if_supported()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                )
+        else:
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs eln_data.yaml file !"
+            )
+            self.supported = False
 
     def check_if_supported(self):
         self.supported = False
@@ -61,10 +69,10 @@ class NxEmNomadOasisElnSchemaParser:
 
                 if self.verbose:
                     for key, val in self.flat_metadata.items():
-                        print(f"key: {key}, value: {val}")
+                        logger.info(f"key: {key}, value: {val}")
             self.supported = True
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
     def parse(self, template: dict) -> dict:
@@ -72,7 +80,7 @@ class NxEmNomadOasisElnSchemaParser:
         if self.supported:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} NOMAD Oasis/ELN with SHA256 {self.file_path_sha256} ..."
             )
             self.parse_entry(template)
@@ -99,8 +107,8 @@ class NxEmNomadOasisElnSchemaParser:
 
     def parse_atom_types(self, template: dict) -> dict:
         """Copy preferentially chemical_formula if provided, atom_types optional fallback."""
-        trg = f"/ENTRY[entry{self.entry_id}]/SAMPLE[sample]"
         src = "sample/chemical_formula"
+        trg = f"/ENTRY[entry{self.entry_id}]/sampleID[sample]"
         if src in self.flat_metadata:
             if self.flat_metadata[src] != "":
                 # assume the chemical formula follows Hill convention
@@ -139,7 +147,7 @@ class NxEmNomadOasisElnSchemaParser:
                             template,
                         )
                         if "orcid" in user_dict:
-                            trg = f"/ENTRY[entry{self.entry_id}]/USER[user{user_id}]"
+                            trg = f"/ENTRY[entry{self.entry_id}]/userID[user{user_id}]"
                             template[f"{trg}/identifier"] = user_dict["orcid"]
                             template[f"{trg}/identifier/@type"] = "DOI"
                         user_id += 1

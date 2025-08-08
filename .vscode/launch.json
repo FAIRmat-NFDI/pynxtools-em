@@ -6,16 +6,104 @@
     "configurations": [
         {
             "name": "pynx-em debug",
-            "type": "python",
+            "type": "python", //"debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "../../.py3.11.11/bin/dataconverter",
-            "args": ["tests/data/eln/eln_data.yaml",
+            "program": "../../.pytmp/bin/dataconverter",  //../../.py3.12.3/bin/dataconverter",
+            "args": [//"tests/data/custom_reference_frame/output.custom_eln_data.yaml",
+                     //"tests/data/default/em.oasis.specific.yaml",
+                     //"tests/data/default/InGaN_nanowires_spectra.edaxh5",
+                     //"tests/data/default/output.nxs_eln_data.yaml",
+                     //"tests/data/ebsd_mtex/output.custom_eln_data.yaml",
+                     //"tests/data/ebsd_mtex/032.39c6e5a5083b0eef64e2fd93aaa155ea5fa00650eaf715f167a38cfcc5e6cf67.ctf.mtex.h5",
+                     //"tests/data/ebsd_oina/093.98c4ce3a524cadfe060485ec8206143ac02ff112c92bccd2d19df7f331f00a4b.h5oina.nxs",
+                     //"tests/data/ger_berlin_koch_group/output.custom_eln_data.yaml",
+                     //"tests/data/hfive_apex_algao/AlGaO.h5",
+                     //"tests/data/hfive_apex_ingan/InGaN_nanowires_map.edaxh5",
+                     //"tests/data/hfive_apex_nibase/2023-08-16_Ni_NFDI.edaxh5",
+                     //"tests/data/hfive_apex_vinp/VInP_108_L2.h5",
+                     //"tests/data/hfive_bruker/066_0025.h5",
+                     //"tests/data/hfive_dreamthreed_damask/244_0014.dream3d",
+                     //"tests/data/hfive_dreamthreed_groeber/SmallIN100_Final.dream3d",
+                     //"tests/data/hfive_dreamthreed_manchester/067_0003.dream3d",
+                     //"tests/data/hfive_edax_ag/001_0050.h5",
+                     //"tests/data/hfive_edax_am/229_2097.oh5",
+                     //"tests/data/hfive_oxford_pinard_ebsd/173_0057.h5oina",
+                     //"tests/data/hfive_oxford_pinard_rois/173_0056.h5oina",
+                     //"tests/data/hfive_oxford_vitesh1/57764_CR_ZG_380.h5oina",
+                     //"tests/data/hfive_oxford_vitesh2/EBSDCleanedMapData7.h5oina",
+                     //"tests/data/image_fei_legacy_sem/SEM_Image_-_SliceImage_-_109.tif",
+                     //"tests/data/image_fei_legacy_tem/BF_02_40kx.tif",
+                     //"tests/data/image_hitachi/360.tif",
+                     //"tests/data/image_hitachi/360.txt",
+                     //"tests/data/image_hitachi_su8000/SEM_Ti_Grade_2_G (1).tif",
+                     //"tests/data/image_hitachi_su8000/SEM_Ti_Grade_2_G (1).txt",
+                     //"tests/data/image_jeol/20240227_A1_2m_0_FA3_1.txt",
+                     //"tests/data/image_jeol/20240227_A1_2m_0_FA3_1.tif",
+                     "tests/data/image_point_electronic/Defekt1.tif",
+                     //"tests/data/image_protochips/ReductionOfFeOxSmall.zip",
+                     //"tests/data/image_tescan_mira/CZ04-2_102_Pic_2.tif",
+                     //"tests/data/image_tescan_sidecar/Ti3C2VacDriedFilm19.hdr",
+                     //"tests/data/image_tescan_sidecar/Ti3C2VacDriedFilm19.tif",
+                     //"tests/data/image_tfs_etd/ETD_image.tif",
+                     //"tests/data/image_tfs_kit/ALN_baoh_021.tif",
+                     //"tests/data/image_tfs_misc/0c8nA_3deg_003_AplusB_test.tif",
+                     //"tests/data/image_tfs_navcam/NavCam_normal_vis_light_ccd.tif",
+                     //"tests/data/image_tfs_t3/T3_image.tif",
+                     //"tests/data/image_tfs_yassin/test.tif",
+                     //"tests/data/image_zeiss/SE2.tif",
+                     //"tests/data/nxs_nion_haas2022/2022-02-18_Metadata_Kuehbach.zip",
+                     //"tests/data/nxs_nion_haas2025/yNmUKFllSK2e8B_y-E8LBQ.zip",
+                     //"tests/data/rsciio_gatan_dm3/262.b97850f6c6b100740813c34d20eda294ef66a6130daa42a6cf975c4572ff599c.dm3",
+                     //"tests/data/rsciio_gatan_dm4/265.6a232b951fe99bb06c481e6863b5b590df194b0766c915218586c81077417e8a.dm4",
+                     //"tests/data/rsciio_velox_258/258.fbbd9cdfcf8be1b1d6e056cdf4186a0505df9188bbf52ebe36e74e271a8c972b.emd",
+                     //"tests/data/rsciio_velox_265/265.2dccb74e742d9807d736689ee1bdeb149aabbbccbecab89ab0d5855678a2b338.emd",
                      "--reader",
                      "em",
                      "--nxdl",
                      "NXem",
-                     "--output=tests/prod/data.eln.eln_data.yaml.nxs"]
+                     //"--skip-verify",
+                     //"--output=tests/prod/custom_reference_frame/output.nxs"]
+                     //"--output=tests/prod/default/output.nxs"]
+                     //"--output=tests/prod/ebsd_mtex/output.nxs"]
+                     //"--output=tests/prod/ebsd_oina/output.nxs"]
+                     //"--output=tests/prod/ger_berlin_koch_group/output.nxs"]
+                     //"--output=tests/prod/hfive_apex_algao/output.nxs"]
+                     //"--output=tests/prod/hfive_apex_ingan/output.nxs"]
+                     //"--output=tests/prod/hfive_apex_nibase/output.nxs"]
+                     //"--output=tests/prod/hfive_apex_vinp/output.nxs"]
+                     //"--output=tests/prod/hfive_bruker/output.nxs"]
+                     //"--output=tests/prod/hfive_dreamthreed_damask/output.nxs"]
+                     //"--output=tests/prod/hfive_dreamthreed_groeber/output.nxs"]
+                     //"--output=tests/prod/hfive_dreamthreed_manchester/output.nxs"]
+                     //"--output=tests/prod/hfive_edax_ag/output.nxs"]
+                     //"--output=tests/prod/hfive_edax_am/output.nxs"]
+                     //"--output=tests/prod/hfive_oxford_pinard_ebsd/output.nxs"]
+                     //"--output=tests/prod/hfive_oxford_pinard_rois/output.nxs"]
+                     //"--output=tests/prod/hfive_oxford_vitesh1/output.nxs"]
+                     //"--output=tests/prod/hfive_oxford_vitesh2/output.nxs"]
+                     //"--output=tests/prod/image_fei_legacy_sem/output.nxs"]
+                     //"--output=tests/prod/image_fei_legacy_tem/output.nxs"]
+                     //"--output=tests/prod/image_hitachi/output.nxs"]
+                     //"--output=tests/prod/image_hitachi_su8000/output.nxs"]
+                     //"--output=tests/prod/image_jeol/output.nxs"]
+                     "--output=tests/prod/image_point_electronic/output.nxs"]
+                     //"--output=tests/prod/image_protochips/output.nxs"]
+                     //"--output=tests/prod/image_tescan_mira/output.nxs"]
+                     //"--output=tests/prod/image_tescan_sidecar/output.nxs"]
+                     //"--output=tests/prod/image_tfs_etd/output.nxs"]
+                     //"--output=tests/prod/image_tfs_kit/output.nxs"]
+                     //"--output=tests/prod/image_tfs_misc/output.nxs"]
+                     //"--output=tests/prod/image_tfs_navcam/output.nxs"]
+                     //"--output=tests/prod/image_tfs_t3/output.nxs"]
+                     //"--output=tests/prod/image_tfs_yassin/output.nxs"]
+                     //"--output=tests/prod/image_zeiss/output.nxs"]
+                     //"--output=tests/prod/nxs_nion_haas2022/output.nxs"]
+                     //"--output=tests/prod/nxs_nion_haas2025/output.nxs"]
+                     //"--output=tests/prod/rsciio_gatan_dm3/output.nxs"]
+                     //"--output=tests/prod/rsciio_gatan_dm4/output.nxs"]
+                     //"--output=tests/prod/rsciio_velox_258/output.nxs"]
+                     //"--output=tests/prod/rsciio_velox_265/output.nxs"]
         }
     ]
 }

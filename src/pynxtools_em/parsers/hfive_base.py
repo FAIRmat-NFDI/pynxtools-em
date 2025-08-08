@@ -21,6 +21,8 @@ from typing import Dict, List
 
 import h5py
 import numpy as np
+import yaml
+
 from pynxtools_em.concepts.hfive_concepts import (
     IS_ATTRIBUTE,
     IS_COMPOUND_DATASET,
@@ -29,6 +31,8 @@ from pynxtools_em.concepts.hfive_concepts import (
     IS_REGULAR_DATASET,
     Concept,
 )
+from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.get_checksum import get_sha256_of_bytes_object
 
 # the base parser implements the processing of standardized orientation maps via
 # the pyxem software package from the electron microscopy community
@@ -45,9 +49,39 @@ from pynxtools_em.concepts.hfive_concepts import (
 # task for the community and instead focus here on showing a more diverse example
 # towards more interoperability between the different tools in the community
 
+# object timestamps are low-level features of HDF5 that if activated
+# would still render HDF5 files binarily different even though each
+# entry and payload in the content tree is the same binary content
+# however, these internal library administrative timestamps have been
+# are in newer versions of hdf5 deactivated by default see here:
+# https://github.com/h5py/h5py/issues/1953
+# https://forum.hdfgroup.org/t/object-timestamps-useful-or-not/8901/7
+# h5diff does not allow such a lean and customizable blacklist of nodes
+# to the best of my knowledge hence comparing two versions of HDF5 files
+# with h5diff is useful but if done in unit testing typically generate
+# two long text outputs via stdout that are maybe more difficult to
+
+NXEM_VOLATILE_NAMED_HDF_PATHS = (
+    "/@HDF5_Version",
+    "/@NeXus_release",
+    "/@file_time",
+    "/@file_update_time",
+    "entry1/definition/@version",
+    "entry1/profiling/program1/program/@version",
+    "entry1/profiling/template_filling_elapsed_time",
+    # "entry1/profiling/template_filling_elapsed_time/@units"
+)
+NXEM_VOLATILE_SUFFIX_HDF_PATHS = (
+    "@axes",  # as these are stored as by default as byte objects vlen string array
+    "file_name",  # if these include the full path the absolute path may differ between
+    # test and production data
+)
+
 
 class HdfFiveBaseParser:
-    def __init__(self, file_path: str = "", verbose: bool = False):
+    def __init__(
+        self, file_path: str = "", hashing: bool = True, verbose: bool = False
+    ):
         # tech_partner the company which designed this format
         # schema_name the specific name of the family of schemas supported by this reader
         # schema_version the specific version(s) supported by this reader
@@ -73,6 +107,8 @@ class HdfFiveBaseParser:
         self.templates: Dict = {}
         self.h5r = None
         self.is_hdf = True  # TODO::check if HDF5 file using magic cookie
+        self.hashing = hashing
+        self.verbose = verbose
 
     def init_cache(self, ckey: str) -> str:
         """Init a new cache for normalized EBSD data if not existent."""
@@ -108,6 +144,9 @@ class HdfFiveBaseParser:
                                 type(h5obj),
                                 np.shape(h5obj),
                                 h5obj[0],
+                                f"{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                if self.hashing
+                                else "",
                             )
                             self.instances[node_name] = Concept(
                                 node_name,
@@ -126,6 +165,9 @@ class HdfFiveBaseParser:
                                         h5obj.fields(name)[()].dtype,
                                         np.shape(h5obj.fields(name)[()]),
                                         h5obj.fields(name)[0],
+                                        f"{h5obj.fields(name)[()].dtype}__{get_sha256_of_bytes_object(h5obj.fields(name)[()])}"
+                                        if self.hashing
+                                        else "",
                                     )
                                     self.instances[f"{node_name}/{name}"] = Concept(
                                         node_name,
@@ -148,6 +190,9 @@ class HdfFiveBaseParser:
                                     type(h5obj),
                                     np.shape(h5obj),
                                     h5obj[()],
+                                    f"{h5obj.ndim}__{h5obj.shape}__{h5obj.dtype.name}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                    if self.hashing
+                                    else "",
                                 )
                                 self.instances[node_name] = Concept(
                                     node_name,
@@ -165,6 +210,9 @@ class HdfFiveBaseParser:
                                         type(h5obj),
                                         np.shape(h5obj),
                                         h5obj[0],
+                                        f"{h5obj.ndim}__{h5obj.shape}__{h5obj.dtype.name}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                        if self.hashing
+                                        else "",
                                     )
                                     self.instances[node_name] = Concept(
                                         node_name,
@@ -181,6 +229,9 @@ class HdfFiveBaseParser:
                                         type(h5obj),
                                         np.shape(h5obj),
                                         h5obj[()],
+                                        f"{h5obj.ndim}__{h5obj.shape}__{h5obj.dtype.name}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                        if self.hashing
+                                        else "",
                                     )
                                     self.instances[node_name] = Concept(
                                         node_name,
@@ -197,6 +248,9 @@ class HdfFiveBaseParser:
                                     type(h5obj),
                                     np.shape(h5obj),
                                     h5obj[0, 0],
+                                    f"{h5obj.ndim}__{h5obj.shape}__{h5obj.dtype.name}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                    if self.hashing
+                                    else "",
                                 )
                                 self.instances[node_name] = Concept(
                                     node_name,
@@ -213,6 +267,9 @@ class HdfFiveBaseParser:
                                     type(h5obj),
                                     np.shape(h5obj),
                                     h5obj[0, 0, 0],
+                                    f"{h5obj.ndim}__{h5obj.shape}__{h5obj.dtype.name}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                    if self.hashing
+                                    else "",
                                 )
                                 self.instances[node_name] = Concept(
                                     node_name,
@@ -228,7 +285,10 @@ class HdfFiveBaseParser:
                                     "IS_REGULAR_DATASET",
                                     type(h5obj),
                                     np.shape(h5obj),
-                                    "Inspect in HDF5 file directly!",
+                                    None,
+                                    f"{h5obj.ndim}__{h5obj.shape}__{h5obj.dtype.name}__{get_sha256_of_bytes_object(h5obj[()])}"
+                                    if self.hashing
+                                    else "",
                                 )
                                 self.instances[node_name] = Concept(
                                     node_name,
@@ -274,6 +334,9 @@ class HdfFiveBaseParser:
                         np.shape(val),
                         str,
                         val,
+                        f"str__{get_sha256_of_bytes_object(val.encode('utf-8'))}"
+                        if self.hashing
+                        else "",
                     )
                     self.instances[f"{prefix}/{key}"] = Concept(
                         f"{prefix}/@{key}",
@@ -291,6 +354,9 @@ class HdfFiveBaseParser:
                         np.shape(val),
                         val.dtype,
                         val,
+                        f"{val.ndim}__{val.shape}__{val.dtype.name}__{get_sha256_of_bytes_object(bytes(val))}"
+                        if self.hashing
+                        else "",
                     )
                     self.instances[f"{prefix}/{key}"] = Concept(
                         f"{prefix}/@{key}",
@@ -310,6 +376,11 @@ class HdfFiveBaseParser:
         """Walk recursively through the file to get content."""
         # if self.h5r is not None:  # if self.file_path is not None:
         with h5py.File(self.file_path, "r") as self.h5r:
+            # parse the root header of the file, which typically has time data
+            self.get_attribute_data_structure("", dict(self.h5r["/"].attrs))
+            # automatic timestamping of objects in the HDF5 tree has already
+            # been deactivated since several years
+
             # first step visit all groups and datasets recursively
             # get their full path within the HDF5 file
             self.h5r.visititems(self)
@@ -324,20 +395,47 @@ class HdfFiveBaseParser:
                         h5path, dict(self.h5r[h5path].attrs)
                     )
 
-    def report_groups(self):
-        print(f"{self.file_path} contains the following groups:")
+    def store_hashes(self, blacklist_by_key: List, blacklist_by_suffix: List, **kwargs):
+        """Generate yaml file with sorted list of HDF5 grp, dst, and attrs
+
+        including their datatype and SHA256 checksum computed from the each nodes data.
+        This yaml file can be useful for unit tests of different NeXus files
+        when differences in timestamps are expected but should not trigger
+        the test to fail. The blacklist allows to exclude those HDF5 paths
+        that should not be included in the yaml file."""
+        hashes: Dict[str, str] = {}
         for key, ifo in self.groups.items():
-            print(f"{key}, {ifo}")
+            if key not in blacklist_by_key and not key.endswith(blacklist_by_suffix):
+                hashes[key] = "grp"
+        for key, ifo in self.datasets.items():
+            if key not in blacklist_by_key and not key.endswith(blacklist_by_suffix):
+                hashes[key] = f"dst__{ifo[-1]}"
+        for key, ifo in self.attributes.items():
+            if key not in blacklist_by_key and not key.endswith(blacklist_by_suffix):
+                hashes[key] = f"att__{ifo[-1]}"
+        with open(
+            kwargs.get(
+                "file_path",
+                f"""{self.file_path}.sha256{kwargs.get("suffix", "")}.yaml""",
+            ),
+            "w",
+        ) as fp:
+            yaml.dump(hashes, fp, default_flow_style=False, sort_keys=True)
+
+    def report_groups(self):
+        logger.info(f"{self.file_path} contains the following groups:")
+        for key, ifo in self.groups.items():
+            logger.info(f"{key}, {ifo}")
 
     def report_datasets(self):
-        print(f"{self.file_path} contains the following datasets:")
+        logger.info(f"{self.file_path} contains the following datasets:")
         for key, ifo in self.datasets.items():
-            print(f"{key}, {ifo}")
+            logger.info(f"{key}, {ifo}")
 
     def report_attributes(self):
-        print(f"{self.file_path} contains the following attributes:")
+        logger.info(f"{self.file_path} contains the following attributes:")
         for key, ifo in self.attributes.items():
-            print(f"{key}, {ifo}")
+            logger.info(f"{key}, {ifo}")
 
     def report_content(self):
         self.report_groups()
@@ -351,7 +449,7 @@ class HdfFiveBaseParser:
         store_templates=False,
     ):
         if store_instances is True:
-            print(
+            logger.info(
                 f"Storing analysis results in "
                 f"{self.file_path[self.file_path.rfind('/') + 1 :]}."
                 f"EbsdHdfFileInstanceNames.txt..."
@@ -359,12 +457,12 @@ class HdfFiveBaseParser:
             with open(f"{self.file_path}.EbsdHdfFileInstanceNames.txt", "w") as txt:
                 for instance_name, concept in self.instances.items():
                     txt.write(
-                        f"/{instance_name}, hdf: {concept.hdf}, "
+                        f"{instance_name}, hdf: {concept.hdf}, "
                         f"type: {concept.dtype}, shape: {concept.shape}\n"
                     )
 
         if store_instances_templatized is True:
-            print(
+            logger.info(
                 f"Storing analysis results in "
                 f"{self.file_path[self.file_path.rfind('/') + 1 :]}"
                 f".EbsdHdfFileInstanceNamesTemplatized.txt..."
@@ -373,10 +471,10 @@ class HdfFiveBaseParser:
                 f"{self.file_path}.EbsdHdfFileInstanceNamesTemplatized.txt", "w"
             ) as txt:
                 for instance_name, concept in self.instances.items():
-                    txt.write(f"/{instance_name}, hdf: {concept.hdf}\n")
+                    txt.write(f"{instance_name}, hdf: {concept.hdf}\n")
 
         if store_templates is True:
-            print(
+            logger.info(
                 f"Storing analysis results in "
                 f"{self.file_path[self.file_path.rfind('/') + 1 :]}"
                 f".EbsdHdfFileTemplateNames.txt..."

@@ -21,30 +21,41 @@ import pathlib
 
 import flatdict as fd
 import yaml
+
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
-from pynxtools_em.configurations.oasis_cfg import (
+from pynxtools_em.configurations.oasis_eln_config_cfg import (
     OASISCFG_EM_CITATION_TO_NEXUS,
     OASISCFG_EM_CSYS_TO_NEXUS,
 )
-from pynxtools_em.utils.get_file_checksum import (
-    DEFAULT_CHECKSUM_ALGORITHM,
-    get_sha256_of_file_content,
-)
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 
 
 class NxEmNomadOasisConfigParser:
     """Parse deployment specific configuration."""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         if pathlib.Path(file_path).name.endswith(
-            ".oasis.specific.yaml"
-        ) or pathlib.Path(file_path).name.endswith(".oasis.specific.yml"):
+            (".oasis.specific.yaml", ".oasis.specific.yml")
+        ):
             self.file_path = file_path
-        self.entry_id = entry_id if entry_id > 0 else 1
-        self.verbose = verbose
-        self.flat_metadata = fd.FlatDict({}, "/")
-        self.supported = False
-        self.check_if_supported()
+            self.entry_id = entry_id if entry_id > 0 else 1
+            self.verbose = verbose
+            self.flat_metadata = fd.FlatDict({}, "/")
+            self.supported = False
+            self.check_if_supported()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                )
+        else:
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs oasis.specific.yaml file !"
+            )
+            self.supported = False
 
     def check_if_supported(self):
         self.supported = False
@@ -53,10 +64,10 @@ class NxEmNomadOasisConfigParser:
                 self.flat_metadata = fd.FlatDict(yaml.safe_load(stream), "/")
                 if self.verbose:
                     for key, val in self.flat_metadata.items():
-                        print(f"key: {key}, val: {val}")
+                        logger.info(f"key: {key}, val: {val}")
                 self.supported = True
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
     def parse(self, template: dict) -> dict:
@@ -64,7 +75,7 @@ class NxEmNomadOasisConfigParser:
         if self.supported:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} NOMAD Oasis/config with SHA256 {self.file_path_sha256} ..."
             )
             self.parse_reference_frames(template)
@@ -73,7 +84,7 @@ class NxEmNomadOasisConfigParser:
 
     def parse_reference_frames(self, template: dict) -> dict:
         """Copy details about frames of reference into template."""
-        src = "coordinate_system_set"
+        src = "custom_coordinate_system"
         if src in self.flat_metadata:
             if isinstance(self.flat_metadata[src], list):
                 if all(isinstance(entry, dict) for entry in self.flat_metadata[src]):

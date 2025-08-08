@@ -15,29 +15,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Utility class to analyze which vendor/community files are passed to apm reader."""
+"""Utility class to analyze which vendor/community files are passed to em reader."""
 
 from typing import Dict, List, Tuple
+
+import flatdict as fd
+import yaml
+
+from pynxtools_em.utils.custom_logging import logger
 
 VALID_FILE_NAME_SUFFIX_CONFIG = [".yaml", ".yml"]
 VALID_FILE_NAME_SUFFIX_DATA = [
     ".emd",
     ".dm3",
     ".dm4",
+    ".dm5",
     ".tiff",
     ".tif",
+    ".txt",
     ".zip",
     ".nsproj",
     ".edaxh5",
+    ".h5oina",
+    ".oh5",
+    ".dream3d",
+    ".mtex.h5",
     ".h5",
     ".hdf5",
-    ".h5oina",
-    ".mtex.h5",
-    ".dream3d",
-    ".txt",
     ".hdr",
-    ".oh5",
 ]
+# the order of this list is significant to assure that whatever is found first and
+# valid will trigger acceptance but avoiding to load one dataset twice e.g.
+# if .h5 would be tested before .mtex.h5 the .mtex.h5 qualifies two times if we
+# do not break, however, if we do break and test .mtex.h5 first it will be found only
+# one time
 
 
 class EmUseCaseSelector:
@@ -52,13 +63,15 @@ class EmUseCaseSelector:
         self.case: Dict[str, list] = {}
         self.cfg: List[str] = []
         self.eln: List[str] = []
-        self.cvn: List[str] = []
+        self.cst: List[Dict[str, str]] = []
         self.dat: List[str] = []
         self.is_valid = False
         self.supported_file_name_suffixes = (
             VALID_FILE_NAME_SUFFIX_CONFIG + VALID_FILE_NAME_SUFFIX_DATA
         )
-        print(f"Supported file format suffixes: {self.supported_file_name_suffixes}")
+        logger.debug(
+            f"Supported file format suffixes: {self.supported_file_name_suffixes}"
+        )
         self.sort_files_by_file_name_suffix(file_paths)
         self.check_validity_of_file_combinations()
 
@@ -81,37 +94,44 @@ class EmUseCaseSelector:
         """Check if this combination of types of files is supported."""
         dat_input = 0  # tech-partner relevant (meta)file e.g. HDF5, EMD, ...
         other_input = 0  # generic ELN or Oasis-specific configurations
-        for suffix, value in self.case.items():
-            if suffix in VALID_FILE_NAME_SUFFIX_DATA:
-                dat_input += len(value)
-            elif suffix in VALID_FILE_NAME_SUFFIX_CONFIG:
-                other_input += len(value)
-            else:
-                continue
-        # print(f"{dat_input}, {other_input}")
-        if 0 <= other_input <= 3:
+        for suffix in VALID_FILE_NAME_SUFFIX_DATA:
+            if len(self.case[suffix]) > 0:
+                dat_input += len(self.case[suffix])
+                if suffix == ".mtex.h5":
+                    break
+        for suffix in VALID_FILE_NAME_SUFFIX_CONFIG:
+            if len(self.case[suffix]) > 0:
+                other_input += len(self.case[suffix])
+
+        if 0 <= dat_input <= 2 and 0 <= other_input <= 3:
             self.is_valid = True
             self.dat: List[str] = []
             for suffix in VALID_FILE_NAME_SUFFIX_DATA:
-                self.dat += self.case[suffix]
+                if len(self.case[suffix]) > 0:
+                    self.dat += self.case[suffix]
+                    if suffix == ".mtex.h5":
+                        break
             yml: List[str] = []
             for suffix in VALID_FILE_NAME_SUFFIX_CONFIG:
-                yml += self.case[suffix]
+                if len(self.case[suffix]) > 0:
+                    yml += self.case[suffix]
             for entry in yml:
-                if entry.endswith(".oasis.specific.yaml") or entry.endswith(
-                    ".oasis.specific.yml"
-                ):
+                if entry.endswith((".oasis.specific.yaml", ".oasis.specific.yml")):
                     self.cfg += [entry]
-                elif entry.endswith("eln_data.yaml") or entry.endswith("eln_data.yml"):
+                elif entry.endswith(("custom_eln_data.yaml", "custom_eln_data.yml")):
+                    with open(entry, "r", encoding="utf-8") as stream:
+                        flat_metadata = fd.FlatDict(yaml.safe_load(stream), "/")
+                        if "parser" in flat_metadata:
+                            self.cst += [
+                                {"parser": flat_metadata["parser"], "file": entry}
+                            ]
+                elif entry.endswith(("eln_data.yaml", "nxs_eln_data.yml")):
                     self.eln += [entry]
-                elif entry.endswith("conventions.yaml") or entry.endswith(
-                    "conventions.yml"
-                ):
-                    self.cvn += [entry]
-            print(
+
+            logger.info(
                 f"Oasis local config: {self.cfg}\n"
                 f"Oasis ELN: {self.eln}\n"
-                f"Conventions ELN: {self.cvn}\n"
+                f"Custom ELN: {self.cst}\n"
                 f"Tech (meta)data: {self.dat}\n"
             )
 

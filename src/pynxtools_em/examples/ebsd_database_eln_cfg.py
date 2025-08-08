@@ -15,19 +15,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Get a digital fingerprint (hash) of a file."""
+"""Dict mapping values for a ELN metadata for the EM database use case."""
 
-import hashlib
+from typing import Any, Dict
 
+EBSD_DATABASE_SPECIMEN_TO_NEXUS: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/sampleID[sample]",
+    "prefix_src": "specimen/",
+    "map_to_bool": ["is_simulation"],
+    "map_to_str": ["atom_types"],
+}
 
-DEFAULT_CHECKSUM_ALGORITHM = "sha256"
-
-
-def get_sha256_of_file_content(file_hdl) -> str:
-    """Compute a hashvalue of given file, here SHA256."""
-    file_hdl.seek(0)
-    # Read and update hash string value in blocks of 4K
-    sha256_hash = hashlib.sha256()
-    for byte_block in iter(lambda: file_hdl.read(4096), b""):
-        sha256_hash.update(byte_block)
-    return str(sha256_hash.hexdigest())
+EBSD_DATABASE_CITATION_TO_NEXUS: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/citeID[cite*]",
+    "prefix_src": "",
+    "map_to_str": ["author", "description", "doi", "url"],
+}

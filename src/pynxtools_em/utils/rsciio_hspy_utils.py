@@ -19,6 +19,8 @@
 
 import numpy as np
 
+from pynxtools_em.utils.custom_logging import logger
+
 
 def all_req_keywords_in_dict(dct: dict, keywords: list) -> bool:
     """Check if dict dct has all keywords in keywords as keys from."""
@@ -42,7 +44,7 @@ def get_named_axis(axes_metadata, dim_name):
                         # and ignored but might become important
                         for req in ["offset", "scale", "size", "units"]:
                             if req not in axis:
-                                print(f"{req} not in {axis}!")
+                                logger.warning(f"{req} not in {axis}!")
                                 return None
                         retval = (
                             np.asarray(

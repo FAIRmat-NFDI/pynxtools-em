@@ -22,6 +22,7 @@ from typing import Dict
 import h5py
 import numpy as np
 from diffpy.structure import Lattice, Structure
+
 from pynxtools_em.examples.ebsd_database import ASSUME_PHASE_NAME_TO_SPACE_GROUP
 from pynxtools_em.methods.ebsd import (
     HEXAGONAL_FLAT_TOP_TILING,
@@ -32,7 +33,9 @@ from pynxtools_em.methods.ebsd import (
     has_hfive_magic_header,
 )
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
-from pynxtools_em.utils.get_file_checksum import (
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )
@@ -47,37 +50,42 @@ from pynxtools_em.utils.pint_custom_unit_registry import ureg
 class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
     """Read EDAX (O)H5"""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         if file_path:
             self.file_path = file_path
-        self.id_mgn: Dict[str, int] = {
-            "entry_id": entry_id if entry_id > 0 else 0,
-            "roi_id": 1,
-        }
-        self.verbose = verbose
-        self.prfx = ""  # template path handling
-        self.version: Dict = {  # Dict[str, Dict[str, List[str]]
-            "trg": {
-                "tech_partner": ["EDAX"],
-                "schema_name": ["H5"],
-                "schema_version": [
-                    "OIM Analysis 8.6.0050 x64 [18 Oct 2021]",
-                    "OIM Analysis 8.5.1002 x64 [07-17-20]",
-                ],
-                "writer_name": ["OIM Analysis"],
-                "writer_version": [
-                    "OIM Analysis 8.6.0050 x64 [18 Oct 2021]",
-                    "OIM Analysis 8.5.1002 x64 [07-17-20]",
-                ],
-            },
-            "src": {},
-        }
-        self.supported = False
-        self.check_if_supported()
-        if not self.supported:
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
-            )
+            self.id_mgn: Dict[str, int] = {
+                "entry_id": entry_id if entry_id > 0 else 0,
+                "roi_id": 1,
+            }
+            self.verbose = verbose
+            self.prfx = ""  # template path handling
+            self.version: Dict = {  # Dict[str, Dict[str, List[str]]
+                "trg": {
+                    "tech_partner": ["EDAX"],
+                    "schema_name": ["H5"],
+                    "schema_version": [
+                        "OIM Analysis 8.6.0050 x64 [18 Oct 2021]",
+                        "OIM Analysis 8.5.1002 x64 [07-17-20]",
+                    ],
+                    "writer_name": ["OIM Analysis"],
+                    "writer_version": [
+                        "OIM Analysis 8.6.0050 x64 [18 Oct 2021]",
+                        "OIM Analysis 8.5.1002 x64 [07-17-20]",
+                    ],
+                },
+                "src": {},
+            }
+            self.supported = False
+            self.check_if_supported()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                )
+        else:
+            logger.warning(f"Parser {self.__class__.__name__} needs EDAX (O)H5 file !")
+            self.supported = False
 
     def check_if_supported(self):
         """Check if instance matches all constraints to qualify as old EDAX"""
@@ -111,7 +119,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
         if self.supported:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} EDAX O(H5) with SHA256 {self.file_path_sha256} ..."
             )
             with h5py.File(f"{self.file_path}", "r") as h5r:
@@ -133,14 +141,14 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
     def parse_and_normalize_group_ebsd_header(self, fp):
         grp_name = f"{self.prfx}/EBSD/Header"
         if f"{grp_name}" not in fp:
-            print(f"Unable to parse {grp_name} !")
+            logger.warning(f"Unable to parse {grp_name} !")
             self.ebsd = EbsdPointCloud()
             return
 
         n_pts = 0
         for req_field in ["Grid Type", "Step X", "Step Y", "nColumns", "nRows"]:
             if f"{grp_name}/{req_field}" not in fp:
-                print(f"Unable to parse {grp_name}/{req_field} !")
+                logger.warning(f"Unable to parse {grp_name}/{req_field} !")
                 self.ebsd = EbsdPointCloud()
                 return
 
@@ -151,7 +159,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
         elif grid_type == "SqrGrid":
             self.ebsd.grid_type = SQUARE_TILING
         else:
-            print(f"Unable to parse {grp_name}/Grid Type !")
+            logger.warning(f"Unable to parse {grp_name}/Grid Type !")
             self.ebsd = EbsdPointCloud()
             return
         # the next two lines encode the typical assumption that is not reported in tech partner file!
@@ -174,7 +182,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
         # Phases, contains a subgroup for each phase where the name
         # of each subgroup is the index of the phase starting at 1.
         if f"{grp_name}" not in fp:
-            print(f"Unable to parse {grp_name} !")
+            logger.warning(f"Unable to parse {grp_name} !")
             self.ebsd = EbsdPointCloud()
             return
 
@@ -192,7 +200,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
                     phase_name = read_strings(fp[f"{sub_grp_name}/MaterialName"][0])
                     self.ebsd.phases[phase_idx]["phase_name"] = phase_name
                 else:
-                    print(f"Unable to parse {sub_grp_name}/MaterialName !")
+                    logger.warning(f"Unable to parse {sub_grp_name}/MaterialName !")
                     self.ebsd = EbsdPointCloud()
                     return
 
@@ -201,7 +209,9 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
 
                 for req_field in ["a", "b", "c", "alpha", "beta", "gamma"]:
                     if f"{sub_grp_name}/Lattice Constant {req_field}" not in fp:
-                        print(f"Unable to parse ../Lattice Constant {req_field} !")
+                        logger.warning(
+                            f"Unable to parse ../Lattice Constant {req_field} !"
+                        )
                         self.ebsd = EbsdPointCloud()
                         return
                 abc = np.asarray(
@@ -211,7 +221,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
                         fp[f"{sub_grp_name}/Lattice Constant c"][()],
                     ),
                     dtype=np.float32,
-                )
+                ).flatten()
                 angles = np.asarray(
                     (
                         fp[f"{sub_grp_name}/Lattice Constant alpha"][()],
@@ -219,7 +229,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
                         fp[f"{sub_grp_name}/Lattice Constant gamma"][()],
                     ),
                     dtype=np.float32,
-                )
+                ).flatten()
                 latt = Lattice(
                     abc[0],
                     abc[1],
@@ -243,7 +253,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
                 if phase_name in ASSUME_PHASE_NAME_TO_SPACE_GROUP:
                     spc_grp = ASSUME_PHASE_NAME_TO_SPACE_GROUP[phase_name]
                 else:
-                    print(f"Unknown space group for phase_name {phase_name}!")
+                    logger.warning(f"Unknown space group for phase_name {phase_name}!")
                     self.ebsd = EbsdPointCloud()
                     return
                 self.ebsd.phases[phase_idx]["space_group"] = spc_grp
@@ -262,7 +272,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
     def parse_and_normalize_group_ebsd_data(self, fp):
         grp_name = f"{self.prfx}/EBSD/Data"
         if f"{grp_name}" not in fp:
-            print(f"Unable to parse {grp_name} !")
+            logger.warning(f"Unable to parse {grp_name} !")
             self.ebsd = EbsdPointCloud()
 
         for req_field in [
@@ -275,7 +285,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
             "Y Position",
         ]:
             if f"{grp_name}/{req_field}" not in fp:
-                print(f"Unable to parse {grp_name}/{req_field} !")
+                logger.warning(f"Unable to parse {grp_name}/{req_field} !")
                 self.ebsd = EbsdPointCloud()
                 return
 
@@ -309,7 +319,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
         # is_dirty = np.zeros((n_pts,), bool)
         # for column_id in [0, 1, 2]:
         #    is_dirty = is_dirty & np.abs(self.ebsd.euler[:, column_id]) > EULER_SPACE_SYMMETRY
-        # print(f"Found {np.sum(is_dirty)} scan points which are marked now as dirty!")
+        # logger.debug(f"Found {np.sum(is_dirty)} scan points which are marked now as dirty!")
         # self.ebsd.phase_id[is_dirty] = 0
 
         # promoting int8 to int32 no problem
@@ -327,12 +337,12 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
         if self.version["src"]["schema_version"] in [
             "OIM Analysis 8.5.1002 x64 [07-17-20]"
         ]:
-            print(
+            logger.debug(
                 f"{self.version['src']['schema_version']}, tech partner accounted for calibration"
             )
             if self.ebsd.grid_type != SQUARE_TILING:
-                print(
-                    f"WARNING: Check carefully correct interpretation of scan_point coords!"
+                logger.warning(
+                    f"Check carefully correct interpretation of scan_point coords!"
                 )
             for dim in ["X", "Y"]:
                 self.ebsd.pos[dim.lower()] = ureg.Quantity(
@@ -340,12 +350,12 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
                     ureg.micrometer,
                 )
         else:
-            print(
+            logger.info(
                 f"{self.version['src']['schema_version']}, parser has to do the calibration"
             )
             if self.ebsd.grid_type != SQUARE_TILING:
-                print(
-                    f"WARNING: Check carefully correct interpretation of scan_point coords!"
+                logger.warning(
+                    f"Check carefully correct interpretation of scan_point coords!"
                 )
             for dim in ["X", "Y"]:
                 self.ebsd.pos[dim.lower()] = ureg.Quantity(

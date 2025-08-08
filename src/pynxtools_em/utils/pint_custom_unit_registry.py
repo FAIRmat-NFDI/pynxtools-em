@@ -19,9 +19,14 @@
 
 import numpy as np
 import pint
-from pint import UnitRegistry
 
-ureg = UnitRegistry()
+try:
+    from pynxtools.units import ureg
+except ImportError as exc:
+    from pint import UnitRegistry
+
+    ureg = UnitRegistry()
+
 # ureg.formatter.default_format = "D"
 # https://pint.readthedocs.io/en/stable/user/formatting.html
 
@@ -35,6 +40,8 @@ ureg.define("um2 = 1 * micrometer * micrometer")
 ureg.define("nx_unitless = 1")
 ureg.define("nx_dimensionless = 1")
 ureg.define("nx_any = 1")
+
+ureg.define("dose_rate = 1 / angstrom ** 2 / second")
 
 NX_UNITLESS = ureg.Quantity(1, ureg.nx_unitless)
 NX_DIMENSIONLESS = ureg.Quantity(1, ureg.nx_dimensionless)

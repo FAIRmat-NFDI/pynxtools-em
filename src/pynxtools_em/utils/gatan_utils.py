@@ -19,6 +19,7 @@
 
 from pint import UndefinedUnitError
 
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 
@@ -42,11 +43,13 @@ def gatan_image_spectrum_or_generic_nxdata(list_of_dict) -> str:
                     else:
                         token.append(obj["units"])
                 else:
-                    print(f"{obj.keys()} are not exactly the expected keywords!")
+                    logger.warning(
+                        f"{obj.keys()} are not exactly the expected keywords!"
+                    )
             else:
-                print(f"{obj} is not a dict!")
+                logger.warning(f"{obj} is not a dict!")
         if len(token) >= 1:
-            print("_".join(token))
+            logger.debug("_".join(token))
             unit_categories = []
             for unit in token:
                 if unit != "unitless":
@@ -60,7 +63,7 @@ def gatan_image_spectrum_or_generic_nxdata(list_of_dict) -> str:
                         elif base_unit == "kilogram * meter ** 2 / second ** 2":
                             unit_categories.append("eV")
                         else:
-                            print(
+                            logger.warning(
                                 f"Hitting an undefined case for base_unit {base_unit} !"
                             )
                     except UndefinedUnitError:

@@ -31,8 +31,10 @@ from pynxtools_em.configurations.rsciio_gatan_cfg import (
     GATAN_WHICH_IMAGE,
     GATAN_WHICH_SPECTRUM,
 )
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.gatan_utils import gatan_image_spectrum_or_generic_nxdata
-from pynxtools_em.utils.get_file_checksum import (
+from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )
@@ -43,19 +45,26 @@ from pynxtools_em.utils.rsciio_hspy_utils import all_req_keywords_in_dict
 class RsciioGatanParser:
     """Read Gatan Digital Micrograph dm3/dm4 formats."""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         if file_path:
             self.file_path = file_path
-        self.entry_id = entry_id if entry_id > 0 else 1
-        self.verbose = verbose
-        self.id_mgn: Dict[str, int] = {"event_id": 1}
-        self.version: Dict = {}
-        self.supported = False
-        self.check_if_supported()
-        if not self.supported:
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+            self.entry_id = entry_id if entry_id > 0 else 1
+            self.verbose = verbose
+            self.id_mgn: Dict[str, int] = {"event_id": 1}
+            self.version: Dict = {}
+            self.supported = False
+            self.check_if_supported()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                )
+        else:
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs Gatan DM(3,4,5) file !"
             )
+            self.supported = False
 
     def check_if_supported(self):
         self.supported = False
@@ -79,11 +88,11 @@ class RsciioGatanParser:
                 # TODO::add version distinction logic from rsciio_velox
                 obj_idx_supported.append(idx)
                 if self.verbose:
-                    print(f"{idx}-th obj is supported")
+                    logger.debug(f"{idx}-th obj is supported")
             if len(obj_idx_supported) > 0:  # at least some supported content
                 self.supported = True
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
     def parse(self, template: dict) -> dict:
@@ -91,7 +100,7 @@ class RsciioGatanParser:
         if self.supported:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} Gatan with SHA256 {self.file_path_sha256} ..."
             )
             self.parse_content(template)
@@ -105,11 +114,14 @@ class RsciioGatanParser:
                 continue
             if not all_req_keywords_in_dict(obj, reqs):
                 continue
+            if self.verbose:
+                for keyword, value in obj["original_metadata"].items():
+                    logger.info(f"{keyword}____{type(value)}____{value}")
             self.process_event_data_em_metadata(obj, template)
             self.process_event_data_em_data(obj, template)
             self.id_mgn["event_id"] += 1
             if self.verbose:
-                print(f"obj{idx}, dims {obj['axes']}")
+                logger.debug(f"obj{idx}, dims {obj['axes']}")
         return template
 
     def process_event_data_em_metadata(self, obj: dict, template: dict) -> dict:
@@ -137,7 +149,7 @@ class RsciioGatanParser:
         template[f"{trg}/{abbrev}/checksum"] = checksum
         template[f"{trg}/{abbrev}/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
         if src != "":
-            template[f"{trg}/{abbrev}/context"] = src
+            template[f"{trg}/{abbrev}/context"] = f"{src}"
         return template
 
     def process_event_data_em_data(self, obj: dict, template: dict) -> dict:
@@ -155,11 +167,13 @@ class RsciioGatanParser:
         if unit_combination == "":
             return template
         if self.verbose:
-            print(axes)
-            print(f"{unit_combination}, {np.shape(obj['data'])}")
-            print(f"entry_id {self.entry_id}, event_id {self.id_mgn['event_id']}")
+            logger.debug(axes)
+            logger.debug(f"{unit_combination}, {np.shape(obj['data'])}")
+            logger.debug(
+                f"entry_id {self.entry_id}, event_id {self.id_mgn['event_id']}"
+            )
 
-        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/events/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]"
+        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event{self.id_mgn['event_id']}]"
         self.id_mgn["event_id"] += 1
 
         # this is the place when you want to skip individually the writing of NXdata
@@ -169,12 +183,12 @@ class RsciioGatanParser:
         if unit_combination in GATAN_WHICH_SPECTRUM:
             self.annotate_information_source(
                 "",
-                f"{prfx}/SPECTRUM[spectrum1]",
+                f"{prfx}/spectrumID[spectrum1]",
                 self.file_path,
                 self.file_path_sha256,
                 template,
             )
-            trg = f"{prfx}/SPECTRUM[spectrum1]/{GATAN_WHICH_SPECTRUM[unit_combination][0]}"
+            trg = f"{prfx}/spectrumID[spectrum1]/{GATAN_WHICH_SPECTRUM[unit_combination][0]}"
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"intensity"
             template[f"{trg}/intensity"] = {"compress": obj["data"], "strength": 1}
@@ -183,12 +197,12 @@ class RsciioGatanParser:
         elif unit_combination in GATAN_WHICH_IMAGE:
             self.annotate_information_source(
                 "",
-                f"{prfx}/IMAGE[image1]",
+                f"{prfx}/imageID[image1]",
                 self.file_path,
                 self.file_path_sha256,
                 template,
             )
-            trg = f"{prfx}/IMAGE[image1]/{GATAN_WHICH_IMAGE[unit_combination][0]}"
+            trg = f"{prfx}/imageID[image1]/{GATAN_WHICH_IMAGE[unit_combination][0]}"
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
             template[f"{trg}/real"] = {"compress": obj["data"], "strength": 1}
@@ -206,7 +220,7 @@ class RsciioGatanParser:
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"data"
             template[f"{trg}/data"] = {"compress": obj["data"], "strength": 1}
-            axis_names = ["axis_i", "axis_j", "axis_k", "axis_l", "axis_m"][
+            axis_names = ["axis_i", "axis_j", "axis_k", "axis_m", "axis_n"][
                 0 : len(unit_combination.split("_"))
             ]  # mind, different to Nion and other tech partners here no [::-1] reversal
             # of the indices 241.a2c338fd458e6b7023ec946a5e3ce8c85bd2befcb5d17dae7ae5f44b2dede81b.dm4
@@ -239,7 +253,7 @@ class RsciioGatanParser:
                         )
                     elif unit_combination in GATAN_WHICH_IMAGE:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Iidentifier image"
+                            f"Identifier image"
                         )
                     else:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
@@ -264,6 +278,6 @@ class RsciioGatanParser:
                         )
                     else:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Point coordinate along {axis_name} ({ureg.Unit(units)})"
+                            f"Coordinate along {axis_name.replace('axis_', '')}-axis ({ureg.Unit(units)})"
                         )
         return template

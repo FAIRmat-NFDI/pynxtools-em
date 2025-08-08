@@ -19,7 +19,7 @@
 
 import mmap
 from tokenize import TokenError
-from typing import Dict, List
+from typing import Any, Dict, List
 
 import flatdict as fd
 import numpy as np
@@ -31,7 +31,9 @@ from pynxtools_em.configurations.image_tiff_hitachi_cfg import (
     HITACHI_DYNAMIC_VARIOUS_NX,
     HITACHI_STATIC_VARIOUS_NX,
 )
-from pynxtools_em.utils.get_file_checksum import (
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )
@@ -40,7 +42,12 @@ from pynxtools_em.utils.string_conversions import string_to_number
 
 
 class HitachiTiffParser:
-    def __init__(self, file_paths: List[str], entry_id: int = 1, verbose=False):
+    def __init__(
+        self,
+        file_paths: List[str],
+        entry_id: int = 1,
+        verbose: bool = DEFAULT_VERBOSITY,
+    ):
         tif_txt = ["", ""]
         if (
             len(file_paths) == 2
@@ -52,23 +59,26 @@ class HitachiTiffParser:
                     tif_txt[0] = entry
                 elif entry.lower().endswith((".txt")):
                     tif_txt[1] = entry
-        if all(value != "" for value in tif_txt):
-            self.file_path = tif_txt[0]
-            self.entry_id = entry_id if entry_id > 0 else 1
-            self.verbose = verbose
-            self.id_mgn: Dict[str, int] = {"event_id": 1}
-            self.txt_file_path = tif_txt[1]
-            self.flat_dict_meta = fd.FlatDict({}, "/")
-            self.version: Dict = {}
-            self.supported = False
-            self.check_if_tiff_hitachi()
+            if all(value != "" for value in tif_txt):
+                self.file_path = tif_txt[0]
+                self.entry_id = entry_id if entry_id > 0 else 1
+                self.verbose = verbose
+                self.id_mgn: Dict[str, int] = {"event_id": 1}
+                self.txt_file_path = tif_txt[1]
+                self.flat_dict_meta = fd.FlatDict({}, "/")
+                self.version: Dict = {}
+                self.supported = False
+                self.check_if_tiff_hitachi()
+            else:
+                logger.warning(
+                    f"Parser {self.__class__.__name__} needs TIF and TXT file !"
+                )
+                self.supported = False
         else:
-            print(f"Parser {self.__class__.__name__} needs TIF and TXT file !")
-            self.supported = False
-        if not self.supported:
-            print(
+            logger.debug(
                 f"Parser {self.__class__.__name__} finds no content in {file_paths} that it supports"
             )
+            self.supported = False
 
     def check_if_tiff_hitachi(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file."""
@@ -80,7 +90,7 @@ class HitachiTiffParser:
                 if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                     return
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
         with open(self.txt_file_path, "r", encoding="utf8") as fp:
@@ -101,21 +111,28 @@ class HitachiTiffParser:
                 if not txt[idx].startswith(("[SemImageFile]", "[TemImageFile]")):
                     return
             else:
-                print(f"Parser {self.__class__.__name__} metadata section is empty !")
+                logger.warning(
+                    f"Parser {self.__class__.__name__} metadata section is empty !"
+                )
                 return
 
             self.flat_dict_meta = fd.FlatDict({}, "/")
             for line in txt[idx + 1 :]:  # + 1 to jump over the header line
                 tmp = [token.strip() for token in line.split("=")]
                 if len(tmp) == 2 and all(token != "" for token in tmp):
-                    try:
-                        self.flat_dict_meta[tmp[0]] = ureg.Quantity(tmp[1])
-                    except (UndefinedUnitError, TokenError):
-                        self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
+                    if tmp[0] not in ["SerialNumber"]:
+                        try:
+                            self.flat_dict_meta[tmp[0]] = ureg.Quantity(tmp[1])
+                        except (UndefinedUnitError, TokenError, AssertionError):
+                            self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
+                    else:  # a few special cases need an extra treatment
+                        # otherwise an example 123189-06 would be interpreted
+                        # into 123189 by pint which is wrong
+                        self.flat_dict_meta["SerialNumber"] = f"{tmp[1]}"
 
             if self.verbose:
                 for key, value in self.flat_dict_meta.items():
-                    print(f"{key}______{type(value)}____{value}")
+                    logger.info(f"{key}______{type(value)}____{value}")
             self.supported = True
 
     def parse(self, template: dict) -> dict:
@@ -124,7 +141,7 @@ class HitachiTiffParser:
             # metadata have at this point already been collected into an fd.FlatDict
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} Hitachi with SHA256 {self.file_path_sha256} ..."
             )
             self.process_event_data_em_metadata(template)
@@ -134,21 +151,20 @@ class HitachiTiffParser:
     def process_event_data_em_data(self, template: dict) -> dict:
         """Add respective heavy data."""
         # default display of the image(s) representing the data collected in this event
-        print(
+        logger.debug(
             f"Writing Hitachi TIFF image data to the respective NeXus concept instances..."
         )
         identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
-                nparr = np.array(img)
-                print(
+                nparr = np.flipud(np.array(img))
+                logger.debug(
                     f"Processing image {identifier_image} ... {type(nparr)}, {np.shape(nparr)}, {nparr.dtype}"
                 )
                 # eventually similar open discussions points as were raised for tiff_tfs parser
                 trg = (
-                    f"/ENTRY[entry{self.entry_id}]/measurement/events/"
-                    f"EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/"
-                    f"IMAGE[image{identifier_image}]/image_2d"
+                    f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event"
+                    f"{self.id_mgn['event_id']}]/imageID[image{identifier_image}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
                 template[f"{trg}/@signal"] = "real"
@@ -162,27 +178,30 @@ class HitachiTiffParser:
                 template[f"{trg}/@axes"] = []
                 for dim in dims[::-1]:
                     template[f"{trg}/@axes"].append(f"axis_{dim}")
-                template[f"{trg}/real"] = {"compress": np.array(fp), "strength": 1}
+                template[f"{trg}/real"] = {
+                    "compress": nparr,
+                    "strength": 1,
+                }
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
-                sxy = {
-                    "i": ureg.Quantity(1.0, ureg.meter),
-                    "j": ureg.Quantity(1.0, ureg.meter),
+                sxy: Dict[str, Any] = {
+                    "i": ureg.Quantity(1.0),
+                    "j": ureg.Quantity(1.0),
                 }
                 if "PixelSize" in self.flat_dict_meta:
                     sxy = {
                         "i": ureg.Quantity(
-                            self.flat_dict_meta["PixelSize"], ureg.nanometer
-                        ),
+                            self.flat_dict_meta["PixelSize"].magnitude, ureg.nanometer
+                        ).to(ureg.meter),
                         "j": ureg.Quantity(
-                            self.flat_dict_meta["PixelSize"], ureg.nanometer
-                        ),
+                            self.flat_dict_meta["PixelSize"].magnitude, ureg.nanometer
+                        ).to(ureg.meter),
                     }
                 else:
-                    print("WARNING: Assuming pixel width and height unit is meter!")
+                    logger.warning("Assuming pixel width and height unit is unitless!")
 
-                nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
+                nxy = {"i": np.shape(nparr)[1], "j": np.shape(nparr)[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # however, these assumptions need to be confirmed by point electronic
                 # additional points as discussed already in comments to TFS TIFF reader
@@ -196,15 +215,21 @@ class HitachiTiffParser:
                         "strength": 1,
                     }
                     template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                        f"Coordinate along {dim}-axis ({sxy[dim].units})"
+                        f"Coordinate along {dim}-axis ({sxy[dim].units if not sxy[dim].dimensionless else 'pixel'})"
                     )
-                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
+                    if not sxy[dim].dimensionless:
+                        template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = (
+                            f"{sxy[dim].units}"
+                        )
                 identifier_image += 1
+                del nparr
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
-        print(f"Mapping some of the Hitachi metadata on respective NeXus concepts...")
+        logger.debug(
+            f"Mapping some of the Hitachi metadata on respective NeXus concepts..."
+        )
         # we assume for now dynamic quantities can just be repeated
         identifier = [self.entry_id, self.id_mgn["event_id"], 1]
         for cfg in [HITACHI_DYNAMIC_VARIOUS_NX, HITACHI_STATIC_VARIOUS_NX]:

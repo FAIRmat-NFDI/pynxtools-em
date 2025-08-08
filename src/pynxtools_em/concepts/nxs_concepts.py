@@ -24,8 +24,8 @@ EM_PYNX_TO_NEXUS = {
     "prefix_trg": "/ENTRY[entry*]/profiling",
     "prefix_src": "",
     "use": [
-        ("PROGRAM[program1]/program", NX_EM_EXEC_NAME),
-        ("PROGRAM[program1]/program/@version", NX_EM_EXEC_VERSION),
+        ("programID[program1]/program", NX_EM_EXEC_NAME),
+        ("programID[program1]/program/@version", NX_EM_EXEC_VERSION),
     ],
 }
 

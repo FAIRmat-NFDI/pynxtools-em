@@ -1,0 +1,23 @@
+entry:
+  end_time: '2025-03-22T10:02:00+00:00'
+  experiment_alias: InGaN
+  experiment_description: '<p>normal<br /><strong>bold</strong></p>
+
+    <p><em>italics</em></p>'
+  start_time: '2025-03-22T10:02:00+00:00'
+sample:
+  chemical_formula: InGaN
+  description: '<p>normal<br /><strong>bold</strong></p>
+
+    <p><em>italics</em></p>'
+  is_simulation: false
+  name: InGaN
+  preparation_date: '2025-03-22T10:02:00+00:00'
+  thickness:
+    unit: nm
+    value: 999.9999999999999
+user:
+- name: Aidan
+  orcid: 0000-0000-0000-0000
+- name: JonasL
+- name: MarkusK

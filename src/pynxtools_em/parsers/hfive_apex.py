@@ -33,7 +33,9 @@ from pynxtools_em.methods.ebsd import (
     has_hfive_magic_header,
 )
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
-from pynxtools_em.utils.get_file_checksum import (
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )
@@ -45,43 +47,53 @@ from pynxtools_em.utils.pint_custom_unit_registry import ureg
 class HdfFiveEdaxApexParser(HdfFiveBaseParser):
     """Read APEX edaxh5"""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         if file_path:
             self.file_path = file_path
-        self.id_mgn: Dict[str, int] = {
-            "entry_id": entry_id if entry_id > 0 else 1,
-            "event_id": 1,
-            "roi_id": 1,
-            "img_id": 1,
-            "spc_id": 1,
-        }
-        self.verbose = verbose
-        self.prfx: str = ""
-        self.spc: Dict[str, Any] = {}
-        self.ebsd: EbsdPointCloud = EbsdPointCloud()
-        self.eds: Dict[str, Any] = {}
-        self.cache_id: int = 1  # deprecate soon!
-        self.version: Dict = {
-            "trg": {  # supported ones
-                "tech_partner": ["EDAX, LLC"],
-                "schema_name": ["EDAXH5"],
-                "schema_version": ["2.1.0009.0001", "2.2.0001.0001", "2.5.1001.0001"],
-            },
-            "src": {  # actual one for instance resolved by file path
-                "tech_partner": None,
-                "schema_name": None,
-                "schema_version": None,
-            },
-        }
-        self.supported = False
-        self.check_if_supported()
-        if not self.supported:
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+            self.id_mgn: Dict[str, int] = {
+                "entry_id": entry_id if entry_id > 0 else 1,
+                "event_id": 1,
+                "roi_id": 1,
+                "img_id": 1,
+                "spc_id": 1,
+            }
+            self.verbose = verbose
+            self.prfx: str = ""
+            self.spc: Dict[str, Any] = {}
+            self.ebsd: EbsdPointCloud = EbsdPointCloud()
+            self.eds: Dict[str, Any] = {}
+            self.version: Dict = {
+                "trg": {  # supported ones
+                    "tech_partner": ["EDAX, LLC"],
+                    "schema_name": ["EDAXH5"],
+                    "schema_version": [
+                        "2.1.0009.0001",
+                        "2.2.0001.0001",
+                        "2.5.1001.0001",
+                    ],
+                },
+                "src": {  # actual one for instance resolved by file path
+                    "tech_partner": None,
+                    "schema_name": None,
+                    "schema_version": None,
+                },
+            }
+            self.supported = False
+            self.check_if_supported()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                )
+        else:
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs EDAX APEX HDF5 file !"
             )
+            self.supported = False
 
     def check_if_supported(self):
-        """Check if instance matches all constraints to qualify as supported H5OINA"""
+        """Check if instance matches all constraints to qualify as supported EDAX APEX"""
         self.supported = False
         if not has_hfive_magic_header(self.file_path):
             return
@@ -114,6 +126,19 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 # would be cleaner
                 self.supported = True
 
+    def annotate_information_source(
+        self, src: str, trg: str, file_path: str, checksum: str, template: dict
+    ) -> dict:
+        """Add from where the information was obtained."""
+        abbrev = "PROCESS[process]/input"
+        template[f"{trg}/{abbrev}/type"] = "file"
+        template[f"{trg}/{abbrev}/file_name"] = file_path
+        template[f"{trg}/{abbrev}/checksum"] = checksum
+        template[f"{trg}/{abbrev}/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
+        if src != "":
+            template[f"{trg}/{abbrev}/context"] = f"{src}"
+        return template
+
     def parse(self, template: dict) -> dict:
         """Read and normalize away EDAX/APEX-specific formatting with an equivalent in NXem."""
         if not self.supported:
@@ -121,7 +146,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
 
         with open(self.file_path, "rb", 0) as fp:
             self.file_path_sha256 = get_sha256_of_file_content(fp)
-        print(
+        logger.info(
             f"Parsing {self.file_path} EDAX APEX with SHA256 {self.file_path_sha256} ..."
         )
         with h5py.File(f"{self.file_path}", "r") as h5r:
@@ -140,7 +165,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                         for area_grp_nm in list(h5r[abbrev]):
                             if area_grp_nm.startswith("OIM Map"):
                                 self.prfx = f"{abbrev}/{area_grp_nm}"
-                                print(f"Parsing {self.prfx}")
+                                logger.debug(f"Parsing {self.prfx}")
                                 self.ebsd = EbsdPointCloud()
                                 self.parse_and_normalize_group_ebsd_header(h5r)
                                 self.parse_and_normalize_group_ebsd_phases(h5r)
@@ -227,7 +252,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             "Number Of Columns",
         ]:
             if f"{self.prfx}/Sample/{req_field}" not in fp:
-                print(f"Unable to parse {self.prfx}/Sample/{req_field} !")
+                logger.warning(f"Unable to parse {self.prfx}/Sample/{req_field} !")
                 self.ebsd = EbsdPointCloud()
                 return
 
@@ -265,7 +290,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                     phase_name = read_strings(fp[f"{sub_grp_name}/Material Name"][0])
                     self.ebsd.phases[phase_idx]["phase_name"] = phase_name
                 else:
-                    print(f"Unable to parse {sub_grp_name}/Material Name !")
+                    logger.warning(f"Unable to parse {sub_grp_name}/Material Name !")
                     self.ebsd = EbsdPointCloud()
                     return
 
@@ -275,41 +300,48 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 req_fields = ["A", "B", "C", "Alpha", "Beta", "Gamma"]
                 for req_field in req_fields:
                     if f"{sub_grp_name}/Lattice Constant {req_field}" not in fp:
-                        print(f"Unable to parse ../Lattice Constant {req_field} !")
+                        logger.warning(
+                            f"Unable to parse ../Lattice Constant {req_field} !"
+                        )
                         self.ebsd = EbsdPointCloud()
                         return
-                abc = [
-                    ureg.Quantity(
-                        fp[f"{sub_grp_name}/Lattice Constant A"][0], ureg.angstrom
-                    ),
-                    ureg.Quantity(
-                        fp[f"{sub_grp_name}/Lattice Constant B"][0], ureg.angstrom
-                    ),
-                    ureg.Quantity(
-                        fp[f"{sub_grp_name}/Lattice Constant C"][0], ureg.angstrom
-                    ),
-                ]
-                angles = [
-                    ureg.Quantity(
-                        fp[f"{sub_grp_name}/Lattice Constant Alpha"][0], ureg.degree
-                    ).to(ureg.radian),
-                    ureg.Quantity(
-                        fp[f"{sub_grp_name}/Lattice Constant Beta"][0], ureg.degree
-                    ).to(ureg.radian),
-                    ureg.Quantity(
-                        fp[f"{sub_grp_name}/Lattice Constant Gamma"][0], ureg.degree
-                    ).to(ureg.radian),
-                ]
                 # TODO::available examples support reporting in angstroem and degree
+                abc = ureg.Quantity(
+                    np.asarray(
+                        [
+                            fp[f"{sub_grp_name}/Lattice Constant A"][0],
+                            fp[f"{sub_grp_name}/Lattice Constant B"][0],
+                            fp[f"{sub_grp_name}/Lattice Constant C"][0],
+                        ],
+                        dtype=np.float32,
+                    ),
+                    ureg.angstrom,
+                ).flatten()
                 self.ebsd.phases[phase_idx]["a_b_c"] = abc
+                angles = (
+                    ureg.Quantity(
+                        np.asarray(
+                            [
+                                fp[f"{sub_grp_name}/Lattice Constant Alpha"][0],
+                                fp[f"{sub_grp_name}/Lattice Constant Beta"][0],
+                                fp[f"{sub_grp_name}/Lattice Constant Gamma"][0],
+                            ],
+                            dtype=np.float32,
+                        ),
+                        ureg.degree,
+                    )
+                    .to(ureg.radian)
+                    .flatten()
+                )
                 self.ebsd.phases[phase_idx]["alpha_beta_gamma"] = angles
+
                 latt = Lattice(
-                    abc[0].magnitude,
-                    abc[1].magnitude,
-                    abc[2].magnitude,
-                    angles[0].magnitude,
-                    angles[1].magnitude,
-                    angles[2].magnitude,
+                    abc.magnitude[0],
+                    abc.magnitude[1],
+                    abc.magnitude[2],
+                    angles.magnitude[0],
+                    angles.magnitude[1],
+                    angles.magnitude[2],
                 )
 
                 # Space Group not stored, only laue group, point group and symmetry
@@ -320,7 +352,9 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 if phase_name in ASSUME_PHASE_NAME_TO_SPACE_GROUP:
                     space_group = ASSUME_PHASE_NAME_TO_SPACE_GROUP[phase_name]
                 else:
-                    print(f"{phase_name} is not in ASSUME_PHASE_NAME_TO_SPACE_GROUP !")
+                    logger.warning(
+                        f"{phase_name} is not in ASSUME_PHASE_NAME_TO_SPACE_GROUP !"
+                    )
                     self.ebsd = EbsdPointCloud()
                     return
                 self.ebsd.phases[phase_idx]["space_group"] = space_group
@@ -351,7 +385,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             or n_pts == 1
             or n_pts >= np.iinfo(np.uint32).max
         ):
-            print(
+            logger.warning(
                 f"Unexpected shape, spot measurement, or unsupported large map {grp_name} !"
             )
             self.ebsd = EbsdPointCloud()
@@ -372,7 +406,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             # EDAX/APEX seems to define notIndexed as -1 and the first valid phase_id is then 0
             # for NXem however we assume that notIndexed is 0 and the first valid_phase_id is 1
         if np.isnan(self.ebsd.euler).any():
-            print(f"Conversion of om2eu unexpectedly resulted in NaN !")
+            logger.warning(f"Conversion of om2eu unexpectedly resulted in NaN !")
             self.ebsd = EbsdPointCloud()
             return
         else:
@@ -415,18 +449,18 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
 
     def parse_and_normalize_eds_fov(self, fp, template: dict) -> dict:
         """Normalize and scale APEX-specific FOV/ROI image to NeXus."""
-        print(f"Parsing {self.prfx} ...")
+        logger.debug(f"Parsing {self.prfx} ...")
         for req in ["FOVIMAGE", "FOVIMAGECOLLECTIONPARAMS", "FOVIPR"]:
             if f"{self.prfx}/{req}" not in fp:
-                print(f"Group {self.prfx}/{req} not found !")
+                logger.debug(f"Group {self.prfx}/{req} not found !")
                 return template
         for req in ["PixelHeight", "PixelWidth"]:
             if req not in fp[f"{self.prfx}/FOVIMAGE"].attrs:  # also check for shape
-                print(f"Attribute {req} not found in {self.prfx}/FOVIMAGE !")
+                logger.debug(f"Attribute {req} not found in {self.prfx}/FOVIMAGE !")
                 return template
         for req in ["MicronsPerPixelX", "MicronsPerPixelY"]:
             if req not in fp[f"{self.prfx}/FOVIPR"].dtype.names:
-                print(f"Attribute {req} not found in {self.prfx}/FOVIPR !")
+                logger.debug(f"Attribute {req} not found in {self.prfx}/FOVIPR !")
                 return template
 
         nyx = {
@@ -435,17 +469,25 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         }
         syx = {
             "j": ureg.Quantity(
-                fp[f"{self.prfx}/FOVIPR"]["MicronsPerPixelY"][0], ureg.micrometer
-            ),
+                fp[f"{self.prfx}/FOVIPR"]["MicronsPerPixelY"][0],
+                ureg.micrometer,
+            ).to(ureg.meter),
             "i": ureg.Quantity(
-                fp[f"{self.prfx}/FOVIPR"]["MicronsPerPixelX"][0], ureg.micrometer
-            ),
+                fp[f"{self.prfx}/FOVIPR"]["MicronsPerPixelX"][0],
+                ureg.micrometer,
+            ).to(ureg.meter),
         }
+
+        prfx = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/eventID[event{self.id_mgn['event_id']}]"
+        self.annotate_information_source(
+            f"{self.prfx}/FOVIMAGE",
+            f"{prfx}/imageID[image{self.id_mgn['img_id']}]",
+            self.file_path,
+            self.file_path_sha256,
+            template,
+        )
         # is micron because MicronsPerPixel{dim} used by EDAX
-        trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/events/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/IMAGE[image{self.id_mgn['img_id']}]"
-        # TODO:: fill also type, file_name, checksum, algorithm of source(NXnote)
-        # abbrev = "PROCESS[process]/input"
-        # template[f"{trg}/{abbrev}/context"] = f"{self.prfx}/FOVIMAGE"
+        trg = f"{prfx}/imageID[image{self.id_mgn['img_id']}]"
         template[f"{trg}/image_2d/@signal"] = "real"
         template[f"{trg}/image_2d/@axes"] = ["axis_j", "axis_i"]
         template[f"{trg}/image_2d/real"] = {
@@ -462,7 +504,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 np.asarray(
                     np.linspace(0, nyx[dim] - 1, num=nyx[dim], endpoint=True)
                     * syx[dim].magnitude,
-                    dtype=syx[dim].dtype,
+                    dtype=np.float32,
                 ),
                 syx[dim].units,
             )
@@ -472,7 +514,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             }
             template[f"{trg}/image_2d/axis_{dim}/@units"] = f"{qnt.units}"
             template[f"{trg}/image_2d/axis_{dim}/@long_name"] = (
-                f"Point coordinate along axis-{dim} ({qnt.units})"
+                f"Coordinate along axis-{dim} ({qnt.units})"
             )
 
             template[f"{trg}/image_2d/@AXISNAME_indices[axis_{dim}_indices]"] = (
@@ -485,22 +527,27 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         """Normalize and scale APEX-specific SPC (sum) spectrum to NeXus."""
         # https://hyperspy.org/rosettasciio/_downloads/
         # 9e2f0ccf5287bb2d17f1b7550e1d626f/SPECTRUM-V70.pdf
-        print(f"Parsing {self.prfx} ...")
+        logger.debug(f"Parsing {self.prfx} ...")
         if f"{self.prfx}/SPC" not in fp:
-            print(f"Group {self.prfx}/SPC not found !")
+            logger.debug(f"Group {self.prfx}/SPC not found !")
             return template
         if "NumberOfLines" in fp[f"{self.prfx}/SPC"].attrs:
-            print(f"Attribute NumberOfLines not found !")
+            logger.debug(f"Attribute NumberOfLines not found !")
             return template
         for req in ["eVOffset", "evPch", "NumberOfPoints", "SpectrumCounts"]:
             if req not in fp[f"{self.prfx}/SPC"].dtype.names:  # also check for shape
-                print(f"Attribute {req} not found in {self.prfx}/SPC !")
+                logger.debug(f"Attribute {req} not found in {self.prfx}/SPC !")
                 return template
 
-        trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/events/EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/SPECTRUM[spectrum{self.id_mgn['spc_id']}]"
-        # TODO:: fill also type, file_name, checksum, algorithm of source(NXnote)
-        # abbrev = "PROCESS[process]/input"
-        # template[f"{trg}/{abbrev}/context"] = f"{self.prfx}/SPC"
+        prfx = f"/ENTRY[entry{self.id_mgn['entry_id']}]/measurement/eventID[event{self.id_mgn['event_id']}]"
+        self.annotate_information_source(
+            f"{self.prfx}/SPC",
+            f"{prfx}/spectrumID[spectrum{self.id_mgn['spc_id']}]",
+            self.file_path,
+            self.file_path_sha256,
+            template,
+        )
+        trg = f"{prfx}/spectrumID[spectrum{self.id_mgn['spc_id']}]"
         template[f"{trg}/spectrum_0d/@signal"] = "intensity"
         template[f"{trg}/spectrum_0d/@axes"] = ["axis_energy"]
         template[f"{trg}/spectrum_0d/@AXISNAME_indices[axis_energy_indices]"] = (
@@ -536,20 +583,20 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
 
     def parse_and_normalize_eds_area_rois(self, fp, template: dict) -> dict:
         """Normalize and scale APEX-specific EDS element line maps to NeXus."""
-        print(f"Parsing {self.prfx} ...")
+        logger.debug(f"Parsing {self.prfx} ...")
         for req in ["ELEMENTOVRLAYIMGCOLLECTIONPARAMS", "PHASES", "ROIs", "SPC"]:
             if f"{self.prfx}/{req}" not in fp:
-                print(f"Group {self.prfx}/{req} not found !")
+                logger.debug(f"Group {self.prfx}/{req} not found !")
                 return template
         for req in ["eVOffset", "evPch", "NumberOfPoints", "SpectrumCounts"]:
             if req not in fp[f"{self.prfx}/SPC"].dtype.names:  # also check for shape
-                print(f"Attribute {req} not found in {self.prfx}/SPC !")
+                logger.debug(f"Attribute {req} not found in {self.prfx}/SPC !")
                 return template
         for req in ["ResolutionX", "ResolutionY", "mmFieldWidth", "mmFieldHeight"]:
             abbrev = f"{self.prfx}/ELEMENTOVRLAYIMGCOLLECTIONPARAMS"
             if req not in fp[abbrev].dtype.names:
                 # also check for shape
-                print(f"Attribute {req} not found in {abbrev} !")
+                logger.debug(f"Attribute {req} not found in {abbrev} !")
                 return template
         # find relevant EDS maps via demanding at least one pair of
         # <symbol>.dat, <symbol>.ipr HDF5 group respectively
@@ -596,11 +643,13 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             "i": ureg.Quantity(nxy["li"] / nxy["i"], ureg.millimeter),
             "j": ureg.Quantity(nxy["lj"] / nxy["j"], ureg.millimeter),
         }
+
+        prfx = f"/ENTRY[entry{self.id_mgn['entry_id']}]/roiID[roi{self.id_mgn['roi_id']}]/eds/indexing"
         atom_types = set()
         for pair in pairs:
             element = pair[0 : pair.find(" ")]
             atom_types.add(element)
-            trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/ROI[roi{self.id_mgn['roi_id']}]/eds/indexing/IMAGE[{element}]"
+            trg = f"{prfx}/ELEMENT_SPECIFIC_MAP[{element}]"
             # TODO:: fill also type, file_name, checksum, algorithm of source(NXnote)
             # abbrev = "PROCESS[process]/input"
             # template[f"{trg}/{abbrev}/context"] = f"{self.prfx}/ROIs/{pair}"
@@ -639,22 +688,22 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                         dtype=np.float32,
                     ),
                     sxy[dim].units,
-                )
-                template[f"{trg}/image_2d/axis_{dim}"] = {
-                    "compress": qnt.magnitude,
-                    "strength": 1,
-                }
+                ).to(ureg.meter)
                 template[f"{trg}/image_2d/@AXISNAME_indices[axis_{dim}_indices]"] = (
                     np.uint32(dim_idx)
                 )
-                template[f"{trg}/image_2d/axis_{dim}/@long_name"] = (
-                    f"Point coordinate along the {dim}-axis ({qnt.units})"
+                template[f"{trg}/image_2d/AXISNAME[axis_{dim}]"] = {
+                    "compress": qnt.magnitude,
+                    "strength": 1,
+                }
+
+                template[f"{trg}/image_2d/AXISNAME[axis_{dim}]/@long_name"] = (
+                    f"Coordinate along {dim}-axis ({qnt.units})"
                 )
-                template[f"{trg}/image_2d/axis_{dim}/@units"] = f"{qnt.units}"
+                template[f"{trg}/image_2d/AXISNAME[axis_{dim}]/@units"] = f"{qnt.units}"
         if len(atom_types) > 0:
-            template[
-                f"/ENTRY[entry{self.id_mgn['entry_id']}]/ROI[roi{self.id_mgn['roi_id']}]/eds/indexing/atom_types"
-            ] = ", ".join(list(atom_types))
+            template[f"{prfx}/atom_types"] = ", ".join(list(atom_types))
+
         return template
 
     # TODO::these functions were deactivated as they have few examples and have not been
@@ -671,10 +720,10 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         # the absolute location of the line grid in the image of this LineScan group
         # and to get the spectra right
         # TODO: this can be an arbitrary free form line, right?
-        print(f"Parsing {self.prfx} ...")
+        logger.debug(f"Parsing {self.prfx} ...")
         for req in ["LSD", "SPC", "REGION", "LINEIMAGECOLLECTIONPARAMS"]:
             if f"{self.prfx}/{req}" not in fp:
-                print(f"Group {self.prfx}/{req} not found !")
+                logger.debug(f"Group {self.prfx}/{req} not found !")
                 return
         # TODO: mind the typo "ofChannels" here, can break parsing easily!
         metadata = {
@@ -686,7 +735,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         for suffix, reqs in metadata.items():
             for req in reqs:
                 if req not in fp[f"{self.prfx}/{suffix}"].attrs:
-                    print(f"Attribute {req} not found in {self.prfx}/{suffix} !")
+                    logger.debug(f"Attribute {req} not found in {self.prfx}/{suffix} !")
                     return
 
         self.spc["source"] = f"{self.prfx}/LSD"
@@ -722,7 +771,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         line = ureg.Quantity(line, ureg.millimeter).to(ureg.micrometer)
         i_n = fp[f"{self.prfx}/LSD"].attrs["NumberOfSpectra"][0]
         if int(i_n) <= 0:
-            print(f"Prevent division by zero !")
+            logger.critical(f"Prevent division by zero !")
             return
         line_length = np.sqrt(line[0] ** 2 + line[1] ** 2)
         line_incr = line_length / i_n
@@ -734,7 +783,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             ureg.micrometer,
         )
         self.spc["spectrum_1d/axis_i/@long_name"] = (
-            f"Point coordinate along x-axis ({ureg.micrometer})"
+            f"Coordinate along i-axis ({ureg.micrometer})"
         )
         self.spc["spectrum_1d/intensity"] = np.asarray(
             fp[f"{self.prfx}/LSD"][0], np.int32
@@ -745,9 +794,9 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         """Normalize and scale APEX-specific spectrum cuboid to NeXus."""
         # https://hyperspy.org/rosettasciio/_downloads/
         # c2e8b23d511a3c44fc30c69114e2873e/SpcMap-spd.file.format.pdf
-        print(f"Parsing {self.prfx} ...")
+        logger.debug(f"Parsing {self.prfx} ...")
         if f"{self.prfx}/SPD" not in fp:
-            print(f"Group {self.prfx}/SPD not found !")
+            logger.debug(f"Group {self.prfx}/SPD not found !")
             return
 
         for req in [
@@ -758,7 +807,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             "NumberofChannels",
         ]:  # TODO: mind the typo here, can break parsing easily!
             if req not in fp[f"{self.prfx}/SPD"].attrs:  # also check for shape
-                print(f"Attribute {req} not found in {self.prfx}/SPD !")
+                logger.debug(f"Attribute {req} not found in {self.prfx}/SPD !")
                 return
 
         self.spc["source"] = f"{self.prfx}/SPD"
@@ -767,7 +816,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             "x": fp[f"{self.prfx}/SPD"].attrs["NumberOfPoints"][0],
             "e": fp[f"{self.prfx}/SPD"].attrs["NumberofChannels"][0],
         }
-        print(f"lines: {nyxe['y']}, points: {nyxe['x']}, channels: {nyxe['e']}")
+        logger.debug(f"lines: {nyxe['y']}, points: {nyxe['x']}, channels: {nyxe['e']}")
         # the native APEX SPD concept instance is a two-dimensional array of arrays of length e (n_energy_bins)
         # likely EDAX has in their C(++) code a vector of vector or something equivalent either way we faced
         # nested C arrays of the base data type in an IKZ example <i2, even worse stored chunked in HDF5 !
@@ -791,10 +840,10 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                     chk_bnds[f"{dim}"].append((idx, chk_info[f"n{dim}"]))
                 idx += chk_info[f"c{dim}"]
         for key, val in chk_bnds.items():
-            print(f"{key}, {val}")
-        print(f"edax: {np.shape(spd_chk)}, {type(spd_chk)}, {spd_chk.dtype}")
-        print(
-            "WARNING::Currently the parsing of the SPD is switched off for debugging but works!"
+            logger.debug(f"{key}, {val}")
+        logger.debug(f"edax: {np.shape(spd_chk)}, {type(spd_chk)}, {spd_chk.dtype}")
+        logger.warning(
+            "Currently the parsing of the SPD is switched off for debugging but works!"
         )
         return
 

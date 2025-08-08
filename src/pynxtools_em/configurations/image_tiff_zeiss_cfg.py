@@ -25,25 +25,17 @@ ZEISS_CONCEPT_PREFIXES = ("AP_", "DP_", "SV_")
 
 
 ZEISS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument",
     "prefix_src": "",
     "map_to_f8": [
-        ("instrument/optics/magnification", "AP_MAG"),
-        (
-            "instrument/optics/working_distance",
-            ureg.meter,
-            "AP_WD",
-        ),
-        (
-            "instrument/ebeam_column/electron_source/voltage",
-            ureg.volt,
-            "AP_MANUALKV",
-        ),
+        ("optics/magnification", ureg.nx_dimensionless, "AP_MAG"),
+        ("optics/working_distance", ureg.meter, "AP_WD"),
+        ("ebeam_column/electron_source/voltage", ureg.volt, "AP_MANUALKV"),
     ],
 }
 
 ZEISS_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/stage",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]",
     "prefix_src": "",
     "map_to_f8": [
         ("rotation", ureg.radian, "AP_STAGE_AT_R"),

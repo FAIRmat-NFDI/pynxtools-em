@@ -40,7 +40,7 @@ def specific_to_variadic(token):
 
 
 AXON_STATIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/instrument/stage",
+    "prefix_trg": "/ENTRY[entry*]/measurement/instrument/stageID[stage]",
     "prefix_src": "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.",
     "use": [("design", "heating_chip")],
     "map_to_str": [("alias", "Name")],
@@ -48,28 +48,28 @@ AXON_STATIC_STAGE_NX: Dict[str, Any] = {
 
 
 AXON_STATIC_DETECTOR_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/instrument/DETECTOR[detector*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/instrument/detectorID[detector*]",
     "prefix_src": "",
     "use": [
         (
-            "local_name",
+            "name",
             "As tested with AXON 10.4.4.21, 2021-04-26T22:51:28.4539893-05:00 not included in Protochips PNG metadata",
         )
     ],
 }
 
-
+"""
 AXON_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/stage",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]",
     "prefix_src": "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.",
     "map_to_f8": [
         ("position", ureg.meter, ["X", "Y", "Z"], ureg.meter)
     ],  # values are much to large to be in m!
 }
-
+"""
 
 AXON_DYNAMIC_CHIP_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/stage/sample_heater",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]/sample_heater",
     "prefix_src": "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].",
     "use": [("physical_quantity", "temperature")],
     "map_to_f8": [
@@ -81,7 +81,7 @@ AXON_DYNAMIC_CHIP_NX: Dict[str, Any] = {
 
 
 AXON_DYNAMIC_AUX_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/ebeam_column",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column",
     "prefix_src": "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].",
     "use": [
         ("SENSOR[sensor1]/measurement", "temperature"),
@@ -95,11 +95,11 @@ AXON_DYNAMIC_AUX_NX: Dict[str, Any] = {
 
 
 AXON_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]",
     "prefix_src": "MicroscopeControlImageMetadata.MicroscopeSettings.",
     "map_to_str": [
         (
-            "instrument/ebeam_column/DEFLECTOR[beam_blanker1]/state",
+            "instrument/ebeam_column/blankerID[blanker1]/state",
             "BeamBlankerState",
         ),
     ],
@@ -116,8 +116,11 @@ AXON_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
             "CameraLengthValue",
             ureg.meter,
         ),
+        # deactivated because quite unsure,
+        # example has 200 but no units 200 m seems very long, 200 mm is still long
         (
             "instrument/optics/magnification",
+            ureg.nx_dimensionless,
             "MagnificationValue",
         ),
     ],

@@ -37,7 +37,9 @@ from pynxtools_em.configurations.image_tiff_tfs_cfg import (
     TFS_STATIC_VARIOUS_NX,
     TIFF_TFS_PARENT_CONCEPTS,
 )
-from pynxtools_em.utils.get_file_checksum import (
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )
@@ -50,20 +52,27 @@ from pynxtools_em.utils.tfs_utils import get_fei_childs
 
 
 class TfsTiffParser:
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         if file_path:
             self.file_path = file_path
-        self.entry_id = entry_id if entry_id > 0 else 1
-        self.verbose = verbose
-        self.id_mgn: Dict[str, int] = {"event_id": 1}
-        self.flat_dict_meta = fd.FlatDict({}, "/")
-        self.version: Dict = {}
-        self.supported = False
-        self.check_if_tiff_tfs()
-        if not self.supported:
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+            self.entry_id = entry_id if entry_id > 0 else 1
+            self.verbose = verbose
+            self.id_mgn: Dict[str, int] = {"event_id": 1}
+            self.flat_dict_meta = fd.FlatDict({}, "/")
+            self.version: Dict = {}
+            self.supported = False
+            self.check_if_tiff_tfs()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+                )
+        else:
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs ThermoFisher TIFF file !"
             )
+            self.supported = False
 
     def check_if_tiff_tfs(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file."""
@@ -75,7 +84,7 @@ class TfsTiffParser:
                 if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                     return
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
         with Image.open(self.file_path, mode="r") as fp:
@@ -87,7 +96,7 @@ class TfsTiffParser:
 
     def get_metadata(self):
         """Extract metadata in TFS specific tags if present."""
-        print("Parsing TIFF tags...")
+        logger.debug("Parsing TIFF tags...")
         tfs_parent_concepts_byte_offset = {}
         for concept in TIFF_TFS_PARENT_CONCEPTS:
             tfs_parent_concepts_byte_offset[concept] = None
@@ -98,9 +107,9 @@ class TfsTiffParser:
                 if pos != -1:
                     tfs_parent_concepts_byte_offset[concept] = pos
                 # else:
-                #     print(f"Instance of concept [{concept}] was not found !")
+                #     logger.debug(f"Instance of concept [{concept}] was not found !")
             if self.verbose:
-                print(tfs_parent_concepts_byte_offset)
+                logger.debug(tfs_parent_concepts_byte_offset)
 
             sequence = []  # decide I/O order in which metadata for childs of parent concepts will be read
             for key, value in tfs_parent_concepts_byte_offset.items():
@@ -109,7 +118,7 @@ class TfsTiffParser:
                     # tuple of parent_concept name and byte offset
             sequence = sort_ascendingly_by_second_argument(sequence)
             if self.verbose:
-                print(sequence)
+                logger.debug(sequence)
 
             idx = 0
             for parent, byte_offset in sequence:
@@ -122,10 +131,10 @@ class TfsTiffParser:
                     # TODO::better use official convention to not read beyond the end of file
                 idx += 1
                 if pos_s is None or pos_e is None:
-                    print(
+                    logger.warning(
                         f"Definition of byte boundaries for reading childs of [{parent}] was unsuccessful !"
                     )
-                # print(f"Search for [{parent}] in between byte offsets {pos_s} and {pos_e}")
+                # logger.debug(f"Search for [{parent}] in between byte offsets {pos_s} and {pos_e}")
 
                 # fish metadata of e.g. the system section
                 for term in get_fei_childs(parent):
@@ -149,7 +158,7 @@ class TfsTiffParser:
                                 else:
                                     self.flat_dict_meta[f"{parent}/{term}"] = value
                         else:
-                            print(
+                            logger.warning(
                                 f"Detected an unexpected case {parent}/{term}, type: {type(value)} !"
                             )
                     else:
@@ -157,14 +166,14 @@ class TfsTiffParser:
             if self.verbose:
                 for key, value in self.flat_dict_meta.items():
                     if value:
-                        print(f"{key}____{type(value)}____{value}")
+                        logger.info(f"{key}____{type(value)}____{value}")
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing."""
         if self.supported:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} TFS with SHA256 {self.file_path_sha256} ..."
             )
             self.get_metadata()
@@ -175,12 +184,14 @@ class TfsTiffParser:
     def process_event_data_em_data(self, template: dict) -> dict:
         """Add respective heavy data."""
         # default display of the image(s) representing the data collected in this event
-        print(f"Writing ThermoFisher TIFF image data to NeXus concept instances...")
+        logger.debug(
+            f"Writing ThermoFisher TIFF image data to NeXus concept instances..."
+        )
         identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
-                nparr = np.array(img)
-                # print(f"type: {type(nparr)}, dtype: {nparr.dtype}, shape: {np.shape(nparr)}")
+                nparr = np.flipud(np.array(img))
+                # logger.debug(f"type: {type(nparr)}, dtype: {nparr.dtype}, shape: {np.shape(nparr)}")
                 # TODO::discussion points
                 # - how do you know we have an image of real space vs. imaginary space (from the metadata?)
                 # - how do deal with the (ugly) scale bar that is typically stamped into the TIFF image content?
@@ -189,9 +200,8 @@ class TfsTiffParser:
                 # remember H5Web images can be scaled based on the metadata allowing basically the same
                 # explorative viewing using H5Web than what traditionally typical image viewers are meant for
                 trg = (
-                    f"/ENTRY[entry{self.entry_id}]/measurement/events/"
-                    f"EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/"
-                    f"IMAGE[image{identifier_image}]/image_2d"
+                    f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event"
+                    f"{self.id_mgn['event_id']}]/imageID[image{identifier_image}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
                 template[f"{trg}/@signal"] = "real"
@@ -205,13 +215,13 @@ class TfsTiffParser:
                 template[f"{trg}/@axes"] = []
                 for dim in dims[::-1]:
                     template[f"{trg}/@axes"].append(f"axis_{dim}")
-                template[f"{trg}/real"] = {"compress": np.array(fp), "strength": 1}
+                template[f"{trg}/real"] = {"compress": nparr, "strength": 1}
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
                 sxy = {
-                    "i": ureg.Quantity(1.0, ureg.meter),
-                    "j": ureg.Quantity(1.0, ureg.meter),
+                    "i": ureg.Quantity(1.0),
+                    "j": ureg.Quantity(1.0),
                 }
                 # may face CCD overview camera of chamber that has no calibration!
                 if ("EScan/PixelWidth" in self.flat_dict_meta) and (
@@ -226,8 +236,8 @@ class TfsTiffParser:
                         ),
                     }
                 else:
-                    print("WARNING: Assuming pixel width and height unit is meter!")
-                nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
+                    logger.warning("Assuming pixel width and height unit is unitless!")
+                nxy = {"i": np.shape(nparr)[1], "j": np.shape(nparr)[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # however the TIFF file gives no clue, TIFF just documents in which order
                 # it arranges a bunch of pixels that have stream in into a n-d tiling
@@ -251,16 +261,22 @@ class TfsTiffParser:
                         "strength": 1,
                     }
                     template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                        f"Coordinate along {dim}-axis ({sxy[dim].units})"
+                        f"Coordinate along {dim}-axis ({sxy[dim].units if not sxy[dim].dimensionless else 'pixel'})"
                     )
-                    template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = f"{sxy[dim].units}"
+                    if not sxy[dim].dimensionless:
+                        template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = (
+                            f"{sxy[dim].units}"
+                        )
                 identifier_image += 1
+                del nparr
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
-        print(f"Mapping some of the TFS/FEI metadata on respective NeXus concepts...")
+        logger.debug(
+            f"Mapping some of the TFS/FEI metadata on respective NeXus concepts..."
+        )
         identifier = [self.entry_id, self.id_mgn["event_id"], 1]
         for cfg in [
             TFS_STATIC_APERTURE_NX,

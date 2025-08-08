@@ -23,6 +23,7 @@ import h5py
 import numpy as np
 from ase.data import chemical_symbols
 from diffpy.structure import Lattice, Structure
+
 from pynxtools_em.methods.ebsd import (
     EbsdPointCloud,
     ebsd_roi_overview,
@@ -35,6 +36,12 @@ from pynxtools_em.methods.microstructure import (
     microstructure_to_template,
 )
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.get_checksum import (
+    DEFAULT_CHECKSUM_ALGORITHM,
+    get_sha256_of_file_content,
+)
 from pynxtools_em.utils.hfive_utils import apply_euler_space_symmetry, read_strings
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
@@ -42,45 +49,52 @@ from pynxtools_em.utils.pint_custom_unit_registry import ureg
 class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
     """Overwrite constructor of hfive_base reader"""
 
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         if file_path:
             self.file_path = file_path
-        self.id_mgn: Dict[str, int] = {
-            "entry_id": entry_id if entry_id > 0 else 1,
-            "roi_id": 1,
-            "img_id": 1,
-        }
-        self.verbose = verbose
-        self.prfx = ""  # template path handling
-        self.version: Dict = {  # Dict[str, Dict[str, List[str]]]
-            "trg": {
-                "tech_partner": ["Oxford Instruments"],
-                "schema_name": ["H5OINA"],
-                "schema_version": ["2.0", "3.0", "4.0", "5.0"],
-                "writer_name": ["AZTec"],
-                "writer_version": [
-                    "4.4.7495.1",
-                    "5.0.7643.1",
-                    "5.1.7829.1",
-                    "6.0.8014.1",
-                    "6.0.8196.1",
-                    "6.1.8451.1",
-                ],
-            },
-            "src": {
-                "tech_partner": None,
-                "schema_name": None,
-                "schema_version": None,
-                "writer_name": None,
-                "writer_version": None,
-            },
-        }
-        self.supported = False
-        self.check_if_supported()
-        if not self.supported:
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+            self.id_mgn: Dict[str, int] = {
+                "entry_id": entry_id if entry_id > 0 else 1,
+                "roi_id": 1,
+                "img_id": 1,
+            }
+            self.verbose = verbose
+            self.prfx = ""  # template path handling
+            self.version: Dict = {  # Dict[str, Dict[str, List[str]]]
+                "trg": {
+                    "tech_partner": ["Oxford Instruments"],
+                    "schema_name": ["H5OINA"],
+                    "schema_version": ["2.0", "3.0", "4.0", "5.0"],
+                    "writer_name": ["AZTec"],
+                    "writer_version": [
+                        "4.4.7495.1",
+                        "5.0.7643.1",
+                        "5.1.7829.1",
+                        "6.0.8014.1",
+                        "6.0.8196.1",
+                        "6.1.8451.1",
+                    ],
+                },
+                "src": {
+                    "tech_partner": None,
+                    "schema_name": None,
+                    "schema_version": None,
+                    "writer_name": None,
+                    "writer_version": None,
+                },
+            }
+            self.supported = False
+            self.check_if_supported()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
+                )
+        else:
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs Oxford Instruments H5OINA file !"
             )
+            self.supported = False
 
     def check_if_supported(self):
         """Check if instance matches all constraints to qualify as supported H5OINA"""
@@ -122,7 +136,11 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
     def parse(self, template: dict) -> dict:
         """Read and normalize away Oxford-specific formatting with an equivalent in NXem."""
         if self.supported:
-            print(f"Parsing via Oxford Instrument HDF5/H5OINA parser...")
+            with open(self.file_path, "rb", 0) as fp:
+                self.file_path_sha256 = get_sha256_of_file_content(fp)
+            logger.info(
+                f"Parsing {self.file_path} via Oxford Instrument HDF5/H5OINA with SHA256 {self.file_path_sha256} ..."
+            )
             with h5py.File(f"{self.file_path}", "r") as h5r:
                 slice_ids = sorted(list(h5r["/"]))
                 for slice_id in slice_ids:
@@ -138,46 +156,53 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                         self.id_mgn["roi_id"] += 1
                         self.ebsd = EbsdPointCloud()
 
-                # Vitesh's example
-                has_microstructural_features = False
+                # start of Vitesh's example
                 ms = Microstructure()
                 for grpnm in h5r:
-                    if grpnm.isdigit():
-                        if f"/{grpnm}/Electron Image/Data/Feature/Area" in h5r:
-                            has_microstructural_features = True
-                            cryst = Crystal()
-                            cryst.id = np.uint32(grpnm)
-                            cryst.props["area"] = ureg.Quantity(
-                                h5r[f"/{grpnm}/Electron Image/Data/Feature/Area"][0]
-                            )  # uses that 'um2' has been customized for pint
-                            abbrev = "EDS/Data/Composition"
-                            if (
-                                f"{grpnm}/{abbrev}" in h5r
-                                and f"/{grpnm}/{abbrev} Sigma" in h5r
-                            ):
-                                has_microstructural_features = False
-                                # TODO::improve the use case
-                                cryst.props["composition"] = {}
-                                for element in h5r[f"/{grpnm}/{abbrev}"]:
-                                    if element in h5r[f"/{grpnm}/{abbrev} Sigma"]:
-                                        if (
-                                            element in chemical_symbols[1:]
-                                            and element
-                                            not in cryst.props["composition"]
-                                        ):
-                                            cryst.props["composition"][element] = {
-                                                "value": h5r[
-                                                    f"/{grpnm}/{abbrev}/{element}"
-                                                ][0],
-                                                "sigma": h5r[
-                                                    f"/{grpnm}/{abbrev} Sigma/{element}"
-                                                ][0],
-                                            }  # in weight percent
-                            ms.crystal.append(cryst)
-                        else:
-                            break
-                if has_microstructural_features:
+                    if not grpnm.isdigit():
+                        continue
+                    suffix_area = "Electron Image/Data/Feature/Area"
+                    if f"/{grpnm}/{suffix_area}" not in h5r:
+                        continue
+                    suffix_comp = "EDS/Data/Composition"
+                    if (
+                        f"{grpnm}/{suffix_comp}" not in h5r
+                        or f"/{grpnm}/{suffix_comp} Sigma" not in h5r
+                    ):
+                        continue
+
+                    cryst = Crystal()
+                    cryst.id = np.uint32(grpnm)
+                    cryst.props["area"] = ureg.Quantity(
+                        h5r[f"/{grpnm}/{suffix_area}"][0],
+                        ureg.micrometer**2,
+                    )  # h5oina reports in micron and micron**2
+                    # TODO::improve the use case
+                    cryst.props["composition"] = {}
+                    for element in h5r[f"/{grpnm}/{suffix_comp}"]:
+                        if element not in h5r[f"/{grpnm}/{suffix_comp} Sigma"]:
+                            continue
+                        if (
+                            element not in chemical_symbols[1:]
+                            or element in cryst.props["composition"]
+                        ):
+                            continue
+                        cryst.props["composition"][element] = {
+                            "value": h5r[f"/{grpnm}/{suffix_comp}/{element}"][0],
+                            "sigma": h5r[f"/{grpnm}/{suffix_comp} Sigma/{element}"][0],
+                        }  # in weight percent
+                    ms.crystal.append(cryst)
+                if len(ms.crystal) > 0:
                     microstructure_to_template(ms, self.id_mgn, template)
+                # in Vitesh's example the individual second-phase particles have been
+                # identified using SEM/EDS, for each such "crystal" we have a rectangular
+                # ROI with the secondary electron contrast based on which the shape
+                # of the crystals was extracted, one spot (spectrum_0d) EDS for each
+                # crystal, but no offsets of the ROI corners to sample_reference_frame
+                # were reported
+                # therefore, we cannot compose the secondary electron image from the
+                # data in the original sample_reference_frame
+                # end of Vitesh's example
                 self.id_mgn["roi_id"] += 1
                 self.id_mgn["img_id"] += 1
 
@@ -187,7 +212,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
     def parse_and_normalize_slice_ebsd_header(self, fp):
         grp_name = f"{self.prfx}/EBSD/Header"
         if f"{grp_name}" not in fp:
-            print(f"Unable to parse {grp_name} !")
+            logger.warning(f"Unable to parse {grp_name} !")
             self.ebsd = EbsdPointCloud()
             return
 
@@ -199,7 +224,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
         for dim in dims:
             for req_field in [f"{dim} Cells", f"{dim} Step"]:
                 if f"{grp_name}/{req_field}" not in fp:
-                    print(f"Unable to parse {grp_name}/{req_field} !")
+                    logger.warning(f"Unable to parse {grp_name}/{req_field} !")
                     self.ebsd = EbsdPointCloud()
                     return
         # X Cells, yes, H5T_NATIVE_INT32, (1, 1), Map: Width in pixels, Line scan: Length in pixels.
@@ -215,7 +240,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                     fp[f"{grp_name}/{dim} Step"][0], ureg.micrometer
                 )
             else:
-                print(f"Unexpected {dim} Step Unit attribute !")
+                logger.warning(f"Unexpected {dim} Step Unit attribute !")
                 self.ebsd = EbsdPointCloud()
                 return
         # TODO::check that all data in the self.oina are consistent
@@ -224,7 +249,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
         """Parse EBSD header section for specific slice."""
         grp_name = f"{self.prfx}/EBSD/Header/Phases"
         if f"{grp_name}" not in fp:
-            print(f"Unable to parse {grp_name} !")
+            logger.warning(f"Unable to parse {grp_name} !")
             self.ebsd = EbsdPointCloud()
             return
 
@@ -246,7 +271,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                 "Space Group",
             ]:
                 if f"{sub_grp_name}/{req_field}" not in fp:
-                    print(f"Unable to parse {sub_grp_name}/{req_field} !")
+                    logger.warning(f"Unable to parse {sub_grp_name}/{req_field} !")
                     self.ebsd = EbsdPointCloud()
                     return
 
@@ -267,9 +292,11 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                 angles = np.asarray(fp[f"{sub_grp_name}/Lattice Angles"][:].flatten())
                 self.ebsd.phases[phase_idx]["alpha_beta_gamma"] = ureg.Quantity(
                     angles, ureg.radian
-                )
+                ).flatten()
             else:
-                print(f"Unexpected case that Lattice Angles are not reported in rad !")
+                logger.warning(
+                    f"Unexpected case that Lattice Angles are not reported in rad !"
+                )
                 self.ebsd = EbsdPointCloud()
                 return
             # Lattice Dimensions, yes, H5T_NATIVE_FLOAT, (1, 3), Three columns for a, b and c dimensions in Angstroms
@@ -278,9 +305,11 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                 == "angstrom"
             ):
                 abc = np.asarray(fp[f"{sub_grp_name}/Lattice Dimensions"][:].flatten())
-                self.ebsd.phases[phase_idx]["a_b_c"] = ureg.Quantity(abc, ureg.angstrom)
+                self.ebsd.phases[phase_idx]["a_b_c"] = ureg.Quantity(
+                    abc, ureg.angstrom
+                ).flatten()
             else:
-                print(
+                logger.warning(
                     f"Unexpected case that Lattice Dimensions are not reported in angstrom !"
                 )
                 self.ebsd = EbsdPointCloud()
@@ -314,13 +343,13 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
         # TODO add shape checks
         grp_name = f"{self.prfx}/EBSD/Data"
         if f"{grp_name}" not in fp:
-            print(f"Unable to parse {grp_name} !")
+            logger.warning(f"Unable to parse {grp_name} !")
             self.ebsd = EbsdPointCloud()
             return
 
         for req_field in ["Euler", "Phase", "X", "Y", "Band Contrast"]:
             if f"{grp_name}/{req_field}" not in fp:
-                print(f"Unable to parse {grp_name}/{req_field} !")
+                logger.warning(f"Unable to parse {grp_name}/{req_field} !")
                 self.ebsd = EbsdPointCloud()
                 return
 
@@ -330,7 +359,9 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                 np.asarray(fp[f"{grp_name}/Euler"]), ureg.radian
             )
         else:
-            print(f"Unexpected case that Euler angle are not reported in rad !")
+            logger.warning(
+                f"Unexpected case that Euler angle are not reported in rad !"
+            )
             self.ebsd = EbsdPointCloud()
             return
 

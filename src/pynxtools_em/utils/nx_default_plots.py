@@ -22,6 +22,8 @@ from typing import Dict
 
 import numpy as np
 
+from pynxtools_em.utils.custom_logging import logger
+
 
 def sort_list_of_tuples_desc_order(tuples):
     """Sort the tuples by the second item using the itemgetter function."""
@@ -65,10 +67,10 @@ class NxEmDefaultPlotResolver:
             candidates[votes] = []
 
         dtyp_vote = [
-            ("IMAGE", "image", 1),
-            ("IMAGE", "stack", 1),
-            ("SPECTRUM", "spectrum", 2),
-            ("SPECTRUM", "stack", 2),
+            ("imageID", "image", 1),
+            ("imageID", "stack", 1),
+            ("spectrumID", "spectrum", 2),
+            ("spectrumID", "stack", 2),
         ]
         for key in template.keys():
             for tpl in dtyp_vote:
@@ -85,7 +87,7 @@ class NxEmDefaultPlotResolver:
                             break
 
             # find ebsd ipf map
-            idx_head = key.find("/ROI[roi1]")
+            idx_head = key.find("/roiID[roi1]")
             idx_tail = key.find("/ebsd/indexing")
             if idx_head is None or idx_tail is None:
                 continue
@@ -101,26 +103,26 @@ class NxEmDefaultPlotResolver:
                     # in case of ebsd map with phase2, phase3, ... find than phase with the
                     vote_ipf_map = []
                     for phase_id in np.arange(1, 20 + 1):
-                        idx_tail = key.find(f"/ebsd/indexing/PHASE[phase{phase_id}]")
+                        idx_tail = key.find(f"/ebsd/indexing/phaseID[phase{phase_id}]")
                         if idx_tail is None or idx_tail == -1:
                             continue
-                        prfx = f"{key[0 : idx_tail + len(f'''/ebsd/indexing/PHASE[phase{phase_id}]''')]}"
-                        # print(f"{key}\t{idx_head}\t{idx_tail}\t{prfx}")
+                        prfx = f"{key[0 : idx_tail + len(f'''/ebsd/indexing/phaseID[phase{phase_id}]''')]}"
+                        # logger.debug(f"{key}\t{idx_head}\t{idx_tail}\t{prfx}")
                         if 0 < idx_head < idx_tail and (
-                            f"{prfx}/IPF[ipf1]/map/data" in template
-                            or f"{prfx}/IPF[ipf1]/map/DATA[data]" in template
+                            f"{prfx}/ipfID[ipf1]/map/data" in template
+                            or f"{prfx}/ipfID[ipf1]/map/DATA[data]" in template
                         ):
                             n_scan_points = 1.0
                             if f"{prfx}/number_of_scan_points" in template:
                                 # n_scan_points = template[
-                                #     f"{key[0:idx_tail + len(f'''/ebsd/indexing/PHASE[phase{phase_id}]''')]}/number_of_scan_points"
+                                #     f"{key[0:idx_tail + len(f'''/ebsd/indexing/phaseID[phase{phase_id}]''')]}/number_of_scan_points"
                                 # ]
                                 n_scan_points = template[
                                     f"{prfx}/number_of_scan_points"
                                 ]
                             vote_ipf_map.append(
                                 (
-                                    f"{prfx}/IPF[ipf1]/map",
+                                    f"{prfx}/ipfID[ipf1]/map",
                                     np.float64(n_scan_points)
                                     / np.float64(n_scan_points_total),
                                 )
@@ -144,18 +146,20 @@ class NxEmDefaultPlotResolver:
         # and particularity details
 
         for votes in priorities:
-            print(f"{len(candidates[votes])} NXdata instances with priority {votes}")
+            logger.info(
+                f"{len(candidates[votes])} NXdata instances with priority {votes}"
+            )
 
         has_default_plot = False
         for votes in priorities[::-1]:
             if len(candidates[votes]) > 0:
                 self.decorate_path_to_default_plot(template, candidates[votes][0])
-                print(
+                logger.info(
                     f"Decorating {candidates[votes][0]} as the default plot for H5Web ..."
                 )
                 has_default_plot = True
                 break
 
         if not has_default_plot:
-            print("WARNING::No default plot!")
+            logger.warning("No default plot!")
         return template

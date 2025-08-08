@@ -45,7 +45,7 @@ GATAN_STATIC_VARIOUS_NX: Dict[str, Any] = {
 
 
 GATAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument",
     "prefix_src": "ImageList/TagGroup0/ImageTags/Microscope Info/",
     "map_to_f8": [
         (
@@ -79,14 +79,15 @@ GATAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
             "Field of View (µm)",
             ureg.micrometer,
         ),
-        ("optics/magnification", "Actual Magnification"),
-        (
-            "optics/camera_length",
-            ureg.meter,
-            "STEM Camera Length",
-            ureg.meter,
-        ),  # meter?
-        # Cs(mm), Indicated Magnification, Magnification Interpolated, Formatted Actual Mag, Formatted Indicated Mag
+        ("optics/magnification", ureg.nx_dimensionless, "Actual Magnification"),
+        ("optics/magnification", ureg.nx_dimensionless, "Indicated Magnification"),
+        # (
+        #     "optics/camera_length",
+        #     ureg.meter,
+        #     "STEM Camera Length",
+        #     ureg.meter,
+        # ),  # meter?
+        # Cs(mm), Magnification Interpolated, Formatted Actual Mag, Formatted Indicated Mag
     ],
     "map_to_str": [
         (
@@ -102,7 +103,7 @@ GATAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
 }
 
 GATAN_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/stage",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]",
     "prefix_src": "ImageList/TagGroup0/ImageTags/Microscope Info/Stage Position/",
     "map_to_f8": [
         ("tilt1", ureg.radian, "Stage Alpha", ureg.radian),

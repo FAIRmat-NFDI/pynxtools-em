@@ -22,14 +22,14 @@ from typing import Any, Dict
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 TFS_STATIC_DETECTOR_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/instrument/DETECTOR[detector*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/instrument/detectorID[detector*]",
     "prefix_src": "",
-    "map_to_str": [("local_name", "Detectors/Name")],
+    "map_to_str": [("name", "Detectors/Name")],
 }
 
 
 TFS_STATIC_APERTURE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/instrument/ebeam_column/APERTURE[aperture*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/instrument/ebeam_column/apertureID[aperture*]",
     "prefix_src": "",
     "map_to_str": [("description", "Beam/Aperture")],
     "map_to_f8": [("size", ureg.meter, "EBeam/ApertureDiameter", ureg.meter)],
@@ -41,26 +41,31 @@ TFS_STATIC_VARIOUS_NX: Dict[str, Any] = {
     "prefix_src": "",
     "use": [("fabrication/vendor", "FEI")],
     "map_to_str": [
-        ("ebeam_column/APERTURE[aperture*]/name", "EBeam/Aperture"),
+        ("ebeam_column/apertureID[aperture*]/name", "EBeam/Aperture"),
         ("fabrication/model", "System/SystemType"),
-        ("fabrication/serial_number", "System/BuildNr"),
+        ("fabrication/serial_number", "System/BuildNr"),  # System/Dnumber
         ("ebeam_column/electron_source/emitter_type", "System/Source"),
     ],
 }
 
 
 TFS_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/optics",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/optics",
     "prefix_src": "",
     "map_to_f8": [
-        ("beam_current", ureg.ampere, "EBeam/BeamCurrent", ureg.ampere),
+        (
+            "probe_current",
+            ureg.ampere,
+            "EBeam/BeamCurrent",
+            ureg.ampere,
+        ),  # probe == beam ?
         ("working_distance", ureg.meter, "EBeam/WD", ureg.meter),
     ],
 }
 
 
 TFS_DYNAMIC_STAGE_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/stage",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]",
     "prefix_src": "",
     "map_to_f8": [
         ("rotation", ureg.radian, "Stage/StageR", ureg.radian),
@@ -77,14 +82,14 @@ TFS_DYNAMIC_STAGE_NX: Dict[str, Any] = {
 
 
 TFS_DYNAMIC_STIGMATOR_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/ebeam_column/corrector_ax",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/corrector_ax",
     "prefix_src": "",
     "map_to_f8": [("value_x", "Beam/StigmatorX"), ("value_y", "Beam/StigmatorY")],
 }
 
 
 TFS_DYNAMIC_SCAN_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]/instrument/scan_controller",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/scan_controller",
     "prefix_src": "",
     "map_to_str": [("scan_schema", "System/Scan")],
     "map_to_f8": [("dwell_time", ureg.second, "Scan/Dwelltime", ureg.second)],
@@ -92,18 +97,18 @@ TFS_DYNAMIC_SCAN_NX: Dict[str, Any] = {
 
 
 TFS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/events/EVENT_DATA_EM[event_data_em*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]",
     "prefix_src": "",
     "map_to_str": [
-        ("instrument/DETECTOR[detector*]/mode", "Detectors/Mode"),
+        ("instrument/detectorID[detector*]/operation_mode", "Detectors/Mode"),
         (
             "instrument/ebeam_column/operation_mode",
             ["EBeam/UseCase", "Beam/ImageMode", "EBeam/BeamMode", "Beam/Spot"],
         ),
-        ("event_type", "T1/Signal"),
-        ("event_type", "T2/Signal"),
-        ("event_type", "T3/Signal"),
-        ("event_type", "ETD/Signal"),
+        ("type", "T1/Signal"),
+        ("type", "T2/Signal"),
+        ("type", "T3/Signal"),
+        ("type", "ETD/Signal"),
     ],
     "map_to_bool": [
         (
@@ -125,7 +130,7 @@ TFS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
             ureg.ampere,
         ),
         (
-            "instrument/ebeam_column/APERTURE[aperture*]/size",
+            "instrument/ebeam_column/apertureID[aperture*]/size",
             ureg.meter,
             "EBeam/ApertureDiameter",
             ureg.meter,

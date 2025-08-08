@@ -43,7 +43,9 @@ from pynxtools_em.configurations.image_tiff_fei_cfg import (
     FEI_TECNAI_DYNAMIC_VARIOUS_NX,
     FEI_TECNAI_STATIC_VARIOUS_NX,
 )
-from pynxtools_em.utils.get_file_checksum import (
+from pynxtools_em.utils.config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
 )
@@ -58,20 +60,27 @@ FEI_LEGACY_HELIOS_SEM = 2
 
 
 class FeiLegacyTiffParser:
-    def __init__(self, file_path: str = "", entry_id: int = 1, verbose: bool = False):
+    def __init__(
+        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+    ):
         if file_path:
             self.file_path = file_path
-        self.entry_id = entry_id if entry_id > 0 else 1
-        self.verbose = verbose
-        self.id_mgn: Dict[str, int] = {"event_id": 1}
-        self.flat_dict_meta = fd.FlatDict({}, "/")
-        self.version: Dict = {}
-        self.supported: int = FEI_LEGACY_UNKNOWN
-        self.check_if_tiff_fei_legacy()
-        if not self.supported:
-            print(
-                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+            self.entry_id = entry_id if entry_id > 0 else 1
+            self.verbose = verbose
+            self.id_mgn: Dict[str, int] = {"event_id": 1}
+            self.flat_dict_meta = fd.FlatDict({}, "/")
+            self.version: Dict = {}
+            self.supported: int = FEI_LEGACY_UNKNOWN
+            self.check_if_tiff_fei_legacy()
+            if not self.supported:
+                logger.debug(
+                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+                )
+        else:
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs FEI legacy TIFF file !"
             )
+            self.supported = False
 
     def check_if_tiff_fei_legacy(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file."""
@@ -115,7 +124,7 @@ class FeiLegacyTiffParser:
                         if "Tecnai" in self.flat_dict_meta["Microscope"]:
                             if self.verbose:
                                 for key, val in self.flat_dict_meta.items():
-                                    print(f"{key}, {val}, {type(val)}")
+                                    logger.info(f"{key}, {val}, {type(val)}")
                             self.supported = FEI_LEGACY_TECNAI_TEM
                             return
 
@@ -143,10 +152,10 @@ class FeiLegacyTiffParser:
                         ].startswith("Helios NanoLab"):
                             if self.verbose:
                                 for key, val in self.flat_dict_meta.items():
-                                    print(f"{key}, {val}, {type(val)}")
+                                    logger.info(f"{key}, {val}, {type(val)}")
                             self.supported = FEI_LEGACY_HELIOS_SEM
-                            print(
-                                f"WARNING::TFS/FEI for TIFF stores in some cases the metadata in an XML block surplus ! a structure text appendix to the binary payload of the TIFF file !"
+                            logger.warning(
+                                f"TFS/FEI for TIFF stores in some cases the metadata in an XML block surplus ! a structure text appendix to the binary payload of the TIFF file !"
                             )
                             # this part of the legacy parser has been switched off
                             # for now as we expect that rather the newer structured text strategy
@@ -154,33 +163,41 @@ class FeiLegacyTiffParser:
                             return
 
         except (FileNotFoundError, IOError):
-            print(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing."""
         if self.supported == FEI_LEGACY_TECNAI_TEM:
-            # do not use != FEI_LEGACY_UNKNOWN as the FEI_FEI_LEGACY_HELIOS_SEM part
+            # do not use != FEI_LEGACY_UNKNOWN as the FEI_LEGACY_HELIOS_SEM part
             # has been switched off intentionally
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
-            print(
+            logger.info(
                 f"Parsing {self.file_path} FEI Legacy with SHA256 {self.file_path_sha256} ..."
             )
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
+        elif self.supported == FEI_LEGACY_HELIOS_SEM:
+            logger.info(
+                f"Detected {self.file_path} qualifies as FEI_LEGACY_HELIOS_SEM. "
+                f"These can have conflicting metadata, will currently parse only "
+                f"when the image_tfs_tif parser picks content up!"
+            )
         return template
 
     def process_event_data_em_data(self, template: dict) -> dict:
         """Add respective heavy data."""
         # default display of the image(s) representing the data collected in this event
-        print(f"Writing legacy FEI TIFF image data to NeXus concept instances...")
+        logger.debug(
+            f"Writing legacy FEI TIFF image data to NeXus concept instances..."
+        )
         # assuming same image FEI_LEGACY_TECNAI_TEM, FEI_LEGACY_HELIOS_SEM
         identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
-                nparr = np.array(img)
-                # print(f"type: {type(nparr)}, dtype: {nparr.dtype}, shape: {np.shape(nparr)}")
+                nparr = np.flipud(np.array(img))
+                # logger.debug(f"type: {type(nparr)}, dtype: {nparr.dtype}, shape: {np.shape(nparr)}")
                 # TODO::discussion points
                 # - how do you know we have an image of real space vs. imaginary space (from the metadata?)
                 # - how do deal with the (ugly) scale bar that is typically stamped into the TIFF image content?
@@ -189,9 +206,8 @@ class FeiLegacyTiffParser:
                 # remember H5Web images can be scaled based on the metadata allowing basically the same
                 # explorative viewing using H5Web than what traditionally typical image viewers are meant for
                 trg = (
-                    f"/ENTRY[entry{self.entry_id}]/measurement/events/"
-                    f"EVENT_DATA_EM[event_data_em{self.id_mgn['event_id']}]/"
-                    f"IMAGE[image{identifier_image}]/image_2d"
+                    f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event"
+                    f"{self.id_mgn['event_id']}]/imageID[image{identifier_image}]/image_2d"
                 )
                 template[f"{trg}/title"] = f"Image"
                 template[f"{trg}/@signal"] = "real"
@@ -205,18 +221,18 @@ class FeiLegacyTiffParser:
                 template[f"{trg}/@axes"] = []
                 for dim in dims[::-1]:
                     template[f"{trg}/@axes"].append(f"axis_{dim}")
-                template[f"{trg}/real"] = {"compress": np.array(fp), "strength": 1}
+                template[f"{trg}/real"] = {"compress": nparr, "strength": 1}
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
                 if self.supported == FEI_LEGACY_TECNAI_TEM:
-                    print(
-                        "WARNING: Unresolvable case, Tecnai instruments may not come with physical dimension per pixel data!"
+                    logger.warning(
+                        "Unresolvable case, Tecnai instruments may not come with physical dimension per pixel data!"
                     )
                 elif self.supported == FEI_LEGACY_HELIOS_SEM:
                     sxy = {
-                        "i": ureg.Quantity(1.0, ureg.meter),
-                        "j": ureg.Quantity(1.0, ureg.meter),
+                        "i": ureg.Quantity(1.0),
+                        "j": ureg.Quantity(1.0),
                     }
                     # may face CCD overview camera of chamber that has no calibration!
                     abbrev = "Metadata.BinaryResult.PixelSize"
@@ -238,9 +254,11 @@ class FeiLegacyTiffParser:
                             ),
                         }
                     else:
-                        print("WARNING: Assuming pixel width and height unit is meter!")
+                        logger.warning(
+                            "Assuming pixel width and height unit is unitless!"
+                        )
 
-                nxy = {"i": np.shape(np.array(fp))[1], "j": np.shape(np.array(fp))[0]}
+                nxy = {"i": np.shape(nparr)[1], "j": np.shape(nparr)[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
                 # tags 40962 and 40963 do not exist in example datasets from the community!
@@ -268,7 +286,7 @@ class FeiLegacyTiffParser:
                             "strength": 1,
                         }
                         template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                            f"Coordinate along {dim}-axis (needs proper scaling!)"
+                            f"Coordinate along {dim}-axis (pixel)"
                         )
                     elif self.supported == FEI_LEGACY_HELIOS_SEM:
                         template[f"{trg}/AXISNAME[axis_{dim}]"] = {
@@ -282,18 +300,21 @@ class FeiLegacyTiffParser:
                             "strength": 1,
                         }
                         template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
-                            f"Coordinate along {dim}-axis ({sxy[dim].units})"
+                            f"Coordinate along {dim}-axis ({sxy[dim].units if not sxy[dim].dimensionless else 'pixel'})"
                         )
-                        template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = (
-                            f"{sxy[dim].units}"
-                        )
+                        if not sxy[dim].dimensionless:
+                            template[f"{trg}/AXISNAME[axis_{dim}]/@units"] = (
+                                f"{sxy[dim].units}"
+                            )
+
                 identifier_image += 1
+                del nparr
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
-        print(
+        logger.debug(
             f"Mapping some of the FEI Legacy metadata on respective NeXus concepts..."
         )
         identifier = [self.entry_id, self.id_mgn["event_id"], 1]

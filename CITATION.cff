@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 title: 'pynxtools-em: A pynxtools reader plugin for electron microscopy (EM) data'
-version: 0.3.2
+version: 0.4.0
 message:
   If you use this software, please cite it using the metadata from this file.
 type: software
@@ -39,7 +39,7 @@ keywords:
 abstract:
   pynxtools-em is a reader plugin for pynxtools (https://github.com/FAIRmat-NFDI/pynxtools)
   written in Python. pynxtools-em is a tool for reading and translating data from various proprietary
-  and open data formats from technology partners and the wider electron microscopy community and
+  and open-source data formats from technology partners and the wider electron microscopy community and
   standardizing it such that it is compliant with the NeXus application definition NXem
   (https://fairmat-nfdi.github.io/nexus_definitions/).
 
