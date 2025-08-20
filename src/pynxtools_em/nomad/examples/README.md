@@ -19,7 +19,7 @@ The general structure of this example is the following:
 You may add your own files to the upload or experiment with the pre-existing electronic lab notebook (ELN) example.
 
 ## Which data schema is used?
-The ELN template is configured such that its terminology matches with the [NXem](https://fairmat-nfdi.github.io/nexus_definitions/classes/contributed_definitions/NXem.html#nxem) NeXus application definition.
+The ELN template is configured such that its terminology matches with the [NXem](https://fairmat-nfdi.github.io/nexus_definitions/classes/applications/NXem.html#nxem) NeXus application definition.
 
 ## Acknowledgements
 [This example comes with real world datasets contributed by the international electron microscopy community.](https://zenodo.org/records/11208725)

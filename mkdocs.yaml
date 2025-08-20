@@ -12,7 +12,7 @@ nav:
     - tutorial/standalone.md
     # - tutorial/nexusio.md
     # - tutorial/oasis.md
-  - How-To:
+  - How-To Guides:
     - how-tos/examples.md
     - how-tos/kikuchi.md
     - how-tos/mtex.md
