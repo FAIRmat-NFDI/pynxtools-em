@@ -26,6 +26,7 @@ from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pi
 from pynxtools_em.configurations.oasis_eln_config_cfg import (
     OASISCFG_EM_CITATION_TO_NEXUS,
     OASISCFG_EM_CSYS_TO_NEXUS,
+    OASISCFG_EM_NOTE_TO_NEXUS,
 )
 from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
@@ -79,7 +80,7 @@ class NxEmNomadOasisConfigParser:
                 f"Parsing {self.file_path} NOMAD Oasis/config with SHA256 {self.file_path_sha256} ..."
             )
             self.parse_reference_frames(template)
-            self.parse_example(template)
+            self.parse_citations(template)
         return template
 
     def parse_reference_frames(self, template: dict) -> dict:
@@ -103,7 +104,7 @@ class NxEmNomadOasisConfigParser:
                         csys_id += 1
         return template
 
-    def parse_example(self, template: dict) -> dict:
+    def parse_citations(self, template: dict) -> dict:
         """Copy data from example-specific section into template."""
         src = "citation"
         if src in self.flat_metadata:
@@ -125,4 +126,28 @@ class NxEmNomadOasisConfigParser:
                             template,
                         )
                         cite_id += 1
+        return template
+
+    def parse_citations(self, template: dict) -> dict:
+        """Copy data from example-specific section into template."""
+        src = "note"
+        if src in self.flat_metadata:
+            if isinstance(self.flat_metadata[src], list):
+                if (
+                    all(isinstance(entry, dict) for entry in self.flat_metadata[src])
+                    is True
+                ):
+                    note_id = 1
+                    # custom schema delivers a list of dictionaries...
+                    for note_dict in self.flat_metadata[src]:
+                        if len(note_dict) == 0:
+                            continue
+                        identifier = [self.entry_id, cite_id]
+                        add_specific_metadata_pint(
+                            OASISCFG_EM_NOTE_TO_NEXUS,
+                            note_dict,
+                            identifier,
+                            template,
+                        )
+                        note_id += 1
         return template

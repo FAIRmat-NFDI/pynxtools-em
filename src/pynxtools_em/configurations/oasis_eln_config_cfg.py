@@ -43,5 +43,12 @@ OASISCFG_EM_CSYS_TO_NEXUS: Dict[str, Any] = {
 OASISCFG_EM_CITATION_TO_NEXUS: Dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/citeID[cite*]",
     "prefix_src": "",
-    "map_to_str": ["authors", "doi", "description", "url"],
+    "map_to_str": ["author", "doi", "description", "url"],
+}
+
+
+OASISCFG_EM_NOTE_TO_NEXUS: Dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/noteID[note*]",
+    "prefix_src": "",
+    "map_to_str": ["file_name"],
 }
