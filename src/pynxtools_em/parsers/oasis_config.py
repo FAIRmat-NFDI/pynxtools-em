@@ -81,6 +81,7 @@ class NxEmNomadOasisConfigParser:
             )
             self.parse_reference_frames(template)
             self.parse_citations(template)
+            self.parse_notes(template)
         return template
 
     def parse_reference_frames(self, template: dict) -> dict:
@@ -128,7 +129,7 @@ class NxEmNomadOasisConfigParser:
                         cite_id += 1
         return template
 
-    def parse_citations(self, template: dict) -> dict:
+    def parse_notes(self, template: dict) -> dict:
         """Copy data from example-specific section into template."""
         src = "note"
         if src in self.flat_metadata:
@@ -142,7 +143,7 @@ class NxEmNomadOasisConfigParser:
                     for note_dict in self.flat_metadata[src]:
                         if len(note_dict) == 0:
                             continue
-                        identifier = [self.entry_id, cite_id]
+                        identifier = [self.entry_id, note_id]
                         add_specific_metadata_pint(
                             OASISCFG_EM_NOTE_TO_NEXUS,
                             note_dict,
