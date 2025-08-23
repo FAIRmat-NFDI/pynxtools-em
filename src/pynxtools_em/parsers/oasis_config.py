@@ -27,6 +27,7 @@ from pynxtools_em.configurations.oasis_eln_config_cfg import (
     OASISCFG_EM_CITATION_TO_NEXUS,
     OASISCFG_EM_CSYS_TO_NEXUS,
     OASISCFG_EM_NOTE_TO_NEXUS,
+    OASISCFG_EM_SAMPLE_TO_NEXUS,
 )
 from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
@@ -82,6 +83,9 @@ class NxEmNomadOasisConfigParser:
             self.parse_reference_frames(template)
             self.parse_citations(template)
             self.parse_notes(template)
+            add_specific_metadata_pint(
+                OASISCFG_EM_SAMPLE_TO_NEXUS, self.flat_metadata, [1], template
+            )
         return template
 
     def parse_reference_frames(self, template: dict) -> dict:
