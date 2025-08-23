@@ -68,12 +68,17 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                     "schema_version": ["2.0", "3.0", "4.0", "5.0"],
                     "writer_name": ["AZTec"],
                     "writer_version": [
+                        "3.3.9106.1",
                         "4.4.7495.1",
                         "5.0.7643.1",
                         "5.1.7829.1",
                         "6.0.8014.1",
+                        "6.0.8123.1",
                         "6.0.8196.1",
+                        "6.1.8460.1",
                         "6.1.8451.1",
+                        "6.1.8565.1",
+                        "6.2.9111.9",
                     ],
                 },
                 "src": {
