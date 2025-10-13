@@ -11,6 +11,7 @@ Eucentric
 Gatan
 Heiko
 Kikuchi
+Kühbach
 MANUALKV
 Markus
 NDATA
@@ -29,6 +30,7 @@ autostem
 continously
 dataconverter
 datatypes
+diátaxis
 dtype
 eiger
 flatfield
