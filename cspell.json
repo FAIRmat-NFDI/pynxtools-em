@@ -23,6 +23,6 @@
     "words": [],
     "ignoreWords": [],
     "ignoreRegExpList": ["\\bNX\\w*\\b", "https?://[\\S]+"],
-                 
+    "import": [],     
     "language": "en-US"
 }
