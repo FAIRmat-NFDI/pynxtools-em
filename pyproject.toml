@@ -21,15 +21,12 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "h5py>=3.6.0",
-    "numpy>=1.22.4,<2.0.0",
     "pynxtools>=0.11.1",
     "hyperspy>=1.7.6",
-    "rosettasciio>=0.9.0",
-    "kikuchipy>=0.11.2",
+    "rosettasciio",
+    "kikuchipy",
     "pyxem",
     "nionswift",
-    "pint",
     "flatdict",
     "xmltodict",
     "xraydb",
@@ -96,7 +93,7 @@ select = [
     "E", # pycodestyle
     "W", # pycodestyle
     "PL", # pylint
-    # "NPY201", # reactivate when using numpy > 2.0
+    "NPY201", # upgrade to numpy>2
 ]
 ignore = [
     "E501", # Line too long ({width} > {limit} characters)

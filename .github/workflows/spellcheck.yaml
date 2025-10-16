@@ -3,12 +3,6 @@ name: Spell Check
 on:
   pull_request:
     branches: [main]
-    paths:
-      - "docs/tutorial/**/*"
-      - "docs/explanation/**/*"
-      - "docs/how-tos/**/*"
-      - "docs/reference/**/*"
-      - "docs/*"
 
 jobs:
   spellcheck:
@@ -18,13 +12,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install dependencies
+    - name: Install dependencies and dictionary
       run: |
-        npm install -g cspell jq
+        npm install -g cspell jq @cspell/dict-scientific-terms-us
 
     - name: Run cspell
       run: |
-        cspell --config cspell.json "docs/tutorial/**/*" "docs/how-tos/**/*" "docs/explanation/**/*" "docs/reference/**/*" "docs/*"
+        cspell --config cspell.json "docs/explanation/**/*" "docs/how-tos/**/*" "docs/reference/**/*" "docs/tutorial/**/*"  "docs/*.md" "CITATION.cff" "README.md"
 
     - name: Fail on errors
       run: |
@@ -32,3 +26,4 @@ jobs:
           echo "There are spelling errors in your code. Please fix them and try again."
           exit 1
         fi
+
