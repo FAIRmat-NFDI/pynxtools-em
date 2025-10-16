@@ -1,5 +1,7 @@
 definitions:
-  name: 'Electron Microscopy ELN Example'
+  name: 'Electron_Microscopy_ELN_Example'
+  eln:
+    label: 'Electron Microscopy ELN Example'
   sections:
     ELN_for_Electron_Microscopy:
       base_sections:
@@ -11,6 +13,7 @@ definitions:
           nxdl: NXem
         eln:
           hide: ['nxdl', 'reader']
+          label: 'ELN for Electron Microscopy'
       sub_sections:
         entry:
           section:
