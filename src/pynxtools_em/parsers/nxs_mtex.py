@@ -96,6 +96,8 @@ def hfive_attribute_to_template(
         if trg_dst_name != ""
         else f"{trg}/@{trg_att_name}"
     )
+    if src_path not in obj:
+        return template
     if src_att_name not in obj[src_path].attrs:
         return template
     template[trg_path] = obj[src_path].attrs[src_att_name]
@@ -137,6 +139,16 @@ class NxEmNxsMTexParser:
             return
         # TODO add code which checks for available content
         # the file written out by MTex/Matlab this file is already preformatted for NeXus
+        # check if there is relevant payload
+        with h5py.File(self.file_path, "r") as h5r:
+            for trg in [
+                "/entry1/roi1/ebsd/indexing/phase1",
+                "/entry1/roi1/ebsd/indexing/roi",
+                "/entry1/roi1/ebsd/indexing/microstructure1/crystals",
+            ]:
+                if trg not in h5r:
+                    logger.warning(f"{self.file_path} {trg} not found, file ignored!")
+                    return
         self.supported = True
 
     def parse(self, template: dict) -> dict:

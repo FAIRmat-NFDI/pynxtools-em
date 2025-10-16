@@ -26,7 +26,7 @@ If you are interested in the newest version, we recommend to work with a develop
 
 ## Purpose
 This reader plugin for [`pynxtools`](https://github.com/FAIRmat-NFDI/pynxtools) is used to translate diverse file formats from the scientific community and technology partners
-within the field of electron microscopy into a standardized representation using the [NeXus](https://www.nexusformat.org/) application definition [NXem](https://fairmat-nfdi.github.io/nexus_definitions/classes/contributed_definitions/NXem.html#nxem).
+within the field of electron microscopy into a standardized representation using the [NeXus](https://www.nexusformat.org/) application definition [NXem](https://fairmat-nfdi.github.io/nexus_definitions/classes/applications/NXem.html#nxem).
 
 ## Supported file formats
 This plugin supports several file formats that are currently used within the research field of electron microscopy.
