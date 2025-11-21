@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Parser for loading generic orientation microscopy data based on ."""
+"""Parser suite for mapping various types of EM data onto NXem."""
 
 import os
 from time import perf_counter_ns

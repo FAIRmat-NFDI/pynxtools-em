@@ -82,6 +82,8 @@ exclude = ["dev/*"]
 [tool.setuptools_scm]
 version_scheme = "no-guess-dev"
 local_scheme = "node-and-date"
+write_to = "_version.py"
+git_describe_command = ["git", "describe", "--dirty", "--long", "--tags", "--match", "*[0-9]*", "--abbrev=8"]
 
 [tool.ruff]
 include = ["src/*.py", "tests/*.py"]
