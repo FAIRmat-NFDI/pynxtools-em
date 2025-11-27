@@ -533,7 +533,7 @@ def process_roi_phase_ipf(
                 laue_grp = ORIX_LAUEGROUP_LOOKUP[laue_group]
             else:
                 logger.warning("Neither space group nor valid laue group reported!")
-                return
+                return template
         ipf_key = plot.IPFColorKeyTSL(laue_grp, direction=PROJECTION_VECTORS[idx][1])
         img = get_ipfdir_legend(ipf_key)
 
