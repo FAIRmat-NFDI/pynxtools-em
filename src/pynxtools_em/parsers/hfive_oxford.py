@@ -408,6 +408,6 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
             )
 
         self.ebsd.descr_type = "band_contrast"
-        self.ebsd.descr_value = np.asarray(fp[f"{grp_name}/Band Contrast"], np.int32)  #
+        self.ebsd.descr_value = np.asarray(fp[f"{grp_name}/Band Contrast"], np.int32)
         # inconsistency uint8 in file although specification states should be int32
         # promoting uint8 to int32 no problem
