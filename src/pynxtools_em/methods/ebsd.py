@@ -25,7 +25,20 @@ import matplotlib.pyplot as plt  # in the hope that this closes figures with ori
 import numpy as np
 from orix import plot
 from orix.quaternion import Rotation
-from orix.quaternion.symmetry import get_point_group, Ci, C2h, D2h, S6, D3d, C4h, D4h, C6h, D6h, Th, Oh
+from orix.quaternion.symmetry import (
+    get_point_group,
+    Ci,
+    C2h,
+    D2h,
+    S6,
+    D3d,
+    C4h,
+    D4h,
+    C6h,
+    D6h,
+    Th,
+    Oh,
+)
 from orix.vector import Vector3d
 from PIL import Image as pil
 from scipy.spatial import KDTree
@@ -64,7 +77,8 @@ ORIX_LAUEGROUP_LOOKUP = {
     8: C6h,
     9: D6h,
     10: Th,
-    11: Oh }
+    11: Oh,
+}
 
 # https://hexrd.readthedocs.io/en/0.9.7/_modules/hexrd/material/spacegroup.html
 HEXRD_TO_ORIX_LAUEGROUP_LOOKUP = {
@@ -476,7 +490,9 @@ def ebsd_roi_phase_ipf(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dic
                 id_mgn,
                 nxem_phase_id,
                 trg_grid.phases[nxem_phase_id]["phase_name"],
-                trg_grid.phases[nxem_phase_id]["laue_group"] if "laue_group" in trg_grid.phases[nxem_phase_id] else 0,
+                trg_grid.phases[nxem_phase_id]["laue_group"]
+                if "laue_group" in trg_grid.phases[nxem_phase_id]
+                else 0,
                 trg_grid.phases[nxem_phase_id]["space_group"],
                 template,
             )
