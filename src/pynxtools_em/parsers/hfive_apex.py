@@ -43,6 +43,10 @@ from pynxtools_em.utils.get_xrayline_iupac_names import get_xrayline_candidates
 from pynxtools_em.utils.hfive_utils import read_strings
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
+EDAX_TO_ORIX_LAUEGROUP_LOOKUP = {
+    "Tetragonal (D4h) [4/mmm]": 7,
+}
+
 
 class HdfFiveEdaxApexParser(HdfFiveBaseParser):
     """Read APEX edaxh5"""
@@ -344,11 +348,27 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                     angles.magnitude[2],
                 )
 
+                # preferentially use laue group
+                laue_group = 0
+                if f"{sub_grp_name}/Laue Group" in fp:
+                    edax_laue_group = read_strings(fp[f"{sub_grp_name}/Laue Group"][0])
+                    if edax_laue_group in EDAX_TO_ORIX_LAUEGROUP_LOOKUP:
+                        laue_group = EDAX_TO_ORIX_LAUEGROUP_LOOKUP[edax_laue_group]
+                    else:
+                        logger.warning(
+                            f"{edax_laue_group} not yet mapped to orix laue group"
+                        )
+                self.ebsd.phases[phase_idx]["laue_group"] = laue_group
+                if len(self.ebsd.laue_group) > 0:
+                    self.ebsd.laue_group.append(laue_group)
+                else:
+                    self.ebsd.laue_group = [laue_group]
+
                 # Space Group not stored, only laue group, point group and symmetry
                 # problematic because mapping is not bijective!
                 # if you know the space group we know laue and point group and symmetry
                 # but the opposite direction leaves room for ambiguities
-                space_group = None
+                space_group = 0
                 if phase_name in ASSUME_PHASE_NAME_TO_SPACE_GROUP:
                     space_group = ASSUME_PHASE_NAME_TO_SPACE_GROUP[phase_name]
                 else:
@@ -358,7 +378,6 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                     self.ebsd = EbsdPointCloud()
                     return
                 self.ebsd.phases[phase_idx]["space_group"] = space_group
-
                 if len(self.ebsd.space_group) > 0:
                     self.ebsd.space_group.append(space_group)
                 else:
