@@ -369,14 +369,15 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 # if you know the space group we know laue and point group and symmetry
                 # but the opposite direction leaves room for ambiguities
                 space_group = 0
-                if phase_name in ASSUME_PHASE_NAME_TO_SPACE_GROUP:
-                    space_group = ASSUME_PHASE_NAME_TO_SPACE_GROUP[phase_name]
-                else:
-                    logger.warning(
-                        f"{phase_name} is not in ASSUME_PHASE_NAME_TO_SPACE_GROUP !"
-                    )
-                    self.ebsd = EbsdPointCloud()
-                    return
+                # deprecate
+                # if phase_name in ASSUME_PHASE_NAME_TO_SPACE_GROUP:
+                #     space_group = ASSUME_PHASE_NAME_TO_SPACE_GROUP[phase_name]
+                # else:
+                #     logger.warning(
+                #         f"{phase_name} is not in ASSUME_PHASE_NAME_TO_SPACE_GROUP !"
+                #     )
+                #     self.ebsd = EbsdPointCloud()
+                #     return
                 self.ebsd.phases[phase_idx]["space_group"] = space_group
                 if len(self.ebsd.space_group) > 0:
                     self.ebsd.space_group.append(space_group)
