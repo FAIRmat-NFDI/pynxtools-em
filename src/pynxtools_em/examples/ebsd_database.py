@@ -194,6 +194,7 @@ FREE_TEXT_TO_CONCEPT = {
     "Ti2448-beta": "Ti",
     "Ti O": "TiO",
     "Ti O2": "TiO2",
+    "Ti O2 (anatase)": "TiO2",
     "TiC": "TiC",
     "Ti-Hex": "Ti",
     "Tin": "Sn",
