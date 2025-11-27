@@ -80,21 +80,6 @@ ORIX_LAUEGROUP_LOOKUP = {
     11: Oh,
 }
 
-# https://hexrd.readthedocs.io/en/0.9.7/_modules/hexrd/material/spacegroup.html
-HEXRD_TO_ORIX_LAUEGROUP_LOOKUP = {
-    1: 1,  # "ci"
-    2: 2,  # "c2h"
-    3: 3,  # "d2h"
-    4: 6,  # "c4h"
-    5: 7,  # "d4h"
-    6: 4,  # "s6"
-    7: 5,  # "d3d"
-    8: 8,  # "c6h"
-    9: 9,  # "d6h"
-    10: 10,  # "th"
-    11: 11,  # "oh
-}
-
 
 class EbsdPointCloud:
     """Cache for storing a single indexed EBSD point cloud with mark data."""
