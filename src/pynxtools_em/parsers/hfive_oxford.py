@@ -44,7 +44,21 @@ from pynxtools_em.utils.get_checksum import (
 )
 from pynxtools_em.utils.hfive_utils import apply_euler_space_symmetry, read_strings
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
-from pynxtools_em.methods.ebsd import HEXRD_TO_ORIX_LAUEGROUP_LOOKUP
+
+# likely using https://hexrd.readthedocs.io/en/0.9.7/_modules/hexrd/material/spacegroup.html
+OXFORD_TO_ORIX_LAUEGROUP_LOOKUP = {
+    1: 1,  # "ci"
+    2: 2,  # "c2h"
+    3: 3,  # "d2h"
+    4: 6,  # "c4h" !
+    5: 7,  # "d4h" !
+    6: 4,  # "s6" !
+    7: 5,  # "d3d" !
+    8: 8,  # "c6h"
+    9: 9,  # "d6h"
+    10: 10,  # "th"
+    11: 11,  # "oh
+}
 
 
 class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
@@ -332,8 +346,8 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
             # Laue Group is required but Space Group optional
             # the example from Dierner, FAU suggests that OINA follows the hexrd convention
             laue_group = int(fp[f"{sub_grp_name}/Laue Group"][0])
-            if laue_group in HEXRD_TO_ORIX_LAUEGROUP_LOOKUP:
-                laue_group = HEXRD_TO_ORIX_LAUEGROUP_LOOKUP[laue_group]
+            if laue_group in OXFORD_TO_ORIX_LAUEGROUP_LOOKUP:
+                laue_group = OXFORD_TO_ORIX_LAUEGROUP_LOOKUP[laue_group]
             else:
                 laue_group = 0
             self.ebsd.phases[phase_idx]["laue_group"] = laue_group
