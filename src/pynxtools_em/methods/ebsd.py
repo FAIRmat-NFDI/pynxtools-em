@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt  # in the hope that this closes figures with ori
 import numpy as np
 from orix import plot
 from orix.quaternion import Rotation
-from orix.quaternion.symmetry import get_point_group
+from orix.quaternion.symmetry import get_point_group, Ci, C2h, D2h, S6, D3d, C4h, D4h, C6h, D6h, Th, Oh
 from orix.vector import Vector3d
 from PIL import Image as pil
 from scipy.spatial import KDTree
@@ -53,6 +53,34 @@ DEFAULT_LENGTH_UNIT = ureg.micrometer
 # based on grid type, spacing, and tiling
 FLIGHT_PLAN = "start_top_left_stack_x_left_to_right_stack_x_line_along_end_bottom_right"
 
+ORIX_LAUEGROUP_LOOKUP = {
+    1: Ci,
+    2: C2h,
+    3: D2h,
+    4: S6,
+    5: D3d,
+    6: C4h,
+    7: D4h,
+    8: C6h,
+    9: D6h,
+    10: Th,
+    11: Oh }
+
+# https://hexrd.readthedocs.io/en/0.9.7/_modules/hexrd/material/spacegroup.html
+HEXRD_TO_ORIX_LAUEGROUP_LOOKUP = {
+    1: 1,  # "ci"
+    2: 2,  # "c2h"
+    3: 3,  # "d2h"
+    4: 6,  # "c4h"
+    5: 7,  # "d4h"
+    6: 4,  # "s6"
+    7: 5,  # "d3d"
+    8: 8,  # "c6h"
+    9: 9,  # "d6h"
+    10: 10,  # "th"
+    11: 11,  # "oh
+}
+
 
 class EbsdPointCloud:
     """Cache for storing a single indexed EBSD point cloud with mark data."""
@@ -64,6 +92,7 @@ class EbsdPointCloud:
         self.n: Dict[str, Any] = {}  # number of grid points along "x", "y", "z"
         self.s: Dict[str, Any] = {}  # scan step along "x", "y", "z"
         self.phase = []  # collection of phase class instances in order of self.phases
+        self.laue_group = []  # collection of laue group in order of self.phases
         self.space_group = []  # collection of space group in order of self.phases
         self.phases = {}  #  named phases
         self.euler = None  # Bunge-Euler ZXZ angle for each scan point np.nan otherwise
@@ -261,7 +290,7 @@ def regrid_onto_equisized_scan_points(
         # bc typically positive
         trg_grid.descr_type = "band_contrast"
         trg_grid.descr_value = np.empty((n_pts,), np.uint32)
-        trg_grid.descr_value.fill(np.uint32(-1))
+        trg_grid.descr_value.fill(np.uint32(0))
         trg_grid.descr_value = ureg.Quantity(
             np.asarray(src_grid.descr_value[idx], np.uint32)
         )
@@ -283,6 +312,7 @@ def regrid_onto_equisized_scan_points(
         trg_grid.descr_type = None
         trg_grid.descr_value = None
     trg_grid.phase = src_grid.phase
+    trg_grid.laue_group = src_grid.laue_group
     trg_grid.space_group = src_grid.space_group
     trg_grid.phases = src_grid.phases
     return trg_grid
@@ -434,21 +464,22 @@ def ebsd_roi_phase_ipf(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dic
                 f"{inp.phases[nxem_phase_id]['space_group']}"
             )
 
-        # internally the following function may discretize a coarser IPF
-        # if the input grid inp is too large for h5web to display
-        # this remove fine details in the EBSD maps but keep in mind
-        # that the purpose of the default plot is to guide the user
-        # of the potential usefulness of the dataset when searching in
-        # a RDMS like NOMAD OASIS, the purpose is NOT to take the coarse-grained
-        # discretization and use this for scientific data analysis!
-        process_roi_phase_ipf(
-            trg_grid,
-            id_mgn,
-            nxem_phase_id,
-            trg_grid.phases[nxem_phase_id]["phase_name"],
-            trg_grid.phases[nxem_phase_id]["space_group"],
-            template,
-        )
+            # internally the following function may discretize a coarser IPF
+            # if the input grid inp is too large for h5web to display
+            # this remove fine details in the EBSD maps but keep in mind
+            # that the purpose of the default plot is to guide the user
+            # of the potential usefulness of the dataset when searching in
+            # a RDMS like NOMAD OASIS, the purpose is NOT to take the coarse-grained
+            # discretization and use this for scientific data analysis!
+            process_roi_phase_ipf(
+                trg_grid,
+                id_mgn,
+                nxem_phase_id,
+                trg_grid.phases[nxem_phase_id]["phase_name"],
+                trg_grid.phases[nxem_phase_id]["laue_group"] if "laue_group" in trg_grid.phases[nxem_phase_id] else 0,
+                trg_grid.phases[nxem_phase_id]["space_group"],
+                template,
+            )
     return template
 
 
@@ -457,6 +488,7 @@ def process_roi_phase_ipf(
     id_mgn: dict,
     nxem_phase_id: int,
     phase_name: str,
+    laue_group: int,
     space_group: int,
     template: dict,
 ) -> dict:
@@ -477,10 +509,16 @@ def process_roi_phase_ipf(
     # logger.debug(f"shape rotations -----> {np.shape(rotations)}")
 
     for idx in np.arange(0, len(PROJECTION_VECTORS)):
-        point_group = get_point_group(space_group, proper=False)
-        ipf_key = plot.IPFColorKeyTSL(
-            point_group.laue, direction=PROJECTION_VECTORS[idx][1]
-        )
+        # https://orix.readthedocs.io/en/stable/tutorials/inverse_pole_figures.html
+        if space_group != 0:
+            laue_grp = get_point_group(space_group, proper=False).laue
+        else:
+            if laue_group in ORIX_LAUEGROUP_LOOKUP:
+                laue_grp = ORIX_LAUEGROUP_LOOKUP[laue_group]
+            else:
+                logger.warning("Neither space group nor valid laue group reported!")
+                return
+        ipf_key = plot.IPFColorKeyTSL(laue_grp, direction=PROJECTION_VECTORS[idx][1])
         img = get_ipfdir_legend(ipf_key)
 
         rgb_px_with_phase_id = np.asarray(

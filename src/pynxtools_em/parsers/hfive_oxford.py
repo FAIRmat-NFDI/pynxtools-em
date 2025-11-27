@@ -44,6 +44,7 @@ from pynxtools_em.utils.get_checksum import (
 )
 from pynxtools_em.utils.hfive_utils import apply_euler_space_symmetry, read_strings
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
+from pynxtools_em.methods.ebsd import HEXRD_TO_ORIX_LAUEGROUP_LOOKUP
 
 
 class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
@@ -65,7 +66,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                 "trg": {
                     "tech_partner": ["Oxford Instruments"],
                     "schema_name": ["H5OINA"],
-                    "schema_version": ["2.0", "3.0", "4.0", "5.0"],
+                    "schema_version": ["2.0", "3.0", "4.0", "5.0", "7.0"],
                     "writer_name": ["AZTec"],
                     "writer_version": [
                         "3.3.9106.1",
@@ -273,7 +274,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                 "Reference",
                 "Lattice Angles",
                 "Lattice Dimensions",
-                "Space Group",
+                "Laue Group",
             ]:
                 if f"{sub_grp_name}/{req_field}" not in fp:
                     logger.warning(f"Unable to parse {sub_grp_name}/{req_field} !")
@@ -328,9 +329,25 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                 angles[2],
             )  # TODO:: lattice passed to kikuchipy I think needs to be in degree!
 
-            # Space Group, no, H5T_NATIVE_INT32, (1, 1), Space group index.
-            # The attribute Symbol contains the string representation, for example P m -3 m.
-            space_group = int(fp[f"{sub_grp_name}/Space Group"][0])
+            # Laue Group is required but Space Group optional
+            # the example from Dierner, FAU suggests that OINA follows the hexrd convention
+            laue_group = int(fp[f"{sub_grp_name}/Laue Group"][0])
+            if laue_group in HEXRD_TO_ORIX_LAUEGROUP_LOOKUP:
+                laue_group = HEXRD_TO_ORIX_LAUEGROUP_LOOKUP[laue_group]
+            else:
+                laue_group = 0
+            self.ebsd.phases[phase_idx]["laue_group"] = laue_group
+            if len(self.ebsd.laue_group) > 0:
+                self.ebsd.laue_group.append(laue_group)
+            else:
+                self.ebsd.laue_group = [laue_group]
+
+            if f"{sub_grp_name}/Space Group" in fp:
+                # Space Group, no, H5T_NATIVE_INT32, (1, 1), Space group index.
+                # The attribute Symbol contains the string representation, for example P m -3 m.
+                space_group = int(fp[f"{sub_grp_name}/Space Group"][0])
+            else:
+                space_group = 0  # meaning not defined!
             self.ebsd.phases[phase_idx]["space_group"] = space_group
             if len(self.ebsd.space_group) > 0:
                 self.ebsd.space_group.append(space_group)
@@ -391,6 +408,6 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
             )
 
         self.ebsd.descr_type = "band_contrast"
-        self.ebsd.descr_value = np.asarray(fp[f"{grp_name}/Band Contrast"], np.int32)
+        self.ebsd.descr_value = np.asarray(fp[f"{grp_name}/Band Contrast"], np.int32)#
         # inconsistency uint8 in file although specification states should be int32
         # promoting uint8 to int32 no problem
