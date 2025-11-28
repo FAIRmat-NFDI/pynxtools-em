@@ -2,7 +2,8 @@ cff-version: 1.2.0
 title: 'pynxtools-em: A pynxtools reader plugin for electron microscopy (EM) data'
 version: 0.4.2
 message:
-  If you use this software, please cite it using the metadata from this file.
+  If you use this software, please cite it using the
+  metadata from this file.
 type: software
 authors:
   - given-names: Markus
@@ -30,12 +31,12 @@ doi: 10.5281/zenodo.14263105
 repository-code: https://github.com/FAIRmat-NFDI/pynxtools-em
 url: https://zenodo.org/records/14263105
 keywords:
-  - Electron microscopy
-  - Microscopy
-  - NOMAD
-  - pynxtools
   - NeXus
+  - pynxtools
+  - NOMAD
+  - Electron microscopy
   - EMglossary
+  - Microscopy
 abstract:
   pynxtools-em is a reader plugin for pynxtools (https://github.com/FAIRmat-NFDI/pynxtools)
   written in Python. pynxtools-em is a tool for reading and translating data from various proprietary
@@ -48,7 +49,7 @@ abstract:
 
   The work is funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) - 460197019 (FAIRmat)
   (https://gepris.dfg.de/gepris/projekt/460197019?language=en).
-license: Apache-2.0
+license: Apache Software License 2.0
 funding:
   - name: Deutsche Forschungsgemeinschaft
     award-number: 460197019
