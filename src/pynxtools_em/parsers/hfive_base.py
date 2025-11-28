@@ -61,6 +61,26 @@ from pynxtools_em.utils.get_checksum import get_sha256_of_bytes_object
 # with h5diff is useful but if done in unit testing typically generate
 # two long text outputs via stdout that are maybe more difficult to
 
+
+def only_finite_payload(obj, payload) -> str:
+    """Analyze if dat contains malformed values (NaN, Inf, etc.)"""
+    if obj[...].dtype.kind in "iufc":
+        if isinstance(payload, np.ndarray) and payload.size > 1:
+            if np.all(np.isfinite(payload)):
+                return "all_finite"
+            else:
+                return "not_all_finite"
+        else:
+            if payload.size == 1:
+                if np.all(np.isfinite(payload)):
+                    return "all_finite"
+                else:
+                    return "not_all_finite"
+            else:
+                return "issue_with_scalars"
+    return "non_iufc"
+
+
 NXEM_VOLATILE_NAMED_HDF_PATHS = (
     "/@HDF5_Version",
     "/@NeXus_release",
@@ -80,7 +100,11 @@ NXEM_VOLATILE_SUFFIX_HDF_PATHS = (
 
 class HdfFiveBaseParser:
     def __init__(
-        self, file_path: str = "", hashing: bool = True, verbose: bool = False
+        self,
+        file_path: str = "",
+        hashing: bool = True,
+        malformed: bool = False,
+        verbose: bool = False,
     ):
         # tech_partner the company which designed this format
         # schema_name the specific name of the family of schemas supported by this reader
@@ -108,6 +132,7 @@ class HdfFiveBaseParser:
         self.h5r = None
         self.is_hdf = True  # TODO::check if HDF5 file using magic cookie
         self.hashing = hashing
+        self.malformed = malformed
         self.verbose = verbose
 
     def init_cache(self, ckey: str) -> str:
@@ -136,6 +161,8 @@ class HdfFiveBaseParser:
         # only h5py datasets have dtype attribute, so we can search on this
         if isinstance(h5obj, h5py.Dataset):
             if node_name not in self.datasets:
+                if self.verbose:
+                    print(node_name)
                 if hasattr(h5obj, "dtype"):
                     if hasattr(h5obj.dtype, "fields") and hasattr(h5obj.dtype, "names"):
                         if h5obj.dtype.names is not None:
@@ -146,6 +173,9 @@ class HdfFiveBaseParser:
                                 h5obj[0],
                                 f"{h5obj.dtype}__{get_sha256_of_bytes_object(h5obj[()])}"
                                 if self.hashing
+                                else "",
+                                f"{only_finite_payload(h5obj, h5obj[()])}"
+                                if self.malformed
                                 else "",
                             )
                             self.instances[node_name] = Concept(
@@ -167,6 +197,9 @@ class HdfFiveBaseParser:
                                         h5obj.fields(name)[0],
                                         f"{h5obj.fields(name)[()].dtype}__{get_sha256_of_bytes_object(h5obj.fields(name)[()])}"
                                         if self.hashing
+                                        else "",
+                                        f"{only_finite_payload(h5obj, h5obj.fields(name)[()])}"
+                                        if self.malformed
                                         else "",
                                     )
                                     self.instances[f"{node_name}/{name}"] = Concept(
@@ -193,6 +226,9 @@ class HdfFiveBaseParser:
                                     f"{h5obj.ndim}__{h5obj.shape}__{h5obj.dtype.name}__{get_sha256_of_bytes_object(h5obj[()])}"
                                     if self.hashing
                                     else "",
+                                    f"{only_finite_payload(h5obj, h5obj[()])}"
+                                    if self.malformed
+                                    else "",
                                 )
                                 self.instances[node_name] = Concept(
                                     node_name,
@@ -213,6 +249,9 @@ class HdfFiveBaseParser:
                                         f"{h5obj.ndim}__{h5obj.shape}__{h5obj.dtype.name}__{get_sha256_of_bytes_object(h5obj[()])}"
                                         if self.hashing
                                         else "",
+                                        f"{only_finite_payload(h5obj, h5obj[()])}"
+                                        if self.malformed
+                                        else "",
                                     )
                                     self.instances[node_name] = Concept(
                                         node_name,
@@ -231,6 +270,9 @@ class HdfFiveBaseParser:
                                         h5obj[()],
                                         f"{h5obj.ndim}__{h5obj.shape}__{h5obj.dtype.name}__{get_sha256_of_bytes_object(h5obj[()])}"
                                         if self.hashing
+                                        else "",
+                                        f"{only_finite_payload(h5obj, h5obj[()])}"
+                                        if self.malformed
                                         else "",
                                     )
                                     self.instances[node_name] = Concept(
@@ -251,6 +293,9 @@ class HdfFiveBaseParser:
                                     f"{h5obj.ndim}__{h5obj.shape}__{h5obj.dtype.name}__{get_sha256_of_bytes_object(h5obj[()])}"
                                     if self.hashing
                                     else "",
+                                    f"{only_finite_payload(h5obj, h5obj[()])}"
+                                    if self.malformed
+                                    else "",
                                 )
                                 self.instances[node_name] = Concept(
                                     node_name,
@@ -270,6 +315,9 @@ class HdfFiveBaseParser:
                                     f"{h5obj.ndim}__{h5obj.shape}__{h5obj.dtype.name}__{get_sha256_of_bytes_object(h5obj[()])}"
                                     if self.hashing
                                     else "",
+                                    f"{only_finite_payload(h5obj, h5obj[()])}"
+                                    if self.malformed
+                                    else "",
                                 )
                                 self.instances[node_name] = Concept(
                                     node_name,
@@ -288,6 +336,9 @@ class HdfFiveBaseParser:
                                     None,
                                     f"{h5obj.ndim}__{h5obj.shape}__{h5obj.dtype.name}__{get_sha256_of_bytes_object(h5obj[()])}"
                                     if self.hashing
+                                    else "",
+                                    f"{only_finite_payload(h5obj, h5obj[()])}"
+                                    if self.malformed
                                     else "",
                                 )
                                 self.instances[node_name] = Concept(
@@ -409,7 +460,7 @@ class HdfFiveBaseParser:
                 hashes[key] = "grp"
         for key, ifo in self.datasets.items():
             if key not in blacklist_by_key and not key.endswith(blacklist_by_suffix):
-                hashes[key] = f"dst__{ifo[-1]}"
+                hashes[key] = f"dst__{ifo[-2]}"
         for key, ifo in self.attributes.items():
             if key not in blacklist_by_key and not key.endswith(blacklist_by_suffix):
                 hashes[key] = f"att__{ifo[-1]}"
@@ -421,6 +472,22 @@ class HdfFiveBaseParser:
             "w",
         ) as fp:
             yaml.dump(hashes, fp, default_flow_style=False, sort_keys=True)
+
+    def store_malformed(self, **kwargs):
+        """Generate yaml file with sorted list of HDF5 dst
+
+        reporting if their payload is all finite or not."""
+        key_value: Dict[str, str] = {}
+        for key, ifo in self.datasets.items():
+            key_value[key] = f"{ifo[-1]}"
+        with open(
+            kwargs.get(
+                "file_path",
+                f"""{self.file_path}.malformed{kwargs.get("suffix", "")}.yaml""",
+            ),
+            "w",
+        ) as fp:
+            yaml.dump(key_value, fp, default_flow_style=False, sort_keys=True)
 
     def report_groups(self):
         logger.info(f"{self.file_path} contains the following groups:")

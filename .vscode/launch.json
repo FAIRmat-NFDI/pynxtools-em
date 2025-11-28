@@ -32,6 +32,7 @@
                      //"tests/data/hfive_oxford_pinard_rois/173_0056.h5oina",
                      //"tests/data/hfive_oxford_vitesh1/57764_CR_ZG_380.h5oina",
                      //"tests/data/hfive_oxford_vitesh2/EBSDCleanedMapData7.h5oina",
+                     "tests/data/hfive_oxford_dierner1/EBSD_Specimen_1_Site_1_Map_Data_1.h5oina",
                      //"tests/data/image_fei_legacy_sem/SEM_Image_-_SliceImage_-_109.tif",
                      //"tests/data/image_fei_legacy_tem/BF_02_40kx.tif",
                      //"tests/data/image_hitachi/360.tif",
@@ -82,6 +83,7 @@
                      //"--output=tests/prod/hfive_oxford_pinard_rois/output.nxs"]
                      //"--output=tests/prod/hfive_oxford_vitesh1/output.nxs"]
                      //"--output=tests/prod/hfive_oxford_vitesh2/output.nxs"]
+                     "--output=tests/prod/hfive_oxford_dierner1/output.nxs"]
                      //"--output=tests/prod/image_fei_legacy_sem/output.nxs"]
                      //"--output=tests/prod/image_fei_legacy_tem/output.nxs"]
                      //"--output=tests/prod/image_hitachi/output.nxs"]
