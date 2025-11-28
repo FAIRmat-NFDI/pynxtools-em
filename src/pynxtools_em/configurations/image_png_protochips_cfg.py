@@ -18,7 +18,7 @@
 """Configuration of the image_png_protochips parser."""
 
 import re
-from typing import Any, Dict
+from typing import Any
 
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
@@ -28,8 +28,8 @@ def specific_to_variadic(token):
     # to "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].HeatingPower"
     if isinstance(token, str) and token != "":
         concept = token.strip()
-        idxs = re.finditer(r".\[[0-9]+\].", concept)
-        if sum(1 for _ in idxs) > 0:
+        indices = re.finditer(r".\[[0-9]+\].", concept)
+        if sum(1 for _ in indices) > 0:
             variadic = concept
             for idx in re.finditer(r".\[[0-9]+\].", concept):
                 variadic = variadic.replace(concept[idx.start(0) : idx.end(0)], ".[*].")
@@ -39,7 +39,7 @@ def specific_to_variadic(token):
     return None
 
 
-AXON_STATIC_STAGE_NX: Dict[str, Any] = {
+AXON_STATIC_STAGE_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/stageID[stage]",
     "prefix_src": "MicroscopeControlImageMetadata.ActivePositionerSettings.PositionerSettings.[*].Stage.",
     "use": [("design", "heating_chip")],
@@ -47,7 +47,7 @@ AXON_STATIC_STAGE_NX: Dict[str, Any] = {
 }
 
 
-AXON_STATIC_DETECTOR_NX: Dict[str, Any] = {
+AXON_STATIC_DETECTOR_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/detectorID[detector*]",
     "prefix_src": "",
     "use": [
@@ -68,7 +68,7 @@ AXON_DYNAMIC_STAGE_NX: Dict[str, Any] = {
 }
 """
 
-AXON_DYNAMIC_CHIP_NX: Dict[str, Any] = {
+AXON_DYNAMIC_CHIP_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]/sample_heater",
     "prefix_src": "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].",
     "use": [("physical_quantity", "temperature")],
@@ -80,7 +80,7 @@ AXON_DYNAMIC_CHIP_NX: Dict[str, Any] = {
 }
 
 
-AXON_DYNAMIC_AUX_NX: Dict[str, Any] = {
+AXON_DYNAMIC_AUX_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column",
     "prefix_src": "MicroscopeControlImageMetadata.AuxiliaryData.AuxiliaryDataCategory.[*].DataValues.AuxiliaryDataValue.[*].",
     "use": [
@@ -94,7 +94,7 @@ AXON_DYNAMIC_AUX_NX: Dict[str, Any] = {
 }
 
 
-AXON_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
+AXON_DYNAMIC_VARIOUS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]",
     "prefix_src": "MicroscopeControlImageMetadata.MicroscopeSettings.",
     "map_to_str": [

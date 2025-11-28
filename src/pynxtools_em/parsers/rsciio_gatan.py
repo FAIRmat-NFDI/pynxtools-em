@@ -17,8 +17,6 @@
 #
 """Parser for reading content from Gatan Digital Micrograph *.dm3 and *.dm4 (HDF5) via rosettasciio."""
 
-from typing import Dict, List
-
 import flatdict as fd
 import numpy as np
 from rsciio import digitalmicrograph as gatan
@@ -52,8 +50,8 @@ class RsciioGatanParser:
             self.file_path = file_path
             self.entry_id = entry_id if entry_id > 0 else 1
             self.verbose = verbose
-            self.id_mgn: Dict[str, int] = {"event_id": 1}
-            self.version: Dict = {}
+            self.id_mgn: dict[str, int] = {"event_id": 1}
+            self.version: dict = {}
             self.supported = False
             self.check_if_supported()
             if not self.supported:
@@ -78,7 +76,7 @@ class RsciioGatanParser:
             # main memory, make use of lazy loading
 
             reqs = ["data", "axes", "metadata", "original_metadata", "mapping"]
-            obj_idx_supported: List[int] = []
+            obj_idx_supported: list[int] = []
             for idx, obj in enumerate(self.objs):
                 if not isinstance(obj, dict):
                     continue
@@ -91,7 +89,7 @@ class RsciioGatanParser:
                     logger.debug(f"{idx}-th obj is supported")
             if len(obj_idx_supported) > 0:  # at least some supported content
                 self.supported = True
-        except (FileNotFoundError, IOError):
+        except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
@@ -154,7 +152,7 @@ class RsciioGatanParser:
 
     def process_event_data_em_data(self, obj: dict, template: dict) -> dict:
         """Map Gatan-specifically formatted data arrays on NeXus NXdata/NXimage/NXspectrum."""
-        # assume rosettasciio-specific formatting of the obj informationemd parser
+        # assume rosettasciio-specific formatting of the obj information emd parser
         # i.e. a dictionary with the following keys:
         # "data", "axes", "metadata", "original_metadata", "mapping"
         flat_hspy_meta = fd.FlatDict(obj["metadata"], "/")
@@ -258,7 +256,7 @@ class RsciioGatanParser:
                     else:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
                             f"{axis_name}"
-                            # unitless | dimensionless i.e. no unit in longname
+                            # unitless | dimensionless i.e. no unit in long_name
                         )
                 else:
                     template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(

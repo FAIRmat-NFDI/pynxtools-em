@@ -17,7 +17,7 @@
 #
 """Standardized functionalities and visualization used when working with microstructures."""
 
-from typing import Any, Dict, List, Set
+from typing import Any
 
 import numpy as np
 from ase.data import chemical_symbols
@@ -30,7 +30,7 @@ class Crystal:
     def __init__(self):
         self.id: np.uint32 = np.iinfo(np.uint32).max
         # maximum value of the range means not assigned, valid ids start at 0
-        self.props: Dict[str, Any] = {}
+        self.props: dict[str, Any] = {}
 
 
 class Microstructure:
@@ -38,11 +38,11 @@ class Microstructure:
 
     def __init__(self):
         self.dimensionality: int = 0
-        self.crystal: List[Crystal] = []
+        self.crystal: list[Crystal] = []
 
 
 def microstructure_to_template(
-    ms: Microstructure, id_mgn: Dict[str, int], template: dict
+    ms: Microstructure, id_mgn: dict[str, int], template: dict
 ) -> dict:
     """Write cached microstructure into template according to NXmicrostructure."""
     # TODO::generalize
@@ -50,8 +50,8 @@ def microstructure_to_template(
     # inspect for each crystal if all required pieces of information are available
     # crystals typically have been collected with IDs that must not be assumed to be
     # contiguous or starting with some starting index, hence we relabel all ids.
-    elements: Set[str] = set()
-    ids: Set[np.uint32] = set()
+    elements: set[str] = set()
+    ids: set[np.uint32] = set()
     disjoint = True
     for cryst in ms.crystal:
         if "area" in cryst.props and "composition" in cryst.props:
@@ -68,8 +68,8 @@ def microstructure_to_template(
         return template
     logger.debug(elements)
 
-    # ms.crystal is a contigous array of crystal class instances, ut their ids might not be contiguous
-    # in Vitesh's example the "crystals" are of a second-phase in order to characterize
+    # ms.crystal is a contiguous array of crystal class instances, ut their ids might not be contiguous
+    # in the example from Vitesh Shah the "crystals" are of a second-phase in order to characterize
     # these we need to assure that we have values for all relevant descriptors for all
     # the crystal we report, as the analysis from AZTec can yield results that one
     # might not wish to include, the following logic handles such cases
@@ -85,9 +85,9 @@ def microstructure_to_template(
     # reindex
     n_cryst = np.sum(is_consistent)
     area = np.empty((n_cryst,), dtype=np.float32)
-    ctable = {}
+    composition_table = {}
     for symbol in elements:
-        ctable[symbol] = {
+        composition_table[symbol] = {
             "value": np.full((n_cryst,), np.nan, dtype=np.float32),
             "sigma": np.full((n_cryst,), np.nan, dtype=np.float32),
         }
@@ -98,9 +98,9 @@ def microstructure_to_template(
             old_ids[new_idx] = ms.crystal[idx].id
             area[new_idx] = ms.crystal[idx].props["area"].magnitude
             for symbol in ms.crystal[idx].props["composition"]:
-                if symbol in ctable:
+                if symbol in composition_table:
                     for qnt in ["value", "sigma"]:
-                        ctable[symbol][qnt][new_idx] = ms.crystal[idx].props[
+                        composition_table[symbol][qnt][new_idx] = ms.crystal[idx].props[
                             "composition"
                         ][symbol][qnt]
             new_idx += 1
@@ -111,10 +111,10 @@ def microstructure_to_template(
 
     trg += f"/microstructureID[microstructure1]/crystals/chemical_composition"
     inform_about_atom_types = set()
-    for symbol in ctable:
+    for symbol in composition_table:
         if (
-            np.sum(np.isnan(ctable[symbol]["value"])) > 0
-            or np.sum(np.isnan(ctable[symbol]["sigma"])) > 0
+            np.sum(np.isnan(composition_table[symbol]["value"])) > 0
+            or np.sum(np.isnan(composition_table[symbol]["sigma"])) > 0
         ):
             logger.warning(
                 f"Element {symbol} not reported because some descriptor values NaN for some crystals!"
@@ -122,7 +122,7 @@ def microstructure_to_template(
             continue
         for qnt in ["value", "sigma"]:
             template[f"{trg}/ELEMENT[{symbol}]/{qnt}"] = {
-                "compress": ctable[symbol][qnt],
+                "compress": composition_table[symbol][qnt],
                 "strength": 1,
             }
             template[f"{trg}/ELEMENT[{symbol}]/{qnt}/@units"] = "wt%"
@@ -137,7 +137,7 @@ def microstructure_to_template(
     trg = f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/img/imageID[image{id_mgn['img_id']}]/microstructureID[microstructure1]/crystals"
     template[f"{trg}/number_of_crystals"] = np.uint32(n_cryst)
     template[f"{trg}/number_of_phases"] = np.uint32(1)
-    # TODO::generally wrong, only for Vitesh's example!
+    # TODO::generally wrong, only for the example from Vitesh Shah!
     template[f"{trg}/indices_crystal"] = {
         "compress": np.asarray(
             np.linspace(0, n_cryst - 1, num=n_cryst, endpoint=True), dtype=np.uint32
@@ -149,7 +149,7 @@ def microstructure_to_template(
         "strength": 1,
     }
     template[f"{trg}/indices_phase"] = {
-        # only for Vitesh's example where it is assumed all belong to the same phase
+        # only for the example from Vitesh Shah where it is assumed all belong to the same phase
         "compress": np.ones((n_cryst,), dtype=np.uint32),
         "strength": 1,
     }

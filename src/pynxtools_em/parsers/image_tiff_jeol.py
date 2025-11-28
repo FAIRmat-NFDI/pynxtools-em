@@ -18,7 +18,6 @@
 """Parser for harmonizing JEOL specific content in TIFF files."""
 
 import mmap
-from typing import Dict, List
 
 import flatdict as fd
 import numpy as np
@@ -31,10 +30,7 @@ from pynxtools_em.configurations.image_tiff_jeol_cfg import (
 )
 from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.get_checksum import (
-    DEFAULT_CHECKSUM_ALGORITHM,
-    get_sha256_of_file_content,
-)
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
 
@@ -42,7 +38,7 @@ from pynxtools_em.utils.string_conversions import string_to_number
 class JeolTiffParser:
     def __init__(
         self,
-        file_paths: List[str],
+        file_paths: list[str],
         entry_id: int = 1,
         verbose: bool = DEFAULT_VERBOSITY,
     ):
@@ -55,16 +51,16 @@ class JeolTiffParser:
             for entry in file_paths:
                 if entry.lower().endswith((".tif", ".tiff")):
                     tif_txt[0] = entry
-                elif entry.lower().endswith((".txt")):
+                elif entry.lower().endswith(".txt"):
                     tif_txt[1] = entry
             if all(value != "" for value in tif_txt):
                 self.file_path = tif_txt[0]
                 self.entry_id = entry_id if entry_id > 0 else 1
                 self.verbose = verbose
-                self.id_mgn: Dict[str, int] = {"event_id": 1}
+                self.id_mgn: dict[str, int] = {"event_id": 1}
                 self.txt_file_path = tif_txt[1]
                 self.flat_dict_meta = fd.FlatDict({}, "/")
-                self.version: Dict = {}
+                self.version: dict = {}
                 self.supported = False
                 self.check_if_tiff_jeol()
             else:
@@ -91,11 +87,11 @@ class JeolTiffParser:
                 magic = s.read(4)
                 if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                     return
-        except (FileNotFoundError, IOError):
+        except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
-        with open(self.txt_file_path, "r") as txt:
+        with open(self.txt_file_path) as txt:
             txt = [
                 line.strip().lstrip("$")
                 for line in txt.readlines()

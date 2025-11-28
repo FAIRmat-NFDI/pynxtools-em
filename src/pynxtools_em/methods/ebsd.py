@@ -19,35 +19,32 @@
 
 import mmap
 import os
-from typing import Any, Dict, List
+from typing import Any
 
 import matplotlib.pyplot as plt  # in the hope that this closes figures with orix plot
 import numpy as np
 from orix import plot
 from orix.quaternion import Rotation
 from orix.quaternion.symmetry import (
-    get_point_group,
-    Ci,
-    C2h,
-    D2h,
     S6,
-    D3d,
+    C2h,
     C4h,
-    D4h,
     C6h,
+    Ci,
+    D2h,
+    D3d,
+    D4h,
     D6h,
-    Th,
     Oh,
+    Th,
+    get_point_group,
 )
 from orix.vector import Vector3d
 from PIL import Image as pil
 from scipy.spatial import KDTree
 
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.hfive_web import (
-    HFIVE_WEB_MAXIMUM_RGB,
-    HFIVE_WEB_MAXIMUM_ROI,
-)
+from pynxtools_em.utils.hfive_web import HFIVE_WEB_MAXIMUM_RGB, HFIVE_WEB_MAXIMUM_ROI
 from pynxtools_em.utils.hfive_web_utils import hfive_web_decorate_nxdata
 from pynxtools_em.utils.image_processing import thumbnail
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
@@ -88,8 +85,8 @@ class EbsdPointCloud:
         self.dimensionality: int = 0
         self.grid_type = None
         # the next two lines encode the typical assumption that is not reported in tech partner file!
-        self.n: Dict[str, Any] = {}  # number of grid points along "x", "y", "z"
-        self.s: Dict[str, Any] = {}  # scan step along "x", "y", "z"
+        self.n: dict[str, Any] = {}  # number of grid points along "x", "y", "z"
+        self.s: dict[str, Any] = {}  # scan step along "x", "y", "z"
         self.phase = []  # collection of phase class instances in order of self.phases
         self.laue_group = []  # collection of laue group in order of self.phases
         self.space_group = []  # collection of space group in order of self.phases
@@ -97,11 +94,11 @@ class EbsdPointCloud:
         self.euler = None  # Bunge-Euler ZXZ angle for each scan point np.nan otherwise
         self.phase_id = None  # phase_id for best solution found for each scan point
         self.pos = {}  # "x", "y", "z" pos for each scan point unmodified/not rediscretized
-        self.descr_type = None  # NXem_ebsd/roi/descriptor (band contrast, CI, MAD)
+        self.contrast = None  # NXem_ebsd/roi/descriptor (band contrast, CI, MAD)
         self.descr_value = None
 
 
-def get_ipfdir_legend(ipf_key):
+def get_inverse_pole_figure_legend(ipf_key):
     """Generate IPF color map key for a specific ipf_key."""
     img = None
     fig = ipf_key.plot(return_figure=True)
@@ -136,15 +133,15 @@ def has_hfive_magic_header(file_path: str) -> bool:
             magic = s.read(4)
             if magic == b"\x89HDF":
                 return True
-    except (FileNotFoundError, IOError):
+    except (OSError, FileNotFoundError):
         logger.warning(f"{file_path} either FileNotFound or IOError !")
     return False
 
 
 def regrid_onto_equisized_scan_points(
-    src_grid: EbsdPointCloud, max_edge_discr: int
+    src_grid: EbsdPointCloud, max_edge_discretization: int
 ) -> EbsdPointCloud:
-    """Discretize point cloud in R^d (d=1, 2, 3) and mark data to grid with equisized bins."""
+    """Discretize point cloud in R^d (d=1, 2, 3) and mark data to grid with equi-sized bins."""
 
     if src_grid.dimensionality not in [1, 2]:
         logger.warning(f"Facing unsupported dimensionality !")
@@ -157,18 +154,20 @@ def regrid_onto_equisized_scan_points(
     for dim_idx, dim in enumerate(dims):
         if dim in src_grid.n:
             tuples.append((src_grid.n[dim], dim_idx))
-    max_extent, max_dim = sorted(tuples, key=lambda x: x[0])[::-1][0]  # descendingly
+    max_extent, max_dim = sorted(tuples, key=lambda x: x[0])[::-1][
+        0
+    ]  # descending order
 
     # too large grid needs to be capped when gridded
     # cap to the maximum extent to comply with H5Web technical constraints
-    max_extent = min(max_edge_discr, max_extent)
+    max_extent = min(max_edge_discretization, max_extent)
 
     # all non-square grids or too large square grids will be
     # discretized onto a regular grid with square or cubic pixel/voxel
     for dim in dims:
         if dim in src_grid.pos:
             if src_grid.pos[dim].units != ureg.Quantity(1.0, ureg.micrometer).units:
-                raise ValueError(f"Gridding demands values in micrometer !")
+                raise ValueError(f"Grid demands values in micrometer !")
 
     aabb = {}
     for dim in dims:
@@ -249,7 +248,7 @@ def regrid_onto_equisized_scan_points(
     # TODO:: if scan_point_{dim} are calibrated this approach
     # here would shift the origin to 0, 0 implicitly which may not be desired
     if src_grid.dimensionality == 1:
-        tree = KDTree(np.column_stack((src_grid.pos["x"].magnitude)))
+        tree = KDTree(np.column_stack(src_grid.pos["x"].magnitude))
         d, idx = tree.query(trg_pos, k=1)
     elif src_grid.dimensionality == 2:
         tree = KDTree(
@@ -277,38 +276,38 @@ def regrid_onto_equisized_scan_points(
             np.asarray(src_grid.euler.magnitude[idx, :], np.float32), ureg.radian
         )
         if np.isnan(trg_grid.euler).any():
-            raise ValueError(f"Gridding left scan points with incorrect euler !")
+            raise ValueError(f"Grid has scan points with incorrect euler !")
     if hasattr(src_grid, "phase_id"):
         trg_grid.phase_id = np.empty((n_pts,), np.int32)
         trg_grid.phase_id.fill(np.int32(-2))
         # pyxem_id phase_id are at least as large -1
         trg_grid.phase_id = np.asarray(src_grid.phase_id[idx], np.int32)
         if np.sum(trg_grid.phase_id == -2) > 0:
-            raise ValueError(f"Gridding left scan points with incorrect phase_id !")
-    if src_grid.descr_type == "band_contrast":
+            raise ValueError(f"Grid has scan points with incorrect phase_id !")
+    if src_grid.contrast == "band_contrast":
         # bc typically positive
-        trg_grid.descr_type = "band_contrast"
+        trg_grid.contrast = "band_contrast"
         trg_grid.descr_value = np.empty((n_pts,), np.uint32)
         trg_grid.descr_value.fill(np.uint32(0))
         trg_grid.descr_value = ureg.Quantity(
             np.asarray(src_grid.descr_value[idx], np.uint32)
         )
-    elif src_grid.descr_type == "confidence_index":
-        trg_grid.descr_type = "confidence_index"
+    elif src_grid.contrast == "confidence_index":
+        trg_grid.contrast = "confidence_index"
         trg_grid.descr_value = np.empty((n_pts,), np.float32)
         trg_grid.descr_value.fill(np.nan)
         trg_grid.descr_value = ureg.Quantity(
             np.asarray(src_grid.descr_value[idx], np.float32)
         )
-    elif src_grid.descr_type == "mean_angular_deviation":
-        trg_grid.descr_type = "mean_angular_deviation"
+    elif src_grid.contrast == "mean_angular_deviation":
+        trg_grid.contrast = "mean_angular_deviation"
         trg_grid.descr_value = np.empty((n_pts,), np.float32)
         trg_grid.descr_value.fill(np.nan)
         trg_grid.descr_value = ureg.Quantity(
             np.asarray(src_grid.descr_value[idx], np.float32), ureg.radian
         )
     else:
-        trg_grid.descr_type = None
+        trg_grid.contrast = None
         trg_grid.descr_value = None
     trg_grid.phase = src_grid.phase
     trg_grid.laue_group = src_grid.laue_group
@@ -323,20 +322,20 @@ def ebsd_roi_overview(inp: EbsdPointCloud, id_mgn: dict, template: dict) -> dict
     # able to show all of them at the provided size and grid type
     # here a default plot is generated taking the OIM data per scan point
     # and regridding on a square_grid with the maximum resolution supported by H5Web
-    # this is never an upsampled but may represent a downsampled representation of the
+    # this is never an finer sampled but may represent a downsampling of the
     # actual ROI using some regridding scheme
     if inp.dimensionality not in [1, 2, 3]:
         return template
     trg_grid: EbsdPointCloud = regrid_onto_equisized_scan_points(
         inp, HFIVE_WEB_MAXIMUM_ROI
     )
-    if not trg_grid.descr_type:
+    if not trg_grid.contrast:
         return template
 
     trg = f"/ENTRY[entry{id_mgn['entry_id']}]/roiID[roi{id_mgn['roi_id']}]/ebsd/indexing/roi"
-    template[f"{trg}/descriptor"] = trg_grid.descr_type
+    template[f"{trg}/descriptor"] = trg_grid.contrast
     template[f"{trg}/title"] = (
-        f"Region-of-interest overview image ({trg_grid.descr_type})"
+        f"Region-of-interest overview image ({trg_grid.contrast})"
     )
     template[f"{trg}/data/@long_name"] = f"Signal"
 
@@ -495,7 +494,7 @@ def process_roi_phase_ipf(
 ) -> dict:
     dims = ["x", "y", "z"]
     n_pts: int = 1
-    n_shape: List[int] = []
+    n_shape: list[int] = []
     for dim in dims[0 : trg_grid.dimensionality]:
         n_pts *= trg_grid.n[dim]
     for dim in dims[0 : trg_grid.dimensionality][::-1]:
@@ -520,7 +519,7 @@ def process_roi_phase_ipf(
                 logger.warning("Neither space group nor valid laue group reported!")
                 return template
         ipf_key = plot.IPFColorKeyTSL(laue_grp, direction=PROJECTION_VECTORS[idx][1])
-        img = get_ipfdir_legend(ipf_key)
+        img = get_inverse_pole_figure_legend(ipf_key)
 
         rgb_px_with_phase_id = np.asarray(
             np.asarray(ipf_key.orientation2color(rotations) * 255.0, np.uint32),
@@ -530,9 +529,9 @@ def process_roi_phase_ipf(
 
         ipf_rgb_map = np.zeros((n_pts, 3), np.uint8)
         # background is black instead of white (which would be more pleasing)
-        # but IPF color maps have a whitepoint which encodes in fact an orientation
+        # but IPF color maps have a white point which encodes in fact an orientation
         # and because of that we may have a map from a single crystal characterization
-        # whose orientation could be close to the whitepoint which becomes a fully white
+        # whose orientation could be close to the white point which becomes a fully white
         # seemingly "empty" image, therefore we use black as empty, i.e. white reports an
         # orientation
         ipf_rgb_map[trg_grid.phase_id == nxem_phase_id, :] = rgb_px_with_phase_id
@@ -601,8 +600,8 @@ def process_roi_phase_ipf(
         template[f"{lgd}/data"] = {"compress": img, "strength": 1}
         hfive_web_decorate_nxdata(f"{lgd}/data", template)
 
-        dims_idxs = {"x": 1, "y": 0}
-        for dim, dim_idx in dims_idxs.items():
+        dims_indices = {"x": 1, "y": 0}
+        for dim, dim_idx in dims_indices.items():
             template[f"{lgd}/AXISNAME[axis_{dim}]"] = {
                 "compress": np.asarray(
                     np.linspace(

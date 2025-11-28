@@ -16,11 +16,12 @@
 # limitations under the License.
 #
 
-import numpy as np
 import datetime
 
+import numpy as np
 
-def sort_ascendingly_by_second_argument_iso8601(tup):
+
+def sort_asc_by_second_argument_iso8601(tup):
     # convert the list of tuples to a numpy array with data type (object, int)
     arr = np.array(tup, dtype=[("col1", object), ("col2", datetime.datetime)])
     # get the indices that would sort the array based on the second column

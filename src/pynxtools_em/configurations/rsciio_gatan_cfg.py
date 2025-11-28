@@ -17,13 +17,13 @@
 #
 """Dict mapping Gatan DigitalMicrograph custom schema instances on concepts in NXem."""
 
-from typing import Any, Dict
+from typing import Any
 
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 # be careful compared to Nion and other tech partners data for may have reversed order!
 # TODO:: confirming that this implementation is correct demands examples with dissimilar sized
-# rectangular, cubodial, and hypercuboidal stacks!
+# rectangular, cuboidal, and hypercuboidal stacks!
 GATAN_WHICH_SPECTRUM = {
     "eV": ("spectrum_0d", ["axis_energy"]),
     "eV_m": ("spectrum_1d", ["axis_energy", "axis_i"]),
@@ -37,14 +37,14 @@ GATAN_WHICH_IMAGE = {
 }
 
 
-GATAN_STATIC_VARIOUS_NX: Dict[str, Any] = {
+GATAN_STATIC_VARIOUS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/fabrication",
     "prefix_src": "ImageList/TagGroup0/ImageTags/Microscope Info/",
     "map_to_str": [("model", "Name")],
 }
 
 
-GATAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
+GATAN_DYNAMIC_VARIOUS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument",
     "prefix_src": "ImageList/TagGroup0/ImageTags/Microscope Info/",
     "map_to_f8": [
@@ -102,7 +102,7 @@ GATAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
     ],
 }
 
-GATAN_DYNAMIC_STAGE_NX: Dict[str, Any] = {
+GATAN_DYNAMIC_STAGE_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]",
     "prefix_src": "ImageList/TagGroup0/ImageTags/Microscope Info/Stage Position/",
     "map_to_f8": [

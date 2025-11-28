@@ -17,8 +17,6 @@
 #
 """Utility class to analyze which vendor/community files are passed to em reader."""
 
-from typing import Dict, List, Tuple
-
 import flatdict as fd
 import yaml
 
@@ -58,13 +56,13 @@ class EmUseCaseSelector:
     too much input. The UseCaseSelector decide what to do in each case.
     """
 
-    def __init__(self, file_paths: Tuple[str] = None):
+    def __init__(self, file_paths: tuple[str] = None):
         """Initialize the class."""
-        self.case: Dict[str, list] = {}
-        self.cfg: List[str] = []
-        self.eln: List[str] = []
-        self.cst: List[Dict[str, str]] = []
-        self.dat: List[str] = []
+        self.case: dict[str, list] = {}
+        self.cfg: list[str] = []
+        self.eln: list[str] = []
+        self.cst: list[dict[str, str]] = []
+        self.dat: list[str] = []
         self.is_valid = False
         self.supported_file_name_suffixes = (
             VALID_FILE_NAME_SUFFIX_CONFIG + VALID_FILE_NAME_SUFFIX_DATA
@@ -75,11 +73,11 @@ class EmUseCaseSelector:
         self.sort_files_by_file_name_suffix(file_paths)
         self.check_validity_of_file_combinations()
 
-    def sort_files_by_file_name_suffix(self, file_paths: Tuple[str] = None):
+    def sort_files_by_file_name_suffix(self, file_paths: tuple[str] = None):
         """Sort all input-files based on their name suffix to prepare validity check.
 
         Individual readers have more sophisticated internal check if specific
-        format instances are parseable or not and will do their own version checks.
+        format instances are parsable or not and will do their own version checks.
         """
         for suffix in self.supported_file_name_suffixes:
             self.case[suffix] = []
@@ -105,13 +103,13 @@ class EmUseCaseSelector:
 
         if 0 <= dat_input <= 2 and 0 <= other_input <= 3:
             self.is_valid = True
-            self.dat: List[str] = []
+            self.dat: list[str] = []
             for suffix in VALID_FILE_NAME_SUFFIX_DATA:
                 if len(self.case[suffix]) > 0:
                     self.dat += self.case[suffix]
                     if suffix == ".mtex.h5":
                         break
-            yml: List[str] = []
+            yml: list[str] = []
             for suffix in VALID_FILE_NAME_SUFFIX_CONFIG:
                 if len(self.case[suffix]) > 0:
                     yml += self.case[suffix]
@@ -119,7 +117,7 @@ class EmUseCaseSelector:
                 if entry.endswith((".oasis.specific.yaml", ".oasis.specific.yml")):
                     self.cfg += [entry]
                 elif entry.endswith(("custom_eln_data.yaml", "custom_eln_data.yml")):
-                    with open(entry, "r", encoding="utf-8") as stream:
+                    with open(entry, encoding="utf-8") as stream:
                         flat_metadata = fd.FlatDict(yaml.safe_load(stream), "/")
                         if "parser" in flat_metadata:
                             self.cst += [

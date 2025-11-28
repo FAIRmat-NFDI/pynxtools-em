@@ -20,7 +20,6 @@
 import mmap
 import re
 from tokenize import TokenError
-from typing import Dict
 
 import flatdict as fd
 import numpy as np
@@ -49,9 +48,9 @@ class ZeissTiffParser:
             self.file_path = file_path
             self.entry_id = entry_id if entry_id > 0 else 1
             self.verbose = verbose
-            self.id_mgn: Dict[str, int] = {"event_id": 1}
+            self.id_mgn: dict[str, int] = {"event_id": 1}
             self.flat_dict_meta = fd.FlatDict({}, "/")
-            self.version: Dict = {
+            self.version: dict = {
                 "trg": {
                     "tech_partner": ["Zeiss"],
                     "schema_name": ["Zeiss"],
@@ -147,7 +146,7 @@ class ZeissTiffParser:
                 magic = s.read(4)
                 if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                     return
-        except (FileNotFoundError, IOError):
+        except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 

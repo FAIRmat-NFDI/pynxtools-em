@@ -17,11 +17,11 @@
 #
 """Dict mapping values for a specifically configured NOMAD Oasis."""
 
-from typing import Any, Dict
+from typing import Any
 
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-GER_BERLIN_KOCH_GROUP_INSTRUMENT_TO_NEXUS: Dict[str, Any] = {
+GER_BERLIN_KOCH_GROUP_INSTRUMENT_TO_NEXUS: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument",
     "prefix_src": "instrument/",
     "map_to_str": [
@@ -34,7 +34,7 @@ GER_BERLIN_KOCH_GROUP_INSTRUMENT_TO_NEXUS: Dict[str, Any] = {
     ],
 }
 
-GER_BERLIN_KOCH_GROUP_ECOLUMN_TO_NEXUS: Dict[str, Any] = {
+GER_BERLIN_KOCH_GROUP_ECOLUMN_TO_NEXUS: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/ebeam_column",
     "prefix_src": "ebeam_column/",
     "map_to_str": [
@@ -44,7 +44,7 @@ GER_BERLIN_KOCH_GROUP_ECOLUMN_TO_NEXUS: Dict[str, Any] = {
     ],
 }
 
-GER_BERLIN_KOCH_GROUP_ESOURCE_TO_NEXUS: Dict[str, Any] = {
+GER_BERLIN_KOCH_GROUP_ESOURCE_TO_NEXUS: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/ebeam_column/electron_source",
     "prefix_src": "electron_source/",
     "map_to_str": [

@@ -19,7 +19,7 @@
 
 import os
 from time import perf_counter_ns
-from typing import Any, List, Tuple
+from typing import Any
 
 import numpy as np
 from pynxtools.dataconverter.readers.base.reader import BaseReader
@@ -115,7 +115,7 @@ class EMReader(BaseReader):
         # TODO make even better connected to NOMAD
         if len(case.cst) == 1:
             logger.debug("Parse (meta)data coming from a customized ELN...")
-            custom_eln_parser_types: List[Tuple[str, type]] = [
+            custom_eln_parser_types: list[tuple[str, type]] = [
                 ("ger_berlin_koch_group", NxEmCustomElnGerBerlinKoch),
                 ("ger_berlin_ebsd_database", NxEmCustomElnEbsdDatabase),
                 ("custom_reference_frame", NxEmCustomElnCustomReferenceFrame),
@@ -132,9 +132,9 @@ class EMReader(BaseReader):
         logger.debug(
             "Parse and map pieces of information within files from tech partners..."
         )
-        # there are parsers with no, opt(ional), or req(uired) sidecar file
+        # there are parsers with no, optional, or required sidecar file
         if len(case.dat) == 1:
-            parsers_no_sidecar_file: List[type] = [
+            parsers_no_sidecar_file: list[type] = [
                 HdfFiveBrukerEspritParser,
                 # HdfFiveDreamThreedLegacyParser,
                 # HdfFiveEbsdCommunityParser,
@@ -158,13 +158,13 @@ class EMReader(BaseReader):
                 parser.parse(template)
 
         if len(case.dat) >= 1:
-            parsers_opt_sidecar: List[type] = [TescanTiffParser]
+            parsers_opt_sidecar: list[type] = [TescanTiffParser]
             for parser_type in parsers_opt_sidecar:
                 parser = parser_type(case.dat, entry_id)
                 parser.parse(template)
 
         if len(case.dat) == 2:
-            parsers_req_sidecar: List[type] = [JeolTiffParser, HitachiTiffParser]
+            parsers_req_sidecar: list[type] = [JeolTiffParser, HitachiTiffParser]
             for parser_type in parsers_req_sidecar:
                 parser = parser_type(case.dat, entry_id)
                 parser.parse(template)
@@ -172,8 +172,8 @@ class EMReader(BaseReader):
         nxplt = NxEmDefaultPlotResolver()
         nxplt.priority_select(template, entry_id)
 
-        smpl = NxEmAtomTypesResolver(entry_id)
-        smpl.identify_atomtypes(template)
+        sample = NxEmAtomTypesResolver(entry_id)
+        sample.identify_atom_types(template)
 
         debugging = False
         if debugging:

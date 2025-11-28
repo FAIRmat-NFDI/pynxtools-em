@@ -17,16 +17,16 @@
 #
 """Dict mapping values for a ELN metadata for the EM database use case."""
 
-from typing import Any, Dict
+from typing import Any
 
-EBSD_DATABASE_SPECIMEN_TO_NEXUS: Dict[str, Any] = {
+EBSD_DATABASE_SPECIMEN_TO_NEXUS: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/sampleID[sample]",
     "prefix_src": "specimen/",
     "map_to_bool": ["is_simulation"],
     "map_to_str": ["atom_types"],
 }
 
-EBSD_DATABASE_CITATION_TO_NEXUS: Dict[str, Any] = {
+EBSD_DATABASE_CITATION_TO_NEXUS: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/citeID[cite*]",
     "prefix_src": "",
     "map_to_str": ["author", "description", "doi", "url"],

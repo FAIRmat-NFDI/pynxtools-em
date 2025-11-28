@@ -34,7 +34,7 @@ class NxEmAtomTypesResolver:
         if entry_id >= 1:
             self.entry_id = entry_id if entry_id > 0 else 1
 
-    def identify_atomtypes(self, template: dict) -> dict:
+    def identify_atom_types(self, template: dict) -> dict:
         """Inspect template and find elements to eventually overwrite sample/atom_types."""
         atom_types = set()
         for key, free_text in template.items():

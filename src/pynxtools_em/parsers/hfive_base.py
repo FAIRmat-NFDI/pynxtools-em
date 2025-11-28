@@ -17,20 +17,11 @@
 #
 """Parent class for all tech partner-specific HDF5 parsers for mapping on NXem."""
 
-from typing import Dict, List
-
 import h5py
 import numpy as np
 import yaml
 
-from pynxtools_em.concepts.hfive_concepts import (
-    IS_ATTRIBUTE,
-    IS_COMPOUND_DATASET,
-    IS_FIELD_IN_COMPOUND_DATASET,
-    IS_GROUP,
-    IS_REGULAR_DATASET,
-    Concept,
-)
+from pynxtools_em.concepts.hfive_concepts import Concept
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import get_sha256_of_bytes_object
 
@@ -50,7 +41,7 @@ from pynxtools_em.utils.get_checksum import get_sha256_of_bytes_object
 # towards more interoperability between the different tools in the community
 
 # object timestamps are low-level features of HDF5 that if activated
-# would still render HDF5 files binarily different even though each
+# would still render HDF5 files with different binary content even though each
 # entry and payload in the content tree is the same binary content
 # however, these internal library administrative timestamps have been
 # are in newer versions of hdf5 deactivated by default see here:
@@ -92,7 +83,7 @@ NXEM_VOLATILE_NAMED_HDF_PATHS = (
     # "entry1/profiling/template_filling_elapsed_time/@units"
 )
 NXEM_VOLATILE_SUFFIX_HDF_PATHS = (
-    "@axes",  # as these are stored as by default as byte objects vlen string array
+    "@axes",  # as these are stored as by default as byte objects variable length string array
     "file_name",  # if these include the full path the absolute path may differ between
     # test and production data
 )
@@ -117,36 +108,40 @@ class HdfFiveBaseParser:
         if file_path:
             self.file_path = file_path
         self.prfx: str = ""
-        self.tmp: Dict = {}
+        self.tmp: dict = {}
         self.source: str = ""
         # collection of instance path
-        self.groups: Dict = {}
-        self.datasets: Dict = {}
-        self.attributes: Dict = {}
-        self.instances: Dict = {}
+        self.groups: dict = {}
+        self.datasets: dict = {}
+        self.attributes: dict = {}
+        self.instances: dict = {}
         # collection of template
-        self.template_groups: List = []
-        self.template_datasets: List = []
-        self.template_attributes: List = []
-        self.templates: Dict = {}
+        self.template_groups: list = []
+        self.template_datasets: list = []
+        self.template_attributes: list = []
+        self.templates: dict = {}
         self.h5r = None
         self.is_hdf = True  # TODO::check if HDF5 file using magic cookie
         self.hashing = hashing
         self.malformed = malformed
         self.verbose = verbose
 
-    def init_cache(self, ckey: str) -> str:
+    def init_cache(self, cache_key: str) -> str:
         """Init a new cache for normalized EBSD data if not existent."""
         # purpose of the cache is to hold normalized information
-        if ckey not in self.tmp:
-            self.tmp[ckey] = {}  # reset to {} upon incomplete collection of the cache
-            return ckey
+        if cache_key not in self.tmp:
+            self.tmp[
+                cache_key
+            ] = {}  # reset to {} upon incomplete collection of the cache
+            return cache_key
         else:
-            raise ValueError(f"Existent named cache {ckey} must not be overwritten !")
+            raise ValueError(
+                f"Existent named cache {cache_key} must not be overwritten !"
+            )
 
-    def clear_cache(self, ckey: str):
-        if ckey in self.tmp:
-            self.tmp.pop(ckey)
+    def clear_cache(self, cache_key: str):
+        if cache_key in self.tmp:
+            self.tmp.pop(cache_key)
 
     def open(self):
         if self.h5r is None:
@@ -446,7 +441,7 @@ class HdfFiveBaseParser:
                         h5path, dict(self.h5r[h5path].attrs)
                     )
 
-    def store_hashes(self, blacklist_by_key: List, blacklist_by_suffix: List, **kwargs):
+    def store_hashes(self, blacklist_by_key: list, blacklist_by_suffix: list, **kwargs):
         """Generate yaml file with sorted list of HDF5 grp, dst, and attrs
 
         including their datatype and SHA256 checksum computed from the each nodes data.
@@ -454,7 +449,7 @@ class HdfFiveBaseParser:
         when differences in timestamps are expected but should not trigger
         the test to fail. The blacklist allows to exclude those HDF5 paths
         that should not be included in the yaml file."""
-        hashes: Dict[str, str] = {}
+        hashes: dict[str, str] = {}
         for key, ifo in self.groups.items():
             if key not in blacklist_by_key and not key.endswith(blacklist_by_suffix):
                 hashes[key] = "grp"
@@ -477,7 +472,7 @@ class HdfFiveBaseParser:
         """Generate yaml file with sorted list of HDF5 dst
 
         reporting if their payload is all finite or not."""
-        key_value: Dict[str, str] = {}
+        key_value: dict[str, str] = {}
         for key, ifo in self.datasets.items():
             key_value[key] = f"{ifo[-1]}"
         with open(
@@ -556,9 +551,9 @@ class HdfFiveBaseParser:
     def get_attribute_value(self, h5path):
         if self.h5r is not None:
             if h5path in self.attributes:
-                trg, attrnm = h5path.split("@")
+                trg, attribute_name = h5path.split("@")
                 # with (self.file_path, "r") as h5r:
-                obj = self.h5r[trg].attrs[attrnm]
+                obj = self.h5r[trg].attrs[attribute_name]
                 if isinstance(obj, np.bytes_):
                     return obj[0].decode("utf8")
                 else:
@@ -609,14 +604,14 @@ class HdfFiveBaseParser:
 # in the EBSD community where the same conceptual information is stored
 # differently i.e. under different names
 
-# This function shows an example how this dilemna can be
+# This function shows an example how this dilemma can be
 # solved for six examples that all are HDF5 variants used for "storing EBSD data"
 # oxford - H5OINA format of Oxford Instrument
 # edax - OIMself.input_file_path Analysis based reporting of EDAX/AMETEK
 # apex - APEX based reporting of EDAX/AMETEK (can be considered the newer EDAX reporting)
 # bruker - Bruker Esprit based reporting which replaces Bruker's bcf format that
 #     is notoriously difficult to parse as it uses a commercial library SFS from AidAim
-# emsort - HDF5-based reporting of parameter used by Marc de Graeff's EMsoft
+# emsoft - HDF5-based reporting of parameter used by Marc de Graeff's EMsoft
 #     dynamic electron diffraction simulation software
 # hebsd - a variant of Jackson's proposal of the original H5EBSD the example here
 #    explores from content of the community as used by e.g. T. B. Britton's group
