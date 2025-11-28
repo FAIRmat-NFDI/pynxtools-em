@@ -5,6 +5,7 @@ tests/run_tests.sh
 .virtual_documents
 tests/data
 tests/prod
+src/pynxtools_em/utils/_version.py
 
 # https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
 # General

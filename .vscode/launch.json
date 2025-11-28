@@ -9,9 +9,9 @@
             "type": "python", //"debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "../../.pytmp/bin/dataconverter",  //../../.py3.12.3/bin/dataconverter",
+            "program": "../.py3.13.8/bin/dataconverter",  //../../.py3.12.3/bin/dataconverter",
             "args": [//"tests/data/custom_reference_frame/output.custom_eln_data.yaml",
-                     //"tests/data/default/em.oasis.specific.yaml",
+                     "tests/data/default/em.oasis.specific.yaml",
                      //"tests/data/default/InGaN_nanowires_spectra.edaxh5",
                      //"tests/data/default/output.nxs_eln_data.yaml",
                      //"tests/data/ebsd_mtex/output.custom_eln_data.yaml",
@@ -40,7 +40,7 @@
                      //"tests/data/image_hitachi_su8000/SEM_Ti_Grade_2_G (1).txt",
                      //"tests/data/image_jeol/20240227_A1_2m_0_FA3_1.txt",
                      //"tests/data/image_jeol/20240227_A1_2m_0_FA3_1.tif",
-                     "tests/data/image_point_electronic/Defekt1.tif",
+                     //"tests/data/image_point_electronic/Defekt1.tif",
                      //"tests/data/image_protochips/ReductionOfFeOxSmall.zip",
                      //"tests/data/image_tescan_mira/CZ04-2_102_Pic_2.tif",
                      //"tests/data/image_tescan_sidecar/Ti3C2VacDriedFilm19.hdr",
@@ -64,7 +64,7 @@
                      "NXem",
                      //"--skip-verify",
                      //"--output=tests/prod/custom_reference_frame/output.nxs"]
-                     //"--output=tests/prod/default/output.nxs"]
+                     "--output=tests/prod/default/output.nxs"]
                      //"--output=tests/prod/ebsd_mtex/output.nxs"]
                      //"--output=tests/prod/ebsd_oina/output.nxs"]
                      //"--output=tests/prod/ger_berlin_koch_group/output.nxs"]
@@ -87,7 +87,7 @@
                      //"--output=tests/prod/image_hitachi/output.nxs"]
                      //"--output=tests/prod/image_hitachi_su8000/output.nxs"]
                      //"--output=tests/prod/image_jeol/output.nxs"]
-                     "--output=tests/prod/image_point_electronic/output.nxs"]
+                     //"--output=tests/prod/image_point_electronic/output.nxs"]
                      //"--output=tests/prod/image_protochips/output.nxs"]
                      //"--output=tests/prod/image_tescan_mira/output.nxs"]
                      //"--output=tests/prod/image_tescan_sidecar/output.nxs"]
