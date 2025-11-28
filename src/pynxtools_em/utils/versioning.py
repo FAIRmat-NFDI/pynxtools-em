@@ -36,4 +36,5 @@ def get_em_exec_version() -> str:
     else:
         return "UNKNOWN COMMIT"
 
+
 PYNX_EM_VERSION = get_em_exec_version()
