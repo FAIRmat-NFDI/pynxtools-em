@@ -67,20 +67,17 @@ from pynxtools_em.utils.nx_default_plots import NxEmDefaultPlotResolver
 class EMReader(BaseReader):
     """Parse content from file formats of the electron microscopy community."""
 
-    # pylint: disable=too-few-public-methods
-
-    # Whitelist for the NXDLs that the reader supports and can process
     supported_nxdls = ["NXem"]
 
-    # pylint: disable=duplicate-code
     def read(
         self,
-        template: dict = None,
-        file_paths: Tuple[str] = None,
-        objects: Tuple[Any] = None,
-    ) -> dict:
-        """Read data from given file, return filled template dictionary em."""
-        # pylint: disable=duplicate-code
+        template: dict | None = None,
+        file_paths: tuple[str] = None,
+        objects: tuple[Any] = None,
+    ):
+        """
+        Read method to prepare the template.
+        """
         logger.info(os.getcwd())
         tic = perf_counter_ns()
         template.clear()

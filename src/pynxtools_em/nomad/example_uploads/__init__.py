@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Entry points for electron microscopy examples."""
+"""Entry points for EM example uploads."""
 
 try:
     from nomad.config.models.plugins import ExampleUploadEntryPoint
@@ -38,5 +38,5 @@ em_example = ExampleUploadEntryPoint(
         ELN to run the example with your own datasets.
     """,
     plugin_package="pynxtools_em",
-    resources=["nomad/examples/*"],
+    resources=["nomad/example_uploads/example/*"],
 )
