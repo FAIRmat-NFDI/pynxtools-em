@@ -13,14 +13,14 @@ on:
     #   - 'dev-requirements.txt'
 
 env:
-  python-version: 3.11
+  python-version: 3.12
 
 jobs:
   validate_dependencies:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout pynxtools
+    - name: Checkout pynxtools-em
       uses: actions/checkout@v4
 
     - name: Checkout NOMAD from GitLab
@@ -45,6 +45,6 @@ jobs:
     - name: Install NOMAD dependencies with pynxtools from current branch
       working-directory: ./nomad
       run: |
-        uv pip install -r requirements-plugins.txt --prerelease=allow
+        uv pip install -r requirements-plugins.txt -c requirements-dev.txt --prerelease=allow
       env:
         PYTHONPATH: ""  # Ensure no pre-installed packages interfere with the test
