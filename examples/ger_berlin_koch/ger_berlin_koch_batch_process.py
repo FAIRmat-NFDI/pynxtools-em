@@ -74,10 +74,10 @@ byte_size_processed = 0
 identifier: dict[str, str] = {}
 df = pd.read_excel(f"{config['identifier_file_name']}", engine="odf")
 for idx in np.arange(0, np.shape(df)[0]):
-    if all(isinstance(df.iat[idx, val], str) for val in [1, 3]):
-        if all(df.iat[idx, val] != "" for val in [1, 3]):
-            if df.iat[idx, 3] != "none_found":
-                identifier[df.iat[idx, 1]] = df.iat[idx, 3]
+    if all(isinstance(df.iat[idx, val], str) for val in [0, 2]):
+        if all(df.iat[idx, val] != "" for val in [0, 2]):
+            if df.iat[idx, 2] != "none_found":
+                identifier[df.iat[idx, 0]] = df.iat[idx, 2]
 del df
 for key, value in identifier.items():
     logging.debug(f"{key}, {value}")
