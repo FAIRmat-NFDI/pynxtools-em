@@ -33,6 +33,11 @@ import datetime
 import logging
 import pandas as pd
 import numpy as np
+import yaml
+from pynxtools.dataconverter.convert import convert
+from pynxtools.dataconverter.helpers import get_nxdl_root_and_path
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
+
 
 INCREMENTAL_REPORTING = 1 * 1024 * 1024 * 1024  # in bytes
 SEPARATOR = "____"
@@ -69,6 +74,10 @@ for key, value in config.items():
 
 cnt = 0
 byte_size_processed = 0
+nxdl = "NXem"
+nxdl_root, nxdl_file = get_nxdl_root_and_path(nxdl)
+if not os.path.exists(nxdl_file):
+    logger.warning(f"NXDL file {nxdl_file} for nxdl {nxdl} not found")
 
 # load humans_and_companies.ods
 identifier: dict[str, str] = {}
@@ -83,20 +92,55 @@ for key, value in identifier.items():
     logging.debug(f"{key}, {value}")
 
 # load nion_data_additional_metadata.ods
-df = pd.read_excel(f"{config['legacy_payload_file_name']}", engine="odf")
+# df = pd.read_excel(f"{config['legacy_payload_file_name']}", engine="odf")
 # for row in df.itertuples(index=True):
-for idx in np.arange(0, np.shape(df)[0]):
-    if df.iat[idx, 1] != 1:
-        continue
-    logger.debug(f"")
-    # TODO::alternatively walk over nion_data, check if these exist, check if human has orcid
-    # TODO::generate eln_data.yaml
-    # TODO::for row_idx in projects:
+# for idx in np.arange(0, np.shape(df)[0]):
+#     if df.iat[idx, 1] != 1:
+#         continue
+#     logger.debug(f"")
+nsproj_to_eln = {}
 for root, dirs, files in os.walk(config["microscope_directory"]):
     for file in files:
         fpath = f"{root}/{file}".replace(os.sep * 2, os.sep)
-        if not fpath.endswith(".nsproj"):
+        # if not fpath.endswith(".nsproj"):
+        if (
+            fpath
+            != "../../nion_data/Haas/2022-02-18_Metadata_Kuehbach/2022-02-18_Metadata_Kuehbach.nsproj"
+        ):
             continue
+
+        logger.debug("Working on test case")
+        # TODO::alternatively walk over nion_data, check if these exist, check if human has orcid
+        # TODO::generate eln_data.yaml
+        eln_fpath = f"{config['working_directory']}/{get_sha256_of_file_content(fpath)}.eln_data.yaml"
+        logger.debug(f"eln_fpath {eln_fpath}")
+        nsproj_to_eln[fpath] = eln_fpath
+        eln_data = {}
+        with open(eln_fpath, "w") as fp:
+            yaml.dump(eln_data, fp)
+        del eln_data
+
+        # READER_NAME = "em"
+        # READER_CLASS = get_reader(READER_NAME)
+        # NXDLS = ["NXem"]
+        tmp_path = ""
+        input_files_tuple: tuple = (eln_fpath, fpath)
+        logger.debug(f"{input_files_tuple}")
+
+        # caplog_level: Literal["ERROR", "WARNING"] = "WARNING"
+        # Clear the log of `convert`
+        # caplog.clear()
+        # with caplog.at_level(caplog_level):
+        logger.debug(f"Attempt converting {tmp_path}/{os.sep}/output.nxs")
+        _ = convert(
+            input_file=input_files_tuple,
+            reader="em",
+            nxdl=nxdl,
+            skip_verify=False,
+            ignore_undocumented=True,
+            output=f"{tmp_path}/{os.sep}/output.nxs",
+        )
+
         # fname = os.path.basename(fpath)
         # cnt += 1
         # always attempt to hash the file first
