@@ -36,7 +36,7 @@ SEPARATOR = "____"
 DEFAULT_LOGGER_NAME = "ger_berlin_koch_group_process"
 logger = logging.getLogger(DEFAULT_LOGGER_NAME)
 ffmt = "%(levelname)s %(asctime)s %(message)s"
-tfmt = "%Y-%m-%dT%H:%M:%S.%f%z"
+tfmt = "%Y-%m-%dT%H:%M:%S%z"  # .%f%z"
 logging.basicConfig(
     filename=f"{DEFAULT_LOGGER_NAME}.log",
     filemode="w",  # use "a" to collect all in a session, use "w" to overwrite
@@ -45,9 +45,9 @@ logging.basicConfig(
     encoding="utf-8",
     level=logging.DEBUG,
 )
-root = logging.getLogger()
-for handler in root.handlers:
-    handler.setFormatter(logging.Formatter(ffmt, tfmt))
+# root = logging.getLogger()
+# for handler in root.handlers:
+#     handler.setFormatter(logging.Formatter(ffmt, tfmt))
 
 microscope_directory = sys.argv[1]
 target_directory = sys.argv[2]
@@ -70,15 +70,17 @@ for root, dirs, files in os.walk(microscope_directory):
         fpath = f"{root}/{file}".replace(os.sep * 2, os.sep)
         # fname = os.path.basename(fpath)
         # cnt += 1
-        # if byte_size_processed >= (1 * 1024 * 1024 * 1024):  # incremental reporting
-        #    byte_size_processed = 0
         # always attempt to hash the file first
         try:
             stat = os.stat(fpath)
-            # byte_size_processed += stat.st_size
-            logger.info(f"{fpath}{SEPARATOR}{stat.st_size}")
+            byte_size = stat.st_size
+            byte_size_processed += byte_size
+            logger.info(f"{fpath}{SEPARATOR}{byte_size}")
         except Exception as e:
             logger.warning(f"{fpath}{SEPARATOR}{e}")
+        if byte_size_processed >= (1 * 1024 * 1024 * 1024):  # incremental reporting
+            print(f"Processed {byte_size_processed}")
+            byte_size_processed = 0
 
 toc = datetime.datetime.now().timestamp()
 logger.info(f"{toc}")
