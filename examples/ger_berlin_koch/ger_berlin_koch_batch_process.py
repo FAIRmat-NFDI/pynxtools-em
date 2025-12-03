@@ -26,11 +26,13 @@
 # e.g., nion, JEOL, Zeiss, stuff is parsed using pynxtools-em to generate
 # one NeXus/HDF5 file per project
 
-# python3 ger_berlin_koch_batch_process.py 'microscope_dir' '.'
+# python3 ger_berlin_koch_batch_process.py 'microscope_dir' '.' 'humans_and_companies.ods' 'nion_data_metadata.ods'
 import os
 import sys
 import datetime
 import logging
+import pandas as pd
+import numpy as np
 
 INCREMENTAL_REPORTING = 1 * 1024 * 1024 * 1024  # in bytes
 SEPARATOR = "____"
@@ -50,28 +52,51 @@ logging.basicConfig(
 # for handler in root.handlers:
 #     handler.setFormatter(logging.Formatter(ffmt, tfmt))
 
-microscope_directory = sys.argv[1]
-target_directory = sys.argv[2]
+config: dict[str, str] = {
+    "program name": f"{__name__}",
+    "python version": f"{sys.version}",
+    "working_directory": f"{os.getcwd()}",
+    "microscope_directory": sys.argv[1],  # 'microscope_dir'
+    "target_directory": sys.argv[2],  # '.'
+    "identifier_file_name": sys.argv[3],  # 'humans_and_companies.ods'
+    "legacy_payload_file_name": sys.argv[4],  # 'nion_data_metadata.ods'
+}
 tic = datetime.datetime.now().timestamp()
 
 logger.info(f"{tic}")
-logger.info(f"program name {__name__}")
-logger.info(f"python version {sys.version}")
-logger.info(f"working_directory {os.getcwd()}")
-logger.info(f"microscope_directory {microscope_directory}")
-logger.info(f"target_directory {target_directory}")
-
-# TODO::load humans_and_companies.ods
-# TODO::load nion_data_additional_metadata.ods
+for key, value in config.items():
+    logger.info(f"{key} {value}")
 
 cnt = 0
 byte_size_processed = 0
-# TODO::alternatively walk over nion_data, check if these exist, check if human has orcid
-# TODO::generate eln_data.yaml
-# TODO::for row_idx in projects:
-for root, dirs, files in os.walk(microscope_directory):
+
+# load humans_and_companies.ods
+identifier: dict[str, str] = {}
+df = pd.read_excel(f"{config['identifier_file_name']}", engine="odf")
+for idx in np.arange(0, np.shape(df)[0]):
+    if all(isinstance(df.iat[idx, val], str) for val in [1, 3]):
+        if all(df.iat[idx, val] != "" for val in [1, 3]):
+            if df.iat[idx, 3] != "none_found":
+                identifier[df.iat[idx, 1]] = df.iat[idx, 3]
+del df
+for key, value in identifier.items():
+    logging.debug(f"{key}, {value}")
+
+# load nion_data_additional_metadata.ods
+df = pd.read_excel(f"{config['legacy_payload_file_name']}", engine="")
+# for row in df.itertuples(index=True):
+for idx in np.arange(0, np.shape(df)[0]):
+    if df.iat[idx, 1] != 1:
+        continue
+    logger.debug(f"")
+    # TODO::alternatively walk over nion_data, check if these exist, check if human has orcid
+    # TODO::generate eln_data.yaml
+    # TODO::for row_idx in projects:
+for root, dirs, files in os.walk(config["microscope_directory"]):
     for file in files:
         fpath = f"{root}/{file}".replace(os.sep * 2, os.sep)
+        if not fpath.endswith(".nsproj"):
+            continue
         # fname = os.path.basename(fpath)
         # cnt += 1
         # always attempt to hash the file first
