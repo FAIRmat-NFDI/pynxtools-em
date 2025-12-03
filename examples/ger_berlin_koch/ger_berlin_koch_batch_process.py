@@ -65,7 +65,7 @@ for root, dirs, files in os.walk(microscope_directory):
         #    byte_size_processed = 0
         # always attempt to hash the file first
         try:
-            logger.info(f"{cnt}, {fname}")
+            logger.info(f"{cnt}, {fpath}, {fname}")
             # stat = os.stat(fpath)
             # byte_size_processed += stat.st_size
         except Exception as e:
