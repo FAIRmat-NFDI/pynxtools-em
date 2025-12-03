@@ -32,6 +32,7 @@ import sys
 import datetime
 import logging
 
+INCREMENTAL_REPORTING = 1 * 1024 * 1024 * 1024  # in bytes
 SEPARATOR = "____"
 DEFAULT_LOGGER_NAME = "ger_berlin_koch_group_process"
 logger = logging.getLogger(DEFAULT_LOGGER_NAME)
@@ -60,11 +61,14 @@ logger.info(f"working_directory {os.getcwd()}")
 logger.info(f"microscope_directory {microscope_directory}")
 logger.info(f"target_directory {target_directory}")
 
-# load humans_and_companies.ods
-# load nion_data_additional_metadata.ods
+# TODO::load humans_and_companies.ods
+# TODO::load nion_data_additional_metadata.ods
 
 cnt = 0
 byte_size_processed = 0
+# TODO::alternatively walk over nion_data, check if these exist, check if human has orcid
+# TODO::generate eln_data.yaml
+# TODO::for row_idx in projects:
 for root, dirs, files in os.walk(microscope_directory):
     for file in files:
         fpath = f"{root}/{file}".replace(os.sep * 2, os.sep)
@@ -72,13 +76,15 @@ for root, dirs, files in os.walk(microscope_directory):
         # cnt += 1
         # always attempt to hash the file first
         try:
+            # TODO::identify current directory
+            # TODO::process nsproj file
             stat = os.stat(fpath)
             byte_size = stat.st_size
             byte_size_processed += byte_size
             logger.info(f"{fpath}{SEPARATOR}{byte_size}")
         except Exception as e:
             logger.warning(f"{fpath}{SEPARATOR}{e}")
-        if byte_size_processed >= (1 * 1024 * 1024 * 1024):  # incremental reporting
+        if byte_size_processed >= INCREMENTAL_REPORTING:
             print(f"Processed {byte_size_processed}")
             byte_size_processed = 0
 
