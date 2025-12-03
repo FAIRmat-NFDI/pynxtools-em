@@ -83,7 +83,7 @@ for key, value in identifier.items():
     logging.debug(f"{key}, {value}")
 
 # load nion_data_additional_metadata.ods
-df = pd.read_excel(f"{config['legacy_payload_file_name']}", engine="")
+df = pd.read_excel(f"{config['legacy_payload_file_name']}", engine="odfpy")
 # for row in df.itertuples(index=True):
 for idx in np.arange(0, np.shape(df)[0]):
     if df.iat[idx, 1] != 1:
