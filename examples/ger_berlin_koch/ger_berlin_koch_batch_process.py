@@ -35,14 +35,19 @@ import logging
 SEPARATOR = "____"
 DEFAULT_LOGGER_NAME = "ger_berlin_koch_group_process"
 logger = logging.getLogger(DEFAULT_LOGGER_NAME)
+ffmt = "%(levelname)s %(asctime)s %(message)s"
+tfmt = "%Y-%m-%dT%H:%M:%S.%f%z"
 logging.basicConfig(
     filename=f"{DEFAULT_LOGGER_NAME}.log",
     filemode="w",  # use "a" to collect all in a session, use "w" to overwrite
-    format="%(levelname)s %(asctime)s %(message)s",
-    datefmt="%Y-%m-%dT%H:%M:%S.%f%z",
+    format=ffmt,
+    datefmt=tfmt,
     encoding="utf-8",
     level=logging.DEBUG,
 )
+root = logging.getLogger()
+for handler in root.handlers:
+    handler.setFormatter(logging.Formatter(ffmt, tfmt))
 
 microscope_directory = sys.argv[1]
 target_directory = sys.argv[2]
