@@ -112,7 +112,10 @@ for root, dirs, files in os.walk(config["microscope_directory"]):
         logger.debug("Working on test case")
         # TODO::alternatively walk over nion_data, check if these exist, check if human has orcid
         # TODO::generate eln_data.yaml
-        eln_fpath = f"{config['working_directory']}/{get_sha256_of_file_content(fpath)}.eln_data.yaml"
+        with open(fpath) as fp:
+            hash = get_sha256_of_file_content(fp)
+        logger.debug(f"{hash}")
+        eln_fpath = f"{config['working_directory']}/{hash}.eln_data.yaml"
         logger.debug(f"eln_fpath {eln_fpath}")
         nsproj_to_eln[fpath] = eln_fpath
         eln_data = {}
