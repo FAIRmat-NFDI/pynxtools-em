@@ -126,7 +126,6 @@ for root, dirs, files in os.walk(config["microscope_directory"]):
         # READER_NAME = "em"
         # READER_CLASS = get_reader(READER_NAME)
         # NXDLS = ["NXem"]
-        tmp_path = ""
         input_files_tuple: tuple = (eln_fpath, fpath)
         logger.debug(f"{input_files_tuple}")
 
@@ -134,14 +133,16 @@ for root, dirs, files in os.walk(config["microscope_directory"]):
         # Clear the log of `convert`
         # caplog.clear()
         # with caplog.at_level(caplog_level):
-        logger.debug(f"Attempt converting {tmp_path}/{os.sep}/output.nxs")
+        logger.debug(
+            f"Attempt converting {config['working_directory']}{os.sep}output.nxs"
+        )
         _ = convert(
             input_file=input_files_tuple,
             reader="em",
             nxdl=nxdl,
-            skip_verify=False,
+            skip_verify=True,
             ignore_undocumented=True,
-            output=f"{tmp_path}/{os.sep}/output.nxs",
+            output=f"{config['working_directory']}{os.sep}output.nxs",
         )
 
         # fname = os.path.basename(fpath)
