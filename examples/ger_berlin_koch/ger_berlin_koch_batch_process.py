@@ -78,33 +78,37 @@ def generate_eln_data_yaml(
     lookup: dict[str, dict[str, str]],
     config: dict[str, str],
 ) -> tuple[str, str]:
-    try:
-        with open(nsproj_fpath, "rb", 0) as fp:
-            hash = get_sha256_of_file_content(fp)
-        eln_fpath = f"{config['working_directory']}/{hash}.eln_data.yaml"
-        eln_data = {}
-        user_name, orcid = get_name_and_orcid_from_alias(user_name_alias, lookup)
-        eln_data["user"] = []
-        eln_data["user"].append(
-            {"name": user_name, "orcid": orcid[len("https://orcid.org/") :]}
-        )
-        eln_data["sample"] = {}
-        if dirty_atom_types != "nan":
-            clean_atom_types = [
-                x.strip()
-                for x in dirty_atom_types.replace("?", "").split(",")
-                if x.strip()
-            ]
-            eln_data["sample"]["atom_types"] = ", ".join(clean_atom_types)
-        eln_data["entry"] = {}
-        eln_data["entry"]["start_time"] = (
-            f"{datetime.fromtimestamp(os.path.getmtime(nsproj_fpath), tz=pytz.timezone('Europe/Berlin')).isoformat()}"
-        )
-        with open(eln_fpath, "w") as fp:
-            yaml.dump(eln_data, fp)
-        return eln_fpath, hash
-    except Exception as e:
-        logger.error(f"{nsproj_fpath}{SEPARATOR}{e}")
+    # try:
+    logger.debug(nsproj_fpath)
+    with open(nsproj_fpath, "rb", 0) as fp:
+        hash = get_sha256_of_file_content(fp)
+    logger.debug(hash)
+    eln_fpath = f"{config['working_directory']}/{hash}.eln_data.yaml"
+    eln_data = {}
+    user_name, orcid = get_name_and_orcid_from_alias(user_name_alias, lookup)
+    logger.debug(f"{user_name}{SEPARATOR}{orcid}")
+    eln_data["user"] = []
+    eln_data["user"].append(
+        {"name": user_name, "orcid": orcid[len("https://orcid.org/") :]}
+    )
+    eln_data["sample"] = {}
+    logger.debug(f"dirty_atom_types{SEPARATOR}{dirty_atom_types}")
+    if dirty_atom_types != "nan":
+        clean_atom_types = [
+            x.strip() for x in dirty_atom_types.replace("?", "").split(",") if x.strip()
+        ]
+        eln_data["sample"]["atom_types"] = ", ".join(clean_atom_types)
+        logger.debug(f"clean_atom_types{SEPARATOR}{eln_data['sample']['atom_types']}")
+    eln_data["entry"] = {}
+    eln_data["entry"]["start_time"] = (
+        f"{datetime.fromtimestamp(os.path.getmtime(nsproj_fpath), tz=pytz.timezone('Europe/Berlin')).isoformat()}"
+    )
+    logger.debug(f"{eln_data['entry']['start_time']}")
+    with open(eln_fpath, "w") as fp:
+        yaml.dump(eln_data, fp)
+    return eln_fpath, hash
+    # except Exception as e:
+    #     logger.error(f"{nsproj_fpath}{SEPARATOR}{e}")
 
 
 INCREMENTAL_REPORTING = 100 * (1024**3)  # in bytes, right now each 100 GiB
