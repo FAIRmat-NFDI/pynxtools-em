@@ -29,7 +29,7 @@
 # python3 ger_berlin_koch_batch_process.py 'microscope_dir' '.' 'humans_and_companies.ods' 'nion_data_metadata.ods'
 import os
 import sys
-import datetime
+from datetime import datetime
 import pytz
 import logging
 import pandas as pd
