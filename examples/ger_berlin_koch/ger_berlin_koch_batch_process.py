@@ -62,14 +62,6 @@ def get_user_name_alias(fpath: str, microscope: str = "nion"):
     return ""
 
 
-def get_name_and_orcid_from_alias(alias: str, lookup: dict[str, dict[str, str]]):
-    for aliases, mdict in lookup.items():
-        if alias in [val.strip() for val in aliases.split(";")]:
-            return (mdict[alias]["first_surname"], mdict[alias]["id"])
-    logger.warning(f"{alias} not resolvable")
-    return ("", "")
-
-
 def generate_eln_data_yaml(
     nsproj_fpath: str,
     user_name_alias: str,
@@ -84,13 +76,18 @@ def generate_eln_data_yaml(
     logger.debug(hash)
     eln_fpath = f"{config['working_directory']}/{hash}.eln_data.yaml"
     eln_data = {}
-    user_name, orcid = get_name_and_orcid_from_alias(user_name_alias, lookup)
-    logger.debug(f"{user_name}{SEPARATOR}{orcid}")
+
+    for aliases, mdict in lookup.items():
+        if user_name_alias in [val.strip() for val in aliases.split(";")]:
+            user_name = mdict[aliases]["first_surname"]
+            user_id = mdict[aliases]["id"]
+            break
+    logger.debug(f"{user_name}{SEPARATOR}{user_id}")
     eln_data["user"] = []
     user_dict = {}
     user_dict["name"] = user_name
-    if orcid != "none_found":
-        user_dict["orcid"] = f"{orcid[len('https://orcid.org/') :]}"
+    if user_id != "none_found":
+        user_dict["orcid"] = f"{user_id[len('https://orcid.org/') :]}"
     eln_data["user"].append(user_dict)
     eln_data["sample"] = {}
     logger.debug(f"dirty_atom_types{SEPARATOR}{dirty_atom_types}")
