@@ -77,15 +77,13 @@ def generate_eln_data_yaml(
     dirty_atom_types: str,
     lookup: dict[str, dict[str, str]],
     config: dict[str, str],
-    collect_hash: dict[str, str],
 ) -> tuple[str, str]:
     try:
         with open(nsproj_fpath, "rb", 0) as fp:
             hash = get_sha256_of_file_content(fp)
         eln_fpath = f"{config['working_directory']}/{hash}.eln_data.yaml"
-        nsproj_to_eln[f"{nsproj_fpath}"] = eln_fpath
         eln_data = {}
-        user_name, orcid = get_name_and_orcid_from_alias(user_name_alias, identifier)
+        user_name, orcid = get_name_and_orcid_from_alias(user_name_alias, lookup)
         eln_data["user"] = []
         eln_data["user"].append(
             {"name": user_name, "orcid": orcid[len("https://orcid.org/") :]}
@@ -154,7 +152,7 @@ ignore_these_directories = tuple(
 )
 
 
-tic = datetime.datetime.now().timestamp()
+tic = datetime.now().timestamp()
 
 logger.info(f"{tic}")
 for key, value in config.items():
@@ -213,8 +211,8 @@ if generate_nexus_file:
                 dirty_atom_types=row.dirty_atom_types,
                 lookup=identifier,
                 config=config,
-                collect_hash=nsproj_to_eln,
             )
+            nsproj_to_eln[f"{row.nsproj_fpath}"] = eln_fpath
 
             # TODO::process nsproj file
             # TODO::deactivate hashing and debugging
@@ -279,6 +277,6 @@ if generate_nexus_file:
 if collect_statistics:
     export_to_yaml("statistics.yaml", statistics)
 # export_to_text("projects.txt", projects)
-toc = datetime.datetime.now().timestamp()
+toc = datetime.now().timestamp()
 logger.info(f"{toc}")
 print(f"Batch queue processed successfully")
