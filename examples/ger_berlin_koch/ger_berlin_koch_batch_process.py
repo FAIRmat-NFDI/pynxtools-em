@@ -34,9 +34,16 @@ import logging
 import pandas as pd
 import numpy as np
 import yaml
+from pathlib import Path
 from pynxtools.dataconverter.convert import convert
 from pynxtools.dataconverter.helpers import get_nxdl_root_and_path
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
+
+
+def nsproj_to_eln_to_yaml(lookup_dict: dict[str, str]):
+    """Write content of lookup_dict to yaml file."""
+    with open("nsproj_to_eln.yaml", "w") as fp:
+        yaml.dump(lookup_dict, fp, default_flow_style=False)
 
 
 INCREMENTAL_REPORTING = 1 * 1024 * 1024 * 1024  # in bytes
@@ -109,48 +116,43 @@ for root, dirs, files in os.walk(config["microscope_directory"]):
         ):
             continue
 
-        logger.debug("Working on test case")
         # TODO::alternatively walk over nion_data, check if these exist, check if human has orcid
         # TODO::generate eln_data.yaml
         with open(fpath, "rb", 0) as fp:
             hash = get_sha256_of_file_content(fp)
-        logger.debug(f"{hash}")
         eln_fpath = f"{config['working_directory']}/{hash}.eln_data.yaml"
         logger.debug(f"eln_fpath {eln_fpath}")
         nsproj_to_eln[fpath] = eln_fpath
         eln_data = {}
+        author = fpath[len("../../nion_data/") :].split("/")[0]
+        logger.debug(author)
+        author = "Benedikt Haas"
+        if author in identifier:
+            eln_data["orcid"] = identifier[author]
+        else:
+            logger.warning(f"{author} not found in identifier!")
         with open(eln_fpath, "w") as fp:
             yaml.dump(eln_data, fp)
         del eln_data
 
-        # READER_NAME = "em"
-        # READER_CLASS = get_reader(READER_NAME)
-        # NXDLS = ["NXem"]
+        # TODO::process nsproj file
+        # TODO::deactivate hashing and debugging
         input_files_tuple: tuple = (eln_fpath, fpath)
+        output_fpath = f"{config['working_directory']}{os.sep}{hash}.output.nxs"
         logger.debug(f"{input_files_tuple}")
-
-        # caplog_level: Literal["ERROR", "WARNING"] = "WARNING"
-        # Clear the log of `convert`
-        # caplog.clear()
-        # with caplog.at_level(caplog_level):
-        logger.debug(
-            f"Attempt converting {config['working_directory']}{os.sep}output.nxs"
-        )
+        logger.debug(f"{output_fpath}")
         _ = convert(
             input_file=input_files_tuple,
             reader="em",
             nxdl=nxdl,
             skip_verify=True,
             ignore_undocumented=True,
-            output=f"{config['working_directory']}{os.sep}output.nxs",
+            output=output_fpath,
         )
 
-        # fname = os.path.basename(fpath)
         # cnt += 1
-        # always attempt to hash the file first
         try:
             # TODO::identify current directory
-            # TODO::process nsproj file
             stat = os.stat(fpath)
             byte_size = stat.st_size
             byte_size_processed += byte_size
@@ -160,7 +162,9 @@ for root, dirs, files in os.walk(config["microscope_directory"]):
         if byte_size_processed >= INCREMENTAL_REPORTING:
             print(f"Processed {byte_size_processed}")
             byte_size_processed = 0
+            nsproj_to_eln_to_yaml(nsproj_to_eln)
 
+nsproj_to_eln_to_yaml(nsproj_to_eln)
 toc = datetime.datetime.now().timestamp()
 logger.info(f"{toc}")
 print(f"Batch queue processed successfully")
