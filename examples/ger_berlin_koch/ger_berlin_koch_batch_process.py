@@ -132,7 +132,7 @@ for user_name_aliases, user_metadata_dict in identifier.items():
 #     if df.iat[idx, 1] != 1:
 #         continue
 #     logger.debug(f"")
-projects: set[str] = set()  # full path to nsproj file
+# projects: set[str] = set()  # full path to nsproj file
 nsproj_to_eln: dict[
     str, str
 ] = {}  # full path to nsproj file as key, full path to eln_data.yaml file as value
@@ -144,7 +144,7 @@ collect_statistics = True
 for root, dirs, files in os.walk(config["microscope_directory"]):
     for file in files:
         fpath = f"{root}/{file}".replace(os.sep * 2, os.sep)
-        if fpath.startswith(f"{config['microscope_directory']}{os.sep}$RECYCLE"):
+        if fpath.startswith(f"{config['microscope_directory']}$RECYCLE"):
             continue
 
         if generate_nexus_file:
@@ -161,7 +161,7 @@ for root, dirs, files in os.walk(config["microscope_directory"]):
                 hash = get_sha256_of_file_content(fp)
             eln_fpath = f"{config['working_directory']}/{hash}.eln_data.yaml"
             logger.debug(f"eln_fpath {eln_fpath}")
-            nsproj_to_eln[fpath] = eln_fpath
+            nsproj_to_eln[f"{fpath}"] = eln_fpath
             eln_data = {}
             alias = get_user_name_alias(fpath, "nion")
             # eln_data["orcid"] = get_orcid_from_alias(alias, identifier)
@@ -209,11 +209,11 @@ for root, dirs, files in os.walk(config["microscope_directory"]):
             continue
         else:
             if not generate_nexus_file:
-                nsproj_to_eln[fpath] = get_user_name_alias(fpath, "nion")
+                nsproj_to_eln[f"{fpath}"] = get_user_name_alias(fpath, "nion")
 
 # last reporting and cleaning up
 total_bytes_processed += bytes_processed
-print(f"Processed {np.around((total_bytes_processed / (1024**3)), decimals=3)} GiB")
+print(f"Processed {np.around((total_bytes_processed / (1024**4)), decimals=3)} TiB")
 # if generate_nexus_file:
 export_to_yaml("nsproj_to_eln.yaml", nsproj_to_eln)
 if collect_statistics:
