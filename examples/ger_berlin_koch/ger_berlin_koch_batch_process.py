@@ -77,7 +77,7 @@ def generate_eln_data_yaml(
     dirty_atom_types: str,
     lookup: dict[str, dict[str, str]],
     config: dict[str, str],
-    nsproj_to_eln: dict[str, str],
+    collect_hash: dict[str, str],
 ) -> tuple[str, str]:
     try:
         with open(nsproj_fpath, "rb", 0) as fp:
@@ -212,6 +212,7 @@ if generate_nexus_file:
                 user_name_alias=row.user_name_alias,
                 dirty_atom_types=row.dirty_atom_types,
                 lookup=identifier,
+                config=config,
                 collect_hash=nsproj_to_eln,
             )
 
