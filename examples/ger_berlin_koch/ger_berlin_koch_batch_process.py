@@ -34,10 +34,12 @@ import logging
 import pandas as pd
 import numpy as np
 import yaml
-from pathlib import Path
+
+# from pathlib import Path
 from pynxtools.dataconverter.convert import convert
 from pynxtools.dataconverter.helpers import get_nxdl_root_and_path
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
+from pynxtools_em.utils.versioning import __version__
 
 
 def export_to_yaml(fpath: str, lookup_dict: dict[str, str | int]):
@@ -87,13 +89,14 @@ logging.basicConfig(
 #     handler.setFormatter(logging.Formatter(ffmt, tfmt))
 
 config: dict[str, str] = {
-    "program name": f"{__name__}",
-    "python version": f"{sys.version}",
+    "python_version": f"{sys.version}",
     "working_directory": f"{os.getcwd()}",
-    "microscope_directory": sys.argv[1],  # 'microscope_dir'
-    "target_directory": sys.argv[2],  # '.'
-    "identifier_file_name": sys.argv[3],  # 'humans_and_companies.ods'
-    "legacy_payload_file_name": sys.argv[4],  # 'nion_data_metadata.ods'
+    "program_name": f"pynxtools_em/{__name__}",
+    "program_version": f"{__version__}",
+    "microscope_directory": sys.argv[1],  # e.g. '../../nion_data/'
+    "target_directory": sys.argv[2],  # e.g. '../'
+    "identifier_file_name": sys.argv[3],  # e.g. 'humans_and_companies.ods'
+    "legacy_payload_file_name": sys.argv[4],  # e.g. 'nion_data_metadata.ods'
 }
 
 ignore_these_directories = tuple(
