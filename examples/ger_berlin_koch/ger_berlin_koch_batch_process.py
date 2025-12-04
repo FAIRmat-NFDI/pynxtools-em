@@ -207,6 +207,7 @@ if generate_nexus_file:
                 nsproj_fpath=row.nsproj_fpath,
                 user_name_alias=row.user_name_alias,
                 dirty_atom_types=row.dirty_atom_types,
+                bytes_per_project=row.total_size_bytes,
                 lookup=identifier,
                 config=config,
             )
