@@ -145,29 +145,22 @@ del df
 for user_name_aliases, user_metadata_dict in identifier.items():
     logging.debug(f"{user_name_aliases}, {user_metadata_dict}")
 
-# load nion_data_additional_metadata.ods
-# df = pd.read_excel(f"{config['legacy_payload_file_name']}", engine="odf")
-# for row in df.itertuples(index=True):
-# for idx in np.arange(0, np.shape(df)[0]):
-#     if df.iat[idx, 1] != 1:
-#         continue
-#     logger.debug(f"")
-# projects: set[str] = set()  # full path to nsproj file
-nsproj_to_eln: dict[
-    str, str
-] = {}  # full path to nsproj file as key, full path to eln_data.yaml file as value
-statistics: dict[str, int] = {}  # full path to file as key, byte size as value
-# either or
-generate_nexus_file = False
-collect_statistics = True
+# full path to nsproj file
+# projects: set[str] = set()
+# full path to nsproj file as key, full path to eln_data.yaml file as value
+nsproj_to_eln: dict[str, str] = {}
+# full path to file as key, byte size as value
+statistics: dict[str, int] = {}
 
-for root, dirs, files in os.walk(config["microscope_directory"]):
-    for file in files:
-        fpath = f"{root}/{file}".replace(os.sep * 2, os.sep)
-        if fpath.startswith(ignore_these_directories):
+# either
+generate_nexus_file = True
+if generate_nexus_file:
+    nsprojects = pd.read_excel(f"{config['legacy_payload_file_name']}", engine="odf")
+    for row in df.itertuples(index=True):
+        if row.parse == 1:
+            logger.info(row.nsproj_fpath)
             continue
 
-        if generate_nexus_file:
             # if not fpath.endswith(".nsproj"):
             # if (
             #     fpath
@@ -175,7 +168,6 @@ for root, dirs, files in os.walk(config["microscope_directory"]):
             # ):
             #     continue
 
-            # TODO::alternatively walk over nion_data, check if these exist, check if human has orcid
             # TODO::generate eln_data.yaml
             with open(fpath, "rb", 0) as fp:
                 hash = get_sha256_of_file_content(fp)
@@ -204,7 +196,15 @@ for root, dirs, files in os.walk(config["microscope_directory"]):
                 output=output_fpath,
             )
 
-        if collect_statistics:
+# or
+collect_statistics = False
+if collect_statistics:
+    for root, dirs, files in os.walk(config["microscope_directory"]):
+        for file in files:
+            fpath = f"{root}/{file}".replace(os.sep * 2, os.sep)
+            if fpath.startswith(ignore_these_directories):
+                continue
+
             try:
                 # TODO::identify current directory
                 stat = os.stat(fpath)
@@ -215,6 +215,7 @@ for root, dirs, files in os.walk(config["microscope_directory"]):
                 # logger.info(f"{fpath}{SEPARATOR}{byte_size}")
             except Exception as e:
                 logger.warning(f"{fpath}{SEPARATOR}{e}")
+
             if bytes_processed >= INCREMENTAL_REPORTING:
                 total_bytes_processed += bytes_processed
                 print(
@@ -222,14 +223,14 @@ for root, dirs, files in os.walk(config["microscope_directory"]):
                 )
                 # reset and store results so far collected
                 bytes_processed = 0
-                if generate_nexus_file:
-                    export_to_yaml("nsproj_to_eln.yaml", nsproj_to_eln)
+                # if generate_nexus_file:
+                #     export_to_yaml("nsproj_to_eln.yaml", nsproj_to_eln)
 
-        if not fpath.endswith(".nsproj"):
-            continue
-        else:
-            if not generate_nexus_file:
-                nsproj_to_eln[f"{fpath}"] = get_user_name_alias(fpath, "nion")
+            if not fpath.endswith(".nsproj"):
+                continue
+            # else:
+            #     if not generate_nexus_file:
+            #         nsproj_to_eln[f"{fpath}"] = get_user_name_alias(fpath, "nion")
 
 # last reporting and cleaning up
 total_bytes_processed += bytes_processed
