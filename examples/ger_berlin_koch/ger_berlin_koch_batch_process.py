@@ -65,8 +65,7 @@ def get_user_name_alias(fpath: str, microscope: str = "nion"):
 def get_name_and_orcid_from_alias(alias: str, lookup: dict[str, dict[str, str]]):
     for aliases, mdict in lookup.items():
         if alias in [val.strip() for val in aliases.split(";")]:
-            # if "id" in mdict[aliases]:
-            return (mdict[aliases]["first_surname"], mdict[aliases]["id"])
+            return (mdict[alias]["first_surname"], mdict[alias]["id"])
     logger.warning(f"{alias} not resolvable")
     return ("", "")
 
@@ -88,9 +87,11 @@ def generate_eln_data_yaml(
     user_name, orcid = get_name_and_orcid_from_alias(user_name_alias, lookup)
     logger.debug(f"{user_name}{SEPARATOR}{orcid}")
     eln_data["user"] = []
-    eln_data["user"].append(
-        {"name": user_name, "orcid": orcid[len("https://orcid.org/") :]}
-    )
+    user_dict = {}
+    user_dict["name"] = user_name
+    if orcid != "none_found":
+        user_dict["orcid"] = f"{orcid[len('https://orcid.org/') :]}"
+    eln_data["user"].append(user_dict)
     eln_data["sample"] = {}
     logger.debug(f"dirty_atom_types{SEPARATOR}{dirty_atom_types}")
     if dirty_atom_types != "nan":
