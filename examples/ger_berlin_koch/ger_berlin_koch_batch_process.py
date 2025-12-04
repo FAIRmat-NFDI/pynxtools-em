@@ -68,7 +68,7 @@ def get_name_and_orcid_from_alias(alias: str, lookup: dict[str, dict[str, str]])
     return ("", "")
 
 
-INCREMENTAL_REPORTING = 100 * 1024 * 1024 * 1024  # in bytes, right now each 100 GiB
+INCREMENTAL_REPORTING = 100 * (1024**3)  # in bytes, right now each 100 GiB
 SEPARATOR = "____"
 DEFAULT_LOGGER_NAME = "ger_berlin_koch_group_process"
 logger = logging.getLogger(DEFAULT_LOGGER_NAME)
@@ -119,7 +119,7 @@ for idx in np.arange(0, np.shape(df)[0]):
                 aliases = df.iat[idx, 1]
                 identifier[aliases] = {
                     "first_surname": df.iat[idx, 0],
-                    "id": df.iat[idx, 2],
+                    "id": df.iat[idx, 3],
                 }
 del df
 for user_name_aliases, user_metadata_dict in identifier.items():
@@ -144,6 +144,8 @@ collect_statistics = True
 for root, dirs, files in os.walk(config["microscope_directory"]):
     for file in files:
         fpath = f"{root}/{file}".replace(os.sep * 2, os.sep)
+        if fpath.startswith(f"{config['microscope_directory']}{os.sep}$RECYCLE"):
+            continue
 
         if generate_nexus_file:
             # if not fpath.endswith(".nsproj"):
@@ -188,14 +190,16 @@ for root, dirs, files in os.walk(config["microscope_directory"]):
                 stat = os.stat(fpath)
                 byte_size = stat.st_size
 
-                statistics[fpath] = byte_size
+                statistics[f"{fpath}"] = int(byte_size)
                 bytes_processed += byte_size
                 # logger.info(f"{fpath}{SEPARATOR}{byte_size}")
             except Exception as e:
                 logger.warning(f"{fpath}{SEPARATOR}{e}")
             if bytes_processed >= INCREMENTAL_REPORTING:
                 total_bytes_processed += bytes_processed
-                print(f"Processed {total_bytes_processed}")
+                print(
+                    f"Processed {np.around((total_bytes_processed / (1024**3)), decimals=3)} GiB"
+                )
                 # reset and store results so far collected
                 bytes_processed = 0
                 if generate_nexus_file:
@@ -209,7 +213,7 @@ for root, dirs, files in os.walk(config["microscope_directory"]):
 
 # last reporting and cleaning up
 total_bytes_processed += bytes_processed
-print(f"Processed {total_bytes_processed}")
+print(f"Processed {np.around((total_bytes_processed / (1024**3)), decimals=3)} GiB")
 # if generate_nexus_file:
 export_to_yaml("nsproj_to_eln.yaml", nsproj_to_eln)
 if collect_statistics:
