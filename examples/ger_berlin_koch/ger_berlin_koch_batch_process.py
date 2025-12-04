@@ -75,23 +75,6 @@ def generate_eln_data_yaml(
     eln_fpath = f"{config['working_directory']}/{hash}.eln_data.yaml"
     eln_data = {}
 
-    for aliases, mdict in lookup.items():
-        if user_name_alias in [val.strip() for val in aliases.split(";")]:
-            user_name = mdict["first_surname"]
-            user_id = mdict["id"]
-            break
-    eln_data["user"] = []
-    user_dict = {}
-    user_dict["name"] = user_name
-    if user_id != "none_found":
-        user_dict["orcid"] = f"{user_id[len('https://orcid.org/') :]}"
-    eln_data["user"].append(user_dict)
-    eln_data["sample"] = {}
-    if isinstance(dirty_atom_types, str):
-        clean_atom_types = [
-            x.strip() for x in dirty_atom_types.replace("?", "").split(",") if x.strip()
-        ]
-        eln_data["sample"]["atom_types"] = ", ".join(clean_atom_types)
     eln_data["entry"] = {}
     eln_data["entry"]["start_time"] = (
         f"{datetime.fromtimestamp(os.path.getmtime(nsproj_fpath), tz=pytz.timezone('Europe/Berlin')).isoformat()}"
@@ -100,6 +83,25 @@ def generate_eln_data_yaml(
     eln_data["entry"]["experiment_description"] = (
         f"{bytes_per_project} B, i.e., {np.around((bytes_per_project / (1024**3)), decimals=3)} GiB"
     )
+
+    eln_data["user"] = []
+    for aliases, mdict in lookup.items():
+        if user_name_alias in [val.strip() for val in aliases.split(";")]:
+            user_dict = {}
+            user_dict["name"] = mdict["first_surname"]
+            if mdict["id"] != "none_found":
+                user_dict["orcid"] = f"{mdict['id'][len('https://orcid.org/') :]}"
+            eln_data["user"].append(user_dict)
+            break
+
+    eln_data["sample"] = {}
+    if isinstance(dirty_atom_types, str):
+        clean_atom_types = [
+            x.strip() for x in dirty_atom_types.replace("?", "").split(",") if x.strip()
+        ]
+        eln_data["sample"]["atom_types"] = ", ".join(clean_atom_types)
+
+    # TODO::instrument metadata
     with open(eln_fpath, "w") as fp:
         yaml.dump(eln_data, fp)
     return eln_fpath, hash
@@ -169,13 +171,12 @@ df = pd.read_excel(f"{config['identifier_file_name']}", engine="odf")
 for idx in np.arange(0, np.shape(df)[0]):
     if all(isinstance(df.iat[idx, val], str) for val in [0, 1, 3]):
         if all(df.iat[idx, val] != "" for val in [0, 1, 3]):
-            # nion_data uses user_name_aliases
-            if df.iat[idx, 3] != "none_found":
-                aliases = df.iat[idx, 1]
-                identifier[aliases] = {
-                    "first_surname": df.iat[idx, 0],
-                    "id": df.iat[idx, 3],
-                }
+            # nion_data might use user_name_aliases for directory names
+            aliases = df.iat[idx, 1]
+            identifier[aliases] = {
+                "first_surname": df.iat[idx, 0],
+                "id": df.iat[idx, 3],
+            }
 del df
 for user_name_aliases, user_metadata_dict in identifier.items():
     logging.debug(f"{user_name_aliases}, {user_metadata_dict}")
@@ -195,14 +196,8 @@ if generate_nexus_file:
     for row in nsprojects.itertuples(index=True):
         if row.parse == 1:
             logger.info(row.nsproj_fpath)
-            # continue
+            # "../../nion_data/Haas/2022-02-18_Metadata_Kuehbach/2022-02-18_Metadata_Kuehbach.nsproj"
 
-            # if not fpath.endswith(".nsproj"):
-            # if (
-            #     fpath
-            #     != "../../nion_data/Haas/2022-02-18_Metadata_Kuehbach/2022-02-18_Metadata_Kuehbach.nsproj"
-            # ):
-            #     continue
             eln_fpath, hash = generate_eln_data_yaml(
                 nsproj_fpath=row.nsproj_fpath,
                 user_name_alias=row.user_name_alias,
@@ -213,7 +208,6 @@ if generate_nexus_file:
             )
             nsproj_to_eln[f"{row.nsproj_fpath}"] = eln_fpath
 
-            # TODO::process nsproj file
             # TODO::deactivate hashing and debugging
             input_files_tuple: tuple = eln_fpath  # , fpath)
             output_fpath = f"{config['working_directory']}{os.sep}{hash}.output.nxs"
