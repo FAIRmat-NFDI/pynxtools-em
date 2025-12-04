@@ -30,6 +30,7 @@
 import os
 import sys
 import datetime
+import pytz
 import logging
 import pandas as pd
 import numpy as np
@@ -68,6 +69,41 @@ def get_name_and_orcid_from_alias(alias: str, lookup: dict[str, dict[str, str]])
             return (mdict[aliases]["first_surname"], mdict[aliases]["id"])
     logger.warning(f"{alias} not resolvable")
     return ("", "")
+
+
+def generate_eln_data_yaml(
+    nsproj_fpath: str,
+    user_name_alias: str,
+    dirty_atom_types: str,
+    lookup: dict[str, dict[str, str]],
+    config: dict[str, str],
+    nsproj_to_eln: dict[str, str],
+) -> tuple[str, str]:
+    try:
+        with open(nsproj_fpath, "rb", 0) as fp:
+            hash = get_sha256_of_file_content(fp)
+        eln_fpath = f"{config['working_directory']}/{hash}.eln_data.yaml"
+        nsproj_to_eln[f"{nsproj_fpath}"] = eln_fpath
+        eln_data = {}
+        user_name, orcid = get_name_and_orcid_from_alias(user_name_alias, identifier)
+        eln_data["user"] = []
+        eln_data["user"].append(
+            {"name": user_name, "orcid": orcid[len("https://orcid.org/") :]}
+        )
+        eln_data["sample"] = {}
+        clean_atom_types = [
+            x.strip() for x in dirty_atom_types.replace("?", "").split(",") if x.strip()
+        ]
+        eln_data["sample"]["atom_types"] = ", ".join(clean_atom_types)
+        eln_data["entry"] = {}
+        eln_data["entry"]["start_time"] = (
+            f"{datetime.fromtimestamp(os.path.getmtime(nsproj_fpath), tz=pytz.timezone('Europe/Berlin')).isoformat()}"
+        )
+        with open(eln_fpath, "w") as fp:
+            yaml.dump(eln_data, fp)
+        return eln_fpath, hash
+    except Exception as e:
+        logger.error(f"{nsproj_fpath}{SEPARATOR}{e}")
 
 
 INCREMENTAL_REPORTING = 100 * (1024**3)  # in bytes, right now each 100 GiB
@@ -159,7 +195,7 @@ if generate_nexus_file:
     for row in nsprojects.itertuples(index=True):
         if row.parse == 1:
             logger.info(row.nsproj_fpath)
-            continue
+            # continue
 
             # if not fpath.endswith(".nsproj"):
             # if (
@@ -167,23 +203,17 @@ if generate_nexus_file:
             #     != "../../nion_data/Haas/2022-02-18_Metadata_Kuehbach/2022-02-18_Metadata_Kuehbach.nsproj"
             # ):
             #     continue
-
-            # TODO::generate eln_data.yaml
-            with open(fpath, "rb", 0) as fp:
-                hash = get_sha256_of_file_content(fp)
-            eln_fpath = f"{config['working_directory']}/{hash}.eln_data.yaml"
-            logger.debug(f"eln_fpath {eln_fpath}")
-            nsproj_to_eln[f"{fpath}"] = eln_fpath
-            eln_data = {}
-            alias = get_user_name_alias(fpath, "nion")
-            # eln_data["orcid"] = get_orcid_from_alias(alias, identifier)
-            with open(eln_fpath, "w") as fp:
-                yaml.dump(eln_data, fp)
-            del eln_data
+            eln_fpath, hash = generate_eln_data_yaml(
+                nsproj_fpath=row.nsproj_fpath,
+                user_name_alias=row.user_name_alias,
+                dirty_atom_types=row.atom_types,
+                lookup=identifier,
+                collect_hash=nsproj_to_eln,
+            )
 
             # TODO::process nsproj file
             # TODO::deactivate hashing and debugging
-            input_files_tuple: tuple = (eln_fpath, fpath)
+            input_files_tuple: tuple = eln_fpath  # , fpath)
             output_fpath = f"{config['working_directory']}{os.sep}{hash}.output.nxs"
             logger.debug(f"{input_files_tuple}")
             logger.debug(f"{output_fpath}")
