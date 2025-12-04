@@ -79,8 +79,8 @@ def generate_eln_data_yaml(
 
     for aliases, mdict in lookup.items():
         if user_name_alias in [val.strip() for val in aliases.split(";")]:
-            user_name = mdict[aliases]["first_surname"]
-            user_id = mdict[aliases]["id"]
+            user_name = mdict["first_surname"]
+            user_id = mdict["id"]
             break
     logger.debug(f"{user_name}{SEPARATOR}{user_id}")
     eln_data["user"] = []
