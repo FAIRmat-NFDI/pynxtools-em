@@ -156,7 +156,7 @@ statistics: dict[str, int] = {}
 generate_nexus_file = True
 if generate_nexus_file:
     nsprojects = pd.read_excel(f"{config['legacy_payload_file_name']}", engine="odf")
-    for row in df.itertuples(index=True):
+    for row in nsprojects.itertuples(index=True):
         if row.parse == 1:
             logger.info(row.nsproj_fpath)
             continue
