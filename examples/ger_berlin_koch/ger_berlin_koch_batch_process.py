@@ -66,6 +66,7 @@ def generate_eln_data_yaml(
     nsproj_fpath: str,
     user_name_alias: str,
     dirty_atom_types: str,
+    bytes_per_project: int,
     lookup: dict[str, dict[str, str]],
     config: dict[str, str],
 ) -> tuple[str, str]:
@@ -86,7 +87,7 @@ def generate_eln_data_yaml(
         user_dict["orcid"] = f"{user_id[len('https://orcid.org/') :]}"
     eln_data["user"].append(user_dict)
     eln_data["sample"] = {}
-    if dirty_atom_types != "nan":
+    if isinstance(dirty_atom_types, str):
         clean_atom_types = [
             x.strip() for x in dirty_atom_types.replace("?", "").split(",") if x.strip()
         ]
@@ -95,7 +96,10 @@ def generate_eln_data_yaml(
     eln_data["entry"]["start_time"] = (
         f"{datetime.fromtimestamp(os.path.getmtime(nsproj_fpath), tz=pytz.timezone('Europe/Berlin')).isoformat()}"
     )
-    eln_data["entry"]["experiment_description"] = f"{nsproj_fpath}"
+    eln_data["entry"]["experiment_alias"] = f"{nsproj_fpath}"
+    eln_data["entry"]["experiment_description"] = (
+        f"{bytes_per_project} B, i.e., {np.around((bytes_per_project / (1024**3)), decimals=3)} GiB"
+    )
     with open(eln_fpath, "w") as fp:
         yaml.dump(eln_data, fp)
     return eln_fpath, hash
