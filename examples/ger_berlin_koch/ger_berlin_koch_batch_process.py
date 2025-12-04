@@ -210,7 +210,7 @@ if generate_nexus_file:
             eln_fpath, hash = generate_eln_data_yaml(
                 nsproj_fpath=row.nsproj_fpath,
                 user_name_alias=row.user_name_alias,
-                dirty_atom_types=row.atom_types,
+                dirty_atom_types=row.dirty_atom_types,
                 lookup=identifier,
                 collect_hash=nsproj_to_eln,
             )
@@ -273,8 +273,8 @@ if collect_statistics:
 # last reporting and cleaning up
 total_bytes_processed += bytes_processed
 print(f"Processed {np.around((total_bytes_processed / (1024**4)), decimals=3)} TiB")
-# if generate_nexus_file:
-export_to_yaml("nsproj_to_eln.yaml", nsproj_to_eln)
+if generate_nexus_file:
+    export_to_yaml("nsproj_to_eln.yaml", nsproj_to_eln)
 if collect_statistics:
     export_to_yaml("statistics.yaml", statistics)
 # export_to_text("projects.txt", projects)
