@@ -43,7 +43,7 @@ from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 def export_to_yaml(fpath: str, lookup_dict: dict[str, str | int]):
     """Write content of lookup_dict to yaml file."""
     with open(fpath, "w") as fp:
-        yaml.dump(lookup_dict, fp, default_flow_style=False)
+        yaml.dump(lookup_dict, fp, default_flow_style=False, width=float("inf"))
 
 
 def export_to_text(fpath: str, the_set: set[str]):
@@ -95,6 +95,23 @@ config: dict[str, str] = {
     "identifier_file_name": sys.argv[3],  # 'humans_and_companies.ods'
     "legacy_payload_file_name": sys.argv[4],  # 'nion_data_metadata.ods'
 }
+
+ignore_these_directories = tuple(
+    [
+        f"{config['microscope_directory']}{val}"
+        for val in (
+            "$RECYCLE",
+            "System Volume Information",
+            "Swift Libraries",
+            "cygdrive",
+            "deleteme_test",
+            "Bugs",
+            "Bruker",
+        )
+    ]
+)
+
+
 tic = datetime.datetime.now().timestamp()
 
 logger.info(f"{tic}")
@@ -144,7 +161,7 @@ collect_statistics = True
 for root, dirs, files in os.walk(config["microscope_directory"]):
     for file in files:
         fpath = f"{root}/{file}".replace(os.sep * 2, os.sep)
-        if fpath.startswith(f"{config['microscope_directory']}$RECYCLE"):
+        if fpath.startswith(ignore_these_directories):
             continue
 
         if generate_nexus_file:
@@ -198,7 +215,7 @@ for root, dirs, files in os.walk(config["microscope_directory"]):
             if bytes_processed >= INCREMENTAL_REPORTING:
                 total_bytes_processed += bytes_processed
                 print(
-                    f"Processed {np.around((total_bytes_processed / (1024**3)), decimals=3)} GiB"
+                    f"Processed {np.around((total_bytes_processed / (1024**4)), decimals=3)} TiB"
                 )
                 # reset and store results so far collected
                 bytes_processed = 0
