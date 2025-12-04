@@ -53,6 +53,21 @@ def export_to_text(fpath: str, the_set: set[str]):
             fp.write(f"{item}\n")
 
 
+def get_user_name_alias(fpath: str, microscope: str = "nion"):
+    if microscope == "nion":
+        return fpath[len(f"../../{microscope}_data/") :].split("/")[0]
+    return ""
+
+
+def get_name_and_orcid_from_alias(alias: str, lookup: dict[str, dict[str, str]]):
+    for aliases, mdict in lookup.items():
+        if alias in [val.strip() for val in aliases.split(";")]:
+            # if "id" in mdict[aliases]:
+            return (mdict[aliases]["first_surname"], mdict[aliases]["id"])
+    logger.warning(f"{alias} not resolvable")
+    return ("", "")
+
+
 INCREMENTAL_REPORTING = 100 * 1024 * 1024 * 1024  # in bytes, right now each 100 GiB
 SEPARATOR = "____"
 DEFAULT_LOGGER_NAME = "ger_berlin_koch_group_process"
@@ -101,9 +116,10 @@ for idx in np.arange(0, np.shape(df)[0]):
         if all(df.iat[idx, val] != "" for val in [0, 1, 3]):
             # nion_data uses user_name_aliases
             if df.iat[idx, 3] != "none_found":
-                identifier[df.iat[idx, 1]] = {
-                    "name": df.iat[idx, 0],
-                    "identifier": df.iat[idx, 2],
+                aliases = df.iat[idx, 1]
+                identifier[aliases] = {
+                    "first_surname": df.iat[idx, 0],
+                    "id": df.iat[idx, 2],
                 }
 del df
 for user_name_aliases, user_metadata_dict in identifier.items():
@@ -145,13 +161,8 @@ for root, dirs, files in os.walk(config["microscope_directory"]):
             logger.debug(f"eln_fpath {eln_fpath}")
             nsproj_to_eln[fpath] = eln_fpath
             eln_data = {}
-            author = fpath[len("../../nion_data/") :].split("/")[0]
-            logger.debug(author)
-            author = "Benedikt Haas"
-            if author in identifier:
-                eln_data["orcid"] = identifier[author]
-            else:
-                logger.warning(f"{author} not found in identifier!")
+            alias = get_user_name_alias(fpath, "nion")
+            # eln_data["orcid"] = get_orcid_from_alias(alias, identifier)
             with open(eln_fpath, "w") as fp:
                 yaml.dump(eln_data, fp)
             del eln_data
@@ -193,16 +204,17 @@ for root, dirs, files in os.walk(config["microscope_directory"]):
         if not fpath.endswith(".nsproj"):
             continue
         else:
-            projects.add(fpath)
+            if not generate_nexus_file:
+                nsproj_to_eln[fpath] = get_user_name_alias(fpath, "nion")
 
 # last reporting and cleaning up
 total_bytes_processed += bytes_processed
 print(f"Processed {total_bytes_processed}")
-if generate_nexus_file:
-    export_to_yaml("nsproj_to_eln.yaml", nsproj_to_eln)
+# if generate_nexus_file:
+export_to_yaml("nsproj_to_eln.yaml", nsproj_to_eln)
 if collect_statistics:
     export_to_yaml("statistics.yaml", statistics)
-export_to_text("projects.txt", projects)
+# export_to_text("projects.txt", projects)
 toc = datetime.datetime.now().timestamp()
 logger.info(f"{toc}")
 print(f"Batch queue processed successfully")
