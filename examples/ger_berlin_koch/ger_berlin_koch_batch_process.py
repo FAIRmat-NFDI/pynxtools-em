@@ -91,10 +91,13 @@ def generate_eln_data_yaml(
             {"name": user_name, "orcid": orcid[len("https://orcid.org/") :]}
         )
         eln_data["sample"] = {}
-        clean_atom_types = [
-            x.strip() for x in dirty_atom_types.replace("?", "").split(",") if x.strip()
-        ]
-        eln_data["sample"]["atom_types"] = ", ".join(clean_atom_types)
+        if dirty_atom_types != "nan":
+            clean_atom_types = [
+                x.strip()
+                for x in dirty_atom_types.replace("?", "").split(",")
+                if x.strip()
+            ]
+            eln_data["sample"]["atom_types"] = ", ".join(clean_atom_types)
         eln_data["entry"] = {}
         eln_data["entry"]["start_time"] = (
             f"{datetime.fromtimestamp(os.path.getmtime(nsproj_fpath), tz=pytz.timezone('Europe/Berlin')).isoformat()}"
@@ -190,6 +193,7 @@ statistics: dict[str, int] = {}
 
 # either
 generate_nexus_file = True
+cnt = 0
 if generate_nexus_file:
     nsprojects = pd.read_excel(f"{config['legacy_payload_file_name']}", engine="odf")
     for row in nsprojects.itertuples(index=True):
@@ -225,6 +229,10 @@ if generate_nexus_file:
                 ignore_undocumented=True,
                 output=output_fpath,
             )
+
+            cnt += 1
+            if cnt > 2:
+                break
 
 # or
 collect_statistics = False
