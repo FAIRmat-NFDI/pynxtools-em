@@ -40,13 +40,20 @@ from pynxtools.dataconverter.helpers import get_nxdl_root_and_path
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 
 
-def nsproj_to_eln_to_yaml(lookup_dict: dict[str, str]):
+def export_to_yaml(fpath: str, lookup_dict: dict[str, str | int]):
     """Write content of lookup_dict to yaml file."""
-    with open("nsproj_to_eln.yaml", "w") as fp:
+    with open(fpath, "w") as fp:
         yaml.dump(lookup_dict, fp, default_flow_style=False)
 
 
-INCREMENTAL_REPORTING = 1 * 1024 * 1024 * 1024  # in bytes
+def export_to_text(fpath: str, the_set: set[str]):
+    """Write sorted list of all entries of the_set."""
+    with open(fpath, "w") as fp:
+        for item in sorted(the_set):
+            fp.write(f"{item}\n")
+
+
+INCREMENTAL_REPORTING = 100 * 1024 * 1024 * 1024  # in bytes, right now each 100 GiB
 SEPARATOR = "____"
 DEFAULT_LOGGER_NAME = "ger_berlin_koch_group_process"
 logger = logging.getLogger(DEFAULT_LOGGER_NAME)
@@ -79,24 +86,28 @@ logger.info(f"{tic}")
 for key, value in config.items():
     logger.info(f"{key} {value}")
 
-cnt = 0
-byte_size_processed = 0
+total_bytes_processed = 0
+bytes_processed = 0
 nxdl = "NXem"
 nxdl_root, nxdl_file = get_nxdl_root_and_path(nxdl)
 if not os.path.exists(nxdl_file):
     logger.warning(f"NXDL file {nxdl_file} for nxdl {nxdl} not found")
 
 # load humans_and_companies.ods
-identifier: dict[str, str] = {}
+identifier: dict[str, dict[str, str]] = {}
 df = pd.read_excel(f"{config['identifier_file_name']}", engine="odf")
 for idx in np.arange(0, np.shape(df)[0]):
-    if all(isinstance(df.iat[idx, val], str) for val in [0, 2]):
-        if all(df.iat[idx, val] != "" for val in [0, 2]):
-            if df.iat[idx, 2] != "none_found":
-                identifier[df.iat[idx, 0]] = df.iat[idx, 2]
+    if all(isinstance(df.iat[idx, val], str) for val in [0, 1, 3]):
+        if all(df.iat[idx, val] != "" for val in [0, 1, 3]):
+            # nion_data uses user_name_aliases
+            if df.iat[idx, 3] != "none_found":
+                identifier[df.iat[idx, 1]] = {
+                    "name": df.iat[idx, 0],
+                    "identifier": df.iat[idx, 2],
+                }
 del df
-for key, value in identifier.items():
-    logging.debug(f"{key}, {value}")
+for user_name_aliases, user_metadata_dict in identifier.items():
+    logging.debug(f"{user_name_aliases}, {user_metadata_dict}")
 
 # load nion_data_additional_metadata.ods
 # df = pd.read_excel(f"{config['legacy_payload_file_name']}", engine="odf")
@@ -105,66 +116,93 @@ for key, value in identifier.items():
 #     if df.iat[idx, 1] != 1:
 #         continue
 #     logger.debug(f"")
-nsproj_to_eln = {}
+projects: set[str] = set()  # full path to nsproj file
+nsproj_to_eln: dict[
+    str, str
+] = {}  # full path to nsproj file as key, full path to eln_data.yaml file as value
+statistics: dict[str, int] = {}  # full path to file as key, byte size as value
+# either or
+generate_nexus_file = False
+collect_statistics = True
+
 for root, dirs, files in os.walk(config["microscope_directory"]):
     for file in files:
         fpath = f"{root}/{file}".replace(os.sep * 2, os.sep)
-        # if not fpath.endswith(".nsproj"):
-        if (
-            fpath
-            != "../../nion_data/Haas/2022-02-18_Metadata_Kuehbach/2022-02-18_Metadata_Kuehbach.nsproj"
-        ):
+
+        if generate_nexus_file:
+            # if not fpath.endswith(".nsproj"):
+            # if (
+            #     fpath
+            #     != "../../nion_data/Haas/2022-02-18_Metadata_Kuehbach/2022-02-18_Metadata_Kuehbach.nsproj"
+            # ):
+            #     continue
+
+            # TODO::alternatively walk over nion_data, check if these exist, check if human has orcid
+            # TODO::generate eln_data.yaml
+            with open(fpath, "rb", 0) as fp:
+                hash = get_sha256_of_file_content(fp)
+            eln_fpath = f"{config['working_directory']}/{hash}.eln_data.yaml"
+            logger.debug(f"eln_fpath {eln_fpath}")
+            nsproj_to_eln[fpath] = eln_fpath
+            eln_data = {}
+            author = fpath[len("../../nion_data/") :].split("/")[0]
+            logger.debug(author)
+            author = "Benedikt Haas"
+            if author in identifier:
+                eln_data["orcid"] = identifier[author]
+            else:
+                logger.warning(f"{author} not found in identifier!")
+            with open(eln_fpath, "w") as fp:
+                yaml.dump(eln_data, fp)
+            del eln_data
+
+            # TODO::process nsproj file
+            # TODO::deactivate hashing and debugging
+            input_files_tuple: tuple = (eln_fpath, fpath)
+            output_fpath = f"{config['working_directory']}{os.sep}{hash}.output.nxs"
+            logger.debug(f"{input_files_tuple}")
+            logger.debug(f"{output_fpath}")
+            _ = convert(
+                input_file=input_files_tuple,
+                reader="em",
+                nxdl=nxdl,
+                skip_verify=True,
+                ignore_undocumented=True,
+                output=output_fpath,
+            )
+
+        if collect_statistics:
+            try:
+                # TODO::identify current directory
+                stat = os.stat(fpath)
+                byte_size = stat.st_size
+
+                statistics[fpath] = byte_size
+                bytes_processed += byte_size
+                # logger.info(f"{fpath}{SEPARATOR}{byte_size}")
+            except Exception as e:
+                logger.warning(f"{fpath}{SEPARATOR}{e}")
+            if bytes_processed >= INCREMENTAL_REPORTING:
+                total_bytes_processed += bytes_processed
+                print(f"Processed {total_bytes_processed}")
+                # reset and store results so far collected
+                bytes_processed = 0
+                if generate_nexus_file:
+                    export_to_yaml("nsproj_to_eln.yaml", nsproj_to_eln)
+
+        if not fpath.endswith(".nsproj"):
             continue
-
-        # TODO::alternatively walk over nion_data, check if these exist, check if human has orcid
-        # TODO::generate eln_data.yaml
-        with open(fpath, "rb", 0) as fp:
-            hash = get_sha256_of_file_content(fp)
-        eln_fpath = f"{config['working_directory']}/{hash}.eln_data.yaml"
-        logger.debug(f"eln_fpath {eln_fpath}")
-        nsproj_to_eln[fpath] = eln_fpath
-        eln_data = {}
-        author = fpath[len("../../nion_data/") :].split("/")[0]
-        logger.debug(author)
-        author = "Benedikt Haas"
-        if author in identifier:
-            eln_data["orcid"] = identifier[author]
         else:
-            logger.warning(f"{author} not found in identifier!")
-        with open(eln_fpath, "w") as fp:
-            yaml.dump(eln_data, fp)
-        del eln_data
+            projects.add(fpath)
 
-        # TODO::process nsproj file
-        # TODO::deactivate hashing and debugging
-        input_files_tuple: tuple = (eln_fpath, fpath)
-        output_fpath = f"{config['working_directory']}{os.sep}{hash}.output.nxs"
-        logger.debug(f"{input_files_tuple}")
-        logger.debug(f"{output_fpath}")
-        _ = convert(
-            input_file=input_files_tuple,
-            reader="em",
-            nxdl=nxdl,
-            skip_verify=True,
-            ignore_undocumented=True,
-            output=output_fpath,
-        )
-
-        # cnt += 1
-        try:
-            # TODO::identify current directory
-            stat = os.stat(fpath)
-            byte_size = stat.st_size
-            byte_size_processed += byte_size
-            logger.info(f"{fpath}{SEPARATOR}{byte_size}")
-        except Exception as e:
-            logger.warning(f"{fpath}{SEPARATOR}{e}")
-        if byte_size_processed >= INCREMENTAL_REPORTING:
-            print(f"Processed {byte_size_processed}")
-            byte_size_processed = 0
-            nsproj_to_eln_to_yaml(nsproj_to_eln)
-
-nsproj_to_eln_to_yaml(nsproj_to_eln)
+# last reporting and cleaning up
+total_bytes_processed += bytes_processed
+print(f"Processed {total_bytes_processed}")
+if generate_nexus_file:
+    export_to_yaml("nsproj_to_eln.yaml", nsproj_to_eln)
+if collect_statistics:
+    export_to_yaml("statistics.yaml", statistics)
+export_to_text("projects.txt", projects)
 toc = datetime.datetime.now().timestamp()
 logger.info(f"{toc}")
 print(f"Batch queue processed successfully")
