@@ -47,10 +47,7 @@ from pynxtools_em.configurations.nion_cfg import (
 )
 from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.get_checksum import (
-    DEFAULT_CHECKSUM_ALGORITHM,
-    get_sha256_of_file_content,
-)
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.nion_utils import (
     nion_image_spectrum_or_generic_nxdata,
     uuid_to_file_name,
@@ -69,6 +66,14 @@ class NionProjectParser:
             self.file_path = file_path
         self.entry_id = entry_id if entry_id > 0 else 1
         self.verbose = verbose
+        # configurations which deactivate parsing of eventually undesired content
+        # as is specifically useful in use cases where legacy databases are parsed
+        # to NeXus/HDF5 using NXem
+        self.cfg = {
+            "sha256/compute": False,
+            "parse/data/images": False,
+            "parse/data/spectra": False,
+        }
         self.id_mgn: Dict[str, int] = {"event_id": 1}
         # counters which keep track of how many instances of NXevent_data_em have
         # been instantiated, this implementation currently maps each display_items
@@ -111,7 +116,7 @@ class NionProjectParser:
                         fp.seek(0, 2)
                         eof_byte_offset = fp.tell()
                         logger.info(
-                            f"Expecting zip-compressed file: ___{self.file_path}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
+                            f"Expecting zip-compressed file: ___{self.file_path}___{magic}___{get_sha256_of_file_content(fp, compute=self.cfg['sha256/compute'])}___{eof_byte_offset}___"
                         )
             except (FileNotFoundError, IOError):
                 logger.warning(f"{self.file_path} either FileNotFound or IOError !")
@@ -127,7 +132,7 @@ class NionProjectParser:
                                 fp.seek(0, 2)
                                 eof_byte_offset = fp.tell()
                                 logger.info(
-                                    f"Expecting hfive: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
+                                    f"Expecting hfive: ___{file}___{magic}___{get_sha256_of_file_content(fp, compute=self.cfg['sha256/compute'])}___{eof_byte_offset}___"
                                 )
                             key = file[file.rfind("/") + 1 :].replace(".h5", "")
                             if key not in self.hfive_file_dict:
@@ -139,7 +144,7 @@ class NionProjectParser:
                                 fp.seek(0, 2)
                                 eof_byte_offset = fp.tell()
                                 logger.info(
-                                    f"Expecting ndata: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
+                                    f"Expecting ndata: ___{file}___{magic}___{get_sha256_of_file_content(fp, compute=self.cfg['sha256/compute'])}___{eof_byte_offset}___"
                                 )
                             key = file[file.rfind("/") + 1 :].replace(".ndata", "")
                             if key not in self.ndata_file_dict:
@@ -151,7 +156,7 @@ class NionProjectParser:
                                 fp.seek(0, 2)
                                 eof_byte_offset = fp.tell()
                                 logger.info(
-                                    f"Expecting nsproj: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
+                                    f"Expecting nsproj: ___{file}___{magic}___{get_sha256_of_file_content(fp, compute=self.cfg['sha256/compute'])}___{eof_byte_offset}___"
                                 )
                             key = file[file.rfind("/") + 1 :].replace(".nsproj", "")
                             if key not in self.proj_file_dict:
@@ -171,7 +176,7 @@ class NionProjectParser:
                             eof_byte_offset = fp.tell()
                             # get_sha256_of_file_content(fp)
                             logger.info(
-                                f"Expecting hfive: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
+                                f"Expecting hfive: ___{file}___{magic}___{get_sha256_of_file_content(fp, compute=self.cfg['sha256/compute'])}___{eof_byte_offset}___"
                             )
                         key = file[file.rfind("/") + 1 :].replace(".h5", "")
                         if key not in self.hfive_file_dict:
@@ -183,7 +188,7 @@ class NionProjectParser:
                             fp.seek(0, 2)
                             eof_byte_offset = fp.tell()
                             logger.info(
-                                f"Expecting ndata: ___{file}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
+                                f"Expecting ndata: ___{file}___{magic}___{get_sha256_of_file_content(fp, compute=self.cfg['sha256/compute'])}___{eof_byte_offset}___"
                             )
                         key = file[file.rfind("/") + 1 :].replace(".ndata", "")
                         if key not in self.ndata_file_dict:
