@@ -123,6 +123,7 @@ logging.basicConfig(
     encoding="utf-8",
     level=logging.DEBUG,
 )
+not_pynxtools_logger.propagate = False
 
 
 @contextmanager
@@ -263,7 +264,7 @@ if generate_nexus_file:
                 gc.collect()
 
             cnt += 1
-            if cnt > 2:
+            if cnt >= 2:
                 break
 
 # use case analyze content
