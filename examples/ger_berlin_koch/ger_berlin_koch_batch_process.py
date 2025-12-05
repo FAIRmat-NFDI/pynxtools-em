@@ -35,6 +35,8 @@ import logging
 import pandas as pd
 import numpy as np
 import yaml
+import gc
+from contextlib import contextmanager
 
 # from pathlib import Path
 from pynxtools.dataconverter.convert import convert
@@ -110,7 +112,7 @@ def generate_eln_data_yaml(
 INCREMENTAL_REPORTING = 100 * (1024**3)  # in bytes, right now each 100 GiB
 SEPARATOR = "____"
 DEFAULT_LOGGER_NAME = "ger_berlin_koch_group_process"
-logger = logging.getLogger(DEFAULT_LOGGER_NAME)
+not_pynxtools_logger = logging.getlogger(DEFAULT_LOGGER_NAME)
 ffmt = "%(levelname)s %(asctime)s %(message)s"
 tfmt = "%Y-%m-%dT%H:%M:%S%z"  # .%f%z"
 logging.basicConfig(
@@ -121,9 +123,25 @@ logging.basicConfig(
     encoding="utf-8",
     level=logging.DEBUG,
 )
-# root = logging.getLogger()
-# for handler in root.handlers:
-#     handler.setFormatter(logging.Formatter(ffmt, tfmt))
+
+
+@contextmanager
+def use_temporary_handler(logger, handler):
+    old_handlers = logger.handlers[:]
+    try:
+        logger.handlers = [handler]
+        yield
+    finally:
+        logger.handlers = old_handlers
+        # handler.close()
+        # remove from logging system
+        handler.acquire()
+        try:
+            handler.flush()
+            handler.close()
+        finally:
+            handler.release()
+
 
 config: dict[str, str] = {
     "python_version": f"{sys.version}",
@@ -154,16 +172,16 @@ ignore_these_directories = tuple(
 
 tic = datetime.now().timestamp()
 
-logger.info(f"{tic}")
+not_pynxtools_logger.info(f"{tic}")
 for key, value in config.items():
-    logger.info(f"{key} {value}")
+    not_pynxtools_logger.info(f"{key} {value}")
 
 total_bytes_processed = 0
 bytes_processed = 0
 nxdl = "NXem"
 nxdl_root, nxdl_file = get_nxdl_root_and_path(nxdl)
 if not os.path.exists(nxdl_file):
-    logger.warning(f"NXDL file {nxdl_file} for nxdl {nxdl} not found")
+    not_pynxtools_logger.warning(f"NXDL file {nxdl_file} for nxdl {nxdl} not found")
 
 # load humans_and_companies.ods
 identifier: dict[str, dict[str, str]] = {}
@@ -188,15 +206,21 @@ nsproj_to_eln: dict[str, str] = {}
 # full path to file as key, byte size as value
 statistics: dict[str, int] = {}
 
-# either
+# use case batch process dataset (run01, ...)
+eln_instrument_specific_fpath = "output.custom_eln_data.yaml"
 generate_nexus_file = True
 cnt = 0
 if generate_nexus_file:
     nsprojects = pd.read_excel(f"{config['legacy_payload_file_name']}", engine="odf")
     for row in nsprojects.itertuples(index=True):
         if row.parse == 1:
-            logger.info(row.nsproj_fpath)
+            not_pynxtools_logger.info(row.nsproj_fpath)
             # "../../nion_data/Haas/2022-02-18_Metadata_Kuehbach/2022-02-18_Metadata_Kuehbach.nsproj"
+            if row.total_size_bytes > (32 * (1024**3)):  # 32 GiB
+                not_pynxtools_logger.warning(
+                    f"{row.nsproj_fpath} skipped cuz of too high data volume {np.around((row.total_size_bytes / (1024**3)), decimals=3)} GiB."
+                )
+                continue
 
             eln_fpath, hash = generate_eln_data_yaml(
                 nsproj_fpath=row.nsproj_fpath,
@@ -208,25 +232,41 @@ if generate_nexus_file:
             )
             nsproj_to_eln[f"{row.nsproj_fpath}"] = eln_fpath
 
-            # TODO::deactivate hashing and debugging
-            input_files_tuple: tuple = eln_fpath  # , fpath)
-            output_fpath = f"{config['working_directory']}{os.sep}{hash}.output.nxs"
-            logger.debug(f"{input_files_tuple}")
-            logger.debug(f"{output_fpath}")
-            _ = convert(
-                input_file=input_files_tuple,
-                reader="em",
-                nxdl=nxdl,
-                skip_verify=True,
-                ignore_undocumented=True,
-                output=output_fpath,
+            input_files_tuple: tuple = (
+                eln_fpath,
+                eln_instrument_specific_fpath,
+                row.nsproj_fpath,
             )
+            output_fpath = f"{config['working_directory']}{os.sep}{hash}.output.nxs"
+            not_pynxtools_logger.debug(f"{input_files_tuple}")
+            not_pynxtools_logger.debug(f"{output_fpath}")
+
+            temp_handler = logging.FileHandler(
+                filename=f"{config['working_directory']}{os.sep}{hash}.log",
+                mode="w",
+                encoding="utf-8",
+            )
+            temp_handler.setLevel(logging.INFO)
+            temp_handler.setFormatter(logging.Formatter(ffmt, datefmt=tfmt))
+
+            with use_temporary_handler(not_pynxtools_logger, temp_handler):
+                _ = convert(
+                    input_file=input_files_tuple,
+                    reader="em",
+                    nxdl=nxdl,
+                    skip_verify=True,
+                    ignore_undocumented=True,
+                    output=output_fpath,
+                )
+                # release memory and resources associated with previous processing
+                del _
+                gc.collect()
 
             cnt += 1
-            # if cnt > 2:
-            #     break
+            if cnt > 2:
+                break
 
-# or
+# use case analyze content
 collect_statistics = False
 if collect_statistics:
     for root, dirs, files in os.walk(config["microscope_directory"]):
@@ -242,9 +282,9 @@ if collect_statistics:
 
                 statistics[f"{fpath}"] = int(byte_size)
                 bytes_processed += byte_size
-                # logger.info(f"{fpath}{SEPARATOR}{byte_size}")
+                # not_pynxtools_logger.info(f"{fpath}{SEPARATOR}{byte_size}")
             except Exception as e:
-                logger.warning(f"{fpath}{SEPARATOR}{e}")
+                not_pynxtools_logger.warning(f"{fpath}{SEPARATOR}{e}")
 
             if bytes_processed >= INCREMENTAL_REPORTING:
                 total_bytes_processed += bytes_processed
@@ -271,5 +311,5 @@ if collect_statistics:
     export_to_yaml("statistics.yaml", statistics)
 # export_to_text("projects.txt", projects)
 toc = datetime.now().timestamp()
-logger.info(f"{toc}")
+not_pynxtools_logger.info(f"{toc}")
 print(f"Batch queue processed successfully")
