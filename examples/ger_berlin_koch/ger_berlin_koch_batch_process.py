@@ -207,7 +207,7 @@ nsproj_to_eln: dict[str, str] = {}
 statistics: dict[str, int] = {}
 
 # use case batch process dataset (run01, ...)
-eln_instrument_specific_fpath = "output.custom_eln_data.yaml"
+eln_instrument_specific_fpath = "../output.custom_eln_data.yaml"
 generate_nexus_file = True
 cnt = 0
 if generate_nexus_file:
