@@ -112,7 +112,7 @@ def generate_eln_data_yaml(
 INCREMENTAL_REPORTING = 100 * (1024**3)  # in bytes, right now each 100 GiB
 SEPARATOR = "____"
 DEFAULT_LOGGER_NAME = "ger_berlin_koch_group_process"
-not_pynxtools_logger = logging.getlogger(DEFAULT_LOGGER_NAME)
+not_pynxtools_logger = logging.getLogger(DEFAULT_LOGGER_NAME)
 ffmt = "%(levelname)s %(asctime)s %(message)s"
 tfmt = "%Y-%m-%dT%H:%M:%S%z"  # .%f%z"
 logging.basicConfig(
