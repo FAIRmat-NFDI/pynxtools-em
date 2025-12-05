@@ -73,6 +73,7 @@ class NionProjectParser:
             "sha256/compute": False,
             "parse/data/images": False,
             "parse/data/spectra": False,
+            "parse/data/other": False,
         }
         self.id_mgn: Dict[str, int] = {"event_id": 1}
         # counters which keep track of how many instances of NXevent_data_em have
@@ -475,6 +476,8 @@ class NionProjectParser:
 
         axis_names = None
         if unit_combination in NION_WHICH_SPECTRUM:
+            if not self.cfg["parse/data/spectra"]:
+                return template
             trg = f"{prfx}/spectrumID[spectrum1]/{NION_WHICH_SPECTRUM[unit_combination][0]}"
             self.annotate_information_source(
                 ifo_src, f"{prfx}/spectrumID[spectrum1]", "", "", template
@@ -485,6 +488,8 @@ class NionProjectParser:
             template[f"{trg}/intensity/@long_name"] = f"Counts"
             axis_names = NION_WHICH_SPECTRUM[unit_combination][1]
         elif unit_combination in NION_WHICH_IMAGE:
+            if not self.cfg["parse/data/images"]:
+                return template
             trg = f"{prfx}/imageID[image1]/{NION_WHICH_IMAGE[unit_combination][0]}"
             self.annotate_information_source(
                 ifo_src, f"{prfx}/imageID[image1]", "", "", template
@@ -501,6 +506,8 @@ class NionProjectParser:
             self.annotate_information_source(
                 ifo_src, f"{prfx}/DATA[data1]", "", "", template
             )
+            if not self.cfg["parse/data/other"]:
+                return template
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"data"
             template[f"{trg}/data"] = {"compress": nparr, "strength": 1}
