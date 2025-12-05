@@ -18,3 +18,4 @@
 """Configuration and global defaults."""
 
 DEFAULT_VERBOSITY: bool = False
+SEPARATOR: str = "___"
