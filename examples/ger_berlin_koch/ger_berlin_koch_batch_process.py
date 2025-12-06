@@ -127,6 +127,7 @@ DEFAULT_LOGGER_NAME = "ger_berlin_koch_group_process"
 not_pynxtools_logger = logging.getLogger(DEFAULT_LOGGER_NAME)
 ffmt = "%(levelname)s %(asctime)s %(message)s"
 tfmt = "%Y-%m-%dT%H:%M:%S%z"  # .%f%z"
+"""
 logging.basicConfig(
     filename=f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log",
     filemode="a",  # use "a" to collect all in a session, use "w" to overwrite
@@ -135,11 +136,12 @@ logging.basicConfig(
     encoding="utf-8",
     level=logging.DEBUG,
 )
-not_pynxtools_logger.propagate = False
+"""
 handler = logging.FileHandler(
     f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log", mode="a"
 )
 not_pynxtools_logger.addHandler(handler)
+not_pynxtools_logger.propagate = False
 
 
 def switch_log_file(logger, handler, new_filename):
