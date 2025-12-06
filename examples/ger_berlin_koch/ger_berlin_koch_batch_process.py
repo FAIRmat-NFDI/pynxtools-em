@@ -124,7 +124,7 @@ config: dict[str, str] = {
 INCREMENTAL_REPORTING = 100 * (1024**3)  # in bytes, right now each 100 GiB
 SEPARATOR = "____"
 DEFAULT_LOGGER_NAME = "ger_berlin_koch_group_process"
-not_pynxtools_logger = logging.getLogger(DEFAULT_LOGGER_NAME)
+logger = logging.getLogger(DEFAULT_LOGGER_NAME)
 ffmt = "%(levelname)s %(asctime)s %(message)s"
 tfmt = "%Y-%m-%dT%H:%M:%S.%f%z"  # .%f%z"
 formatter = logging.Formatter(ffmt, tfmt)
@@ -182,16 +182,16 @@ ignore_these_directories = tuple(
 tic = datetime.now().timestamp()
 switch_root_logfile(f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log")
 
-not_pynxtools_logger.info(f"{tic}")
+logger.info(f"{tic}")
 for key, value in config.items():
-    not_pynxtools_logger.info(f"{key} {value}")
+    logger.info(f"{key} {value}")
 
 total_bytes_processed = 0
 bytes_processed = 0
 nxdl = "NXem"
 nxdl_root, nxdl_file = get_nxdl_root_and_path(nxdl)
 if not os.path.exists(nxdl_file):
-    not_pynxtools_logger.warning(f"NXDL file {nxdl_file} for nxdl {nxdl} not found")
+    logger.warning(f"NXDL file {nxdl_file} for nxdl {nxdl} not found")
 
 # load humans_and_companies.ods
 identifier: dict[str, dict[str, str]] = {}
@@ -224,10 +224,10 @@ if generate_nexus_file:
     nsprojects = pd.read_excel(f"{config['legacy_payload_file_name']}", engine="odf")
     for row in nsprojects.itertuples(index=True):
         if row.parse == 1:
-            not_pynxtools_logger.info(row.nsproj_fpath)
+            logger.info(row.nsproj_fpath)
             # "../../nion_data/Haas/2022-02-18_Metadata_Kuehbach/2022-02-18_Metadata_Kuehbach.nsproj"
             if row.total_size_bytes > (32 * (1024**3)):  # 32 GiB
-                not_pynxtools_logger.warning(
+                logger.warning(
                     f"{row.nsproj_fpath} skipped cuz of too high data volume {np.around((row.total_size_bytes / (1024**3)), decimals=3)} GiB."
                 )
                 continue
@@ -248,12 +248,15 @@ if generate_nexus_file:
                 row.nsproj_fpath,
             )
             output_fpath = f"{config['working_directory']}{os.sep}{hash}.output.nxs"
-            not_pynxtools_logger.debug(f"{input_files_tuple}")
-            not_pynxtools_logger.debug(f"{output_fpath}")
+            logger.debug(f"{input_files_tuple}")
+            logger.debug(f"{output_fpath}")
 
             switch_root_logfile(
                 f"{config['working_directory']}{os.sep}{hash}.log", logging.INFO
             )
+            for key, value in config.items():
+                logger.info(f"{key} {value}")
+
             _ = convert(
                 input_file=input_files_tuple,
                 reader="em",
@@ -292,7 +295,7 @@ if collect_statistics:
                 bytes_processed += byte_size
                 # not_pynxtools_logger.info(f"{fpath}{SEPARATOR}{byte_size}")
             except Exception as e:
-                not_pynxtools_logger.warning(f"{fpath}{SEPARATOR}{e}")
+                logger.warning(f"{fpath}{SEPARATOR}{e}")
 
             if bytes_processed >= INCREMENTAL_REPORTING:
                 total_bytes_processed += bytes_processed
@@ -319,5 +322,5 @@ if collect_statistics:
     export_to_yaml("statistics.yaml", statistics)
 # export_to_text("projects.txt", projects)
 toc = datetime.now().timestamp()
-not_pynxtools_logger.info(f"{toc}")
+logger.info(f"{toc}")
 print(f"Batch queue processed successfully")
