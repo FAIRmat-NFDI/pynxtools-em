@@ -126,7 +126,8 @@ SEPARATOR = "____"
 DEFAULT_LOGGER_NAME = "ger_berlin_koch_group_process"
 not_pynxtools_logger = logging.getLogger(DEFAULT_LOGGER_NAME)
 ffmt = "%(levelname)s %(asctime)s %(message)s"
-tfmt = "%Y-%m-%dT%H:%M:%S%z"  # .%f%z"
+tfmt = "%Y-%m-%dT%H:%M:%S.%f%z"  # .%f%z"
+formatter = logging.Formatter(ffmt, tfmt)
 """
 logging.basicConfig(
     filename=f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log",
@@ -136,22 +137,29 @@ logging.basicConfig(
     encoding="utf-8",
     level=logging.DEBUG,
 )
-"""
 handler = logging.FileHandler(
     f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log", mode="a"
 )
 not_pynxtools_logger.addHandler(handler)
 not_pynxtools_logger.propagate = False
+"""
 
 
-def switch_log_file(logger, handler, new_filename):
-    """Close old handler and attach a new one pointing to new_filename."""
-    logger.removeHandler(handler)
-    handler.close()
-
-    new_handler = logging.FileHandler(new_filename, mode="a")
-    new_handler.setFormatter(logging.Formatter(fmt=ffmt, datefmt=tfmt))
-    logger.addHandler(new_handler)
+def switch_root_logfile(filename, log_level=logging.DEBUG):
+    """Replace the root logger's handler with a new FileHandler."""
+    root = logging.getLogger()
+    root.setLevel(log_level)
+    # remove and close old handlers
+    for h in root.handlers[:]:
+        root.removeHandler(h)
+        try:
+            h.close()
+        except Exception:
+            pass
+    # install new one
+    new_handler = logging.FileHandler(filename, mode="w", encoding="utf-8")
+    new_handler.setFormatter(formatter)
+    root.addHandler(new_handler)
     return new_handler
 
 
@@ -172,6 +180,7 @@ ignore_these_directories = tuple(
 
 
 tic = datetime.now().timestamp()
+switch_root_logfile(f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log")
 
 not_pynxtools_logger.info(f"{tic}")
 for key, value in config.items():
@@ -242,12 +251,9 @@ if generate_nexus_file:
             not_pynxtools_logger.debug(f"{input_files_tuple}")
             not_pynxtools_logger.debug(f"{output_fpath}")
 
-            handler = switch_log_file(
-                not_pynxtools_logger,
-                handler,
-                f"{config['working_directory']}{os.sep}{hash}.log",
+            switch_root_logfile(
+                f"{config['working_directory']}{os.sep}{hash}.log", logging.INFO
             )
-
             _ = convert(
                 input_file=input_files_tuple,
                 reader="em",
@@ -260,9 +266,7 @@ if generate_nexus_file:
             del _
             gc.collect()
 
-            handler = switch_log_file(
-                not_pynxtools_logger,
-                handler,
+            switch_root_logfile(
                 f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log",
             )
 
