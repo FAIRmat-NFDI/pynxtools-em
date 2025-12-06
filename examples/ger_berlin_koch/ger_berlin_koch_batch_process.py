@@ -109,41 +109,6 @@ def generate_eln_data_yaml(
     return eln_fpath, hash
 
 
-INCREMENTAL_REPORTING = 100 * (1024**3)  # in bytes, right now each 100 GiB
-SEPARATOR = "____"
-DEFAULT_LOGGER_NAME = "ger_berlin_koch_group_process"
-not_pynxtools_logger = logging.getLogger(DEFAULT_LOGGER_NAME)
-ffmt = "%(levelname)s %(asctime)s %(message)s"
-tfmt = "%Y-%m-%dT%H:%M:%S%z"  # .%f%z"
-logging.basicConfig(
-    filename=f"{DEFAULT_LOGGER_NAME}.log",
-    filemode="w",  # use "a" to collect all in a session, use "w" to overwrite
-    format=ffmt,
-    datefmt=tfmt,
-    encoding="utf-8",
-    level=logging.DEBUG,
-)
-not_pynxtools_logger.propagate = False
-
-
-@contextmanager
-def use_temporary_handler(logger, handler):
-    old_handlers = logger.handlers[:]
-    try:
-        logger.handlers = [handler]
-        yield
-    finally:
-        logger.handlers = old_handlers
-        # handler.close()
-        # remove from logging system
-        handler.acquire()
-        try:
-            handler.flush()
-            handler.close()
-        finally:
-            handler.release()
-
-
 config: dict[str, str] = {
     "python_version": f"{sys.version}",
     "working_directory": f"{os.getcwd()}",
@@ -154,6 +119,38 @@ config: dict[str, str] = {
     "identifier_file_name": sys.argv[3],  # e.g. 'humans_and_companies.ods'
     "legacy_payload_file_name": sys.argv[4],  # e.g. 'nion_data_metadata.ods'
 }
+
+
+INCREMENTAL_REPORTING = 100 * (1024**3)  # in bytes, right now each 100 GiB
+SEPARATOR = "____"
+DEFAULT_LOGGER_NAME = "ger_berlin_koch_group_process"
+not_pynxtools_logger = logging.getLogger(DEFAULT_LOGGER_NAME)
+ffmt = "%(levelname)s %(asctime)s %(message)s"
+tfmt = "%Y-%m-%dT%H:%M:%S%z"  # .%f%z"
+logging.basicConfig(
+    filename=f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log",
+    filemode="a",  # use "a" to collect all in a session, use "w" to overwrite
+    encoding="utf-8",
+    level=logging.DEBUG,
+)
+logging.Formatter(format=ffmt, datefmt=tfmt)
+not_pynxtools_logger.propagate = False
+handler = logging.FileHandler(
+    f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log", mode="a"
+)
+not_pynxtools_logger.addHandler(handler)
+
+
+def switch_log_file(logger, handler, new_filename):
+    """Close old handler and attach a new one pointing to new_filename."""
+    logger.removeHandler(handler)
+    handler.close()
+
+    new_handler = logging.FileHandler(new_filename, mode="a")
+    new_handler.setFormatter(logging.Formatter(format=ffmt, datefmt=tfmt))
+    logger.addHandler(new_handler)
+    return new_handler
+
 
 ignore_these_directories = tuple(
     [
@@ -242,26 +239,29 @@ if generate_nexus_file:
             not_pynxtools_logger.debug(f"{input_files_tuple}")
             not_pynxtools_logger.debug(f"{output_fpath}")
 
-            temp_handler = logging.FileHandler(
-                filename=f"{config['working_directory']}{os.sep}{hash}.log",
-                mode="w",
-                encoding="utf-8",
+            handler = switch_log_file(
+                not_pynxtools_logger,
+                handler,
+                f"{config['working_directory']}{os.sep}{hash}.log",
             )
-            temp_handler.setLevel(logging.INFO)
-            temp_handler.setFormatter(logging.Formatter(ffmt, datefmt=tfmt))
 
-            with use_temporary_handler(not_pynxtools_logger, temp_handler):
-                _ = convert(
-                    input_file=input_files_tuple,
-                    reader="em",
-                    nxdl=nxdl,
-                    skip_verify=True,
-                    ignore_undocumented=True,
-                    output=output_fpath,
-                )
-                # release memory and resources associated with previous processing
-                del _
-                gc.collect()
+            _ = convert(
+                input_file=input_files_tuple,
+                reader="em",
+                nxdl=nxdl,
+                skip_verify=True,
+                ignore_undocumented=True,
+                output=output_fpath,
+            )
+            # release memory and resources associated with previous processing
+            del _
+            gc.collect()
+
+            handler = switch_log_file(
+                not_pynxtools_logger,
+                handler,
+                f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log",
+            )
 
             cnt += 1
             if cnt >= 2:
