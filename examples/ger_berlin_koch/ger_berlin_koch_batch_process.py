@@ -130,10 +130,11 @@ tfmt = "%Y-%m-%dT%H:%M:%S%z"  # .%f%z"
 logging.basicConfig(
     filename=f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log",
     filemode="a",  # use "a" to collect all in a session, use "w" to overwrite
+    format=ffmt,
+    datefmt=tfmt,
     encoding="utf-8",
     level=logging.DEBUG,
 )
-logging.Formatter(format=ffmt, datefmt=tfmt)
 not_pynxtools_logger.propagate = False
 handler = logging.FileHandler(
     f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log", mode="a"
