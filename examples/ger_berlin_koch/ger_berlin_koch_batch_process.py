@@ -262,9 +262,9 @@ if generate_nexus_file:
                 f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log",
             )
 
-            cnt += 1
-            if cnt >= 2:
-                break
+            # cnt += 1
+            # if cnt >= 2:
+            #     break
 
 # use case analyze content
 collect_statistics = False
