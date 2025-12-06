@@ -157,7 +157,7 @@ def switch_root_logfile(filename, log_level=logging.DEBUG):
         except Exception:
             pass
     # install new one
-    new_handler = logging.FileHandler(filename, mode="w", encoding="utf-8")
+    new_handler = logging.FileHandler(filename, mode="a", encoding="utf-8")
     new_handler.setFormatter(formatter)
     root.addHandler(new_handler)
     return new_handler
@@ -314,6 +314,7 @@ if collect_statistics:
             #         nsproj_to_eln[f"{fpath}"] = get_user_name_alias(fpath, "nion")
 
 # last reporting and cleaning up
+switch_root_logfile(f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log")
 total_bytes_processed += bytes_processed
 print(f"Processed {np.around((total_bytes_processed / (1024**4)), decimals=3)} TiB")
 if generate_nexus_file:
