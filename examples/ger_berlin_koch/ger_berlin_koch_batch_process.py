@@ -126,23 +126,8 @@ SEPARATOR = "____"
 DEFAULT_LOGGER_NAME = "ger_berlin_koch_group_process"
 logger = logging.getLogger(DEFAULT_LOGGER_NAME)
 ffmt = "%(levelname)s %(asctime)s %(message)s"
-tfmt = "%Y-%m-%dT%H:%M:%S.%f%z"  # .%f%z"
+tfmt = "%Y-%m-%dT%H:%M:%S.%z"  # .%f%z"
 formatter = logging.Formatter(ffmt, tfmt)
-"""
-logging.basicConfig(
-    filename=f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log",
-    filemode="a",  # use "a" to collect all in a session, use "w" to overwrite
-    format=ffmt,
-    datefmt=tfmt,
-    encoding="utf-8",
-    level=logging.DEBUG,
-)
-handler = logging.FileHandler(
-    f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log", mode="a"
-)
-not_pynxtools_logger.addHandler(handler)
-not_pynxtools_logger.propagate = False
-"""
 
 
 def switch_root_logfile(filename, log_level=logging.DEBUG):
@@ -180,6 +165,8 @@ ignore_these_directories = tuple(
 
 
 tic = datetime.now().timestamp()
+if os.path.exists(f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log"):
+    os.remove(f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log")
 switch_root_logfile(f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log")
 
 logger.info(f"{tic}")
@@ -251,6 +238,8 @@ if generate_nexus_file:
             logger.debug(f"{input_files_tuple}")
             logger.debug(f"{output_fpath}")
 
+            if os.path.exists(f"{config['working_directory']}{os.sep}{hash}.log"):
+                os.remove(f"{config['working_directory']}{os.sep}{hash}.log")
             switch_root_logfile(
                 f"{config['working_directory']}{os.sep}{hash}.log", logging.INFO
             )
