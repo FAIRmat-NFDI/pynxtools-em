@@ -148,7 +148,7 @@ def switch_log_file(logger, handler, new_filename):
     handler.close()
 
     new_handler = logging.FileHandler(new_filename, mode="a")
-    new_handler.setFormatter(logging.Formatter(format=ffmt, datefmt=tfmt))
+    new_handler.setFormatter(logging.Formatter(fmt=ffmt, datefmt=tfmt))
     logger.addHandler(new_handler)
     return new_handler
 
