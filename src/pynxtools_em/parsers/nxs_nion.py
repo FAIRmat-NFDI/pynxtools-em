@@ -59,7 +59,10 @@ class NionProjectParser:
     """Parse (zip-compressed archive of a) nionswift project with its content."""
 
     def __init__(
-        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+        self,
+        file_path: str = "",
+        entry_id: int = 1,
+        verbose: bool = True,  # DEFAULT_VERBOSITY
     ):
         """Class wrapping swift parser."""
         if file_path:
@@ -71,6 +74,8 @@ class NionProjectParser:
         # to NeXus/HDF5 using NXem
         self.cfg = {
             "sha256/compute": False,
+            "parse/metadata": False,
+            "parse/data": False,
             "parse/data/images": False,
             "parse/data/spectra": False,
             "parse/data/other": False,
@@ -414,6 +419,8 @@ class NionProjectParser:
     def process_event_data_em_metadata(
         self, flat_metadata: fd.FlatDict, template: dict
     ) -> dict:
+        if not self.cfg["parse/metadata"]:
+            return template
         logger.debug(
             f"Mapping some of the Nion metadata on respective NeXus concepts..."
         )
@@ -465,6 +472,10 @@ class NionProjectParser:
         logger.debug(
             f"entry_id{SEPARATOR}{self.entry_id}{SEPARATOR}event_id{SEPARATOR}{self.id_mgn['event_id']}"
         )
+
+        if not self.cfg["parse/data"]:
+            return template
+
         if unit_combination == "":
             return template
 
