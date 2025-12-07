@@ -214,18 +214,18 @@ if generate_nexus_file:
     for row in nsprojects.itertuples(index=True):
         if row.parse == 1:
             project_id += 1
-            if project_id < config["project_id_start"]:
-                continue
-            if project_id > config["project_id_end"]:
+            if (project_id < config["project_id_start"]) or (
+                project_id > config["project_id_end"]
+            ):
                 continue
             logger.info(f"project{SEPARATOR}{project_id}")
             logger.info(row.nsproj_fpath)
             # "../../nion_data/Haas/2022-02-18_Metadata_Kuehbach/2022-02-18_Metadata_Kuehbach.nsproj"
-            if row.total_size_bytes > (8 * (1024**3)):  # 8 GiB
-                logger.warning(
-                    f"{row.nsproj_fpath} skipped cuz of too high data volume {np.around((row.total_size_bytes / (1024**3)), decimals=3)} GiB."
-                )
-                continue
+            # if row.total_size_bytes > (8 * (1024**3)):  # 8 GiB
+            #     logger.warning(
+            #         f"{row.nsproj_fpath} skipped cuz of too high data volume {np.around((row.total_size_bytes / (1024**3)), decimals=3)} GiB."
+            #     )
+            #     continue
 
             eln_fpath, hash = generate_eln_data_yaml(
                 nsproj_fpath=row.nsproj_fpath,
@@ -263,7 +263,11 @@ if generate_nexus_file:
                 output=output_fpath,
             )
             # release memory and resources associated with previous processing
-            del _
+            del _, eln_fpath, hash, input_files_tuple, output_fpath
+            # TODO::there is evidence of that the switch_root_logfile causes a memory
+            # leak as the more its called the more memory does not get freed despite
+            # running the garbage collection, ok for now but should be fixed
+            # for better machine utilization at some point.
             gc.collect()
 
             switch_root_logfile(
