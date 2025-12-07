@@ -109,7 +109,7 @@ def generate_eln_data_yaml(
     return eln_fpath, hash
 
 
-config: dict[str, str] = {
+config: dict[str, str | int] = {
     "python_version": f"{sys.version}",
     "working_directory": f"{os.getcwd()}",
     "program_name": f"pynxtools_em/{__name__}",
@@ -118,8 +118,8 @@ config: dict[str, str] = {
     "target_directory": sys.argv[2],  # e.g. '../'
     "identifier_file_name": sys.argv[3],  # e.g. 'humans_and_companies.ods'
     "legacy_payload_file_name": sys.argv[4],  # e.g. 'nion_data_metadata.ods'
-    "project_id_start": sys.argv[5],  # which project to start, inclusive
-    "project_id_end": sys.argv[6],  # which projct to end, inclusive
+    "project_id_start": int(sys.argv[5]),  # which project to start, inclusive
+    "project_id_end": int(sys.argv[6]),  # which projct to end, inclusive
 }
 
 
