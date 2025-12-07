@@ -71,6 +71,7 @@ def generate_eln_data_yaml(
     bytes_per_project: int,
     lookup: dict[str, dict[str, str]],
     config: dict[str, str],
+    write_yaml_file: bool = True,
 ) -> tuple[str, str]:
     with open(nsproj_fpath, "rb", 0) as fp:
         hash = get_sha256_of_file_content(fp)
@@ -104,8 +105,9 @@ def generate_eln_data_yaml(
         eln_data["sample"]["atom_types"] = ", ".join(clean_atom_types)
 
     # TODO::instrument metadata
-    with open(eln_fpath, "w") as fp:
-        yaml.dump(eln_data, fp)
+    if write_yaml_file:
+        with open(eln_fpath, "w") as fp:
+            yaml.dump(eln_data, fp)
     return eln_fpath, hash
 
 
@@ -234,8 +236,10 @@ if generate_nexus_file:
                 bytes_per_project=row.total_size_bytes,
                 lookup=identifier,
                 config=config,
+                write_yaml_file=False,
             )
             nsproj_to_eln[f"{row.nsproj_fpath}"] = eln_fpath
+            continue
 
             input_files_tuple: tuple = (
                 eln_fpath,
