@@ -288,9 +288,13 @@ class NionProjectParser:
                     header = read_numpy_array_metadata(
                         file_hdl, local_files, dir_files, b"data.npy"
                     )
-                    if header:
+                    if (
+                        isinstance(header, tuple)
+                        and len(header) == 2
+                        and isinstance(header[0], dict)
+                    ):
                         logger.info(
-                            f"ndata, data.npy, shape{SEPARATOR}{header['shape']}{SEPARATOR}dtype{SEPARATOR}{header['dtype']}"
+                            f"ndata, data.npy, shape{SEPARATOR}{header[0]['shape']}{SEPARATOR}dtype{SEPARATOR}{header[0]['dtype']}"
                         )
                     else:
                         logger.warning(f"ndata, data.npy unable to parse metadata")
