@@ -351,7 +351,9 @@ class NionProjectParser:
                 logger.info(f"nsproj, flat{SEPARATOR}{key}{SEPARATOR}{value}")
         if nionswift_proj_mdata == {}:
             return template
-
+        if "display_items" not in nionswift_proj_mdata:
+            logger.warning(f"nsproj, display_items does not exist")
+            return template
         for itm in nionswift_proj_mdata["display_items"]:
             if set(["type", "uuid", "created", "display_data_channels"]).issubset(
                 itm.keys()
