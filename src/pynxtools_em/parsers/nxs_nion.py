@@ -51,6 +51,7 @@ from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.nion_utils import (
     nion_image_spectrum_or_generic_nxdata,
     uuid_to_file_name,
+    read_numpy_array_metadata,
 )
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
@@ -283,18 +284,31 @@ class NionProjectParser:
                 if self.verbose:
                     logger.debug(f"data.npy, offset{SEPARATOR}{offset}")
                 file_hdl.seek(0)
-                nparr = nsnd.read_data(file_hdl, local_files, dir_files, b"data.npy")
-                if isinstance(nparr, np.ndarray):
-                    logger.info(
-                        f"ndata, data.npy, type{SEPARATOR}{type(nparr)}{SEPARATOR}shape{SEPARATOR}{np.shape(nparr)}{SEPARATOR}dtype{SEPARATOR}{nparr.dtype}"
+                if (not self.cfg["parse/metadata"]) and (not self.cfg["parse/data"]):
+                    header = read_numpy_array_metadata(
+                        file_hdl, local_files, dir_files, b"data.npy"
                     )
-                # because we expect (based on Benedikt's example) to find only one npy
-                # file in that *.ndata file pointed to by file_hdl and only one matching
-                # metadata.json we can now write the data and its metadata into template
-                self.process_event_data_em_metadata(flat_metadata, template)
-                self.process_event_data_em_data(
-                    full_path, nparr, flat_metadata, template
-                )
+                    if header:
+                        logger.info(
+                            f"ndata, data.npy, shape{SEPARATOR}{header['shape']}{SEPARATOR}dtype{SEPARATOR}{header['dtype']}"
+                        )
+                    else:
+                        logger.warning(f"ndata, data.npy unable to parse metadata")
+                else:
+                    nparr = nsnd.read_data(
+                        file_hdl, local_files, dir_files, b"data.npy"
+                    )
+                    if isinstance(nparr, np.ndarray):
+                        logger.info(
+                            f"ndata, data.npy, shape{SEPARATOR}{np.shape(nparr)}{SEPARATOR}dtype{SEPARATOR}{nparr.dtype}"
+                        )
+                    # because we expect (based on Benedikt's example) to find only one npy
+                    # file in that *.ndata file pointed to by file_hdl and only one matching
+                    # metadata.json we can now write the data and its metadata into template
+                    self.process_event_data_em_metadata(flat_metadata, template)
+                    self.process_event_data_em_data(
+                        full_path, nparr, flat_metadata, template
+                    )
                 break
         return template
 
@@ -317,15 +331,24 @@ class NionProjectParser:
 
             if len(flat_metadata) == 0:
                 return template
+            if "data" not in h5r:
+                logger.warning("hfive, data not found")
+                return template
 
-            self.process_event_data_em_metadata(flat_metadata, template)
-
-            nparr = h5r["data"][()]
-            if isinstance(nparr, np.ndarray):
+            if (not self.cfg["parse/metadata"]) and (not self.cfg["parse/data"]):
                 logger.info(
-                    f"hfive, data, type{SEPARATOR}{type(nparr)}{SEPARATOR}shape{SEPARATOR}{np.shape(nparr)}{SEPARATOR}dtype{SEPARATOR}{nparr.dtype}"
+                    f"hfive, data, shape{SEPARATOR}{h5r['data'].shape}{SEPARATOR}dtype{SEPARATOR}{h5r['data'].dtype}"
                 )
-            self.process_event_data_em_data(full_path, nparr, flat_metadata, template)
+            else:
+                self.process_event_data_em_metadata(flat_metadata, template)
+                nparr = h5r["data"][()]
+                if isinstance(nparr, np.ndarray):
+                    logger.info(
+                        f"hfive, data, shape{SEPARATOR}{np.shape(nparr)}{SEPARATOR}dtype{SEPARATOR}{nparr.dtype}"
+                    )
+                self.process_event_data_em_data(
+                    full_path, nparr, flat_metadata, template
+                )
         return template
 
     def parse_project_file(self, template: dict) -> dict:
@@ -468,8 +491,6 @@ class NionProjectParser:
         unit_combination = nion_image_spectrum_or_generic_nxdata(axes)
         logger.debug(f"{unit_combination}, {np.shape(nparr)}")
         if self.verbose:
-            logger.info(f"axes{SEPARATOR}{axes}")
-        else:
             logger.debug(f"axes{SEPARATOR}{axes}")
         logger.debug(
             f"entry_id{SEPARATOR}{self.entry_id}{SEPARATOR}event_id{SEPARATOR}{self.id_mgn['event_id']}"
