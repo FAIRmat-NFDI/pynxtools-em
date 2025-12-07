@@ -118,6 +118,8 @@ config: dict[str, str] = {
     "target_directory": sys.argv[2],  # e.g. '../'
     "identifier_file_name": sys.argv[3],  # e.g. 'humans_and_companies.ods'
     "legacy_payload_file_name": sys.argv[4],  # e.g. 'nion_data_metadata.ods'
+    "project_id_start": sys.argv[5],  # which project to start, inclusive
+    "project_id_end": sys.argv[6],  # which projct to end, inclusive
 }
 
 
@@ -206,18 +208,24 @@ statistics: dict[str, int] = {}
 # use case batch process dataset (run01, ...)
 eln_instrument_specific_fpath = "../output.custom_eln_data.yaml"
 generate_nexus_file = True
-cnt = 0
+project_id = 0
 if generate_nexus_file:
     nsprojects = pd.read_excel(f"{config['legacy_payload_file_name']}", engine="odf")
     for row in nsprojects.itertuples(index=True):
         if row.parse == 1:
+            project_id += 1
+            if project_id < config["project_id_start"]:
+                continue
+            if project_id > config["project_id_end"]:
+                continue
+            logger.info(f"project{SEPARATOR}{project_id}")
             logger.info(row.nsproj_fpath)
             # "../../nion_data/Haas/2022-02-18_Metadata_Kuehbach/2022-02-18_Metadata_Kuehbach.nsproj"
-            if row.total_size_bytes > (32 * (1024**3)):  # 32 GiB
-                logger.warning(
-                    f"{row.nsproj_fpath} skipped cuz of too high data volume {np.around((row.total_size_bytes / (1024**3)), decimals=3)} GiB."
-                )
-                continue
+            # if row.total_size_bytes > (32 * (1024**3)):  # 32 GiB
+            #     logger.warning(
+            #         f"{row.nsproj_fpath} skipped cuz of too high data volume {np.around((row.total_size_bytes / (1024**3)), decimals=3)} GiB."
+            #     )
+            #     continue
 
             eln_fpath, hash = generate_eln_data_yaml(
                 nsproj_fpath=row.nsproj_fpath,
@@ -262,8 +270,8 @@ if generate_nexus_file:
                 f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log",
             )
 
-            # cnt += 1
-            # if cnt >= 2:
+            # project_id += 1
+            # if project_id >= 2:
             #     break
 
 # use case analyze content
