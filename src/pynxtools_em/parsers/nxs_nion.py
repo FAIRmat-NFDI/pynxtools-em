@@ -240,8 +240,11 @@ class NionProjectParser:
     def process_ndata(self, file_hdl, full_path: str, template: dict) -> dict:
         """Handle reading and processing of opened *.ndata inside the ZIP file."""
         # assure that we start reading that file_hdl/pointer from the beginning...
-        file_hdl.seek(0)
-        local_files, dir_files, eocd = nsnd.parse_zip(file_hdl)
+        try:
+            local_files, dir_files, eocd = nsnd.parse_zip(file_hdl)
+        except IOError:
+            logger.warning(f"process_ndata for {full_path} throwed an IOError")
+            return template
         flat_metadata = fd.FlatDict({}, "/")
         logger.debug(
             f"Inspecting{SEPARATOR}{full_path}{SEPARATOR}with{SEPARATOR}{len(local_files.keys())}{SEPARATOR}keys."
@@ -256,7 +259,6 @@ class NionProjectParser:
                 if self.verbose:
                     logger.debug(f"metadata.json, offset{SEPARATOR}{offset}")
                 # ... explicit jump back to beginning of the file
-                file_hdl.seek(0)
                 flat_metadata = fd.FlatDict(
                     nsnd.read_json(file_hdl, local_files, dir_files, b"metadata.json"),
                     "/",
@@ -283,7 +285,6 @@ class NionProjectParser:
             if tpl[0] == b"data.npy":
                 if self.verbose:
                     logger.debug(f"data.npy, offset{SEPARATOR}{offset}")
-                file_hdl.seek(0)
                 if (not self.cfg["parse/metadata"]) and (not self.cfg["parse/data"]):
                     header = read_numpy_array_metadata(
                         file_hdl, local_files, dir_files, b"data.npy"
