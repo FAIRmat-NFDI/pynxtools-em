@@ -236,10 +236,8 @@ if generate_nexus_file:
                 bytes_per_project=row.total_size_bytes,
                 lookup=identifier,
                 config=config,
-                write_yaml_file=False,
             )
             nsproj_to_eln[f"{row.nsproj_fpath}"] = eln_fpath
-            continue
 
             input_files_tuple: tuple = (
                 eln_fpath,
