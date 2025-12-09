@@ -119,9 +119,10 @@ config: dict[str, str | int] = {
     "microscope_directory": sys.argv[1],  # e.g. '../../nion_data/'
     "target_directory": sys.argv[2],  # e.g. '../'
     "identifier_file_name": sys.argv[3],  # e.g. 'humans_and_companies.ods'
-    "legacy_payload_file_name": sys.argv[4],  # e.g. 'nion_data_metadata.ods'
+    "legacy_nsproj_fpath": sys.argv[4],  # e.g. 'nion_data_metadata.ods'
     "project_id_start": int(sys.argv[5]),  # which project to start, inclusive
     "project_id_end": int(sys.argv[6]),  # which projct to end, inclusive
+    "legacy_nsproj_fpath_white_list": sys.argv[7],
 }
 
 
@@ -212,7 +213,14 @@ eln_instrument_specific_fpath = "../output.custom_eln_data.yaml"
 generate_nexus_file = True
 project_id = 0
 if generate_nexus_file:
-    nsprojects = pd.read_excel(f"{config['legacy_payload_file_name']}", engine="odf")
+    nsprojects = pd.read_excel(f"{config['legacy_nsproj_fpath']}", engine="odf")
+    nsprojects_white_list = pd.read_excel(
+        f"{config['legacy_nsproj_fpath_white_list']}", engine="odf"
+    )
+    white_list: set[str] = {}
+    for row in nsprojects_white_list.itertuples(index=True):
+        if row.parse == 1:
+            white_list.add(row.nsproj_fpath)
     for row in nsprojects.itertuples(index=True):
         if row.parse == 1:
             project_id += 1
@@ -220,8 +228,11 @@ if generate_nexus_file:
                 project_id > config["project_id_end"]
             ):
                 continue
+            if row.nsproj_fpath not in white_list:
+                continue
             logger.info(f"project{SEPARATOR}{project_id}")
             logger.info(row.nsproj_fpath)
+
             # "../../nion_data/Haas/2022-02-18_Metadata_Kuehbach/2022-02-18_Metadata_Kuehbach.nsproj"
             # if row.total_size_bytes > (8 * (1024**3)):  # 8 GiB
             #     logger.warning(
@@ -275,10 +286,6 @@ if generate_nexus_file:
             switch_root_logfile(
                 f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}.log",
             )
-
-            # project_id += 1
-            # if project_id >= 2:
-            #     break
 
 # use case analyze content
 collect_statistics = False

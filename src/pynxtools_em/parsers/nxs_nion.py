@@ -74,12 +74,12 @@ class NionProjectParser:
         # as is specifically useful in use cases where legacy databases are parsed
         # to NeXus/HDF5 using NXem
         self.cfg = {
-            "sha256/compute": False,
-            "parse/metadata": False,
-            "parse/data": False,
-            "parse/data/images": False,
-            "parse/data/spectra": False,
-            "parse/data/other": False,
+            "sha256/compute": True,
+            "parse/metadata": True,
+            "parse/data": True,
+            "parse/data/images": True,
+            "parse/data/spectra": True,
+            "parse/data/other": True,
         }
         self.id_mgn: Dict[str, int] = {"event_id": 1}
         # counters which keep track of how many instances of NXevent_data_em have
