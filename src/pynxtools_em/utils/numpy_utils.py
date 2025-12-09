@@ -15,7 +15,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Configuration and global defaults."""
+"""Utilities to get metadata of numpy files efficiently."""
 
-DEFAULT_VERBOSITY: bool = False
-SEPARATOR: str = "___"
+import numpy as np
+from numpy.lib.format import read_array_header_1_0, read_array_header_2_0
+
+
+def get_numpy_info(path):
+    with open(path, "rb") as fp:
+        magic = np.lib.format.read_magic(fp)
+        if magic[0] == 1:
+            header = read_array_header_1_0(fp)
+        else:
+            header = read_array_header_2_0(fp)
+    return header

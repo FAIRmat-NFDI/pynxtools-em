@@ -61,6 +61,10 @@ ipynb = [
     "jupyterlab",
     "jupyterlab_h5web"
 ]
+batch = [
+    "odfpy",
+    "openpyxl",
+]
 
 [project.urls]
 "Homepage" = "https://github.com/FAIRmat-NFDI/pynxtools-em"
