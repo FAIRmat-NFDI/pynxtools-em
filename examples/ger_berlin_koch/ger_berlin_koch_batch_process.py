@@ -222,6 +222,7 @@ if generate_nexus_file:
         if row.parse == 1:
             logger.info(f"{row.nsproj_fpath} added to the white_list")
             white_list.add(row.nsproj_fpath)
+    del nsprojects_white_list
     for row in nsprojects.itertuples(index=True):
         if row.parse == 1:
             project_id += 1
