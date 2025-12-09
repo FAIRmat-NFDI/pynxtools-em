@@ -217,7 +217,7 @@ if generate_nexus_file:
     nsprojects_white_list = pd.read_excel(
         f"{config['legacy_nsproj_fpath_white_list']}", engine="odf"
     )
-    white_list: set[str] = {}
+    white_list: set[str] = set()
     for row in nsprojects_white_list.itertuples(index=True):
         if row.parse == 1:
             white_list.add(row.nsproj_fpath)
