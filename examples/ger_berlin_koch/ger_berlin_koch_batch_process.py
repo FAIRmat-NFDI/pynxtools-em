@@ -220,6 +220,7 @@ if generate_nexus_file:
     white_list: set[str] = set()
     for row in nsprojects_white_list.itertuples(index=True):
         if row.parse == 1:
+            logger.info(f"{row.nsproj_fpath} added to the white_list")
             white_list.add(row.nsproj_fpath)
     for row in nsprojects.itertuples(index=True):
         if row.parse == 1:
@@ -229,6 +230,7 @@ if generate_nexus_file:
             ):
                 continue
             if row.nsproj_fpath not in white_list:
+                logger.info(f"{row.nsproj_fpath} skipped cuz not in the white_list")
                 continue
             logger.info(f"project{SEPARATOR}{project_id}")
             logger.info(row.nsproj_fpath)
