@@ -21,7 +21,6 @@
 # f" how-do-i-make-pil-take-into-account-the-shortest-side-when-creating-a-thumbnail"
 
 import numpy as np
-from PIL import Image as pil
 
 
 def thumbnail(img, size=300):

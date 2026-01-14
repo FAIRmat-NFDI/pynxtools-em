@@ -17,8 +17,6 @@
 #
 """Parser for reading content from ThermoFisher Velox *.emd (HDF5) via rosettasciio."""
 
-from typing import Dict, List
-
 import flatdict as fd
 import numpy as np
 from rsciio import emd
@@ -60,14 +58,14 @@ class RsciioVeloxParser:
             self.entry_id = entry_id if entry_id > 0 else 1
             self.verbose = verbose
             # for id_mgn check pynxtools-em v0.2 of this velox reader
-            self.id_mgn: Dict = {
+            self.id_mgn: dict = {
                 "event_id": 1,
                 "event_img": 1,
                 "event_spc": 1,
                 "roi": 1,
                 "eds_img": 1,
             }
-            self.version: Dict = {
+            self.version: dict = {
                 "trg": {
                     "Core/MetadataDefinitionVersion": ["7.9"],
                     "Core/MetadataSchemaVersion": ["v1/2013/07"],
@@ -77,7 +75,7 @@ class RsciioVeloxParser:
                     "Core/MetadataSchemaVersion": None,
                 },
             }
-            self.obj_idx_supported: List = []
+            self.obj_idx_supported: list = []
             self.supported = False
             self.check_if_supported()
             if not self.supported:
@@ -108,17 +106,17 @@ class RsciioVeloxParser:
                     continue
                 if not all_req_keywords_in_dict(obj, reqs):
                     continue
-                orgmeta = fd.FlatDict(
+                original_metadata = fd.FlatDict(
                     obj["original_metadata"], "/"
                 )  # could be optimized
-                if "Core/MetadataDefinitionVersion" in orgmeta:
+                if "Core/MetadataDefinitionVersion" in original_metadata:
                     if (
-                        orgmeta["Core/MetadataDefinitionVersion"]
+                        original_metadata["Core/MetadataDefinitionVersion"]
                         not in self.version["trg"]["Core/MetadataDefinitionVersion"]
                     ):
                         continue
                     if (
-                        orgmeta["Core/MetadataSchemaVersion"]
+                        original_metadata["Core/MetadataSchemaVersion"]
                         not in self.version["trg"]["Core/MetadataSchemaVersion"]
                     ):
                         continue
@@ -129,7 +127,7 @@ class RsciioVeloxParser:
                 len(self.obj_idx_supported) > 0
             ):  # there is at least some supported content
                 self.supported = True
-        except (FileNotFoundError, IOError, ValueError):
+        except (OSError, FileNotFoundError, ValueError):
             logger.warning(f"{self.file_path} FileNotFound, IOError, or ValueError !")
             return
 
@@ -369,7 +367,7 @@ class RsciioVeloxParser:
                     else:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
                             f"{axis_name}"
-                            # unitless | dimensionless i.e. no unit in longname
+                            # unitless | dimensionless i.e. no unit in long_name
                         )
                 else:
                     template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(

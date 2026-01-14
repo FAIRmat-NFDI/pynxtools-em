@@ -61,13 +61,13 @@ class NxEmCustomElnGerBerlinKoch:
     def check_if_supported(self):
         self.supported = False
         try:
-            with open(self.file_path, "r", encoding="utf-8") as stream:
+            with open(self.file_path, encoding="utf-8") as stream:
                 self.flat_metadata = fd.FlatDict(yaml.safe_load(stream), "/")
                 if self.verbose:
                     for key, val in self.flat_metadata.items():
                         logger.info(f"key: {key}, val: {val}")
                 self.supported = True
-        except (FileNotFoundError, IOError):
+        except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 

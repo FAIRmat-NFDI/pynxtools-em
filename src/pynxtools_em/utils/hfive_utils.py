@@ -18,7 +18,6 @@
 """Utility functions when working with parsing HDF5."""
 
 from itertools import groupby
-from typing import Dict
 
 import numpy as np
 
@@ -36,7 +35,7 @@ EBSD_MAP_SPACEGROUP = {
 }
 # see here for typical examples http://img.chem.ucl.ac.uk/sgp/large/186az1.htm
 
-DIRTY_FIX_SPACEGROUP: Dict = {}
+DIRTY_FIX_SPACEGROUP: dict = {}
 EULER_SPACE_SYMMETRY = [
     ureg.Quantity(2.0 * np.pi, ureg.radian),
     ureg.Quantity(1.0 * np.pi, ureg.radian),

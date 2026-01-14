@@ -6,11 +6,11 @@ build-backend = "setuptools.build_meta"
 name = "pynxtools-em"
 dynamic = ["version"]
 authors = [
-    { name = "The NOMAD Authors" },
+    { name = "The NOMAD Authors", email = "fairmat@physik.hu-berlin.de" },
 ]
-description = "A reader for transferring EM from vendor formats to NeXus and NOMAD."
+description = "pynxtools-em is a pynxtools reader plugin for electron microscopy (EM) data."
 readme = "README.md"
-license= { file = "LICENSE" }
+license = { file = "LICENSE" }
 requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3.10",
@@ -37,7 +37,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "mypy",
-    "ruff>=0.12.0",
+    "ruff>=0.14.0",
     "pytest",
     "pytest-cov",
     "pytest-timeout",
@@ -45,7 +45,6 @@ dev = [
     "types-pyyaml",
     "types-pytz",
     "types-requests",
-    "uv",
     "pre-commit"
 ]
 docs = [
@@ -55,6 +54,9 @@ docs = [
     "mkdocs-macros-plugin",
     "pymdown-extensions",
     "mkdocs-click"
+]
+nomad = [
+    "nomad-lab[infrastructure]>=1.3.17"
 ]
 ipynb = [
     "jupyter",
@@ -66,13 +68,17 @@ ipynb = [
 "Homepage" = "https://github.com/FAIRmat-NFDI/pynxtools-em"
 "Bug Tracker" = "https://github.com/FAIRmat-NFDI/pynxtools-em/issues"
 
-[project.entry-points."pynxtools.reader"]
+[project.entry-points.'pynxtools.reader']
 em = "pynxtools_em.reader:EMReader"
 
 [project.entry-points.'nomad.plugin']
-em_example = "pynxtools_em.nomad.entrypoints:em_example"
-# em_app = "pynxtools_em.nomad.entrypoints:em_app"
+# em_app_entry_point = "pynxtools_em.nomad.apps:em_app_entry_point"
+em_example_upload_entry_point = "pynxtools_em.nomad.example_uploads:em_example_upload_entry_point"
 
+[tool.uv]
+extra-index-url = [
+    "https://gitlab.mpcdf.mpg.de/api/v4/projects/2187/packages/pypi/simple",
+]
 [tool.setuptools.packages.find]
 where = [
     "src",
@@ -86,7 +92,7 @@ write_to = "src/pynxtools_em/utils/_version.py"
 git_describe_command = ["git", "describe", "--dirty", "--long", "--tags", "--match", "*[0-9]*", "--abbrev=8"]
 
 [tool.ruff]
-include = ["src/*.py", "tests/*.py"]
+include = ["src/pynxtools_em/*.py", "tests/*.py"]
 line-length = 88
 indent-width = 4
 
@@ -95,7 +101,10 @@ select = [
     "E", # pycodestyle
     "W", # pycodestyle
     "PL", # pylint
-    "NPY201", # upgrade to numpy>2
+    "UP", # pyupgrade
+    "F401", # remove unused import
+    "I001", # sort imports
+    "NPY201", # upgrade numpy v2
 ]
 ignore = [
     "E501", # Line too long ({width} > {limit} characters)
@@ -113,6 +122,7 @@ ignore = [
     "PLR5501", # else-if-used
 ]
 fixable = ["ALL"]
+isort.split-on-trailing-comma = false
 
 [tool.ruff.format]
 quote-style = "double"

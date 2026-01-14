@@ -17,8 +17,6 @@
 #
 """Parser mapping concepts and content from Marc deGraeff's EMsoft *.h5 files on NXem."""
 
-from typing import Dict
-
 import h5py
 
 from pynxtools_em.methods.ebsd import has_hfive_magic_header
@@ -35,13 +33,13 @@ class HdfFiveEmSoftParser(HdfFiveBaseParser):
     ):
         if file_path:
             self.file_path = file_path
-            self.id_mgn: Dict[str, int] = {
+            self.id_mgn: dict[str, int] = {
                 "entry_id": entry_id if entry_id > 0 else 1,
                 "roi_id": 1,
             }
             self.verbose = verbose
             self.prfx = ""  # template path handling
-            self.version: Dict = {
+            self.version: dict = {
                 "trg": {
                     "tech_partner": ["EMsoft"],
                     "schema_name": ["EMsoft"],

@@ -20,7 +20,6 @@
 # e.g. Tecnai TEM or Helios Nanolab FIB/SEM
 
 import mmap
-from typing import Dict
 
 import flatdict as fd
 import numpy as np
@@ -45,10 +44,7 @@ from pynxtools_em.configurations.image_tiff_fei_cfg import (
 )
 from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.get_checksum import (
-    DEFAULT_CHECKSUM_ALGORITHM,
-    get_sha256_of_file_content,
-)
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
 from pynxtools_em.utils.xml_utils import flatten_xml_to_dict
@@ -67,9 +63,9 @@ class FeiLegacyTiffParser:
             self.file_path = file_path
             self.entry_id = entry_id if entry_id > 0 else 1
             self.verbose = verbose
-            self.id_mgn: Dict[str, int] = {"event_id": 1}
+            self.id_mgn: dict[str, int] = {"event_id": 1}
             self.flat_dict_meta = fd.FlatDict({}, "/")
-            self.version: Dict = {}
+            self.version: dict = {}
             self.supported: int = FEI_LEGACY_UNKNOWN
             self.check_if_tiff_fei_legacy()
             if not self.supported:
@@ -162,7 +158,7 @@ class FeiLegacyTiffParser:
                             # will be continued to find usage
                             return
 
-        except (FileNotFoundError, IOError):
+        except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
@@ -204,7 +200,7 @@ class FeiLegacyTiffParser:
                 # with H5Web and NeXus most of this is obsolete unless there are metadata stamped which are not
                 # available in NeXus or in the respective metadata in the metadata section of the TIFF image
                 # remember H5Web images can be scaled based on the metadata allowing basically the same
-                # explorative viewing using H5Web than what traditionally typical image viewers are meant for
+                # exploratory viewing using H5Web than what traditionally typical image viewers are meant for
                 trg = (
                     f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event"
                     f"{self.id_mgn['event_id']}]/imageID[image{identifier_image}]/image_2d"

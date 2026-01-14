@@ -19,7 +19,7 @@
 
 import mmap
 from tokenize import TokenError
-from typing import Any, Dict, List
+from typing import Any
 
 import flatdict as fd
 import numpy as np
@@ -33,10 +33,7 @@ from pynxtools_em.configurations.image_tiff_hitachi_cfg import (
 )
 from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.get_checksum import (
-    DEFAULT_CHECKSUM_ALGORITHM,
-    get_sha256_of_file_content,
-)
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
 
@@ -44,7 +41,7 @@ from pynxtools_em.utils.string_conversions import string_to_number
 class HitachiTiffParser:
     def __init__(
         self,
-        file_paths: List[str],
+        file_paths: list[str],
         entry_id: int = 1,
         verbose: bool = DEFAULT_VERBOSITY,
     ):
@@ -57,16 +54,16 @@ class HitachiTiffParser:
             for entry in file_paths:
                 if entry.lower().endswith((".tif", ".tiff")):
                     tif_txt[0] = entry
-                elif entry.lower().endswith((".txt")):
+                elif entry.lower().endswith(".txt"):
                     tif_txt[1] = entry
             if all(value != "" for value in tif_txt):
                 self.file_path = tif_txt[0]
                 self.entry_id = entry_id if entry_id > 0 else 1
                 self.verbose = verbose
-                self.id_mgn: Dict[str, int] = {"event_id": 1}
+                self.id_mgn: dict[str, int] = {"event_id": 1}
                 self.txt_file_path = tif_txt[1]
                 self.flat_dict_meta = fd.FlatDict({}, "/")
-                self.version: Dict = {}
+                self.version: dict = {}
                 self.supported = False
                 self.check_if_tiff_hitachi()
             else:
@@ -89,11 +86,11 @@ class HitachiTiffParser:
                 magic = s.read(4)
                 if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                     return
-        except (FileNotFoundError, IOError):
+        except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
-        with open(self.txt_file_path, "r", encoding="utf8") as fp:
+        with open(self.txt_file_path, encoding="utf8") as fp:
             txt = fp.read()
             txt = txt.replace("\r\n", "\n")  # windows to unix EOL conversion
             txt = [
@@ -185,7 +182,7 @@ class HitachiTiffParser:
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
-                sxy: Dict[str, Any] = {
+                sxy: dict[str, Any] = {
                     "i": ureg.Quantity(1.0),
                     "j": ureg.Quantity(1.0),
                 }

@@ -17,8 +17,6 @@
 #
 """Parser mapping concepts and content from Oxford Instruments *.h5oina files on NXem."""
 
-from typing import Dict
-
 import h5py
 import numpy as np
 from ase.data import chemical_symbols
@@ -38,10 +36,7 @@ from pynxtools_em.methods.microstructure import (
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.get_checksum import (
-    DEFAULT_CHECKSUM_ALGORITHM,
-    get_sha256_of_file_content,
-)
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.hfive_utils import apply_euler_space_symmetry, read_strings
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
@@ -69,14 +64,14 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
     ):
         if file_path:
             self.file_path = file_path
-            self.id_mgn: Dict[str, int] = {
+            self.id_mgn: dict[str, int] = {
                 "entry_id": entry_id if entry_id > 0 else 1,
                 "roi_id": 1,
                 "img_id": 1,
             }
             self.verbose = verbose
             self.prfx = ""  # template path handling
-            self.version: Dict = {  # Dict[str, Dict[str, List[str]]]
+            self.version: dict = {  # Dict[str, Dict[str, List[str]]]
                 "trg": {
                     "tech_partner": ["Oxford Instruments"],
                     "schema_name": ["H5OINA"],
@@ -176,7 +171,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                         self.id_mgn["roi_id"] += 1
                         self.ebsd = EbsdPointCloud()
 
-                # start of Vitesh's example
+                # start of the example from Vitesh Shah
                 ms = Microstructure()
                 for grpnm in h5r:
                     if not grpnm.isdigit():
@@ -214,7 +209,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                     ms.crystal.append(cryst)
                 if len(ms.crystal) > 0:
                     microstructure_to_template(ms, self.id_mgn, template)
-                # in Vitesh's example the individual second-phase particles have been
+                # in the example from Vitesh Shah the individual second-phase particles have been
                 # identified using SEM/EDS, for each such "crystal" we have a rectangular
                 # ROI with the secondary electron contrast based on which the shape
                 # of the crystals was extracted, one spot (spectrum_0d) EDS for each
@@ -222,7 +217,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                 # were reported
                 # therefore, we cannot compose the secondary electron image from the
                 # data in the original sample_reference_frame
-                # end of Vitesh's example
+                # end of the example from Vitesh Shah
                 self.id_mgn["roi_id"] += 1
                 self.id_mgn["img_id"] += 1
 
@@ -334,7 +329,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                 )
                 self.ebsd = EbsdPointCloud()
                 return
-            latt = Lattice(
+            lattice = Lattice(
                 abc[0],
                 abc[1],
                 abc[2],
@@ -368,7 +363,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
             else:
                 self.ebsd.space_group = [space_group]
 
-            strct = Structure(title=phase_name, atoms=None, lattice=latt)
+            strct = Structure(title=phase_name, atoms=None, lattice=lattice)
             if len(self.ebsd.phase) > 0:
                 self.ebsd.phase.append(strct)
             else:
@@ -421,7 +416,7 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                 np.asarray(fp[f"{grp_name}/{dim}"]), ureg.micrometer
             )
 
-        self.ebsd.descr_type = "band_contrast"
+        self.ebsd.contrast = "band_contrast"
         self.ebsd.descr_value = np.asarray(fp[f"{grp_name}/Band Contrast"], np.int32)
         # inconsistency uint8 in file although specification states should be int32
         # promoting uint8 to int32 no problem

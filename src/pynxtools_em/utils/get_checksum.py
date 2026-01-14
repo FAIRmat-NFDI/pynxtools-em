@@ -23,7 +23,7 @@ DEFAULT_CHECKSUM_ALGORITHM = "sha256"
 
 
 def get_sha256_of_file_content(file_hdl) -> str:
-    """Compute a hashvalue of given file, here SHA256."""
+    """Compute a hash of given file, here SHA256."""
     file_hdl.seek(0)
     # Read and update hash string value in blocks of 4K
     sha256_hash = hashlib.sha256()
@@ -33,7 +33,7 @@ def get_sha256_of_file_content(file_hdl) -> str:
 
 
 def get_sha256_of_bytes_object(bytes_obj) -> str:
-    """Compute a hashvalue of given file, here SHA256."""
+    """Compute a hash of given file, here SHA256."""
     sha256_hash = hashlib.sha256()
     # when a Python bytes object is created it is a read-only copy of the data in memory
     # that can be hence as it is anyway in memory already be passed to the hasher

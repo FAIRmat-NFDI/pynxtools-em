@@ -18,9 +18,7 @@
 """For given energy range find possible X-ray emission lines in this region."""
 
 import xraydb
-
 from ase.data import chemical_symbols
-from typing import List
 
 
 def get_all_xraylines() -> dict:
@@ -31,12 +29,12 @@ def get_all_xraylines() -> dict:
     return xray_lines
 
 
-def get_xrayline_candidates(e_min, e_max) -> List[str]:
+def get_xrayline_candidates(e_min, e_max) -> list[str]:
     # one could try to resolve the line from the alias of
     # the actual entry but this is not rigorous!
-    cand = []
+    candidates = []
     for key, val in get_all_xraylines().items():
         if val < e_min or val > e_max:
             continue
-        cand.append(key)
-    return cand
+        candidates.append(key)
+    return candidates

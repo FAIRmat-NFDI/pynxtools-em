@@ -17,7 +17,7 @@
 #
 """Map content from Velox EMD file format onto NeXus concepts."""
 
-from typing import Any, Dict
+from typing import Any
 
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
@@ -34,7 +34,7 @@ VELOX_WHICH_IMAGE = {
 }
 
 
-VELOX_STATIC_ENTRY_NX: Dict[str, Any] = {
+VELOX_STATIC_ENTRY_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/programID[program1]",
     "prefix_src": "",
     "use": [
@@ -47,7 +47,7 @@ VELOX_STATIC_ENTRY_NX: Dict[str, Any] = {
 }
 
 
-VELOX_STATIC_EBEAM_NX: Dict[str, Any] = {
+VELOX_STATIC_EBEAM_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/ebeam_column/electron_source",
     "prefix_src": "",
     "use": [("probe", "electron")],
@@ -55,7 +55,7 @@ VELOX_STATIC_EBEAM_NX: Dict[str, Any] = {
 }
 
 
-VELOX_STATIC_FABRICATION_NX: Dict[str, Any] = {
+VELOX_STATIC_FABRICATION_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/fabrication",
     "prefix_src": "",
     "map_to_str": [
@@ -66,14 +66,14 @@ VELOX_STATIC_FABRICATION_NX: Dict[str, Any] = {
 }
 
 
-VELOX_DYNAMIC_SCAN_NX: Dict[str, Any] = {
+VELOX_DYNAMIC_SCAN_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/scan_controller",
     "prefix_src": "",
     "map_to_f8": [("dwell_time", ureg.second, "Scan/DwellTime", ureg.microsecond)],
 }
 
 
-VELOX_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
+VELOX_DYNAMIC_OPTICS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/optics",
     "prefix_src": "",
     "map_to_f8": [
@@ -93,7 +93,7 @@ VELOX_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
 # assume BeamConvergence is the semi_convergence_angle, needs clarification from vendors and colleagues
 
 
-VELOX_DYNAMIC_STAGE_NX: Dict[str, Any] = {
+VELOX_DYNAMIC_STAGE_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]",
     "prefix_src": "",
     "map_to_str": [("design", "Stage/HolderType")],
@@ -115,7 +115,7 @@ VELOX_DYNAMIC_STAGE_NX: Dict[str, Any] = {
 # is not a proper unit for an instance of NX_VOLTAGE
 
 
-VELOX_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
+VELOX_DYNAMIC_VARIOUS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]",
     "prefix_src": "",
     "unix_to_iso8601": [
@@ -124,7 +124,7 @@ VELOX_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
 }
 
 
-VELOX_DYNAMIC_EBEAM_NX: Dict[str, Any] = {
+VELOX_DYNAMIC_EBEAM_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column",
     "prefix_src": "",
     "map_to_str": [
@@ -182,7 +182,7 @@ VELOX_DYNAMIC_EBEAM_NX: Dict[str, Any] = {
 # Scan size 512 x 512 >> OK
 # Scan area (0, 0), 512 x 512 The scan size area: (top, left), width x height >> should be fixed when handling all tiff orientation cases
 # Mains lock Off >> what is this?
-# Frame time 5.87 s >> why relevant there is dwell time, isnt this n_pixels * dwell_time + flytime
+# Frame time 5.87 s >> why relevant there is dwell time, is not this n_pixels * dwell_time + flytime
 # Scan rotation -180.0 ° >> OK
 
 ## Stage

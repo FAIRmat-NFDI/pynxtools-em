@@ -18,7 +18,6 @@
 """Parser for harmonizing TESCAN-specific content in TIFF files."""
 
 import mmap
-from typing import Dict, List
 
 import flatdict as fd
 import numpy as np
@@ -33,10 +32,7 @@ from pynxtools_em.configurations.image_tiff_tescan_cfg import (
 )
 from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.get_checksum import (
-    DEFAULT_CHECKSUM_ALGORITHM,
-    get_sha256_of_file_content,
-)
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
 
@@ -44,7 +40,7 @@ from pynxtools_em.utils.string_conversions import string_to_number
 class TescanTiffParser:
     def __init__(
         self,
-        file_paths: List[str],
+        file_paths: list[str],
         entry_id: int = 1,
         verbose: bool = DEFAULT_VERBOSITY,
     ):
@@ -60,16 +56,16 @@ class TescanTiffParser:
             for entry in file_paths:
                 if entry.lower().endswith((".tif", ".tiff")) and entry != "":
                     tif_hdr[0] = entry
-                elif entry.lower().endswith((".hdr")) and entry != "":
+                elif entry.lower().endswith(".hdr") and entry != "":
                     tif_hdr[1] = entry
 
         if tif_hdr[0] != "":
             self.file_path = tif_hdr[0]
             self.entry_id = entry_id if entry_id > 0 else 1
             self.verbose = verbose
-            self.id_mgn: Dict[str, int] = {"event_id": 1}
+            self.id_mgn: dict[str, int] = {"event_id": 1}
             self.flat_dict_meta = fd.FlatDict({}, "/")
-            self.version: Dict = {}
+            self.version: dict = {}
             self.supported = False
             self.hdr_file_path = tif_hdr[1]
             self.check_if_tiff_tescan()
@@ -93,7 +89,7 @@ class TescanTiffParser:
                 magic = s.read(4)
                 if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                     return
-        except (FileNotFoundError, IOError):
+        except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
@@ -132,7 +128,7 @@ class TescanTiffParser:
         # to take for the event data?
         if len(self.flat_dict_meta) == 0:
             if self.hdr_file_path != "":
-                with open(self.hdr_file_path, mode="r", encoding="utf8") as fp:
+                with open(self.hdr_file_path, encoding="utf8") as fp:
                     txt = fp.read()
                     txt = txt.replace("\r\n", "\n")  # windows to unix EOL conversion
                     txt = [

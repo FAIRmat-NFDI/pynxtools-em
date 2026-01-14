@@ -17,7 +17,7 @@
 #
 """Dict mapping Nion custom schema instances on concepts in NXem."""
 
-from typing import Any, Dict
+from typing import Any
 
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
@@ -52,7 +52,7 @@ NION_WHICH_IMAGE = {
 
 
 MAG = "magnitude"
-NION_DYNAMIC_ABERRATION_NX: Dict[str, Any] = {
+NION_DYNAMIC_ABERRATION_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/corrector_csID[corrector_cs]/tableauID[tableau1]",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
@@ -83,7 +83,7 @@ NION_DYNAMIC_ABERRATION_NX: Dict[str, Any] = {
 
 # more on metadata https://nionswift.readthedocs.io/en/stable/api/scripting.html#managing-session-metadata
 # TODO::check units currently using alibi units!
-NION_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
+NION_DYNAMIC_VARIOUS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
@@ -131,7 +131,7 @@ NION_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
 }
 
 
-NION_DYNAMIC_STAGE_NX: Dict[str, Any] = {
+NION_DYNAMIC_STAGE_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
@@ -162,7 +162,7 @@ NION_DYNAMIC_STAGE_NX: Dict[str, Any] = {
 # ordered always 1, 2, 3, 4 and worse, if e.g. only MajorOL is found we get a single
 # instance lens4 only in a NeXus file which might confuse people as they learn that
 # numbering should start from 1
-NION_DYNAMIC_LENS_NX: Dict[str, Any] = {
+NION_DYNAMIC_LENS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",
@@ -192,7 +192,7 @@ NION_DYNAMIC_LENS_NX: Dict[str, Any] = {
 # https://nionswift-instrumentation.readthedocs.io/en/latest/scanning.html#how-does-scanning-work
 # according to this documentation ac_line_style should be boolean but datasets show
 # 1.0, 2.0, True and False !
-NION_DYNAMIC_SCAN_NX: Dict[str, Any] = {
+NION_DYNAMIC_SCAN_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/scan_controller",
     "prefix_src": [
         "metadata/hardware_source/",
@@ -209,7 +209,7 @@ NION_DYNAMIC_SCAN_NX: Dict[str, Any] = {
         "ac_line_sync",
         "calibration_style",
         ("scan_schema", "channel_modifier"),
-        # TODO::exemplar mapping of subscan metadata
+        # TODO::exemplar mapping of sub_scan metadata
     ],
     "map_to_bool": ["ac_frame_sync"],
     "map_to_u4": [("external_trigger_mode", "external_clock_mode")],
@@ -234,13 +234,13 @@ NION_DYNAMIC_SCAN_NX: Dict[str, Any] = {
 }
 # TODO metadata/scan/scan_device_parameters/ the following remain unmapped
 # center_nm, data_shape_override, external_scan_mode, external_scan_ratio, pixel_size, scan_id, section_rect,
-# size, state_override, subscan_fractional_center, subscan_fractional_size,
-# subscan_pixel_size, subscan_rotation, subscan_type_partial, top_left_override
+# size, state_override, sub_scan_fractional_center, sub_scan_fractional_size,
+# sub_scan_pixel_size, sub_scan_rotation, sub_scan_type_partial, top_left_override
 
 
 C0 = "CIRCUIT[magboard0]"
 C1 = "CIRCUIT[magboard1]"
-NION_DYNAMIC_MAGBOARDS_NX: Dict[str, Any] = {
+NION_DYNAMIC_MAGBOARDS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/scan_controller",
     "prefix_src": [
         "metadata/scan/scan_device_properties/",
@@ -283,7 +283,7 @@ NION_DYNAMIC_MAGBOARDS_NX: Dict[str, Any] = {
 # here is the same issue, for C. Koch's group it is correct that there is only one
 # detector A so writing to detector1 works but not in cases when there are multiple
 # detectors
-NION_DYNAMIC_DETECTOR_NX: Dict[str, Any] = {
+NION_DYNAMIC_DETECTOR_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/detectorID[detector*]",
     "prefix_src": "metadata/hardware_source/detector_configuration/",
     # "use": [
@@ -355,7 +355,7 @@ NION_DYNAMIC_EVENT_TIME = {
 # the repetitive writing of detector data could be avoided and for the sake of
 # saving disk space just a reference added, currently there is no parser plugin that
 # deals with this complexity
-NION_STATIC_DETECTOR_NX: Dict[str, Any] = {
+NION_STATIC_DETECTOR_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/detectorID[detector*]",
     "prefix_src": "metadata/hardware_source/detector_configuration/",
     "map_to_str": [
@@ -380,7 +380,7 @@ NION_STATIC_DETECTOR_NX: Dict[str, Any] = {
     ],
 }
 
-NION_STATIC_LENS_NX: Dict[str, Any] = {
+NION_STATIC_LENS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/ebeam_column",
     "prefix_src": [
         "metadata/hardware_source/ImageRonchigram/",

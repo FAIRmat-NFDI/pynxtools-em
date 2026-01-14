@@ -17,9 +17,9 @@
 #
 """Dict mapping values for conventions and reference frames."""
 
-from typing import Any, Dict
+from typing import Any
 
-CONV_ROTATIONS_TO_NEXUS: Dict[str, Any] = {
+CONV_ROTATIONS_TO_NEXUS: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/consistent_rotations",
     "prefix_src": "consistent_rotations/",
     "map_to_str": [
@@ -32,7 +32,7 @@ CONV_ROTATIONS_TO_NEXUS: Dict[str, Any] = {
 }
 
 
-CONV_PROCESSING_CSYS_TO_NEXUS: Dict[str, Any] = {
+CONV_PROCESSING_CSYS_TO_NEXUS: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/processing_reference_frame",
     "prefix_src": "processing_reference_frame/",
     "map_to_str": [
@@ -50,7 +50,7 @@ CONV_PROCESSING_CSYS_TO_NEXUS: Dict[str, Any] = {
 }
 
 
-CONV_SAMPLE_CSYS_TO_NEXUS: Dict[str, Any] = {
+CONV_SAMPLE_CSYS_TO_NEXUS: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/sample_reference_frame",
     "prefix_src": "sample_reference_frame/",
     "map_to_str": [
@@ -68,7 +68,7 @@ CONV_SAMPLE_CSYS_TO_NEXUS: Dict[str, Any] = {
 }
 
 
-CONV_DETECTOR_CSYS_TO_NEXUS: Dict[str, Any] = {
+CONV_DETECTOR_CSYS_TO_NEXUS: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/NAMED_reference_frameID[detector_reference_frame1]",
     "prefix_src": "detector_reference_frame/",
     "map_to_str": [
@@ -86,7 +86,7 @@ CONV_DETECTOR_CSYS_TO_NEXUS: Dict[str, Any] = {
 }
 
 
-CONV_GNOMONIC_CSYS_TO_NEXUS: Dict[str, Any] = {
+CONV_GNOMONIC_CSYS_TO_NEXUS: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/roiID[roi*]/ebsd/gnomonic_reference_frame",
     "prefix_src": "gnomonic_reference_frame/",
     "map_to_str": [
@@ -101,7 +101,7 @@ CONV_GNOMONIC_CSYS_TO_NEXUS: Dict[str, Any] = {
 }
 
 
-CONV_PATTERN_CSYS_TO_NEXUS: Dict[str, Any] = {
+CONV_PATTERN_CSYS_TO_NEXUS: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/roiID[roi*]/ebsd/pattern_center",
     "prefix_src": "pattern_center/",
     "map_to_str": [

@@ -15,24 +15,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Utility tool constants and versioning."""
+"""Tests for the NOMAD app."""
 
-from pynxtools_em.utils._version import version as __version__
+import pytest
 
-NX_EM_ADEF_NAME = "NXem"
-PYNX_EM_NAME = "pynxtools-em/reader.py"
-
-
-def get_em_exec_version() -> str:
-    # TODO:deprecate, remove when versions are properly resolved with the next NOMAD release
-    # then also remove the function call altogether
-    # tag = get_repo_last_commit()
-    # if tag is not None:
-    #     return f"https://github.com/FAIRmat-NFDI/pynxtools-em/commit/{tag}"
-    if __version__ is not None:
-        return f"{__version__}"
-    else:
-        return "UNKNOWN COMMIT"
+try:
+    import nomad  # noqa: F401
+except ImportError:
+    pytest.skip(
+        "Skipping NOMAD app tests because nomad-lab is not installed",
+        allow_module_level=True,
+    )
 
 
-PYNX_EM_VERSION = get_em_exec_version()
+@pytest.mark.skip(reason="Work in progress")
+def test_importing_app():
+    # this will raise an exception if pydantic model validation fails for the app
+    from pynxtools_em.nomad.apps import em_app_entry_point  # noqa: PLC0415
+
+    assert em_app_entry_point.app.label == "EM"

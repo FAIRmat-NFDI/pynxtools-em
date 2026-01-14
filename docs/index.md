@@ -23,6 +23,7 @@ A series of tutorials giving you an overview on how to store or convert your EM 
 
 - [Installation guide](tutorial/installation.md)
 - [Standalone usage](tutorial/standalone.md)
+- [Development guide](tutorial/contributing.md)
 <!-- - [Convert EM (meta)data to NeXus](tutorial/standalone.md)
 - [How to use a NeXus/HDF5 file](tutorial/nexusio.md)
 - [How to combine data from different sources](tutorial/examples.md)-->
@@ -40,7 +41,7 @@ How-to guides provide step-by-step instructions for a wide range of tasks, with 
 
 <div markdown="block">
 
-### Explanation
+### Learn
 
 The explanation section provides background knowledge on the implementation design.<!--, how the data is structured, how data processing can be incorporated, how the integration works in NOMAD, and more.-->
 
@@ -79,10 +80,16 @@ for the respective file formats of technology partners of the electron microscop
 </div>
 </div>
 
+<h2> Contact </h2>
+
+For questions or suggestions:
+
+- Open an issue on the [`pynxtools-em` GitHub](https://github.com/FAIRmat-NFDI/pynxtools-em/issues)
+- Join our [Discord channel](https://discord.gg/Gyzx3ukUw8)
+- Get in contact with our [lead developers](contact.md).
+
 <h2>Project and community</h2>
 
-- [NOMAD code guidelines](https://nomad-lab.eu/prod/v1/staging/docs/reference/code_guidelines.html) 
-
-Any questions or suggestions? [Get in touch!](https://www.fair-di.eu/fairmat/about-fairmat/team-fairmat)
+- [NOMAD code guidelines](https://nomad-lab.eu/prod/v1/staging/docs/reference/code_guidelines.html)
 
 [The work is funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) - 460197019 (FAIRmat).](https://gepris.dfg.de/gepris/projekt/460197019?language=en)

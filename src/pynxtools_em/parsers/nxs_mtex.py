@@ -134,7 +134,7 @@ class NxEmNxsMTexParser:
                 magic = s.read(4)
                 if magic != b"\x89HDF":
                     return
-        except (FileNotFoundError, IOError):
+        except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
         # TODO add code which checks for available content
@@ -212,7 +212,7 @@ class NxEmNxsMTexParser:
             # for grp_name in [
             #     "conventions",
             #     "plotting",
-            #     "miscellanous",
+            #     "miscellaneous",
             #     "numerics",
             #     "system",
             # ]:
@@ -529,7 +529,7 @@ class NxEmNxsMTexParser:
             #     )
             # not stored by the MTex script
             # https://github.com/FAIRmat-NFDI/mtex/blob/91ef5185388419acdb75559fd4252099dcbf24de/
-            # userScripts/FairmatNfdi/nexus_write_ebsd_microstructure.m#L25
+            # userScripts/FAIRmat-NFDI/nexus_write_ebsd_microstructure.m#L25
 
             src = f"{src_prfx}/crystals"
             trg = f"{trg_prfx}/crystals"

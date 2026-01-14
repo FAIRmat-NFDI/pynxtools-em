@@ -17,7 +17,7 @@
 #
 """Configuration of the image_tiff_fei parser."""
 
-from typing import Any, Dict
+from typing import Any
 
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
@@ -26,9 +26,9 @@ from pynxtools_em.utils.pint_custom_unit_registry import ureg
 # Intensity____31.429 dimensionless
 # Objective lens____92.941 dimensionless
 # Diffraction lens____36.754 dimensionless
-# TODO::changeme need to go elsewhere after the Autumn NIAC meeting NXem
+# TODO::change me need to go elsewhere after the Autumn NIAC meeting NXem
 
-FEI_TECNAI_STATIC_VARIOUS_NX: Dict[str, Any] = {
+FEI_TECNAI_STATIC_VARIOUS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument",
     "prefix_src": "",
     "use": [("fabrication/vendor", "FEI")],
@@ -39,7 +39,7 @@ FEI_TECNAI_STATIC_VARIOUS_NX: Dict[str, Any] = {
 }
 
 
-FEI_TECNAI_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
+FEI_TECNAI_DYNAMIC_OPTICS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/optics",
     "prefix_src": "",
     "map_to_str": [("filtermode_tmp", "Filter mode")],
@@ -54,7 +54,7 @@ FEI_TECNAI_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
 }
 
 
-FEI_TECNAI_DYNAMIC_STAGE_NX: Dict[str, Any] = {
+FEI_TECNAI_DYNAMIC_STAGE_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]",
     "prefix_src": "",
     "map_to_f8": [
@@ -69,10 +69,10 @@ FEI_TECNAI_DYNAMIC_STAGE_NX: Dict[str, Any] = {
     ],
 }
 # TODO:: L68 should be commented in again related to not handling list of ureg.Quantity
-# as catched currently in case_five_list of concepts/mapping_functors_pint L361
+# as couhatched currently in case_five_list of concepts/mapping_functors_pint L361
 
 
-FEI_TECNAI_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
+FEI_TECNAI_DYNAMIC_VARIOUS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]",
     "prefix_src": "",
     "map_to_str": [("instrument/ebeam_column/operation_mode", "Mode")],
@@ -101,14 +101,14 @@ FEI_TECNAI_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
 
 # FEI Helios NanoLab FIB/SEM-specific metadata based on prototypic example
 
-FEI_HELIOS_DYNAMIC_DETECTOR_NX: Dict[str, Any] = {
+FEI_HELIOS_DYNAMIC_DETECTOR_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/detectorID[detector*]",
     "prefix_src": "Metadata.Detectors.ScanningDetector.",
     "map_to_str": [("name", "DetectorName")],
 }
 
 
-FEI_HELIOS_STATIC_VARIOUS_NX: Dict[str, Any] = {
+FEI_HELIOS_STATIC_VARIOUS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument",
     "prefix_src": "Metadata.",
     "use": [("fabrication/vendor", "FEI")],
@@ -120,7 +120,7 @@ FEI_HELIOS_STATIC_VARIOUS_NX: Dict[str, Any] = {
 }
 
 
-FEI_HELIOS_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
+FEI_HELIOS_DYNAMIC_OPTICS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/optics",
     "prefix_src": "Metadata.",
     "map_to_bool": [
@@ -145,7 +145,7 @@ FEI_HELIOS_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
 }
 
 
-FEI_HELIOS_DYNAMIC_STAGE_NX: Dict[str, Any] = {
+FEI_HELIOS_DYNAMIC_STAGE_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]",
     "prefix_src": "Metadata.StageSettings.StagePosition.",
     "map_to_f8": [
@@ -162,21 +162,21 @@ FEI_HELIOS_DYNAMIC_STAGE_NX: Dict[str, Any] = {
 }
 
 
-FEI_HELIOS_DYNAMIC_STIGMATOR_NX: Dict[str, Any] = {
+FEI_HELIOS_DYNAMIC_STIGMATOR_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/corrector_ax",
     "prefix_src": "Metadata.Optics.StigmatorRaw.",
     "map_to_f8": [("value_x", "X"), ("value_y", "Y")],  # unit?
 }
 
 
-FEI_HELIOS_DYNAMIC_SCAN_NX: Dict[str, Any] = {
+FEI_HELIOS_DYNAMIC_SCAN_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/scan_controller",
     "prefix_src": "Metadata.ScanSettings.",
     "map_to_f8": [("dwell_time", ureg.second, "DwellTime", ureg.second)],
 }
 
 
-FEI_HELIOS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
+FEI_HELIOS_DYNAMIC_VARIOUS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]",
     "prefix_src": "Metadata.",
     "use": [

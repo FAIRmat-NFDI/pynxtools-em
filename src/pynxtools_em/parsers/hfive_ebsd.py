@@ -17,8 +17,6 @@
 #
 """Parser mapping concepts and content from community *.h5/*.h5ebsd files on NXem."""
 
-from typing import Dict
-
 import h5py
 import numpy as np
 from diffpy.structure import Lattice, Structure
@@ -33,10 +31,7 @@ from pynxtools_em.methods.ebsd import (
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.get_checksum import (
-    DEFAULT_CHECKSUM_ALGORITHM,
-    get_sha256_of_file_content,
-)
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.hfive_utils import (
     EBSD_MAP_SPACEGROUP,
     EULER_SPACE_SYMMETRY,
@@ -54,13 +49,13 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
     ):
         if file_path:
             self.file_path = file_path
-            self.id_mgn: Dict[str, int] = {
+            self.id_mgn: dict[str, int] = {
                 "entry_id": entry_id if entry_id > 0 else 1,
                 "roi_id": 1,
             }
             self.verbose = verbose
             self.prfx = ""  # template path handling
-            self.version: Dict = {  # Dict[str, Dict[str, List[str]]]
+            self.version: dict = {  # Dict[str, Dict[str, List[str]]]
                 "trg": {
                     "tech_partner": ["xcdskd"],
                     "schema_name": ["H5EBSD"],
@@ -198,7 +193,7 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
                 self.ebsd.phases[phase_idx]["alpha_beta_gamma"] = (
                     ureg.Quantity(angles, ureg.degree).to(ureg.radian).flatten()
                 )
-                latt = Lattice(
+                lattice = Lattice(
                     abc[0],
                     abc[1],
                     abc[2],
@@ -230,7 +225,7 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
                 else:
                     self.ebsd.space_group = [space_group]
 
-                strct = Structure(title=phase_name, atoms=None, lattice=latt)
+                strct = Structure(title=phase_name, atoms=None, lattice=lattice)
                 if len(self.ebsd.phase) > 0:
                     self.ebsd.phase.append(strct)
                 else:
@@ -324,7 +319,7 @@ class HdfFiveEbsdCommunityParser(HdfFiveBaseParser):
         # indexed with simulated and measured pattern
         # TODO::MAD as degree?
         if np.shape(fp[f"{grp_name}/MAD"][:])[0] == n_pts:
-            self.ebsd.descr_type = "mean_angular_deviation"
+            self.ebsd.contrast = "mean_angular_deviation"
             self.ebsd.descr_value = ureg.Quantity(
                 np.asarray(fp[f"{grp_name}/MAD"][:], np.float32), ureg.radian
             )

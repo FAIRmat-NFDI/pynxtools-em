@@ -43,7 +43,7 @@ test_cases = [
 test_params = []
 
 for test_case in test_cases:
-    # ToDo: make tests for all supported appdefs possible
+    # ToDo: make tests for all supported application definitions possible
     for nxdl in NXDLS:
         test_params += [pytest.param(nxdl, test_case[0], id=f"{test_case[1]}, {nxdl}")]
 
@@ -152,7 +152,7 @@ def test_nexus_conversion(nxdl, sub_reader_data_dir, tmp_path, caplog):
 
     # assert against reference YAML artifact
     test_artifact_file_path = f"{test_nexus_path}.sha256.test.yaml"
-    with open(test_artifact_file_path, "r") as fp_test:
+    with open(test_artifact_file_path) as fp_test:
         try:
             test_artifact = yaml.safe_load(fp_test)
         except yaml.YAMLError as exc:
@@ -166,7 +166,7 @@ def test_nexus_conversion(nxdl, sub_reader_data_dir, tmp_path, caplog):
             "output.nxs.sha256.ref.yaml",
         ]
     )
-    with open(ref_artifact_file_path, "r") as fp_ref:
+    with open(ref_artifact_file_path) as fp_ref:
         try:
             reference_artifact = yaml.safe_load(fp_ref)
         except yaml.YAMLError as exc:

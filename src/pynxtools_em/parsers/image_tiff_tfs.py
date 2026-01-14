@@ -18,7 +18,6 @@
 """Parser for harmonizing ThermoFisher-specific content in TIFF files."""
 
 import mmap
-from typing import Dict
 
 import flatdict as fd
 import numpy as np
@@ -39,13 +38,10 @@ from pynxtools_em.configurations.image_tiff_tfs_cfg import (
 )
 from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.get_checksum import (
-    DEFAULT_CHECKSUM_ALGORITHM,
-    get_sha256_of_file_content,
-)
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.image_utils import (
     if_str_represents_float,
-    sort_ascendingly_by_second_argument,
+    sort_asc_by_second_argument,
 )
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.tfs_utils import get_fei_childs
@@ -59,9 +55,9 @@ class TfsTiffParser:
             self.file_path = file_path
             self.entry_id = entry_id if entry_id > 0 else 1
             self.verbose = verbose
-            self.id_mgn: Dict[str, int] = {"event_id": 1}
+            self.id_mgn: dict[str, int] = {"event_id": 1}
             self.flat_dict_meta = fd.FlatDict({}, "/")
-            self.version: Dict = {}
+            self.version: dict = {}
             self.supported = False
             self.check_if_tiff_tfs()
             if not self.supported:
@@ -83,7 +79,7 @@ class TfsTiffParser:
                 magic = s.read(4)
                 if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                     return
-        except (FileNotFoundError, IOError):
+        except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
@@ -111,12 +107,14 @@ class TfsTiffParser:
             if self.verbose:
                 logger.debug(tfs_parent_concepts_byte_offset)
 
-            sequence = []  # decide I/O order in which metadata for childs of parent concepts will be read
+            sequence = []
+            # decide I/O order in which metadata for
+            # children of parent concepts will be read
             for key, value in tfs_parent_concepts_byte_offset.items():
                 if value is not None:
                     sequence.append((key, value))
                     # tuple of parent_concept name and byte offset
-            sequence = sort_ascendingly_by_second_argument(sequence)
+            sequence = sort_asc_by_second_argument(sequence)
             if self.verbose:
                 logger.debug(sequence)
 
@@ -132,7 +130,7 @@ class TfsTiffParser:
                 idx += 1
                 if pos_s is None or pos_e is None:
                     logger.warning(
-                        f"Definition of byte boundaries for reading childs of [{parent}] was unsuccessful !"
+                        f"Definition of byte boundaries for reading children of [{parent}] was unsuccessful !"
                     )
                 # logger.debug(f"Search for [{parent}] in between byte offsets {pos_s} and {pos_e}")
 
@@ -198,7 +196,7 @@ class TfsTiffParser:
                 # with H5Web and NeXus most of this is obsolete unless there are metadata stamped which are not
                 # available in NeXus or in the respective metadata in the metadata section of the TIFF image
                 # remember H5Web images can be scaled based on the metadata allowing basically the same
-                # explorative viewing using H5Web than what traditionally typical image viewers are meant for
+                # exploratory viewing using H5Web than what traditionally typical image viewers are meant for
                 trg = (
                     f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event"
                     f"{self.id_mgn['event_id']}]/imageID[image{identifier_image}]/image_2d"

@@ -21,7 +21,6 @@
 import glob
 import json
 import mmap
-from typing import Dict
 from zipfile import ZipFile
 
 import flatdict as fd
@@ -47,10 +46,7 @@ from pynxtools_em.configurations.nion_cfg import (
 )
 from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.get_checksum import (
-    DEFAULT_CHECKSUM_ALGORITHM,
-    get_sha256_of_file_content,
-)
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.nion_utils import (
     nion_image_spectrum_or_generic_nxdata,
     uuid_to_file_name,
@@ -69,16 +65,16 @@ class NionProjectParser:
             self.file_path = file_path
         self.entry_id = entry_id if entry_id > 0 else 1
         self.verbose = verbose
-        self.id_mgn: Dict[str, int] = {"event_id": 1}
+        self.id_mgn: dict[str, int] = {"event_id": 1}
         # counters which keep track of how many instances of NXevent_data_em have
         # been instantiated, this implementation currently maps each display_items
         # onto an own NXevent_data_em instance
         self.file_path_sha256 = None
-        self.proj_file_dict: Dict = {}
+        self.proj_file_dict: dict = {}
         # assure that there is exactly one *.nsproj file only to parse from
-        self.ndata_file_dict: Dict = {}
+        self.ndata_file_dict: dict = {}
         # just get the *.ndata files irrespective whether parsed later or not
-        self.hfive_file_dict: Dict = {}
+        self.hfive_file_dict: dict = {}
         # just get the *.h5 files irrespective whether parsed later or not
         self.supported = False
         self.is_zipped = False
@@ -113,7 +109,7 @@ class NionProjectParser:
                         logger.info(
                             f"Expecting zip-compressed file: ___{self.file_path}___{magic}___{get_sha256_of_file_content(fp)}___{eof_byte_offset}___"
                         )
-            except (FileNotFoundError, IOError):
+            except (OSError, FileNotFoundError):
                 logger.warning(f"{self.file_path} either FileNotFound or IOError !")
                 return
 
@@ -229,7 +225,7 @@ class NionProjectParser:
         """Handle reading and processing of opened *.ndata inside the ZIP file."""
         # assure that we start reading that file_hdl/pointer from the beginning...
         file_hdl.seek(0)
-        local_files, dir_files, eocd = nsnd.parse_zip(file_hdl)
+        local_files, dir_files, end_of_central_dir = nsnd.parse_zip(file_hdl)
         flat_metadata = fd.FlatDict({}, "/")
         logger.debug(
             f"Inspecting {full_path} with len(local_files.keys()) ___{len(local_files.keys())}___"
@@ -279,7 +275,7 @@ class NionProjectParser:
                     logger.debug(
                         f"ndata, data.npy, type, shape, dtype: ___{type(nparr)}___{np.shape(nparr)}___{nparr.dtype}___"
                     )
-                # because we expect (based on Benedikt's example) to find only one npy
+                # because we expect (based on the example from Benedikt Haas) to find only one npy
                 # file in that *.ndata file pointed to by file_hdl and only one matching
                 # metadata.json we can now write the data and its metadata into template
                 self.process_event_data_em_metadata(flat_metadata, template)
@@ -324,7 +320,7 @@ class NionProjectParser:
         nionswift_proj_mdata = {}
         if self.is_zipped:
             with ZipFile(self.file_path) as zip_file_hdl:
-                for pkey, proj_file_name in self.proj_file_dict.items():
+                for proj_key, proj_file_name in self.proj_file_dict.items():
                     with zip_file_hdl.open(proj_file_name) as file_hdl:
                         nionswift_proj_mdata = fd.FlatDict(
                             yaml.safe_load(file_hdl), "/"
@@ -344,7 +340,7 @@ class NionProjectParser:
             return template
 
         for itm in nionswift_proj_mdata["display_items"]:
-            if set(["type", "uuid", "created", "display_data_channels"]).issubset(
+            if {"type", "uuid", "created", "display_data_channels"}.issubset(
                 itm.keys()
             ):
                 if len(itm["display_data_channels"]) == 1:
@@ -427,7 +423,7 @@ class NionProjectParser:
         ]:
             add_specific_metadata_pint(cfg, flat_metadata, identifier, template)
         # but not so static quantities, for these we ideally need to check if
-        # exactly the same data havent already been written in an effort to avoid
+        # exactly the same data have not already been written in an effort to avoid
         # redundancies
         # most use cases simply avoid this complication as they assume well these
         # metadata are delivered by the ELN and thus a different serialization code
@@ -548,7 +544,7 @@ class NionProjectParser:
                         )
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
                             f"{axis_name}"
-                            # unitless | dimensionless i.e. no unit in longname
+                            # unitless | dimensionless i.e. no unit in long_name
                         )
                 else:
                     template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
