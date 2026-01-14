@@ -56,7 +56,7 @@ docs = [
     "mkdocs-click"
 ]
 nomad = [
-    "nomad-lab[parsing, infrastructure]>=1.3.17"
+    "nomad-lab[infrastructure]>=1.3.17"
 ]
 ipynb = [
     "jupyter",
