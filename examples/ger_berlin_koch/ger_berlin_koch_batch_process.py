@@ -27,22 +27,24 @@
 # one NeXus/HDF5 file per project
 
 # python3 ger_berlin_koch_batch_process.py 'microscope_dir' '.' 'humans_and_companies.ods' 'nion_data_metadata.ods'
+import gc
+import logging
 import os
 import sys
 from datetime import datetime
-import pytz
-import logging
-import pandas as pd
+from typing import Any
+
 import numpy as np
+import pandas as pd
+import pytz
 import yaml
-import gc
-from contextlib import contextmanager
 
 # from pathlib import Path
 from pynxtools.dataconverter.convert import convert
 from pynxtools.dataconverter.helpers import get_nxdl_root_and_path
+
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
-from pynxtools_em.utils.versioning import __version__
+from pynxtools_em.utils.versioning import pynx_em_version
 
 
 def export_to_yaml(fpath: str, lookup_dict: dict[str, str | int]):
@@ -70,13 +72,13 @@ def generate_eln_data_yaml(
     dirty_atom_types: str,
     bytes_per_project: int,
     lookup: dict[str, dict[str, str]],
-    config: dict[str, str],
+    config: dict[str, str | int],
     write_yaml_file: bool = True,
 ) -> tuple[str, str]:
     with open(nsproj_fpath, "rb", 0) as fp:
         hash = get_sha256_of_file_content(fp)
     eln_fpath = f"{config['working_directory']}/{hash}.eln_data.yaml"
-    eln_data = {}
+    eln_data: dict[str, Any] = {}
 
     eln_data["entry"] = {}
     eln_data["entry"]["start_time"] = (
@@ -115,7 +117,7 @@ config: dict[str, str | int] = {
     "python_version": f"{sys.version}",
     "working_directory": f"{os.getcwd()}",
     "program_name": f"pynxtools_em/{__name__}",
-    "program_version": f"{__version__}",
+    "program_version": f"{pynx_em_version}",
     "microscope_directory": sys.argv[1],  # e.g. '../../nion_data/'
     "target_directory": sys.argv[2],  # e.g. '../'
     "identifier_file_name": sys.argv[3],  # e.g. 'humans_and_companies.ods'
@@ -154,18 +156,16 @@ def switch_root_logfile(filename, log_level=logging.DEBUG):
 
 
 ignore_these_directories = tuple(
-    [
-        f"{config['microscope_directory']}{val}"
-        for val in (
-            "$RECYCLE",
-            "System Volume Information",
-            "Swift Libraries",
-            "cygdrive",
-            "deleteme_test",
-            "Bugs",
-            "Bruker",
-        )
-    ]
+    f"{config['microscope_directory']}{val}"
+    for val in (
+        "$RECYCLE",
+        "System Volume Information",
+        "Swift Libraries",
+        "cygdrive",
+        "deleteme_test",
+        "Bugs",
+        "Bruker",
+    )
 )
 
 
@@ -226,9 +226,9 @@ if generate_nexus_file:
     for row in nsprojects.itertuples(index=True):
         if row.parse == 1:
             project_id += 1
-            if (project_id < config["project_id_start"]) or (
-                project_id > config["project_id_end"]
-            ):
+            if project_id < config["project_id_start"]:  # type: ignore
+                continue
+            if project_id > config["project_id_end"]:  # type: ignore
                 continue
             if row.nsproj_fpath not in white_list:
                 logger.info(f"{row.nsproj_fpath} skipped cuz not in the white_list")
@@ -293,7 +293,7 @@ if generate_nexus_file:
 # use case analyze content
 collect_statistics = False
 if collect_statistics:
-    for root, dirs, files in os.walk(config["microscope_directory"]):
+    for root, dirs, files in os.walk(config["microscope_directory"]):  # type: ignore
         for file in files:
             fpath = f"{root}/{file}".replace(os.sep * 2, os.sep)
             if fpath.startswith(ignore_these_directories):
@@ -331,9 +331,9 @@ switch_root_logfile(f"{config['working_directory']}{os.sep}{DEFAULT_LOGGER_NAME}
 total_bytes_processed += bytes_processed
 print(f"Processed {np.around((total_bytes_processed / (1024**4)), decimals=3)} TiB")
 if generate_nexus_file:
-    export_to_yaml("nsproj_to_eln.yaml", nsproj_to_eln)
+    export_to_yaml("nsproj_to_eln.yaml", nsproj_to_eln)  # type: ignore
 if collect_statistics:
-    export_to_yaml("statistics.yaml", statistics)
+    export_to_yaml("statistics.yaml", statistics)  #  type: ignore
 # export_to_text("projects.txt", projects)
 toc = datetime.now().timestamp()
 logger.info(f"{toc}")

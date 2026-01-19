@@ -79,6 +79,9 @@ em = "pynxtools_em.reader:EMReader"
 # em_app_entry_point = "pynxtools_em.nomad.apps:em_app_entry_point"
 em_example_upload_entry_point = "pynxtools_em.nomad.example_uploads:em_example_upload_entry_point"
 
+[tool.setuptools.package-data]
+pynxtools_em = ["_version.py"]
+
 [tool.uv]
 extra-index-url = [
     "https://gitlab.mpcdf.mpg.de/api/v4/projects/2187/packages/pypi/simple",

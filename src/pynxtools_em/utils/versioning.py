@@ -17,7 +17,7 @@
 #
 """Utility tool constants and versioning."""
 
-from pynxtools_em.utils._version import version as __version__
+from pynxtools_em._version import version as pynx_em_version
 
 NX_EM_ADEF_NAME = "NXem"
 PYNX_EM_NAME = "pynxtools-em/reader.py"
@@ -29,8 +29,8 @@ def get_em_exec_version() -> str:
     # tag = get_repo_last_commit()
     # if tag is not None:
     #     return f"https://github.com/FAIRmat-NFDI/pynxtools-em/commit/{tag}"
-    if __version__ is not None:
-        return f"{__version__}"
+    if pynx_em_version is not None:
+        return f"{pynx_em_version}"
     else:
         return "UNKNOWN COMMIT"
 
