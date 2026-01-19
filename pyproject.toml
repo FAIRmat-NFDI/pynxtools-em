@@ -63,6 +63,10 @@ ipynb = [
     "jupyterlab",
     "jupyterlab_h5web"
 ]
+batch = [
+    "odfpy",
+    "openpyxl",
+]
 
 [project.urls]
 "Homepage" = "https://github.com/FAIRmat-NFDI/pynxtools-em"
@@ -74,6 +78,9 @@ em = "pynxtools_em.reader:EMReader"
 [project.entry-points.'nomad.plugin']
 # em_app_entry_point = "pynxtools_em.nomad.apps:em_app_entry_point"
 em_example_upload_entry_point = "pynxtools_em.nomad.example_uploads:em_example_upload_entry_point"
+
+[tool.setuptools.package-data]
+pynxtools_em = ["_version.py"]
 
 [tool.uv]
 extra-index-url = [
@@ -88,7 +95,7 @@ exclude = ["dev/*"]
 [tool.setuptools_scm]
 version_scheme = "no-guess-dev"
 local_scheme = "node-and-date"
-write_to = "src/pynxtools_em/utils/_version.py"
+write_to = "src/pynxtools_em/_version.py"
 git_describe_command = ["git", "describe", "--dirty", "--long", "--tags", "--match", "*[0-9]*", "--abbrev=8"]
 
 [tool.ruff]

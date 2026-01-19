@@ -15,24 +15,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Utility tool constants and versioning."""
+"""Utilities to get metadata of numpy files efficiently."""
 
-from pynxtools_em._version import version as pynx_em_version
-
-NX_EM_ADEF_NAME = "NXem"
-PYNX_EM_NAME = "pynxtools-em/reader.py"
+import numpy as np
+from numpy.lib.format import read_array_header_1_0, read_array_header_2_0
 
 
-def get_em_exec_version() -> str:
-    # TODO:deprecate, remove when versions are properly resolved with the next NOMAD release
-    # then also remove the function call altogether
-    # tag = get_repo_last_commit()
-    # if tag is not None:
-    #     return f"https://github.com/FAIRmat-NFDI/pynxtools-em/commit/{tag}"
-    if pynx_em_version is not None:
-        return f"{pynx_em_version}"
-    else:
-        return "UNKNOWN COMMIT"
-
-
-PYNX_EM_VERSION = get_em_exec_version()
+def get_numpy_info(path):
+    with open(path, "rb") as fp:
+        magic = np.lib.format.read_magic(fp)
+        if magic[0] == 1:
+            header = read_array_header_1_0(fp)
+        else:
+            header = read_array_header_2_0(fp)
+    return header
