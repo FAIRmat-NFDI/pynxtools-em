@@ -18,7 +18,6 @@
 """Parser for harmonizing point electronic DISS specific content in TIFF files."""
 
 import mmap
-from typing import Dict
 
 import flatdict as fd
 import numpy as np
@@ -30,10 +29,7 @@ from pynxtools_em.configurations.image_tiff_point_electronic_cfg import (
 )
 from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.get_checksum import (
-    DEFAULT_CHECKSUM_ALGORITHM,
-    get_sha256_of_file_content,
-)
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
 
@@ -46,9 +42,9 @@ class PointElectronicTiffParser:
             self.file_path = file_path
             self.entry_id = entry_id if entry_id > 0 else 1
             self.verbose = verbose
-            self.id_mgn: Dict[str, int] = {"event_id": 1}
+            self.id_mgn: dict[str, int] = {"event_id": 1}
             self.flat_metadata = fd.FlatDict({}, "/")
-            self.version: Dict = {
+            self.version: dict = {
                 "trg": {
                     "tech_partner": ["point electronic"],
                     "schema_name": ["DISS"],
@@ -76,11 +72,11 @@ class PointElectronicTiffParser:
                     for dct in obj:
                         if isinstance(dct, dict):
                             lst = fd.FlatDict(dct, "/")
-                            for kkey, kobj in lst.items():
-                                if isinstance(kobj, str) and kobj != "":
-                                    if f"{key}/{kkey}" not in self.flat_metadata:
-                                        self.flat_metadata[f"{key}/{kkey}"] = (
-                                            string_to_number(kobj)
+                            for sub_key, sub_obj in lst.items():
+                                if isinstance(sub_obj, str) and sub_obj != "":
+                                    if f"{key}/{sub_key}" not in self.flat_metadata:
+                                        self.flat_metadata[f"{key}/{sub_key}"] = (
+                                            string_to_number(sub_obj)
                                         )
                 elif isinstance(obj, str) and obj != "":
                     if key not in self.flat_metadata:
@@ -101,7 +97,7 @@ class PointElectronicTiffParser:
                 magic = s.read(4)
                 if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                     return
-        except (FileNotFoundError, IOError):
+        except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 

@@ -18,7 +18,6 @@
 """Derived image class to derive every tech-partner-specific TIFF parser from."""
 
 import mmap
-from typing import Dict
 
 from PIL import Image
 from PIL.TiffTags import TAGS
@@ -34,8 +33,8 @@ class TiffParser:
         if file_path:
             self.file_path = file_path
         self.verbose = verbose
-        self.version: Dict = {}  # trg target versions supported, src actual
-        self.tags: Dict = {}
+        self.version: dict = {}  # trg target versions supported, src actual
+        self.tags: dict = {}
         self.supported = False
         self.check_if_tiff()
 
@@ -77,7 +76,7 @@ class TiffParser:
                 if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                     return
                 self.supported = True
-        except (FileNotFoundError, IOError):
+        except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 

@@ -1,7 +1,7 @@
-site_name: Documentation
+site_name: Documentation for pynxtools-em
 site_description: |
   The documentation for the pynxtools-em plugin.
-site_author: The NOMAD Authors
+site_author: The NOMAD authors
 repo_url: https://github.com/FAIRmat-NFDI/pynxtools-em
 edit_uri: ""
 
@@ -10,6 +10,7 @@ nav:
   - Tutorials:
     - tutorial/installation.md
     - tutorial/standalone.md
+    - tutorial/contributing.md
     # - tutorial/nexusio.md
     # - tutorial/oasis.md
   - How-To Guides:
@@ -39,8 +40,6 @@ nav:
 
 plugins:
   - search
-  - macros:
-      module_name: src/pynxtools_em/mkdocs
 
 theme:
   name: material
@@ -56,6 +55,7 @@ theme:
     - navigation.footer
     - content.code.copy
     - content.code.annotate
+    - search.suggest
   custom_dir: docs/theme
   icon:
     repo: fontawesome/brands/github
@@ -76,6 +76,8 @@ markdown_extensions:
   - pymdownx.emoji
   - mkdocs-click
   - pymdownx.extra
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid

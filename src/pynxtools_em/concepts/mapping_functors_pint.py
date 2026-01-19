@@ -18,7 +18,7 @@
 """Utilities for working with NeXus concepts encoded as Python dicts in the concepts dir."""
 
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 import flatdict as fd
 import numpy as np
@@ -34,7 +34,7 @@ from pynxtools_em.utils.pint_custom_unit_registry import is_not_special_unit, ur
 from pynxtools_em.utils.string_conversions import rchop
 
 # best practice is use np.ndarray or np.generic as magnitude within that ureg.Quantity!
-MAP_TO_DTYPES: Dict[str, type] = {
+MAP_TO_DTYPES: dict[str, type] = {
     "u1": np.uint8,
     "i1": np.int8,
     "u2": np.uint16,
@@ -60,7 +60,7 @@ MAP_TO_DTYPES: Dict[str, type] = {
 #    attribute
 
 
-def var_path_to_spcfc_path(path: str, instance_identifier: list):
+def var_path_to_specific_path(path: str, instance_identifier: list):
     """Transforms a variadic path to an actual path with instances."""
     if (path is not None) and (path != ""):
         nvariadic_parts = path.count("*")
@@ -271,7 +271,7 @@ def use_functor(
                 if isinstance(cmd[0], str):
                     if isinstance(cmd[1], (str, ureg.Quantity, bool)):
                         # str, str or str, ureg or str, bool
-                        trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+                        trg = var_path_to_specific_path(f"{prfx_trg}/{cmd[0]}", ids)
                         set_value(template, trg, cmd[1])
     return template
 
@@ -296,12 +296,12 @@ def map_functor(
         if case == "case_one":  # str
             src_val = mdata.get(f"{prfx_src}{cmd}")
             if src_val is not None and src_val != "":
-                trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd}", ids)
+                trg = var_path_to_specific_path(f"{prfx_trg}/{cmd}", ids)
                 set_value(template, trg, src_val, trg_dtype_key)
         elif case == "case_two_str":  # str, str
             src_val = mdata.get(f"{prfx_src}{cmd[1]}")
             if src_val is not None and src_val != "":
-                trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+                trg = var_path_to_specific_path(f"{prfx_trg}/{cmd[0]}", ids)
                 set_value(template, trg, src_val, trg_dtype_key)
         elif case == "case_two_list":
             # ignore empty list, all src paths str, all src_val have to exist of same type
@@ -319,13 +319,13 @@ def map_functor(
             if trg_dtype_key != "str":
                 if not all(type(val) is type(src_values[0]) for val in src_values):
                     continue
-            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+            trg = var_path_to_specific_path(f"{prfx_trg}/{cmd[0]}", ids)
             set_value(template, trg, src_values, trg_dtype_key)
         elif case == "case_three_str":  # str, ureg.Unit, str
             src_val = mdata.get(f"{prfx_src}{cmd[2]}")
             if not src_val:
                 continue
-            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+            trg = var_path_to_specific_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_val, ureg.Quantity):
                 set_value(template, trg, src_val.to(cmd[1]), trg_dtype_key)
             else:
@@ -343,7 +343,7 @@ def map_functor(
             if not all(type(val) is type(src_values[0]) for val in src_values):
                 # need to check whether content are scalars also
                 continue
-            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+            trg = var_path_to_specific_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_values, ureg.Quantity):
                 set_value(template, trg, src_values, trg_dtype_key)
             else:
@@ -374,7 +374,7 @@ def map_functor(
             src_val = mdata.get(f"{prfx_src}{cmd[2]}")
             if not src_val:
                 continue
-            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+            trg = var_path_to_specific_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_val, ureg.Quantity):
                 set_value(template, trg, src_val.to(cmd[1]), trg_dtype_key)
             else:
@@ -396,7 +396,7 @@ def map_functor(
                 )
             if not all(type(val) is type(src_values[0]) for val in src_values):
                 continue
-            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+            trg = var_path_to_specific_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_values, ureg.Quantity):
                 set_value(template, trg, src_values.to(cmd[1]), trg_dtype_key)
             else:
@@ -410,7 +410,7 @@ def map_functor(
             src_unit = mdata[f"{prfx_src}{cmd[3]}"]
             if not src_val or not src_unit:
                 continue
-            trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+            trg = var_path_to_specific_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_val, ureg.Quantity):
                 set_value(template, trg, src_val.to(cmd[1]), trg_dtype_key)
             else:
@@ -443,8 +443,8 @@ def timestamp_functor(
                         raise ValueError(
                             f"{tzone} is not a timezone in pytz.all_timezones!"
                         )
-                    var_path_to_spcfc_path
-                    trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+                    var_path_to_specific_path
+                    trg = var_path_to_specific_path(f"{prfx_trg}/{cmd[0]}", ids)
                     template[f"{trg}"] = datetime.fromtimestamp(
                         int(mdata[f"{prfx_src}{cmd[1]}"]),
                         tz=pytz.timezone(tzone),
@@ -470,7 +470,7 @@ def filehash_functor(
                     continue
                 if mdata[f"{prfx_src}{cmd[1]}"] == "":
                     continue
-                trg = var_path_to_spcfc_path(f"{prfx_trg}/{cmd[0]}", ids)
+                trg = var_path_to_specific_path(f"{prfx_trg}/{cmd[0]}", ids)
                 try:
                     with open(mdata[f"{prfx_src}{cmd[1]}"], "rb") as fp:
                         fragment = rchop(trg, "checksum")
@@ -478,7 +478,7 @@ def filehash_functor(
                         template[f"{fragment}type"] = "file"
                         template[f"{fragment}file_name"] = mdata[f"{prfx_src}{cmd[1]}"]
                         template[f"{fragment}algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
-                except (FileNotFoundError, IOError):
+                except (OSError, FileNotFoundError):
                     logger.warning(
                         f"File {mdata[f'''{prfx_src}{cmd[1]}''']} not found !"
                     )

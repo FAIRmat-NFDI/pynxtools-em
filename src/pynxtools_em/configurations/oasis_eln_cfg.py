@@ -17,11 +17,11 @@
 #
 """Dict mapping custom schema instances from eln_data.yaml file on concepts in NXem."""
 
-from typing import Any, Dict
+from typing import Any
 
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-OASISELN_EM_ENTRY_TO_NEXUS: Dict[str, Any] = {
+OASISELN_EM_ENTRY_TO_NEXUS: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]",
     "prefix_src": "entry/",
     "map_to_str": [
@@ -33,7 +33,7 @@ OASISELN_EM_ENTRY_TO_NEXUS: Dict[str, Any] = {
 }
 
 
-OASISELN_EM_SAMPLE_TO_NEXUS: Dict[str, Any] = {
+OASISELN_EM_SAMPLE_TO_NEXUS: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/sampleID[sample]",
     "prefix_src": "sample/",
     "map_to_str": [
@@ -45,7 +45,7 @@ OASISELN_EM_SAMPLE_TO_NEXUS: Dict[str, Any] = {
 }
 
 
-OASISELN_EM_USER_TO_NEXUS: Dict[str, Any] = {
+OASISELN_EM_USER_TO_NEXUS: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/userID[user*]",
     "prefix_src": "",
     "map_to_str": [

@@ -20,7 +20,7 @@
 import datetime
 import mmap
 import re
-from typing import Any, Dict, List
+from typing import Any
 from zipfile import ZipFile
 
 import flatdict as fd
@@ -30,7 +30,7 @@ from PIL import Image
 
 from pynxtools_em.concepts.mapping_functors_pint import (
     add_specific_metadata_pint,
-    var_path_to_spcfc_path,
+    var_path_to_specific_path,
 )
 from pynxtools_em.configurations.image_png_protochips_cfg import (
     AXON_DYNAMIC_AUX_NX,
@@ -48,7 +48,7 @@ from pynxtools_em.utils.get_checksum import (
     get_sha256_of_file_content,
 )
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
-from pynxtools_em.utils.sorting import sort_ascendingly_by_second_argument_iso8601
+from pynxtools_em.utils.sorting import sort_asc_by_second_argument_iso8601
 from pynxtools_em.utils.string_conversions import string_to_number
 from pynxtools_em.utils.xml_utils import flatten_xml_to_dict
 
@@ -61,11 +61,11 @@ class ProtochipsPngSetParser:
             self.file_path = file_path
             self.entry_id = entry_id if entry_id > 0 else 1
             self.event_id = 1
-            self.dict_meta: Dict[str, fd.FlatDict] = {}
-            self.version: Dict = {}
-            self.png_info: Dict = {}
+            self.dict_meta: dict[str, fd.FlatDict] = {}
+            self.version: dict = {}
+            self.png_info: dict = {}
             self.supported = False
-            self.event_sequence: List = []
+            self.event_sequence: list = []
             self.verbose = verbose
             self.check_if_zipped_png_protochips()
             if not self.supported:
@@ -93,7 +93,7 @@ class ProtochipsPngSetParser:
                 ):  # https://en.wikipedia.org/wiki/List_of_file_signatures
                     # logger.warning(f"Test 1 failed, {self.file_path} is not a ZIP archive !")
                     return
-        except (FileNotFoundError, IOError):
+        except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
@@ -122,7 +122,7 @@ class ProtochipsPngSetParser:
                                     try:
                                         nparr = np.array(png)
                                         self.png_info[file] = np.shape(nparr)
-                                    except IOError:
+                                    except OSError:
                                         logger.warning(
                                             f"Loading image data in-place from {self.file_path}:{file} failed !"
                                         )
@@ -175,8 +175,8 @@ class ProtochipsPngSetParser:
                     grpnm_lookup = {}
                     for concept, value in meta.items():
                         # not every key is allowed to define a concept
-                        idxs = re.finditer(r".\[[0-9]+\].", concept)
-                        if sum(1 for _ in idxs) > 0:  # is_variadic
+                        indices = re.finditer(r".\[[0-9]+\].", concept)
+                        if sum(1 for _ in indices) > 0:  # is_variadic
                             markers = [".Name", ".PositionerName"]
                             for marker in markers:
                                 if concept.endswith(marker):
@@ -188,22 +188,22 @@ class ProtochipsPngSetParser:
                     # second phase, evaluate each concept instance symbol wrt to its prefix coming from the unique concept
                     self.dict_meta[file] = fd.FlatDict({}, "/")
                     for k, v in meta.items():
-                        grpnms = None
-                        idxs = re.finditer(r".\[[0-9]+\].", k)
-                        if sum(1 for _ in idxs) > 0:  # is variadic
+                        group_names = None
+                        indices = re.finditer(r".\[[0-9]+\].", k)
+                        if sum(1 for _ in indices) > 0:  # is variadic
                             search_argument = k[0 : k.rfind("].") + 1]
                             for parent_grpnm, child_grpnm in grpnm_lookup.items():
                                 if parent_grpnm.startswith(search_argument):
-                                    grpnms = (parent_grpnm, child_grpnm)
+                                    group_names = (parent_grpnm, child_grpnm)
                                     break
-                            if grpnms is not None:
-                                if len(grpnms) == 2:
+                            if group_names is not None:
+                                if len(group_names) == 2:
                                     if (
                                         "PositionerSettings" in k
                                         and k.endswith(".PositionerName") is False
                                     ):
                                         key = specific_to_variadic(
-                                            f"{grpnms[0]}.{grpnms[1]}.{k[k.rfind('.') + 1 :]}"
+                                            f"{group_names[0]}.{group_names[1]}.{k[k.rfind('.') + 1 :]}"
                                         )
                                         if key not in self.dict_meta[file]:
                                             self.dict_meta[file][key] = (
@@ -215,7 +215,7 @@ class ProtochipsPngSetParser:
                                             )  # maybe a warning?
                                     if k.endswith(".Value"):
                                         key = specific_to_variadic(
-                                            f"{grpnms[0]}.{grpnms[1]}"
+                                            f"{group_names[0]}.{group_names[1]}"
                                         )
                                         if key not in self.dict_meta[file]:
                                             self.dict_meta[file][key] = (
@@ -271,9 +271,9 @@ class ProtochipsPngSetParser:
             self.process_event_data_em_data(template)
         return template
 
-    def sort_event_data_em(self) -> List:
+    def sort_event_data_em(self) -> list:
         """Sort event data by datetime."""
-        events: List = []
+        events: list = []
         for file_name, mdata in self.dict_meta.items():
             key = f"MicroscopeControlImageMetadata.MicroscopeDateTime"
             if isinstance(mdata, fd.FlatDict):
@@ -288,7 +288,7 @@ class ProtochipsPngSetParser:
                         )
                     events.append((f"{file_name}", datetime_obj))
 
-        events_sorted = sort_ascendingly_by_second_argument_iso8601(events)
+        events_sorted = sort_asc_by_second_argument_iso8601(events)
         del events
         time_series_start = events_sorted[0][1]
         logger.debug(f"Time series start: {time_series_start}")
@@ -309,7 +309,7 @@ class ProtochipsPngSetParser:
         # individual PNGs in self.file_path may include time/date information in the file name
         # surplus eventually AXON-specific identifier it seems useful though to sort these
         # PNGs based on time stamped information directly from the AXON metadata
-        # here we sort ascendingly in time the events and associate new event ids
+        # here we sort in ascending order in time the events and associate new event ids
         # static instrument data
 
         self.event_sequence = self.sort_event_data_em()
@@ -317,7 +317,7 @@ class ProtochipsPngSetParser:
         toggle = True
         for file_name, iso8601 in self.event_sequence:
             identifier = [self.entry_id, event_id, 1]
-            trg = var_path_to_spcfc_path(
+            trg = var_path_to_specific_path(
                 f"/ENTRY[entry*]/measurement/eventID[event*]/start_time",
                 identifier,
             )
@@ -396,7 +396,7 @@ class ProtochipsPngSetParser:
                             f"Real part of the image intensity"
                         )
 
-                        sxy: Dict[str, Any] = {
+                        sxy: dict[str, Any] = {
                             "i": ureg.Quantity(1.0),
                             "j": ureg.Quantity(1.0),
                         }

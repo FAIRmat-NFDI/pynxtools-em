@@ -17,11 +17,11 @@
 #
 """Configuration of the image_tiff_jeol parser."""
 
-from typing import Any, Dict
+from typing import Any
 
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-JEOL_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
+JEOL_DYNAMIC_VARIOUS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]",
     "prefix_src": "",
     "map_to_f8": [
@@ -42,7 +42,7 @@ JEOL_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
 }
 
 
-JEOL_STATIC_VARIOUS_NX: Dict[str, Any] = {
+JEOL_STATIC_VARIOUS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/fabrication",
     "prefix_src": "",
     "use": [("vendor", "JEOL")],

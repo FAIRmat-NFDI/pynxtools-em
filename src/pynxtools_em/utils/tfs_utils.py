@@ -17,12 +17,10 @@
 #
 """Utility functions for working with ThermoFisher content and concepts."""
 
-from typing import List
-
 from pynxtools_em.configurations.image_tiff_tfs_cfg import TIFF_TFS_ALL_CONCEPTS
 
 
-def get_fei_childs(parent_concept: str) -> List:
+def get_fei_childs(parent_concept: str) -> list:
     """Get all children of FEI parent concept."""
     child_concepts = set()
     for entry in TIFF_TFS_ALL_CONCEPTS:

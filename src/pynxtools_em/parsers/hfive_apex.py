@@ -17,7 +17,7 @@
 #
 """Parser mapping concepts and content from EDAX/AMETEK *.edaxh5 (APEX) files on NXem."""
 
-from typing import Any, Dict
+from typing import Any
 
 import h5py
 import numpy as np
@@ -25,7 +25,6 @@ from ase.data import chemical_symbols
 from diffpy.structure import Lattice, Structure
 from orix.quaternion import Orientation
 
-from pynxtools_em.examples.ebsd_database import ASSUME_PHASE_NAME_TO_SPACE_GROUP
 from pynxtools_em.methods.ebsd import (
     EbsdPointCloud,
     ebsd_roi_overview,
@@ -56,7 +55,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
     ):
         if file_path:
             self.file_path = file_path
-            self.id_mgn: Dict[str, int] = {
+            self.id_mgn: dict[str, int] = {
                 "entry_id": entry_id if entry_id > 0 else 1,
                 "event_id": 1,
                 "roi_id": 1,
@@ -65,10 +64,10 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             }
             self.verbose = verbose
             self.prfx: str = ""
-            self.spc: Dict[str, Any] = {}
+            self.spc: dict[str, Any] = {}
             self.ebsd: EbsdPointCloud = EbsdPointCloud()
-            self.eds: Dict[str, Any] = {}
-            self.version: Dict = {
+            self.eds: dict[str, Any] = {}
+            self.version: dict = {
                 "trg": {  # supported ones
                     "tech_partner": ["EDAX, LLC"],
                     "schema_name": ["EDAXH5"],
@@ -106,7 +105,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             # parse Company and PRODUCT_VERSION attribute values from the first group below
             # but these are not scalar but single value lists
             # so much about interoperability
-            # but hehe for the APEX example from Sebastian and Sabine
+            # but for the APEX example from Sebastian and Sabine
             # there is again no Company but PRODUCT_VERSION, 2 files, 2 "formats"
             votes_for_support = 0
             grp_names = list(h5r["/"])
@@ -210,15 +209,15 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                             # self.parse_and_normalize_eds_line_rois(h5r)
             # TODO::make this nesting access code better readable although its benefit
             # is that we do not need to visit first all nodes and do e.g. rfind operations
-            # full_hdf_path = "/a/b/c/d/Area" triggering action could also just be catched
-            # if full_hdf_path[full_hdf_path.rfind("/") + 1:].startswith("Area")
+            # full_hdf_path = "/a/b/c/d/Area" triggering action could also just had been
+            # cought if full_hdf_path[full_hdf_path.rfind("/") + 1:].startswith("Area")
             # but then one would need to get all full_hdf_paths first for which one would
-            # need to visit all nodes recursively (HdfFiveBaseParser can do this thoug)
+            # need to visit all nodes recursively (HdfFiveBaseParser can do this though)
             # EDAX, APEX distinguishes different concept/groups:
             # FOV*, full area rectangular region plus siblings
-            # Live Map *, rectangular region plus childs
+            # Live Map *, rectangular region plus children
             # Free Draw *, polygonal region drawn via GUI interaction
-            # OIM Map *, EBSD, orientation data + metadata childs
+            # OIM Map *, EBSD, orientation data + metadata children
             # with (sum) spectrum SPC, spectrum stack (SPD)
             # with eventually different number of energy bins and
             # Live Map */ROIs for the individual elements/ EDS maps
@@ -233,7 +232,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             # TODO: Selected Area groups have a REGION and I assume that this
             # is the use case when one filters from the FOV a sub-set not a free-form
             # but rectangular sub-FOV substantiated by the metadata stored in
-            # region (x,y) pair (likely upperleft edge) and relative width/height of
+            # region (x,y) pair (likely upper left edge) and relative width/height of
             # the sub-FOV also supported in that Full Area has a region with (x,y) 0,0
             # and relative width/height 1./1.
             # there is a oned equivalent of the twod Free Draw called EDS Spot
@@ -339,7 +338,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 )
                 self.ebsd.phases[phase_idx]["alpha_beta_gamma"] = angles
 
-                latt = Lattice(
+                lattice = Lattice(
                     abc.magnitude[0],
                     abc.magnitude[1],
                     abc.magnitude[2],
@@ -384,7 +383,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 else:
                     self.ebsd.space_group = [space_group]
 
-                strct = Structure(title=phase_name, atoms=None, lattice=latt)
+                strct = Structure(title=phase_name, atoms=None, lattice=lattice)
                 if len(self.ebsd.phase) > 0:
                     self.ebsd.phase.append(strct)
                 else:
@@ -413,14 +412,14 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
 
         dat = fp[f"{grp_name}"]
         self.ebsd.euler = np.zeros((n_pts, 3), np.float32)
-        self.ebsd.descr_type = "confidence_index"
+        self.ebsd.contrast = "confidence_index"
         self.ebsd.descr_value = np.zeros((n_pts,), np.float32)
         self.ebsd.phase_id = np.zeros((n_pts,), np.int32)
         for i in np.arange(0, n_pts):
             # check shape of internal virtual chunked number array
             # TODO::Bunge-Euler angle ZXZ ?
-            oris = Orientation.from_matrix([np.reshape(dat[i][0], (3, 3))])
-            self.ebsd.euler[i, :] = oris.to_euler(degrees=False)
+            orientations = Orientation.from_matrix([np.reshape(dat[i][0], (3, 3))])
+            self.ebsd.euler[i, :] = orientations.to_euler(degrees=False)
             self.ebsd.descr_value[i] = dat[i][2]
             self.ebsd.phase_id[i] = dat[i][3] + 1  # adding +1 because
             # EDAX/APEX seems to define notIndexed as -1 and the first valid phase_id is then 0
@@ -831,12 +830,12 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 return
 
         self.spc["source"] = f"{self.prfx}/SPD"
-        nyxe = {
+        n_y_x_e = {
             "y": fp[f"{self.prfx}/SPD"].attrs["NumberOfLines"][0],
             "x": fp[f"{self.prfx}/SPD"].attrs["NumberOfPoints"][0],
             "e": fp[f"{self.prfx}/SPD"].attrs["NumberofChannels"][0],
         }
-        logger.debug(f"lines: {nyxe['y']}, points: {nyxe['x']}, channels: {nyxe['e']}")
+        logger.debug(f"lines: {n_y_x_e['y']}, points: {n_y_x_e['x']}, channels: {n_y_x_e['e']}")
         # the native APEX SPD concept instance is a two-dimensional array of arrays of length e (n_energy_bins)
         # likely EDAX has in their C(++) code a vector of vector or something equivalent either way we faced
         # nested C arrays of the base data type in an IKZ example <i2, even worse stored chunked in HDF5 !
@@ -844,22 +843,22 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         # thereby these EDAX energy count arrays are just some payload inside a set of compressed chunks
         # without some extra logic to resolve the third (energy) dimension reading them can be super inefficient
         # so let's read chunk-by-chunk to reuse chunk cache, hopefully...
-        chk_bnds: Dict = {"x": [], "y": []}
+        chunk_bounds: Dict = {"x": [], "y": []}
         chk_info = {
-            "ny": nyxe["y"],
+            "ny": n_y_x_e["y"],
             "cy": fp[f"{self.prfx}/SPD"].chunks[0],
-            "nx": nyxe["x"],
+            "nx": n_y_x_e["x"],
             "cx": fp[f"{self.prfx}/SPD"].chunks[1],
         }
         for dim in ["y", "x"]:
             idx = 0
             while idx < chk_info[f"n{dim}"]:
                 if idx + chk_info[f"c{dim}"] < chk_info[f"n{dim}"]:
-                    chk_bnds[f"{dim}"].append((idx, idx + chk_info[f"c{dim}"]))
+                    chunk_bounds[f"{dim}"].append((idx, idx + chk_info[f"c{dim}"]))
                 else:
-                    chk_bnds[f"{dim}"].append((idx, chk_info[f"n{dim}"]))
+                    chunk_bounds[f"{dim}"].append((idx, chk_info[f"n{dim}"]))
                 idx += chk_info[f"c{dim}"]
-        for key, val in chk_bnds.items():
+        for key, val in chunk_bounds.items():
             logger.debug(f"{key}, {val}")
         logger.debug(f"edax: {np.shape(spd_chk)}, {type(spd_chk)}, {spd_chk.dtype}")
         logger.warning(
@@ -868,10 +867,10 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
         return
 
         spd_chk = np.zeros(
-            (nyxe["y"], nyxe["x"], nyxe["e"]), fp[f"{self.prfx}/SPD"][0, 0][0].dtype
+            (n_y_x_e["y"], n_y_x_e["x"], n_y_x_e["e"]), fp[f"{self.prfx}/SPD"][0, 0][0].dtype
         )
-        for chk_bnd_y in chk_bnds["y"]:
-            for chk_bnd_x in chk_bnds["x"]:
+        for chk_bnd_y in chunk_bounds["y"]:
+            for chk_bnd_x in chunk_bounds["x"]:
                 spd_chk[chk_bnd_y[0] : chk_bnd_y[1], chk_bnd_x[0] : chk_bnd_x[1], :] = (
                     fp[
                         f"{self.prfx}/SPD"

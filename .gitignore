@@ -1,12 +1,3 @@
-# tool-specific
-debug/
-dbg/
-tests/run_tests.sh
-.virtual_documents
-tests/data
-tests/prod
-src/pynxtools_em/utils/_version.py
-
 # https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
 # General
 .DS_Store
@@ -97,8 +88,6 @@ cover/
 
 # Django stuff:
 *.log
-!tests/data/dataconverter/readers/mpes/Ref_nexus_mpes.log
-!tests/data/nexus/Ref_nexus_test.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
@@ -208,9 +197,11 @@ cython_debug/
 .pyenv
 *.pyc
 *.txt
-!requirements.txt
-!dev-requirements.txt
 build/
-nexusparser.egg-info/PKG-INFO
 .python-version
-dev/
+!.cspell/custom-dictionary.txt
+tests/run_tests.sh
+.virtual_documents
+tests/data
+tests/prod
+src/pynxtools_em/utils/_version.py

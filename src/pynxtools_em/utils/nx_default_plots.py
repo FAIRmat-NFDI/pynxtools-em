@@ -18,7 +18,6 @@
 """Logics and functionality to identify and annotate a default plot NXem."""
 
 from operator import itemgetter
-from typing import Dict
 
 import numpy as np
 
@@ -61,7 +60,7 @@ class NxEmDefaultPlotResolver:
         # priority ipf map > roi overview > spectra > complex image > real image
         # TODO: some of the here used idx_head, idx_tail string mangling could be
         # made likely better with using a regex
-        candidates: Dict = {}
+        candidates: dict = {}
         priorities = [1, 2, 3, 4]
         for votes in priorities:
             candidates[votes] = []

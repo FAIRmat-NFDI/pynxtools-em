@@ -17,11 +17,11 @@
 #
 """Configuration of the image_tiff_tescan parser."""
 
-from typing import Any, Dict
+from typing import Any
 
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-TESCAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
+TESCAN_DYNAMIC_VARIOUS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]",
     "prefix_src": "",
     "map_to_f8": [
@@ -66,14 +66,14 @@ TESCAN_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
 }
 
 
-TESCAN_DYNAMIC_STIGMATOR_NX: Dict[str, Any] = {
+TESCAN_DYNAMIC_STIGMATOR_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/corrector_ax",
     "prefix_src": "",
     "map_to_f8": [("value_x", "StigmatorX"), ("value_y", "StigmatorY")],
 }
 
 
-TESCAN_DYNAMIC_STAGE_NX: Dict[str, Any] = {
+TESCAN_DYNAMIC_STAGE_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]",
     "prefix_src": "",
     "map_to_f8": [
@@ -84,7 +84,7 @@ TESCAN_DYNAMIC_STAGE_NX: Dict[str, Any] = {
 }
 
 
-TESCAN_STATIC_VARIOUS_NX: Dict[str, Any] = {
+TESCAN_STATIC_VARIOUS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/fabrication",
     "prefix_src": "",
     "use": [("vendor", "TESCAN")],

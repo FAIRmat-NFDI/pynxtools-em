@@ -17,18 +17,18 @@
 #
 """Configuration of the image_tiff_tfs parser."""
 
-from typing import Any, Dict
+from typing import Any
 
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-TFS_STATIC_DETECTOR_NX: Dict[str, Any] = {
+TFS_STATIC_DETECTOR_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/detectorID[detector*]",
     "prefix_src": "",
     "map_to_str": [("name", "Detectors/Name")],
 }
 
 
-TFS_STATIC_APERTURE_NX: Dict[str, Any] = {
+TFS_STATIC_APERTURE_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/ebeam_column/apertureID[aperture*]",
     "prefix_src": "",
     "map_to_str": [("description", "Beam/Aperture")],
@@ -36,7 +36,7 @@ TFS_STATIC_APERTURE_NX: Dict[str, Any] = {
 }
 
 
-TFS_STATIC_VARIOUS_NX: Dict[str, Any] = {
+TFS_STATIC_VARIOUS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument",
     "prefix_src": "",
     "use": [("fabrication/vendor", "FEI")],
@@ -49,7 +49,7 @@ TFS_STATIC_VARIOUS_NX: Dict[str, Any] = {
 }
 
 
-TFS_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
+TFS_DYNAMIC_OPTICS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/optics",
     "prefix_src": "",
     "map_to_f8": [
@@ -64,7 +64,7 @@ TFS_DYNAMIC_OPTICS_NX: Dict[str, Any] = {
 }
 
 
-TFS_DYNAMIC_STAGE_NX: Dict[str, Any] = {
+TFS_DYNAMIC_STAGE_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]",
     "prefix_src": "",
     "map_to_f8": [
@@ -81,14 +81,14 @@ TFS_DYNAMIC_STAGE_NX: Dict[str, Any] = {
 }
 
 
-TFS_DYNAMIC_STIGMATOR_NX: Dict[str, Any] = {
+TFS_DYNAMIC_STIGMATOR_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/corrector_ax",
     "prefix_src": "",
     "map_to_f8": [("value_x", "Beam/StigmatorX"), ("value_y", "Beam/StigmatorY")],
 }
 
 
-TFS_DYNAMIC_SCAN_NX: Dict[str, Any] = {
+TFS_DYNAMIC_SCAN_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/scan_controller",
     "prefix_src": "",
     "map_to_str": [("scan_schema", "System/Scan")],
@@ -96,7 +96,7 @@ TFS_DYNAMIC_SCAN_NX: Dict[str, Any] = {
 }
 
 
-TFS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
+TFS_DYNAMIC_VARIOUS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]",
     "prefix_src": "",
     "map_to_str": [

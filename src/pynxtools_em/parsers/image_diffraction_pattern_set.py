@@ -22,7 +22,7 @@
 # the example is intentionally implement for a specific use case mainly to show first
 # that there is value in organizing collections of pattern more condensed and with
 # richer contextualization
-# unstructure ad hoc collections of diffraction pattern are generated frequently in
+# unstructured ad hoc collections of diffraction pattern are generated frequently in
 # exploratory use cases where e.g. improved pattern indexing or analysis workflows are
 # investigated, given their ad hoc nature different formats are in use such as tif, bmp,
 # jpg, or png, including metadata or not, often with metadata encoded in the filename
@@ -45,7 +45,7 @@
 # can be organized using NeXus to contextualize using research data management software
 
 import mmap
-from typing import Any, Dict
+from typing import Any
 from zipfile import ZipFile
 
 import numpy as np
@@ -58,7 +58,7 @@ from pynxtools_em.examples.diffraction_pattern_set import (
     PIL_DTYPE_TO_NPY_DTYPE,
     SUPPORTED_FORMATS,
     SUPPORTED_MODES,
-    get_materialsproject_id_and_spacegroup,
+    get_materialsproject_id_and_space_group,
 )
 from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
@@ -74,11 +74,11 @@ class DiffractionPatternSetParser:
             self.file_path = file_path
             self.entry_id = entry_id if entry_id > 0 else 1
             self.verbose = verbose
-            self.mp_entries: Dict[int, Any] = {}
+            self.mp_entries: dict[int, Any] = {}
             # details about the images of a specific space group and materials project
-            self.mp_meta: Dict[int, Any] = {}
+            self.mp_meta: dict[int, Any] = {}
             # metadata to each space group and materials id project as cached in projects.yaml
-            self.version: Dict = {}
+            self.version: dict = {}
             self.supported = False
             self.check_if_zipped_pattern()
             if not self.supported:
@@ -101,14 +101,14 @@ class DiffractionPatternSetParser:
                 ):  # https://en.wikipedia.org/wiki/List_of_file_signatures
                     # logger.warning(f"Test 1 failed, {self.file_path} is not a ZIP archive !")
                     return
-        except (FileNotFoundError, IOError):
+        except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
         try:
-            with open(MATERIALS_PROJECT_METADATA, "r") as yml:
+            with open(MATERIALS_PROJECT_METADATA) as yml:
                 self.mp_meta = yaml.safe_load(yml)
-        except (FileNotFoundError, IOError):
+        except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
@@ -120,7 +120,7 @@ class DiffractionPatternSetParser:
                     # authors studied sets of space_groups with each
                     # sets of materialsproject crystal structures
                     # mp_entries maps this hierarchy
-                    mpid, sgid = get_materialsproject_id_and_spacegroup(fpath)
+                    mpid, sgid = get_materialsproject_id_and_space_group(fpath)
                     if mpid is not None and sgid is not None:
                         if sgid not in self.mp_entries:
                             self.mp_entries[sgid] = {}
@@ -275,13 +275,13 @@ class DiffractionPatternSetParser:
         template[f"{trg}/@axes"] = ["indices_image", "axis_j", "axis_i"]
         template[f"{trg}/real"] = {"compress": stack_2d, "strength": 1}
         template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
-        niyx = {
+        n_i_y_x = {
             "indices_image": np.shape(stack_2d)[0],
             "axis_j": np.shape(stack_2d)[1],
             "axis_i": np.shape(stack_2d)[2],
         }
         # TODO::apply proper scaling because these are dimensions in diffraction space !
-        for axis, n in niyx.items():
+        for axis, n in n_i_y_x.items():
             template[f"{trg}/AXISNAME[{axis}]"] = {
                 "compress": np.asarray(
                     np.linspace(0, n - 1, num=n, endpoint=True), np.uint32

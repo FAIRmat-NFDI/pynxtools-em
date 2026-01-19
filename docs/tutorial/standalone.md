@@ -17,7 +17,7 @@ You will have a basic understanding how to use pynxtools-em for converting your 
 
 ### Installation
 
-See [here](installation.html) for how to install pynxtools together with the EM reader plugin. Note that the reader is a combination of multiple readers each supporting a different set of versions of file formats used by key technology partners from the field of electron microscopy.
+See [here](installation.md) for how to install pynxtools together with the EM reader plugin. Note that the reader is a combination of multiple readers each supporting a different set of versions of file formats used by key technology partners from the field of electron microscopy.
 
 ### Running the reader from the command line
 

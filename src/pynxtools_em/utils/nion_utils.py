@@ -29,7 +29,7 @@ from pynxtools_em.utils.custom_logging import logger
 
 
 def encode(uuid_: uuid.UUID, alphabet: str) -> str:
-    result = str()
+    result = ""
     uuid_int = uuid_.int
     while uuid_int:
         uuid_int, digit = divmod(uuid_int, len(alphabet))

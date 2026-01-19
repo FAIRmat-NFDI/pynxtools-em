@@ -13,14 +13,14 @@ on:
     #   - 'dev-requirements.txt'
 
 env:
-  python-version: 3.11
+  python-version: 3.12
 
 jobs:
   validate_dependencies:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout pynxtools
+    - name: Checkout pynxtools-em
       uses: actions/checkout@v4
 
     - name: Checkout NOMAD from GitLab
@@ -39,12 +39,12 @@ jobs:
     - name: Generate (dev-)requirements.txt from modified pyproject.toml
       working-directory: ./nomad
       run: |
-        uv pip compile --universal -p ${{ env.python-version }} --annotation-style=line --extra=infrastructure --extra=parsing --output-file=requirements.txt pyproject.toml
-        uv pip compile --universal -p ${{ env.python-version }} --annotation-style=line --extra=dev --extra=infrastructure --extra=parsing --output-file=requirements-dev.txt requirements.txt pyproject.toml
+        uv pip compile --universal -p ${{ env.python-version }} --annotation-style=line --extra=infrastructure --output-file=requirements.txt pyproject.toml
+        uv pip compile --universal -p ${{ env.python-version }} --annotation-style=line --extra=dev --extra=infrastructure --output-file=requirements-dev.txt requirements.txt pyproject.toml
         uv pip compile --universal -p ${{ env.python-version }} --annotation-style=line --output-file=requirements-plugins.txt --unsafe-package nomad-lab -c requirements-dev.txt test_plugins.txt
     - name: Install NOMAD dependencies with pynxtools from current branch
       working-directory: ./nomad
       run: |
-        uv pip install -r requirements-plugins.txt --prerelease=allow
+        uv pip install -r requirements-plugins.txt -c requirements-dev.txt --prerelease=allow
       env:
         PYTHONPATH: ""  # Ensure no pre-installed packages interfere with the test

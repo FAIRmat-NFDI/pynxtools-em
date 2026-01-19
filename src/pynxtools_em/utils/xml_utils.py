@@ -29,13 +29,13 @@ def flatten_xml_to_dict(xml_content) -> dict:
         for key, value in xml_content.items():
             # nested subtree
             if isinstance(value, dict):
-                for subkey, subvalue in flatten_xml_to_dict(value).items():
-                    yield "{}.{}".format(key, subkey), subvalue
+                for sub_key, sub_value in flatten_xml_to_dict(value).items():
+                    yield f"{key}.{sub_key}", sub_value
             # nested list
             elif isinstance(value, list):
                 for num, elem in enumerate(value):
-                    for subkey, subvalue in flatten_xml_to_dict(elem).items():
-                        yield "{}.[{}].{}".format(key, num, subkey), subvalue
+                    for sub_key, sub_value in flatten_xml_to_dict(elem).items():
+                        yield f"{key}.[{num}].{sub_key}", sub_value
             # everything else (only leafs should remain)
             else:
                 yield key, value

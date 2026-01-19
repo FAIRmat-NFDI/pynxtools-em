@@ -15,26 +15,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Test for NOMAD examples in EM reader plugin."""
+"""Tests for the NOMAD examples."""
 
 import os
+
 import pytest
 
 try:
-    import nomad
+    import nomad  # noqa: F401
 except ImportError:
     pytest.skip(
-        "Skipping NOMAD example tests because nomad is not installed",
+        "Skipping NOMAD example tests because nomad-lab is not installed",
         allow_module_level=True,
     )
 
 from pynxtools.testing.nomad_example import (
+    example_upload_entry_point_valid,
     get_file_parameter,
     parse_nomad_examples,
-    example_upload_entry_point_valid,
 )
 
-from pynxtools_em.nomad.entrypoints import em_example
+from pynxtools_em.nomad.example_uploads import em_example_upload_entry_point
 
 EXAMPLE_PATH = os.path.join(
     os.path.dirname(__file__),
@@ -42,7 +43,8 @@ EXAMPLE_PATH = os.path.join(
     "src",
     "pynxtools_em",
     "nomad",
-    "examples",
+    "example_uploads",
+    "example",
 )
 
 
@@ -59,9 +61,9 @@ def test_parse_nomad_examples(mainfile):
     ("entrypoint", "example_path"),
     [
         pytest.param(
-            em_example,
+            em_example_upload_entry_point,
             EXAMPLE_PATH,
-            id="em_example",
+            id="em_example_upload_entry_point",
         ),
     ],
 )

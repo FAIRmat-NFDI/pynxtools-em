@@ -20,7 +20,6 @@
 
 import os
 import re
-from typing import Tuple, Union
 
 import numpy as np
 
@@ -32,19 +31,19 @@ SUPPORTED_MODES = ["L", "I"]
 from pynxtools_em.utils.custom_logging import logger
 
 
-def get_materialsproject_id_and_spacegroup(
+def get_materialsproject_id_and_space_group(
     fpath: str, verbose: bool = False
-) -> Union[Tuple[str, int], Tuple[None, None]]:
+) -> tuple[str, int] | tuple[None, None]:
     if 1 <= int(fpath[fpath.rfind("/") - 3 : fpath.rfind("/")]) <= 230:
         fname = fpath[fpath.rfind("/") + 1 :]
         materialsproject_id = re.compile(r"^mp-(?:\d+)_").search(fname)
         mp = materialsproject_id.group()[0:-1]
-        spacegroup_id = re.compile(r"^(?:\d{1}|\d{2}|\d{3})_").search(
+        space_group_id = re.compile(r"^(?:\d{1}|\d{2}|\d{3})_").search(
             fname.replace(materialsproject_id.group(), "")
         )
-        spc = spacegroup_id.group()[0:-1]
+        spc = space_group_id.group()[0:-1]
         tail = fname.replace(
-            f"{materialsproject_id.group()}{spacegroup_id.group()}", ""
+            f"{materialsproject_id.group()}{space_group_id.group()}", ""
         )
         if verbose:
             logger.debug(

@@ -17,11 +17,11 @@
 #
 """Configuration of the image_tiff_point_electronic EBIC parser."""
 
-from typing import Any, Dict
+from typing import Any
 
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-DISS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
+DISS_DYNAMIC_VARIOUS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]",
     "prefix_src": "",
     "map_to_f8": [

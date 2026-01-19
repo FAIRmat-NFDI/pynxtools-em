@@ -17,12 +17,12 @@
 #
 """Dict mapping values for a specifically configured NOMAD Oasis."""
 
-from typing import Any, Dict
+from typing import Any
 
 # import datetime as dt
 # f"{dt.datetime.now(dt.timezone.utc).isoformat().replace('+00:00', 'Z')}",
 
-OASISCFG_EM_CSYS_TO_NEXUS: Dict[str, Any] = {
+OASISCFG_EM_CSYS_TO_NEXUS: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/NAMED_reference_frameID[custom_reference_frame]",
     "prefix_src": "",
     "map_to_str": [
@@ -40,21 +40,21 @@ OASISCFG_EM_CSYS_TO_NEXUS: Dict[str, Any] = {
 }
 
 
-OASISCFG_EM_CITATION_TO_NEXUS: Dict[str, Any] = {
+OASISCFG_EM_CITATION_TO_NEXUS: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/citeID[cite*]",
     "prefix_src": "",
     "map_to_str": ["author", "doi", "description", "url"],
 }
 
 
-OASISCFG_EM_NOTE_TO_NEXUS: Dict[str, Any] = {
+OASISCFG_EM_NOTE_TO_NEXUS: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/noteID[note*]",
     "prefix_src": "",
     "map_to_str": ["file_name"],
 }
 
 
-OASISCFG_EM_SAMPLE_TO_NEXUS: Dict[str, Any] = {
+OASISCFG_EM_SAMPLE_TO_NEXUS: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/sample",
     "prefix_src": "sample/",
     "map_to_str": ["atom_types"],

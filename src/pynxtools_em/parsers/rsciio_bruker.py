@@ -17,16 +17,11 @@
 #
 """Parser for reading content from Bruker *.BCF files via rosettasciio."""
 
-from typing import Dict, List
-
 from rsciio import bruker
 
 from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.get_checksum import (
-    DEFAULT_CHECKSUM_ALGORITHM,
-    get_sha256_of_file_content,
-)
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 
 
 class RsciioBrukerParser:
@@ -39,8 +34,8 @@ class RsciioBrukerParser:
             self.file_path = file_path
             self.entry_id = entry_id if entry_id > 0 else 1
             self.verbose = verbose
-            self.objs: List = []
-            self.version: Dict = {}
+            self.objs: list = []
+            self.version: dict = {}
             self.supported = False
             self.check_if_supported()
             if not self.supported:
@@ -62,7 +57,7 @@ class RsciioBrukerParser:
             # based on this one could then plan how much memory has to be reserved
             # in the template and stream out accordingly
             self.supported = True
-        except (FileNotFoundError, IOError):
+        except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 

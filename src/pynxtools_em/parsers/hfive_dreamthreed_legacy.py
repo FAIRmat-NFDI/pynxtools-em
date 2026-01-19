@@ -17,8 +17,6 @@
 #
 """Parser mapping concepts and content from community *.dream3d files on NXem."""
 
-from typing import Dict
-
 import h5py
 import numpy as np
 
@@ -30,10 +28,7 @@ from pynxtools_em.methods.ebsd import (
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.get_checksum import (
-    DEFAULT_CHECKSUM_ALGORITHM,
-    get_sha256_of_file_content,
-)
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.hfive_utils import read_strings
 
 # DREAM3D implements essentially a data analysis workflow with individual steps
@@ -97,7 +92,7 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
     ):
         if file_path:
             self.file_path = file_path
-            self.id_mgn: Dict[str, int] = {
+            self.id_mgn: dict[str, int] = {
                 "entry_id": entry_id if entry_id > 0 else 1,
                 "roi_id": 1,
             }
@@ -106,7 +101,7 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
             # strictly speaking Bluequartz refers the above-mentioned here as File Version
             # but content is expected adaptive depends on filters used, their versions, and
             # the sequence in which the execution of these filters was instructed
-            self.version: Dict = {  # Dict[str, Dict[str, List[str]]]
+            self.version: dict = {  # Dict[str, Dict[str, List[str]]]
                 "trg": {
                     "tech_partner": ["Bluequartz"],
                     "schema_name": ["DREAM3D"],
@@ -128,7 +123,7 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
                 },
                 "src": {},
             }
-            self.path_registry: Dict = {}
+            self.path_registry: dict = {}
             self.supported = False
             self.check_if_supported()
             if not self.supported:
@@ -194,7 +189,7 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
             idx = hdf_node_path.find("/_SIMPL_GEOMETRY")
             if idx > -1:
                 candidate_paths.append((hdf_node_path, idx))
-        #    which has childs "DIMENSIONS, ORIGIN, SPACING"
+        #    which has children "DIMENSIONS, ORIGIN, SPACING"
         for path_idx in candidate_paths:
             head = path_idx[0][0 : path_idx[1]]
             tail = path_idx[0][path_idx[1] :]
@@ -220,7 +215,7 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
                 entry.startswith(f"{group_geometry}") is True
                 and entry.endswith(f"EulerAngles") is True
             ):
-                group_data = entry[0:-12]  # removing the trailing fwslash
+                group_data = entry[0:-12]  # removing the trailing /
                 #       which has a dset of named EulerAngles shape 4d, (i, j, k, 1) +
                 shp = self.datasets[entry][2]
                 if isinstance(shp, tuple) and len(shp) == 4:
@@ -276,7 +271,7 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
             for entry in self.datasets:
                 if entry.find("CrystalStructures") > -1:
                     if group_phases is None:
-                        group_phases = entry[0:-18]  # remove trailing fwslash
+                        group_phases = entry[0:-18]  # remove trailing /
         else:
             is_simulated = False
             # these locations found in the examples but likely can be changed
@@ -341,13 +336,13 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
         return template
 
     def parse_and_normalize_ebsd_header(self, fp):
-        smpl = "/_SIMPL_GEOMETRY/"
+        simpl = "/_SIMPL_GEOMETRY/"
         grpnm = "group_geometry"
-        dims = fp[f"{self.path_registry[{grpnm}]}{smpl}DIMENSIONS"][:].flatten()
-        org = fp[f"{self.path_registry[{grpnm}]}{smpl}ORIGIN"][:].flatten()
-        spc = fp[f"{self.path_registry[{grpnm}]}{smpl}SPACING"][:].flatten()
+        dims = fp[f"{self.path_registry[{grpnm}]}{simpl}DIMENSIONS"][:].flatten()
+        org = fp[f"{self.path_registry[{grpnm}]}{simpl}ORIGIN"][:].flatten()
+        spc = fp[f"{self.path_registry[{grpnm}]}{simpl}SPACING"][:].flatten()
 
-        # TODO::is it correct an assumption that DREAM3D regrids using square voxel
+        # TODO::is it correct an assumption that DREAM3D applies regridding using square voxel
         self.ebsd.dimensionality = 3
         self.ebsd.grid_type = SQUARE_TILING
         # the next two lines encode the typical assumption that is not reported in tech partner file!
@@ -365,7 +360,7 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
             fp[f"{self.path_registry['group_phases']}/CrystalStructures"][:].flatten(),
             np.uint32,
         )
-        logger.debug(f"csys {np.shape(idx)}, {idx}")
+        logger.debug(f"Coordinate system {np.shape(idx)}, {idx}")
         nms = None
         if f"{self.path_registry['group_phases']}/MaterialName" in fp:
             nms = read_strings(
@@ -423,7 +418,7 @@ class HdfFiveDreamThreedLegacyParser(HdfFiveBaseParser):
         )
         self.ebsd.euler = ureg.Quantity(self.ebsd.euler, ureg.radian)
         # TODO::DREAM3D uses Rowenhorst et. al. conventions
-        # so we are already in positive halfspace, and radiants
+        # so we are already in positive half-space, and radiants
 
         self.ebsd.phase_id = np.asarray(
             fp[f"{self.path_registry['group_data']}/Phases"], np.int32

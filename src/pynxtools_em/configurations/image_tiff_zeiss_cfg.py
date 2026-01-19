@@ -17,14 +17,14 @@
 #
 """Configuration of the image_tiff_zeiss parser."""
 
-from typing import Any, Dict
+from typing import Any
 
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
 ZEISS_CONCEPT_PREFIXES = ("AP_", "DP_", "SV_")
 
 
-ZEISS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
+ZEISS_DYNAMIC_VARIOUS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument",
     "prefix_src": "",
     "map_to_f8": [
@@ -34,7 +34,7 @@ ZEISS_DYNAMIC_VARIOUS_NX: Dict[str, Any] = {
     ],
 }
 
-ZEISS_DYNAMIC_STAGE_NX: Dict[str, Any] = {
+ZEISS_DYNAMIC_STAGE_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/stageID[stage]",
     "prefix_src": "",
     "map_to_f8": [
@@ -44,7 +44,7 @@ ZEISS_DYNAMIC_STAGE_NX: Dict[str, Any] = {
     ],
 }
 
-ZEISS_STATIC_VARIOUS_NX: Dict[str, Any] = {
+ZEISS_STATIC_VARIOUS_NX: dict[str, Any] = {
     "prefix_trg": "/ENTRY[entry*]/measurement/instrument/fabrication",
     "prefix_src": "",
     "use": [("vendor", "Zeiss")],

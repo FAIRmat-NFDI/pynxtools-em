@@ -17,8 +17,6 @@
 #
 """Parser mapping concepts and content from EDAX/AMETEK *.oh5/*.h5 (OIM Analysis) files on NXem."""
 
-from typing import Dict
-
 import h5py
 import numpy as np
 from diffpy.structure import Lattice, Structure
@@ -35,10 +33,7 @@ from pynxtools_em.methods.ebsd import (
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.get_checksum import (
-    DEFAULT_CHECKSUM_ALGORITHM,
-    get_sha256_of_file_content,
-)
+from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.hfive_utils import (
     EULER_SPACE_SYMMETRY,
     read_first_scalar,
@@ -55,13 +50,13 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
     ):
         if file_path:
             self.file_path = file_path
-            self.id_mgn: Dict[str, int] = {
+            self.id_mgn: dict[str, int] = {
                 "entry_id": entry_id if entry_id > 0 else 0,
                 "roi_id": 1,
             }
             self.verbose = verbose
             self.prfx = ""  # template path handling
-            self.version: Dict = {  # Dict[str, Dict[str, List[str]]
+            self.version: dict = {  # Dict[str, Dict[str, List[str]]
                 "trg": {
                     "tech_partner": ["EDAX"],
                     "schema_name": ["H5"],
@@ -230,7 +225,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
                     ),
                     dtype=np.float32,
                 ).flatten()
-                latt = Lattice(
+                lattice = Lattice(
                     abc[0],
                     abc[1],
                     abc[2],
@@ -263,7 +258,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
                 else:
                     self.ebsd.space_group = [spc_grp]
 
-                strct = Structure(title=phase_name, atoms=None, lattice=latt)
+                strct = Structure(title=phase_name, atoms=None, lattice=lattice)
                 if len(self.ebsd.phase) > 0:
                     self.ebsd.phase.append(strct)
                 else:
@@ -323,7 +318,7 @@ class HdfFiveEdaxOimAnalysisParser(HdfFiveBaseParser):
         # self.ebsd.phase_id[is_dirty] = 0
 
         # promoting int8 to int32 no problem
-        self.ebsd.descr_type = "confidence_index"
+        self.ebsd.contrast = "confidence_index"
         self.ebsd.descr_value = ureg.Quantity(
             np.asarray(fp[f"{grp_name}/CI"][:], np.float32)
         )

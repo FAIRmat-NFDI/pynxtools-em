@@ -29,7 +29,7 @@
 # the directions into which the base vectors are assumed pointing
 
 # in general only two perpendicular directions have to be specified as the third
-# follows implicitly i.e. there is no need to overconstrain
+# follows implicitly i.e. there is no need for overconstrained
 # the term "undefined" is the default to use unless one is sure about each statement
 
 # the is_cs_rh_unambiguous dictionary is a lookup table whereby the input of the user
