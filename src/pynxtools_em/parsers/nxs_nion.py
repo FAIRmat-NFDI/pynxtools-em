@@ -44,13 +44,13 @@ from pynxtools_em.configurations.nion_cfg import (
     NION_WHICH_IMAGE,
     NION_WHICH_SPECTRUM,
 )
-from pynxtools_em.utils.config import DEFAULT_VERBOSITY, SEPARATOR
+from pynxtools_em.utils.config import SEPARATOR
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.nion_utils import (
     nion_image_spectrum_or_generic_nxdata,
-    uuid_to_file_name,
     read_numpy_array_metadata,
+    uuid_to_file_name,
 )
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
@@ -243,8 +243,8 @@ class NionProjectParser:
         # assure that we start reading that file_hdl/pointer from the beginning...
         try:
             local_files, dir_files, end_of_central_dir = nsnd.parse_zip(file_hdl)
-        except IOError:
-            logger.warning(f"process_ndata for {full_path} throwed an IOError")
+        except OSError:
+            logger.warning(f"process_ndata for {full_path} had an OSError")
             return template
 
         flat_metadata = fd.FlatDict({}, "/")

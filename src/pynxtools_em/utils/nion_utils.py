@@ -17,8 +17,9 @@
 #
 """Utility functions for working with Nion Co. content and concepts."""
 
-import uuid
 import typing
+import uuid
+
 import numpy as np
 from numpy.lib.format import read_array_header_1_0, read_array_header_2_0
 
