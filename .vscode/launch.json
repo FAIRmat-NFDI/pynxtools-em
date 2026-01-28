@@ -9,9 +9,9 @@
             "type": "python", //"debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "../.py3.13.8/bin/dataconverter",  //../../.py3.12.3/bin/dataconverter",
+            "program": "../../.py3.13.11/bin/dataconverter",
             "args": [//"tests/data/custom_reference_frame/output.custom_eln_data.yaml",
-                     "tests/data/default/em.oasis.specific.yaml",
+                     //"tests/data/default/em.oasis.specific.yaml",
                      //"tests/data/default/InGaN_nanowires_spectra.edaxh5",
                      //"tests/data/default/output.nxs_eln_data.yaml",
                      //"tests/data/ebsd_mtex/output.custom_eln_data.yaml",
@@ -32,7 +32,7 @@
                      //"tests/data/hfive_oxford_pinard_rois/173_0056.h5oina",
                      //"tests/data/hfive_oxford_vitesh1/57764_CR_ZG_380.h5oina",
                      //"tests/data/hfive_oxford_vitesh2/EBSDCleanedMapData7.h5oina",
-                     "tests/data/hfive_oxford_dierner1/EBSD_Specimen_1_Site_1_Map_Data_1.h5oina",
+                     //"tests/data/hfive_oxford_dierner1/EBSD_Specimen_1_Site_1_Map_Data_1.h5oina",
                      //"tests/data/image_fei_legacy_sem/SEM_Image_-_SliceImage_-_109.tif",
                      //"tests/data/image_fei_legacy_tem/BF_02_40kx.tif",
                      //"tests/data/image_hitachi/360.tif",
@@ -59,13 +59,37 @@
                      //"tests/data/rsciio_gatan_dm4/265.6a232b951fe99bb06c481e6863b5b590df194b0766c915218586c81077417e8a.dm4",
                      //"tests/data/rsciio_velox_258/258.fbbd9cdfcf8be1b1d6e056cdf4186a0505df9188bbf52ebe36e74e271a8c972b.emd",
                      //"tests/data/rsciio_velox_265/265.2dccb74e742d9807d736689ee1bdeb149aabbbccbecab89ab0d5855678a2b338.emd",
+                     //"../../CENEM_NOMAD/CorMic/TiO2_coated_SiO2/SEM/_009.tif",
+                     //"../../CENEM_NOMAD/CorMic/TiO2_coated_SiO2/SEM/_013.tif",
+                     //"../../CENEM_NOMAD/CorMic/TiO2_coated_SiO2/SEM/_014.tif",
+                     //"../../CENEM_NOMAD/CorMic/TiO2_coated_SiO2/SEM/BSE_010.tif",
+                     //"../../CENEM_NOMAD/CorMic/TiO2_coated_SiO2/SEM/BSE_011.tif",
+                     //"../../CENEM_NOMAD/CorMic/TiO2_coated_SiO2/SEM/BSE_012.tif",
+                     //"../../CENEM_NOMAD/CorMic/TiO2_coated_SiO2/SEM/BSE_015.tif",
+                     //"../../CENEM_NOMAD/CorMic/TiO2_coated_SiO2/SEM/BSE_EDX_016.tif",
+                     //"../../CENEM_NOMAD/CorMic/TiO2_coated_SiO2/SEM/BSE_EDX_017.tif",
+                     //"../../CENEM_NOMAD/CorMic/TiO2_coated_SiO2/SEM/BSE_EDX_018.tif",
+                     //"../../CENEM_NOMAD/CorMic/TiO2_coated_SiO2/SEM/SE_EDX_019.tif",
+                     "../../CENEM_NOMAD/CorMic/TiO2_coated_SiO2/SEM_EDX_EDAX/DW-Silica_coated_wth_Titania.edaxh5",
                      "--reader",
                      "em",
                      "--nxdl",
                      "NXem",
                      //"--skip-verify",
                      //"--output=tests/prod/custom_reference_frame/output.nxs"]
-                     "--output=tests/prod/default/output.nxs"]
+                     //"--output=../../em.sem._009.tif.nxs"]
+                     //"--output=../../em.sem._013.tif.nxs"]
+                     //"--output=../../em.sem._014.tif.nxs"]
+                     //"--output=../../em.sem.BSE_010.tif.nxs"]
+                     //"--output=../../em.sem.BSE_011.tif.nxs"]
+                     //"--output=../../em.sem.BSE_012.tif.nxs"]
+                     //"--output=../../em.sem.BSE_015.tif.nxs"]
+                     //"--output=../../em.sem.BSE_EDX_016.tif.nxs"]
+                     //"--output=../../em.sem.BSE_EDX_017.tif.nxs"]
+                     //"--output=../../em.sem.BSE_EDX_018.tif.nxs"]
+                     //"--output=../../em.sem.SE_EDX_019.tif.nxs"]
+                     "--output=../../em.sem_edx_edax.DW-Silica_coated_wth_Titania.edaxh5.nxs"]
+                     //"--output=tests/prod/default/output.nxs"]
                      //"--output=tests/prod/ebsd_mtex/output.nxs"]
                      //"--output=tests/prod/ebsd_oina/output.nxs"]
                      //"--output=tests/prod/ger_berlin_koch_group/output.nxs"]
@@ -83,7 +107,7 @@
                      //"--output=tests/prod/hfive_oxford_pinard_rois/output.nxs"]
                      //"--output=tests/prod/hfive_oxford_vitesh1/output.nxs"]
                      //"--output=tests/prod/hfive_oxford_vitesh2/output.nxs"]
-                     "--output=tests/prod/hfive_oxford_dierner1/output.nxs"]
+                     //"--output=tests/prod/hfive_oxford_dierner1/output.nxs"]
                      //"--output=tests/prod/image_fei_legacy_sem/output.nxs"]
                      //"--output=tests/prod/image_fei_legacy_tem/output.nxs"]
                      //"--output=tests/prod/image_hitachi/output.nxs"]

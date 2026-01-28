@@ -57,6 +57,7 @@ class ZeissTiffParser:
                     "schema_version": [
                         "V06.00.00.00 : 09-Jun-16",
                         "V06.03.00.00 : 15-Dec-17",
+                        "V08.00.00.00 : 29-Feb-24",
                     ],
                 }
             }
@@ -133,6 +134,7 @@ class ZeissTiffParser:
                 #     logger.debug(f"{value}, {type(value)}, {key}")
                 # continue
                 # else:
+                # if key in ("AP_PIXEL_SIZE", "APImagePixelSize", "AP_IMAGE_PIXEL_SIZE"):
                 logger.debug(f"{key}____{type(value)}____{value}")
         if "SV_VERSION" in self.flat_dict_meta:
             return self.flat_dict_meta["SV_VERSION"]
@@ -212,8 +214,10 @@ class ZeissTiffParser:
                 }
                 found = False
                 for key in [
-                    "AP_PIXEL_SIZE",
+                    "AP_IMAGE_PIXEL_SIZE",  # this is the one to use in V08
                     "APImagePixelSize",
+                    # version-dependent case distinction required here!
+                    "AP_PIXEL_SIZE",  # this worked in V06 but is off by a factor two in V08
                 ]:  # assuming square pixel
                     if key in self.flat_dict_meta:
                         sxy = {
