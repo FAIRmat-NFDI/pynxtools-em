@@ -43,6 +43,7 @@ import yaml
 from pynxtools.dataconverter.convert import convert
 from pynxtools.dataconverter.helpers import get_nxdl_root_and_path
 
+from pynxtools_em.utils.default_config import SEPARATOR
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.versioning import pynx_em_version
 
@@ -129,7 +130,6 @@ config: dict[str, str | int] = {
 
 
 INCREMENTAL_REPORTING = 100 * (1024**3)  # in bytes, right now each 100 GiB
-SEPARATOR = "____"
 DEFAULT_LOGGER_NAME = "ger_berlin_koch_group_process"
 logger = logging.getLogger(DEFAULT_LOGGER_NAME)
 ffmt = "%(levelname)s %(asctime)s %(message)s"

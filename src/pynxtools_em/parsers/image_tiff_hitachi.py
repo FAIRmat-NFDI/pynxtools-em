@@ -32,7 +32,7 @@ from pynxtools_em.configurations.image_tiff_hitachi_cfg import (
     HITACHI_STATIC_VARIOUS_NX,
 )
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY, SEPARATOR
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
@@ -129,7 +129,7 @@ class HitachiTiffParser:
 
             if self.verbose:
                 for key, value in self.flat_dict_meta.items():
-                    logger.info(f"{key}______{type(value)}____{value}")
+                    logger.info(f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
             self.supported = True
 
     def parse(self, template: dict) -> dict:

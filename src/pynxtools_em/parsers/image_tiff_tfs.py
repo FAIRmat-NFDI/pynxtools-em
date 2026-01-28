@@ -37,7 +37,7 @@ from pynxtools_em.configurations.image_tiff_tfs_cfg import (
     TIFF_TFS_PARENT_CONCEPTS,
 )
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY, SEPARATOR
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.image_utils import (
     if_str_represents_float,
@@ -164,7 +164,7 @@ class TfsTiffParser:
             if self.verbose:
                 for key, value in self.flat_dict_meta.items():
                     if value:
-                        logger.info(f"{key}____{type(value)}____{value}")
+                        logger.info(f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing."""

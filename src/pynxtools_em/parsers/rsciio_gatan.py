@@ -30,7 +30,7 @@ from pynxtools_em.configurations.rsciio_gatan_cfg import (
     GATAN_WHICH_SPECTRUM,
 )
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY, SEPARATOR
 from pynxtools_em.utils.gatan_utils import gatan_image_spectrum_or_generic_nxdata
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
@@ -114,7 +114,7 @@ class RsciioGatanParser:
                 continue
             if self.verbose:
                 for keyword, value in obj["original_metadata"].items():
-                    logger.info(f"{keyword}____{type(value)}____{value}")
+                    logger.info(f"{keyword}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
             self.process_event_data_em_metadata(obj, template)
             self.process_event_data_em_data(obj, template)
             self.id_mgn["event_id"] += 1

@@ -42,7 +42,7 @@ from pynxtools_em.configurations.image_png_protochips_cfg import (
     specific_to_variadic,
 )
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY, SEPARATOR
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -236,7 +236,9 @@ class ProtochipsPngSetParser:
                         # TODO::simplify and check that metadata end up correctly in self.dict_meta[file]
                     if self.verbose:
                         for key, value in self.dict_meta[file].items():
-                            logger.info(f"{key}____{type(value)}____{type(value)}")
+                            logger.info(
+                                f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{type(value)}"
+                            )
         except ValueError:
             logger.warning(
                 f"Flattening XML metadata content {self.file_path}:{file} failed !"

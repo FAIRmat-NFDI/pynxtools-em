@@ -34,7 +34,7 @@ from pynxtools_em.configurations.image_tiff_zeiss_cfg import (
     ZEISS_STATIC_VARIOUS_NX,
 )
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY, SEPARATOR
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
@@ -135,7 +135,7 @@ class ZeissTiffParser:
                 # continue
                 # else:
                 # if key in ("AP_PIXEL_SIZE", "APImagePixelSize", "AP_IMAGE_PIXEL_SIZE"):
-                logger.debug(f"{key}____{type(value)}____{value}")
+                logger.debug(f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
         if "SV_VERSION" in self.flat_dict_meta:
             return self.flat_dict_meta["SV_VERSION"]
 

@@ -36,7 +36,7 @@ from pynxtools_em.configurations.rsciio_velox_cfg import (
 )
 from pynxtools_em.methods.ebsd import has_hfive_magic_header
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY, SEPARATOR
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -163,7 +163,7 @@ class RsciioVeloxParser:
             flat_orig_meta[keyword] = string_to_number(value)
         if self.verbose:
             for keyword, value in flat_orig_meta.items():
-                logger.info(f"{keyword}____{type(value)}____{value}")
+                logger.info(f"{keyword}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
 
         if (len(identifier) != 3) or (not all(isinstance(x, int) for x in identifier)):
             logger.warning(f"Argument identifier {identifier} needs three int values!")

@@ -57,6 +57,7 @@ from pynxtools_em.parsers.oasis_eln import NxEmNomadOasisElnSchemaParser
 from pynxtools_em.parsers.rsciio_gatan import RsciioGatanParser
 from pynxtools_em.parsers.rsciio_velox import RsciioVeloxParser
 from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.default_config import SEPARATOR
 from pynxtools_em.utils.io_case_logic import EmUseCaseSelector
 from pynxtools_em.utils.nx_atom_types import NxEmAtomTypesResolver
 
@@ -181,7 +182,7 @@ class EMReader(BaseReader):
                 "Reporting state of template before passing to HDF5 writing..."
             )
             for keyword, value in sorted(template.items()):
-                logger.info(f"{keyword}____{type(value)}____{value}")
+                logger.info(f"{keyword}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
 
         logger.debug("Forward instantiated template to the NXS writer...")
         toc = perf_counter_ns()

@@ -29,6 +29,7 @@ MATERIALS_PROJECT_METADATA = f"{THIS_MODULE_PATH}/diffraction_pattern_meta.yaml"
 SUPPORTED_FORMATS = ["bmp", "gif", "jpg", "png", "tif", "tiff"]
 SUPPORTED_MODES = ["L", "I"]
 from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.default_config import SEPARATOR
 
 
 def get_materialsproject_id_and_space_group(
@@ -47,7 +48,7 @@ def get_materialsproject_id_and_space_group(
         )
         if verbose:
             logger.debug(
-                f"{fpath}\n{fname}\n{mp}____{type(mp)}\n{spc}____{type(spc)}\n{tail}____{type(tail)}"
+                f"{fpath}\n{fname}\n{mp}{SEPARATOR}{type(mp)}\n{spc}{SEPARATOR}{type(spc)}\n{tail}{SEPARATOR}{type(tail)}"
             )
         return mp, int(spc)
     return None, None
