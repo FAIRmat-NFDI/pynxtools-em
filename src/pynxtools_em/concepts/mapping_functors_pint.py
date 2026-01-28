@@ -475,7 +475,6 @@ def filehash_functor(
                     with open(mdata[f"{prfx_src}{cmd[1]}"], "rb") as fp:
                         fragment = rchop(trg, "checksum")
                         template[f"{fragment}checksum"] = get_sha256_of_file_content(fp)
-                        template[f"{fragment}type"] = "file"
                         template[f"{fragment}file_name"] = mdata[f"{prfx_src}{cmd[1]}"]
                         template[f"{fragment}algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
                 except (OSError, FileNotFoundError):

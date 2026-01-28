@@ -35,8 +35,8 @@ from pynxtools_em.configurations.rsciio_velox_cfg import (
     VELOX_WHICH_SPECTRUM,
 )
 from pynxtools_em.methods.ebsd import has_hfive_magic_header
-from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -261,7 +261,6 @@ class RsciioVeloxParser:
     ) -> dict:
         """Add from where the information was obtained."""
         abbrev = f"PROCESS[process]/input"
-        template[f"{trg}/{abbrev}/type"] = "file"
         template[f"{trg}/{abbrev}/file_name"] = file_path
         template[f"{trg}/{abbrev}/checksum"] = checksum
         template[f"{trg}/{abbrev}/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM

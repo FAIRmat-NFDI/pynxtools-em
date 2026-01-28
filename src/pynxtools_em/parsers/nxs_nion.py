@@ -44,8 +44,8 @@ from pynxtools_em.configurations.nion_cfg import (
     NION_WHICH_IMAGE,
     NION_WHICH_SPECTRUM,
 )
-from pynxtools_em.utils.config import SEPARATOR
 from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.default_config import SEPARATOR
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.nion_utils import (
     nion_image_spectrum_or_generic_nxdata,
@@ -229,7 +229,6 @@ class NionProjectParser:
     ) -> dict:
         """Add from where the information was obtained."""
         abbrev = "PROCESS[process]/input"
-        # template[f"{trg}/{abbrev}/type"] = "file"
         # template[f"{trg}/{abbrev}/file_name"] = file_path
         # deactivate checksum computation for to reduce computational costs
         # template[f"{trg}/{abbrev}/checksum"] = checksum

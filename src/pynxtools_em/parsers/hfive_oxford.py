@@ -34,8 +34,8 @@ from pynxtools_em.methods.microstructure import (
     microstructure_to_template,
 )
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
-from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.hfive_utils import apply_euler_space_symmetry, read_strings
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
