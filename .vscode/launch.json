@@ -71,11 +71,11 @@
                      //"../../CENEM_NOMAD/CorMic/TiO2_coated_SiO2/SEM/BSE_EDX_018.tif",
                      //"../../CENEM_NOMAD/CorMic/TiO2_coated_SiO2/SEM/SE_EDX_019.tif",
                      //"../../CENEM_NOMAD/CorMic/TiO2_coated_SiO2/SEM_EDX_EDAX/DW-Silica_coated_wth_Titania.edaxh5",
-                     "../../CENEM_NOMAD/CorMic/PET_A5/1344_Spectrum_EDS.emd",
+                     //"../../CENEM_NOMAD/CorMic/PET_A5/1344_Spectrum_EDS.emd",
                      //"../../CENEM_NOMAD/CorMic/PET_A5/1345_Spectrum_EDS.emd",
                      //"../../CENEM_NOMAD/CorMic/PET_A5/1423_STEM_HAADF-DF-I-DF-O-BF.emd",
                      //"../../CENEM_NOMAD/CorMic/PET_A5/1432_STEM_HAADF-DF-I-DF-O-BF.emd",
-                     //"../../CENEM_NOMAD/CorMic/PET_A5/1433_STEM_HAADF-DF-I-DF-O-BF.emd",
+                     "../../CENEM_NOMAD/CorMic/PET_A5/1433_STEM_HAADF-DF-I-DF-O-BF.emd",
                      "--reader",
                      "em",
                      "--nxdl",
@@ -94,11 +94,11 @@
                      //"--output=../../em.sem.BSE_EDX_018.tif.nxs"]
                      //"--output=../../em.sem.SE_EDX_019.tif.nxs"]
                      //"--output=../../em.sem_edx_edax.DW-Silica_coated_wth_Titania.edaxh5.nxs"]
-                     "--output=../../tem.pet_a5.1344_Spectrum_EDS.emd.nxs"]
+                     //"--output=../../tem.pet_a5.1344_Spectrum_EDS.emd.nxs"]
                      //"--output=../../tem.pet_a5.1345_Spectrum_EDS.emd.nxs"]
                      //"--output=../../tem.pet_a5.1423_STEM_HAADF-DF-I-DF-O-BF.emd.nxs"]
                      //"--output=../../tem.pet_a5.1432_STEM_HAADF-DF-I-DF-O-BF.emd.nxs"]
-                     //"--output=../../tem.pet_a5.1433_STEM_HAADF-DF-I-DF-O-BF.emd.nxs"]
+                     "--output=../../tem.pet_a5.1433_STEM_HAADF-DF-I-DF-O-BF.emd.nxs"]
                      //"--output=tests/prod/default/output.nxs"]
                      //"--output=tests/prod/ebsd_mtex/output.nxs"]
                      //"--output=tests/prod/ebsd_oina/output.nxs"]
