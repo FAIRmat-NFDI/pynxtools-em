@@ -15,17 +15,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Parser for reading content from Bruker *.BCF files via rosettasciio."""
+"""Parser for reading content from MRC via rosettasciio."""
 
-from rsciio import bruker
+from rsciio import mrc
 
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 
 
-class RsciioBrukerParser:
-    """Read Bruker BCF File Format bcf."""
+class RsciioMrcParser:
+    """Read MRC file format."""
 
     def __init__(
         self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
@@ -43,14 +43,14 @@ class RsciioBrukerParser:
                     f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
                 )
         else:
-            logger.warning(f"Parser {self.__class__.__name__} needs Bruker HDF5 file !")
+            logger.warning(f"Parser {self.__class__.__name__} needs MRC file !")
             self.supported = False
 
     def check_if_supported(self):
-        """Check if provided content matches Bruker concepts."""
+        """Check if provided content matches MRC concepts."""
         self.supported = False
         try:
-            self.objs = bruker.file_reader(self.file_path)
+            self.objs = mrc.file_reader(self.file_path)
             # TODO::out-of-memory
             self.supported = True
         except (OSError, FileNotFoundError):
@@ -63,7 +63,7 @@ class RsciioBrukerParser:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
             logger.info(
-                f"Parsing {self.file_path} Bruker with SHA256 {self.file_path_sha256} ..."
+                f"Parsing {self.file_path} MRC with SHA256 {self.file_path_sha256} ..."
             )
             self.parse_content(template)
         return template

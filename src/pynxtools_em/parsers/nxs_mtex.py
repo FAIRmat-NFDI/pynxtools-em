@@ -104,7 +104,7 @@ def hfive_attribute_to_template(
     return template
 
 
-class NxEmNxsMTexParser:
+class NxEmNxsMtexParser:
     """Map content from *.nxs.mtex files on an instance of NXem."""
 
     def __init__(

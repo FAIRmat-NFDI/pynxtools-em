@@ -75,7 +75,16 @@
                      //"../../CENEM_NOMAD/CorMic/PET_A5/1345_Spectrum_EDS.emd",
                      //"../../CENEM_NOMAD/CorMic/PET_A5/1423_STEM_HAADF-DF-I-DF-O-BF.emd",
                      //"../../CENEM_NOMAD/CorMic/PET_A5/1432_STEM_HAADF-DF-I-DF-O-BF.emd",
-                     "../../CENEM_NOMAD/CorMic/PET_A5/1433_STEM_HAADF-DF-I-DF-O-BF.emd",
+                     //"../../CENEM_NOMAD/CorMic/PET_A5/1433_STEM_HAADF-DF-I-DF-O-BF.emd",
+                     //"../../CENEM_NOMAD/CorMic/Sb2S3/002-10x-LV-PO.tif",
+                     //"../../CENEM_NOMAD/CorMic/Sb2S3/STEM_HAADF-DF-I-DF-O-BF_0952.emd",
+                     //"../../CENEM_NOMAD/CorMic/Sb2S3/STEM_HAADF-DF-I-DF-O-BF_0953.emd",
+                     "../../CENEM_NOMAD/CorMic/szpzc11/et/tilt.mrc",
+                     "../../CENEM_NOMAD/CorMic/szpzc11/et/tilt.mrc.mdoc",
+                     //"../../CENEM_NOMAD/CorMic/szpzc11/et/tilt2.mrc",
+                     //"../../CENEM_NOMAD/CorMic/szpzc11/et/tilt2.mrc.mdoc",
+                     //"../../CENEM_NOMAD/CorMic/szpzc11/et/tilt3.mrc",
+                     //"../../CENEM_NOMAD/CorMic/szpzc11/et/tilt3.mrc.mdoc",
                      "--reader",
                      "em",
                      "--nxdl",
@@ -98,7 +107,13 @@
                      //"--output=../../tem.pet_a5.1345_Spectrum_EDS.emd.nxs"]
                      //"--output=../../tem.pet_a5.1423_STEM_HAADF-DF-I-DF-O-BF.emd.nxs"]
                      //"--output=../../tem.pet_a5.1432_STEM_HAADF-DF-I-DF-O-BF.emd.nxs"]
-                     "--output=../../tem.pet_a5.1433_STEM_HAADF-DF-I-DF-O-BF.emd.nxs"]
+                     //"--output=../../tem.pet_a5.1433_STEM_HAADF-DF-I-DF-O-BF.emd.nxs"]
+                     //"--output=../../tem.sb2s3.002-10x-LV-PO.tif.nxs"]
+                     //"--output=../../tem.sb2s3.STEM_HAADF-DF-I-DF-O-BF_0952.emd.nxs"]
+                     //"--output=../../tem.sb2s3.STEM_HAADF-DF-I-DF-O-BF_0953.emd.nxs"]
+                     "--output=../../et.tilt.mrc.nxs"]
+                     //"--output=../../et.tilt2.mrc.nxs"]
+                     //"--output=../../et.tilt3.mrc.nxs"]
                      //"--output=tests/prod/default/output.nxs"]
                      //"--output=tests/prod/ebsd_mtex/output.nxs"]
                      //"--output=tests/prod/ebsd_oina/output.nxs"]
