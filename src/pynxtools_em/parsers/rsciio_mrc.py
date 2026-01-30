@@ -110,7 +110,7 @@ class RsciioMrcParser:
                     r"PixelSpacing",
                     r"(\d+(?:\.\d+)?)",
                     np.float64,
-                    ureg.nanometer,
+                    ureg.angstrom,
                     ureg.meter,
                     0,
                 ),  # ???
@@ -231,7 +231,7 @@ class RsciioMrcParser:
                         r"ImageShift",
                         r"([+-]?\d+(?:\.\d+)?)\s+([+-]?\d+(?:\.\d+)?)",
                         np.float64,
-                        ureg.nanometer,
+                        ureg.angstrom,
                         ureg.meter,
                     ),
                 ]
