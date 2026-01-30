@@ -60,8 +60,8 @@ class RsciioMrcParser:
                 self.id_mgn: dict[str, int] = {"event_id": 1}
                 self.txt_file_path = mrc_txt[1]
                 # self.flat_dict_meta = fd.FlatDict({}, "/")
-                self.series_metadata: dict[str, Any] = {}
-                self.image_metadata: dict[int, dict[str, Any]] = {}
+                self.series_meta_data: dict[str, Any] = {}
+                self.image_meta_data: dict[int, dict[str, Any]] = {}
                 self.version: dict = {}
                 self.supported = 0
                 self.check_if_mrc_serial_em_electron_tomography()
@@ -118,11 +118,11 @@ class RsciioMrcParser:
             ]:
                 match = re.search(key + r"\s*=\s*" + regex, txt_stripped[line_idx])
                 if match:
-                    self.metadata_global[key] = ureg.Quantity(
+                    self.series_meta_data[key] = ureg.Quantity(
                         data_type(match.group(1)), src_unit
                     ).to(trg_unit)
                 else:
-                    logger.warning(f"{self.file_path} metadata_global {key} not found")
+                    logger.warning(f"{self.file_path} series_meta_data {key} not found")
                     return
 
             # scalar settings and strings on specific lines
@@ -139,11 +139,11 @@ class RsciioMrcParser:
                 match = re.search(key + r"\s*=\s*" + regex, txt_stripped[line_idx])
                 if match:
                     if isinstance(data_type, str):
-                        self.metadata_global[key] = match.group(1)
+                        self.series_meta_data[key] = match.group(1)
                     else:
-                        self.metadata_global[key] = data_type(match.group(1))
+                        self.series_meta_data[key] = data_type(match.group(1))
                 else:
-                    logger.warning(f"{self.file_path} metadata_global {key} not found")
+                    logger.warning(f"{self.file_path} series_meta_data {key} not found")
                     return
 
             # array quantities on specific lines
@@ -152,15 +152,15 @@ class RsciioMrcParser:
             ]:
                 match = re.search(r"\s*=\s*" + regex, txt_stripped[line_idx])
                 if match:
-                    self.metadata_global[key] = np.asarray(
+                    self.series_meta_data[key] = np.asarray(
                         (match.group(1), match.group(2)), dtype=data_type
                     )
                 else:
-                    logger.warning(f"{self.file_path} metadata_global {key} not found")
+                    logger.warning(f"{self.file_path} series_meta_data {key} not found")
 
             if self.verbose:
-                for key, value in self.metadata_global.items():
-                    logger.debug(f"metadata_global{SEPARATOR}{key}{SEPARATOR}{value}")
+                for key, value in self.series_meta_data.items():
+                    logger.debug(f"series_meta_data{SEPARATOR}{key}{SEPARATOR}{value}")
 
             # process metadata for the individual metadata for each tilt image
             line_idx = 5
@@ -179,7 +179,7 @@ class RsciioMrcParser:
                 metadata_block_start_end[block_id - 1]["end"] = len(txt_stripped)
 
             for block_id, s_e in metadata_block_start_end.items():
-                self.image_metadata[block_id] = {}
+                self.image_meta_data[block_id] = {}
                 scalars = [
                     (r"TiltAngle", r"([+-]?\d+(?:\.\d+)?)", np.float64, ureg.degrees),
                     (
@@ -219,7 +219,7 @@ class RsciioMrcParser:
                         match = re.search(key + r"\s*=\s*" + rgx, txt_stripped[jdx])
                         if match:
                             # print(f"{jdx}, {match}")
-                            self.image_metadata[block_id][f"{key}"] = ureg.Quantity(
+                            self.image_meta_data[block_id][f"{key}"] = ureg.Quantity(
                                 match.group(1), unit
                             )
                             # if f"{unit}" == "degree":  # TODO broken
@@ -239,7 +239,7 @@ class RsciioMrcParser:
                     for jdx in range(s_e["start"], s_e["end"]):
                         match = re.search(key + r"\s*=\s*" + rgx, txt_stripped[jdx])
                         if match:
-                            self.image_metadata[block_id][f"{key}"] = ureg.Quantity(
+                            self.image_meta_data[block_id][f"{key}"] = ureg.Quantity(
                                 np.asarray(
                                     (match.group(1), match.group(2)), dtype=data_type
                                 ),
@@ -264,7 +264,7 @@ class RsciioMrcParser:
                         stage_position[2] = match.group(1)
                         break
                 # are both stage values XY and Z in nanometer ???
-                self.image_metadata[block_id]["StagePosition"] = ureg.Quantity(
+                self.image_meta_data[block_id]["StagePosition"] = ureg.Quantity(
                     stage_position, ureg.nanometer
                 ).to(ureg.meter)
 
@@ -275,14 +275,14 @@ class RsciioMrcParser:
             # ImageShift = -0.163032 0.295584
             # UncroppedSize = -1024 -1024
         if self.verbose:
-            for block_id in self.image_metadata.keys():
-                for key, value in self.image_metadata[block_id].items():
+            for block_id in self.image_meta_data.keys():
+                for key, value in self.image_meta_data[block_id].items():
                     logger.debug(
-                        f"image_metadata{SEPARATOR}{block_id}{SEPARATOR}{key}{SEPARATOR}{value}"
+                        f"image_meta_data{SEPARATOR}{block_id}{SEPARATOR}{key}{SEPARATOR}{value}"
                     )
 
         # evaluate if required ones are there
-        for block_id in self.image_metadata.keys():
+        for block_id in self.image_meta_data.keys():
             for required in [
                 "TiltAngle",
                 "Magnification",
@@ -293,7 +293,7 @@ class RsciioMrcParser:
                 "RotationAngle",
                 "ExposureTime",
             ]:
-                if required not in self.image_metadata[block_id]:
+                if required not in self.image_meta_data[block_id]:
                     logger.warning(
                         f"{self.file_path} image {block_id} {key} required but not found"
                     )
