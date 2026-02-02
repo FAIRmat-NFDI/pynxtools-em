@@ -81,16 +81,17 @@
                      //"../../CENEM_NOMAD/CorMic/Sb2S3/STEM_HAADF-DF-I-DF-O-BF_0953.emd",
                      //"../../CENEM_NOMAD/CorMic/szpzc11/et/tilt.mrc",
                      //"../../CENEM_NOMAD/CorMic/szpzc11/et/tilt.mrc.mdoc",
-                     "../../tilt.mrc",
-                     "../../tilt.mrc.mdoc",
+                     //"../../tilt.mrc",
+                     //"../../tilt.mrc.mdoc",
                      //"../../CENEM_NOMAD/CorMic/szpzc11/et/tilt2.mrc",
                      //"../../CENEM_NOMAD/CorMic/szpzc11/et/tilt2.mrc.mdoc",
                      //"../../tilt2.mrc",
                      //"../../tilt2.mrc.mdoc",
                      //"../../CENEM_NOMAD/CorMic/szpzc11/et/tilt3.mrc",
                      //"../../CENEM_NOMAD/CorMic/szpzc11/et/tilt3.mrc.mdoc",
-                     //"../../tilt3.mrc",
-                     //"../../tilt3.mrc.mdoc",
+                     "examples/deu_erlangen_spiecker/cenem.nxs_eln_data.yaml",
+                     "../../tilt3.mrc",
+                     "../../tilt3.mrc.mdoc",
                      "--reader",
                      "em",
                      "--nxdl",
@@ -117,9 +118,9 @@
                      //"--output=../../tem.sb2s3.002-10x-LV-PO.tif.nxs"]
                      //"--output=../../tem.sb2s3.STEM_HAADF-DF-I-DF-O-BF_0952.emd.nxs"]
                      //"--output=../../tem.sb2s3.STEM_HAADF-DF-I-DF-O-BF_0953.emd.nxs"]
-                     "--output=../../et.tilt.mrc.nxs"]
+                     //"--output=../../et.tilt.mrc.nxs"]
                      //"--output=../../et.tilt2.mrc.nxs"]
-                     //"--output=../../et.tilt3.mrc.nxs"]
+                     "--output=../../et.tilt3.mrc.nxs"]
                      //"--output=tests/prod/default/output.nxs"]
                      //"--output=tests/prod/ebsd_mtex/output.nxs"]
                      //"--output=tests/prod/ebsd_oina/output.nxs"]

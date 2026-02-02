@@ -1,0 +1,10 @@
+project:
+  name: CorMic
+sample:
+  is_simulation: false
+  name: CorMicNomadDemoDummySample
+user:
+- name: Benjamin Apeleo Zubiri
+  orcid: 0000-0003-0498-7271
+- name: Erdmann Spiecker
+  orcid: 0000-0002-2723-5227
