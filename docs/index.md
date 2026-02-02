@@ -68,6 +68,7 @@ for the respective file formats of technology partners of the electron microscop
 - [Gatan DigitalMicrograph DM3/DM4](reference/rsciio_gatan.md)
 - [Hitachi Tagged Image File Format TIFF](reference/tiff_hitachi.md)
 - [JEOL Tagged Image File Format TIFF](reference/tiff_jeol.md)
+- [SerialEM MRC and MDOC File Formats](reference/rsciio_mrc.md)
 - [Nion Co. projects with NDATA and HDF5 files](reference/nxs_nion.md)
 - [Point Electronic DISS Tagged Image File Format TIFF](reference/tiff_point.md)
 - [TESCAN Tagged Image File Format TIFF](reference/tiff_tescan.md)
