@@ -191,10 +191,10 @@ class RsciioMrcParser:
                     ),
                     # Intensity,
                     # ExposureDose,
-                    (r"PixelSpacing", r"(\d+(?:\.\d+)?)", np.float64, ureg.meter),
+                    (r"PixelSpacing", r"(\d+(?:\.\d+)?)", np.float64, ureg.angstrom),
                     (r"SpotSize", r"(\d+)", np.uint32, ureg.dimensionless),
                     (r"ProbeMode", r"(\d+)", np.uint32, ureg.dimensionless),
-                    (r"Defocus", r"([+-]?\d+(?:\.\d+)?)", np.float64, ureg.meter),
+                    (r"Defocus", r"([+-]?\d+(?:\.\d+)?)", np.float64, ureg.nanometer),
                     (
                         r"RotationAngle",
                         r"([+-]?\d+(?:\.\d+)?)",
@@ -368,24 +368,37 @@ class RsciioMrcParser:
                 template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = f"Image ID"
 
             trg = f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event1]/instrument"
-            for key, path in [
-                ("TiltAngle", f"{trg}/stageID[stage]/tilt1"),
-                ("Magnification", f"{trg}/optics/magnification"),
-                ("Defocus", f"{trg}/optics/defocus"),
-                ("RotationAngle", f"{trg}/optics/rotation"),
-                ("ExposureTime", f"{trg}/ebeam_column/scan_controller/dwell_time"),
+            for key, n_columns, path in [
+                ("TiltAngle", 1, f"{trg}/stageID[stage]/tilt1"),
+                ("Magnification", 1, f"{trg}/optics/magnification"),
+                ("Defocus", 1, f"{trg}/optics/defocus"),
+                ("RotationAngle", 1, f"{trg}/optics/rotation"),
+                ("ExposureTime", 1, f"{trg}/ebeam_column/scan_controller/dwell_time"),
+                ("ImageShift", 2, f"{trg}/optics/image_shift"),
+                ("StagePosition", 3, f"{trg}/stageID[stage]/position"),
             ]:
                 if key in self.image_meta_data[0]:
-                    print(type(self.image_meta_data[0][key].magnitude))
-                    data_type = np.dtype(type(self.image_meta_data[0][key].magnitude))
                     # hot-fix better map all incoming metadata always to numpy types except for string
-                    numpy_array = np.zeros((number_of_images,), dtype=data_type)
-                for image_id in range(0, number_of_images):
-                    numpy_array[image_id] = self.image_meta_data[image_id][
-                        key
-                    ].magnitude
+                    if n_columns <= 1:
+                        data_type = np.dtype(
+                            type(self.image_meta_data[0][key].magnitude)
+                        )
+                        numpy_array = np.zeros((number_of_images,), dtype=data_type)
+                        for image_id in range(0, number_of_images):
+                            numpy_array[image_id] = self.image_meta_data[image_id][
+                                key
+                            ].magnitude
+                    else:
+                        data_type = self.image_meta_data[0][key].magnitude.dtype
+                        numpy_array = np.zeros(
+                            (number_of_images, n_columns), dtype=data_type
+                        )
+                        for image_id in range(0, number_of_images):
+                            numpy_array[image_id, :] = self.image_meta_data[image_id][
+                                key
+                            ].magnitude
                 template[f"{path}"] = {"compress": numpy_array, "strength": 1}
-                if f"{self.image_meta_data[0][key].units}" != "":
+                if f"{self.image_meta_data[0][key].units}" not in ("", "dimensionless"):
                     template[f"{path}/@units"] = f"{self.image_meta_data[0][key].units}"
                 del numpy_array
 
