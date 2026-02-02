@@ -316,4 +316,74 @@ class RsciioMrcParser:
 
     def parse_content(self, template: dict) -> dict:
         """Translate tech partner concepts to NeXus concepts."""
+        for obj_id, obj in enumerate(self.objs):
+            number_of_images = np.shape(obj.data)[0]
+            trg = f"ENTRY[{self.entry_id}]/measurement/eventID[event1]/imageID[image{obj_id + 1}]/stack_2d"
+            template[f"{trg}/@signal"] = f"intensity"
+            template[f"{trg}/title"] = f"Electron tomography tilt series"
+            template[f"{trg}/intensity"] = {"compress": obj.data, "strength": 1}
+            template[f"{trg}/intensity/@long_name"] = f"Counts"
+
+            axis_names = ["axis_i", "axis_j", "indices_image"]
+            template[f"{trg}/@axes"] = axis_names
+            for idx, axis_name in enumerate(axis_names[0:2]):
+                template[f"{trg}/@AXISNAME_indices[{axis_name}_indices]"] = np.uint32(
+                    len(axis_names) - 1 - idx
+                )
+                offset = obj.axes_manager[idx].offset
+                step = obj.axes_manager[idx].scale
+                units = obj.axes_manager[idx].units
+                count = obj.axes_manager[idx].size
+                template[f"{trg}/AXISNAME[{axis_name}]"] = {
+                    "compress": np.asarray(
+                        offset
+                        + np.linspace(0, count - 1, num=count, endpoint=True) * step,
+                        np.float64,
+                    ),
+                    "strength": 1,
+                }
+                template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
+                    f"Coordinate along {axis_name.replace('axis_', '')}-axis ({ureg.Unit(units)})"
+                )
+                template[f"{trg}/AXISNAME[{axis_name}]/@units"] = f"{ureg.Unit(units)}"
+            # indices_image
+            for idx, axis_name in enumerate(axis_names[2:]):
+                template[f"{trg}/@AXISNAME_indices[{axis_name}_indices]"] = np.uint32(
+                    len(axis_names) - 1 - idx
+                )
+                count = number_of_images
+                template[f"{trg}/AXISNAME[{axis_name}]"] = {
+                    "compress": np.asarray(
+                        np.linspace(0, count - 1, num=count, endpoint=True), np.uint32
+                    ),
+                    "strength": 1,
+                }
+                template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = f"Image ID"
+
+            trg = f"ENTRY[{self.entry_id}]/measurement/eventID[event1]/instrument"
+            for key, path in [
+                ("TiltAngle", f"{trg}/stageID[stage]/tilt1"),
+                ("Magnification", f"{trg}/optics/magnification"),
+                ("Defocus", f"{trg}/optics/defocus"),
+                ("RotationAngle", f"{trg}/optics/rotation"),
+                ("ExposureTime", f"{trg}/ebeam_column/scan_controller/dwell_time"),
+            ]:
+                if key in self.image_meta_data[0]:
+                    data_type = self.image_meta_data[0][key].magnitude.dtype
+                numpy_array = np.zeros((number_of_images,), dtype=data_type)
+                for image_id in range(0, number_of_images):
+                    numpy_array[image_id] = self.image_meta_data[image_id][key]
+                template[f"{path}"] = {"compress": numpy_array, "strength": 1}
+                del numpy_array
+
+            # alternative A from the rawtlt file
+            # template[f"{trg}/tilt_angle"] = tilts.magnitude
+            # template[f"{trg}/tilt_angle/@long_name"] = f"Tilt angle ({tilts.units})"
+            # template[f"{trg}/tilt_angle/@units"] = f"{tilts.units}"
+            # alternative B from the fei_header
+            # for tilt_idx, tilt_axis in enumerate("a"):  # , "b"):
+            #     count = obj.axes_manager[0].size
+            #     template[f"{trg}/tilt_angle"] = {"compress": obj.original_metadata["fei_header"][f"{tilt_axis}_tilt"][0:count], "strength": 1}
+            #     template[f"{trg}/tilt_angle/@long_name"] = f"Tilt angle ({tilts.units})"
+            #     template[f"{trg}/tilt_angle/@units"] = f"{tilts.units}"
         return template

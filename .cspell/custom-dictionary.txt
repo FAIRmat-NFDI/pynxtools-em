@@ -262,6 +262,7 @@ pymatgen
 pynxtools
 pyxem
 radioeditbutton
+rawtlt
 rchop
 rediscretized
 regrid
