@@ -27,6 +27,7 @@ from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY, SEPARATOR
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
+from pynxtools_em.utils.string_conversions import string_to_number
 
 
 class RsciioMrcParser:
@@ -220,7 +221,7 @@ class RsciioMrcParser:
                         if match:
                             # print(f"{jdx}, {match}")
                             self.image_meta_data[block_id][f"{key}"] = ureg.Quantity(
-                                match.group(1), unit
+                                string_to_number(match.group(1)), unit
                             )
                             # if f"{unit}" == "degree":  # TODO broken
                             #     md[blk_id][f"{key}"].to(ureg.radians)
@@ -241,7 +242,11 @@ class RsciioMrcParser:
                         if match:
                             self.image_meta_data[block_id][f"{key}"] = ureg.Quantity(
                                 np.asarray(
-                                    (match.group(1), match.group(2)), dtype=data_type
+                                    (
+                                        string_to_number(match.group(1)),
+                                        string_to_number(match.group(2)),
+                                    ),
+                                    dtype=data_type,
                                 ),
                                 src_unit,
                             ).to(trg_unit)
@@ -255,13 +260,14 @@ class RsciioMrcParser:
                 for jdx in range(s_e["start"], s_e["end"]):
                     match = re.search(key + r"\s*=\s*" + rgx, txt_stripped[jdx])
                     if match:
-                        stage_position[0:2] = (match.group(1), match.group(2))
+                        stage_position[0] = string_to_number(match.group(1))
+                        stage_position[1] = string_to_number(match.group(2))
                         break
                 key, rgx = (r"StageZ", r"([+-]?\d+(?:\.\d+)?)")
                 for jdx in range(s_e["start"], s_e["end"]):
                     match = re.search(key + r"\s*=\s*" + rgx, txt_stripped[jdx])
                     if match:
-                        stage_position[2] = match.group(1)
+                        stage_position[2] = string_to_number(match.group(1))
                         break
                 # are both stage values XY and Z in nanometer ???
                 self.image_meta_data[block_id]["StagePosition"] = ureg.Quantity(
@@ -317,23 +323,24 @@ class RsciioMrcParser:
     def parse_content(self, template: dict) -> dict:
         """Translate tech partner concepts to NeXus concepts."""
         for obj_id, obj in enumerate(self.objs):
-            number_of_images = np.shape(obj.data)[0]
-            trg = f"ENTRY[{self.entry_id}]/measurement/eventID[event1]/imageID[image{obj_id + 1}]/stack_2d"
-            template[f"{trg}/@signal"] = f"intensity"
+            number_of_images = np.shape(obj["data"])[0]
+            trg = f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event1]/imageID[image{obj_id + 1}]/stack_2d"
             template[f"{trg}/title"] = f"Electron tomography tilt series"
-            template[f"{trg}/intensity"] = {"compress": obj.data, "strength": 1}
+            template[f"{trg}/intensity"] = {"compress": obj["data"], "strength": 1}
             template[f"{trg}/intensity/@long_name"] = f"Counts"
 
-            axis_names = ["axis_i", "axis_j", "indices_image"]
+            axis_names = ["indices_image", "axis_j", "axis_i"]
+            template[f"{trg}/@signal"] = f"intensity"
             template[f"{trg}/@axes"] = axis_names
-            for idx, axis_name in enumerate(axis_names[0:2]):
+            for idx, axis_name in enumerate(axis_names[1:]):
+                axis_idx = len(axis_names) - 1 - idx
                 template[f"{trg}/@AXISNAME_indices[{axis_name}_indices]"] = np.uint32(
                     len(axis_names) - 1 - idx
                 )
-                offset = obj.axes_manager[idx].offset
-                step = obj.axes_manager[idx].scale
-                units = obj.axes_manager[idx].units
-                count = obj.axes_manager[idx].size
+                offset = obj["axes"][axis_idx]["offset"]
+                step = obj["axes"][axis_idx]["scale"]
+                units = obj["axes"][axis_idx]["units"]
+                count = obj["axes"][axis_idx]["size"]
                 template[f"{trg}/AXISNAME[{axis_name}]"] = {
                     "compress": np.asarray(
                         offset
@@ -347,7 +354,7 @@ class RsciioMrcParser:
                 )
                 template[f"{trg}/AXISNAME[{axis_name}]/@units"] = f"{ureg.Unit(units)}"
             # indices_image
-            for idx, axis_name in enumerate(axis_names[2:]):
+            for idx, axis_name in enumerate(axis_names[0:1]):
                 template[f"{trg}/@AXISNAME_indices[{axis_name}_indices]"] = np.uint32(
                     len(axis_names) - 1 - idx
                 )
@@ -360,7 +367,7 @@ class RsciioMrcParser:
                 }
                 template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = f"Image ID"
 
-            trg = f"ENTRY[{self.entry_id}]/measurement/eventID[event1]/instrument"
+            trg = f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event1]/instrument"
             for key, path in [
                 ("TiltAngle", f"{trg}/stageID[stage]/tilt1"),
                 ("Magnification", f"{trg}/optics/magnification"),
@@ -369,11 +376,17 @@ class RsciioMrcParser:
                 ("ExposureTime", f"{trg}/ebeam_column/scan_controller/dwell_time"),
             ]:
                 if key in self.image_meta_data[0]:
-                    data_type = self.image_meta_data[0][key].magnitude.dtype
-                numpy_array = np.zeros((number_of_images,), dtype=data_type)
+                    print(type(self.image_meta_data[0][key].magnitude))
+                    data_type = np.dtype(type(self.image_meta_data[0][key].magnitude))
+                    # hot-fix better map all incoming metadata always to numpy types except for string
+                    numpy_array = np.zeros((number_of_images,), dtype=data_type)
                 for image_id in range(0, number_of_images):
-                    numpy_array[image_id] = self.image_meta_data[image_id][key]
+                    numpy_array[image_id] = self.image_meta_data[image_id][
+                        key
+                    ].magnitude
                 template[f"{path}"] = {"compress": numpy_array, "strength": 1}
+                if f"{self.image_meta_data[0][key].units}" != "":
+                    template[f"{path}/@units"] = f"{self.image_meta_data[0][key].units}"
                 del numpy_array
 
             # alternative A from the rawtlt file
