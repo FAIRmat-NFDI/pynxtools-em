@@ -10,6 +10,9 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "../../.py3.13.11/bin/dataconverter",
+            "env": {
+                "PYDEVD_CONTAINER_RANDOM_ACCESS_MAX_ITEMS": "10000"
+            },
             "args": [//"tests/data/custom_reference_frame/output.custom_eln_data.yaml",
                      //"tests/data/default/em.oasis.specific.yaml",
                      //"tests/data/default/InGaN_nanowires_spectra.edaxh5",
@@ -71,6 +74,7 @@
                      //"../../CENEM_NOMAD/CorMic/TiO2_coated_SiO2/SEM/BSE_EDX_018.tif",
                      //"../../CENEM_NOMAD/CorMic/TiO2_coated_SiO2/SEM/SE_EDX_019.tif",
                      //"../../CENEM_NOMAD/CorMic/TiO2_coated_SiO2/SEM_EDX_EDAX/DW-Silica_coated_wth_Titania.edaxh5",
+                     //"../../DW-Silica_coated_wth_Titania.edaxh5",
                      //"../../CENEM_NOMAD/CorMic/PET_A5/1344_Spectrum_EDS.emd",
                      //"../../CENEM_NOMAD/CorMic/PET_A5/1345_Spectrum_EDS.emd",
                      //"../../CENEM_NOMAD/CorMic/PET_A5/1423_STEM_HAADF-DF-I-DF-O-BF.emd",
@@ -89,9 +93,10 @@
                      //"../../tilt2.mrc.mdoc",
                      //"../../CENEM_NOMAD/CorMic/szpzc11/et/tilt3.mrc",
                      //"../../CENEM_NOMAD/CorMic/szpzc11/et/tilt3.mrc.mdoc",
-                     "examples/deu_erlangen_spiecker/cenem.nxs_eln_data.yaml",
-                     "../../tilt3.mrc",
-                     "../../tilt3.mrc.mdoc",
+                     //"examples/deu_erlangen_spiecker/cenem.nxs_eln_data.yaml",
+                     //"../../tilt3.mrc",
+                     //"../../tilt3.mrc.mdoc",
+                     "../../TiO2_RTA.edaxh5",
                      "--reader",
                      "em",
                      "--nxdl",
@@ -120,7 +125,8 @@
                      //"--output=../../tem.sb2s3.STEM_HAADF-DF-I-DF-O-BF_0953.emd.nxs"]
                      //"--output=../../et.tilt.mrc.nxs"]
                      //"--output=../../et.tilt2.mrc.nxs"]
-                     "--output=../../et.tilt3.mrc.nxs"]
+                     //"--output=../../et.tilt3.mrc.nxs"]
+                     "--output=../../ebsd.TiO2_RTA.edaxh5.nxs"]
                      //"--output=tests/prod/default/output.nxs"]
                      //"--output=tests/prod/ebsd_mtex/output.nxs"]
                      //"--output=tests/prod/ebsd_oina/output.nxs"]

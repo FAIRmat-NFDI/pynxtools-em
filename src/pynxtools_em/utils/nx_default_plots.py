@@ -17,11 +17,13 @@
 #
 """Logics and functionality to identify and annotate a default plot NXem."""
 
+import re
 from operator import itemgetter
 
 import numpy as np
 
 from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.natural_sorting import natural_key
 
 
 def sort_list_of_tuples_desc_order(tuples):
@@ -56,105 +58,159 @@ class NxEmDefaultPlotResolver:
 
     def priority_select(self, template: dict, entry_id: int = 1) -> dict:
         """Inspects all NXdata instances that could serve as default plots and picks one."""
-        # find candidates for interesting default plots with some priority
-        # priority ipf map > roi overview > spectra > complex image > real image
-        # TODO: some of the here used idx_head, idx_tail string mangling could be
-        # made likely better with using a regex
-        candidates: dict = {}
-        priorities = [1, 2, 3, 4]
-        for votes in priorities:
-            candidates[votes] = []
+        # find keys_of_priority for interesting default plots with some priority
+        # priority ipf map > roi overview > eds map > spectra > complex image > real image
+        keys_of_priority: dict[int, list[str]] = {}
+        priorities = [1, 2, 3, 4, 5]
+        for priority in priorities:
+            keys_of_priority[priority] = []
 
-        dtyp_vote = [
-            ("imageID", "image", 1),
-            ("imageID", "stack", 1),
-            ("spectrumID", "spectrum", 2),
-            ("spectrumID", "stack", 2),
-        ]
-        for key in template.keys():
-            for tpl in dtyp_vote:
-                for dimensionality in ["0d", "1d", "2d", "3d"]:
-                    head = f"{tpl[0]}["
-                    idx_head = key.find(head)
-                    tail = f"]/{tpl[1]}_{dimensionality}"
-                    idx_tail = key.find(tail)
-                    if idx_head is not None and idx_tail is not None:
-                        if 0 < idx_head < idx_tail:
-                            keyword = f"{key[0 : idx_tail + len(tail)]}"
-                            if keyword not in candidates[tpl[2]]:
-                                candidates[tpl[2]].append(keyword)
-                            break
+        # images, 1
+        image_pattern = re.compile(
+            r"("
+            r"/ENTRY\[entry([1-9]\d*)\].*/"
+            r"(?:"
+            r"imageID\[image([1-9]\d*)\]/image_[0-3]d"
+            r"|"
+            r"imageID\[image([1-9]\d*)\]/stack_[0-3]d"
+            r"))"
+        )
+        keys_of_priority[1] = list(
+            sorted(
+                {
+                    match.group(1)
+                    for key in template
+                    for match in image_pattern.finditer(key)
+                },
+                key=natural_key,
+            )
+        )
+        del image_pattern
 
-            # find ebsd ipf map
-            idx_head = key.find("/roiID[roi1]")
-            idx_tail = key.find("/ebsd/indexing")
-            if idx_head is None or idx_tail is None:
-                continue
-            if 0 < idx_head < idx_tail:
-                n_scan_points_total = 1.0
-                if (
-                    f"{key[0 : idx_tail + len('/ebsd/indexing')]}/number_of_scan_points"
-                    in template
-                ):
-                    n_scan_points_total = template[
-                        f"{key[0 : idx_tail + len('/ebsd/indexing')]}/number_of_scan_points"
-                    ]
-                    # in case of ebsd map with phase2, phase3, ... find than phase with the
-                    vote_ipf_map = []
-                    for phase_id in np.arange(1, 20 + 1):
-                        idx_tail = key.find(f"/ebsd/indexing/phaseID[phase{phase_id}]")
-                        if idx_tail is None or idx_tail == -1:
-                            continue
-                        prfx = f"{key[0 : idx_tail + len(f'''/ebsd/indexing/phaseID[phase{phase_id}]''')]}"
-                        # logger.debug(f"{key}\t{idx_head}\t{idx_tail}\t{prfx}")
-                        if 0 < idx_head < idx_tail and (
-                            f"{prfx}/ipfID[ipf1]/map/data" in template
-                            or f"{prfx}/ipfID[ipf1]/map/DATA[data]" in template
-                        ):
-                            n_scan_points = 1.0
-                            if f"{prfx}/number_of_scan_points" in template:
-                                # n_scan_points = template[
-                                #     f"{key[0:idx_tail + len(f'''/ebsd/indexing/phaseID[phase{phase_id}]''')]}/number_of_scan_points"
-                                # ]
-                                n_scan_points = template[
-                                    f"{prfx}/number_of_scan_points"
-                                ]
-                            vote_ipf_map.append(
-                                (
-                                    f"{prfx}/ipfID[ipf1]/map",
-                                    np.float64(n_scan_points)
-                                    / np.float64(n_scan_points_total),
-                                )
+        # spectra, 2
+        spectrum_pattern = re.compile(
+            r"("
+            r"/ENTRY\[entry([1-9]\d*)\].*/"
+            r"(?:"
+            r"spectrumID\[spectrum([1-9]\d*)\]/spectrum_[0-3]d"
+            r"|"
+            r"spectrumID\[spectrum([1-9]\d*)\]/stack_[0-3]d"
+            r"))"
+        )
+        keys_of_priority[2] = list(
+            sorted(
+                {
+                    match.group(1)
+                    for key in template
+                    for match in spectrum_pattern.finditer(key)
+                },
+                key=natural_key,
+            )
+        )
+        del spectrum_pattern
+
+        # eds, 3
+        eds_pattern = re.compile(
+            r"("
+            r"/ENTRY\[entry([1-9]\d*)\]/roiID\[roi([1-9]\d*)\].*/"
+            r"eds/indexing/ELEMENT_SPECIFIC_MAP\[[A-Za-z]{1,2}\]/image_2d"
+            r")"
+        )
+        keys_of_priority[3] = list(
+            sorted(
+                {
+                    match.group(1)
+                    for key in template
+                    for match in eds_pattern.finditer(key)
+                },
+                key=natural_key,
+            )
+        )
+        del eds_pattern
+
+        ebsd_pattern = re.compile(
+            r"("
+            r"/ENTRY\[entry([1-9]\d*)\]/roiID\[roi([1-9]\d*)\].*/ebsd/indexing"
+            r")"
+        )
+        ebsd_keys = list(
+            sorted(
+                {
+                    match.group(1)
+                    for key in template
+                    for match in ebsd_pattern.finditer(key)
+                },
+                key=natural_key,
+            )
+        )
+        for ebsd_key in ebsd_keys:
+            # ebsd, roi, 4
+            if (
+                f"{ebsd_key}/roi" in template
+                and f"{ebsd_key}/roi" not in keys_of_priority[4]
+            ):
+                keys_of_priority[4].append(f"{ebsd_key}/roi")
+
+            # ebsd, ipf 5
+            if f"{ebsd_key}/number_of_scan_points" in template:
+                n_scan_points_total = template[f"{ebsd_key}/number_of_scan_points"]
+
+                # for that specific roi get all phase maps, rank by coverage of ipf
+                # TODO
+                phase_pattern = re.compile(
+                    rf"("
+                    rf"{re.escape(ebsd_key)}/"
+                    rf"phaseID\[phase([1-9]\d*)\]"
+                    rf")"
+                )
+                phase_keys = list(
+                    sorted(
+                        {
+                            match.group(1)
+                            for key in template
+                            for match in phase_pattern.finditer(key)
+                        },
+                        key=natural_key,
+                    )
+                )
+                vote_ipf_map: list[tuple[str, float]] = []
+                for phase_key in phase_keys:
+                    if f"{phase_key}/number_of_scan_points" in template and any(
+                        f"{phase_key}/ipfID[ipf1]/map/{s}" in template
+                        for s in ("data", "DATA[data]")
+                    ):
+                        n_scan_points = template[f"{phase_key}/number_of_scan_points"]
+                        vote_ipf_map.append(
+                            (
+                                f"{phase_key}/ipfID[ipf1]/map",
+                                float(n_scan_points) / float(n_scan_points_total),
                             )
-                    vote_ipf_map = sort_list_of_tuples_desc_order(vote_ipf_map)
-                    if len(vote_ipf_map) > 0:
-                        if vote_ipf_map[0][0] not in candidates[4]:
-                            candidates[4].append(vote_ipf_map[0][0])
-
-            # find ebsd roi map
-            idx_tail = key.find("/ebsd/indexing/roi")
-            if idx_head is not None and idx_tail is not None:
-                if 0 < idx_head < idx_tail:
-                    keyword = key[0 : idx_tail + len("/ebsd/indexing/roi")]
-                    if keyword not in candidates[3]:
-                        candidates[3].append(keyword)
+                        )
+                vote_ipf_map = sort_list_of_tuples_desc_order(vote_ipf_map)
+                if len(vote_ipf_map) > 0:
+                    if vote_ipf_map[0][0] not in keys_of_priority[5]:
+                        keys_of_priority[5].append(vote_ipf_map[0][0])
+                del phase_pattern, phase_keys
+        del ebsd_pattern, ebsd_keys
 
         # TODO:one could think about more fine-grained priority voting, e.g. based on
         # image descriptors or shape of the data behind a key in template
         # but this will likely escalate into a discussion about personal preferences
         # and particularity details
 
-        for votes in priorities:
+        for priority in priorities:
             logger.info(
-                f"{len(candidates[votes])} NXdata instances with priority {votes}"
+                f"{len(keys_of_priority[priority])} NXdata instances with priority {priority}"
             )
 
         has_default_plot = False
-        for votes in priorities[::-1]:
-            if len(candidates[votes]) > 0:
-                self.decorate_path_to_default_plot(template, candidates[votes][0])
+        for priority in priorities[::-1]:
+            if len(keys_of_priority[priority]) > 0:
+                self.decorate_path_to_default_plot(
+                    template, keys_of_priority[priority][0]
+                )
                 logger.info(
-                    f"Decorating {candidates[votes][0]} as the default plot for H5Web ..."
+                    f"Decorating {keys_of_priority[priority][0]} as the default plot for H5Web ..."
                 )
                 has_default_plot = True
                 break
