@@ -36,6 +36,10 @@ from pynxtools_em.configurations.image_tiff_zeiss_cfg import (
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY, SEPARATOR
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
+from pynxtools_em.utils.image_utils import (
+    PILLOW_TIFF_MODE_EXOTIC,
+    PILLOW_TIFF_MODE_TO_GREYSCALE,
+)
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
 
@@ -183,7 +187,14 @@ class ZeissTiffParser:
         identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
-                nparr = np.flipud(np.array(img))
+                if img.mode not in PILLOW_TIFF_MODE_EXOTIC:
+                    if img.mode in PILLOW_TIFF_MODE_TO_GREYSCALE:
+                        nparr = np.flipud(np.array(img.convert("L")))
+                    else:
+                        nparr = np.flipud(np.array(img))
+                else:
+                    logger.warning(f"{img.mode} is an unsupported img.mode")
+                    continue
                 logger.debug(
                     f"Processing image {identifier_image} ... {type(nparr)}, {np.shape(nparr)}, {nparr.dtype}"
                 )
