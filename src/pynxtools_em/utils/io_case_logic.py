@@ -43,6 +43,8 @@ VALID_FILE_NAME_SUFFIX_DATA = [
     ".hdr",
     ".mrc",
     ".mrc.mdoc",
+    ".rawtlt",
+    ".xml",
 ]
 # the order of this list is significant to assure that whatever is found first and
 # valid will trigger acceptance but avoiding to load one dataset twice e.g.

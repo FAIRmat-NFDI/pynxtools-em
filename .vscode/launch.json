@@ -96,7 +96,12 @@
                      //"examples/deu_erlangen_spiecker/cenem.nxs_eln_data.yaml",
                      //"../../tilt3.mrc",
                      //"../../tilt3.mrc.mdoc",
-                     "../../TiO2_RTA.edaxh5",
+                     //"../../TiO2_RTA.edaxh5",
+                     "../../decompressed/CorMic/2025_meeting/tem_et/FEI_HAADF_aligned_norm_ad.mrc",
+                     "../../decompressed/CorMic/2025_meeting/tem_et/FEI_HAADF_aligned_norm_ad.rawtlt",
+                     //"../../decompressed/CorMic/2025_meeting/tem_et/serie1_-55+55_1mrad_CL=58_spot_4_14k_t=5s.mrc",
+                     //"../../decompressed/CorMic/2025_meeting/tem_et/1201_SI_HAADF-bbb53dab8c534bf09079270fa31e637c.mrc",
+                     //"../../decompressed/CorMic/2025_meeting/tem_et/1201_SI_HAADF-bbb53dab8c534bf09079270fa31e637c.xml",
                      "--reader",
                      "em",
                      "--nxdl",
@@ -126,7 +131,10 @@
                      //"--output=../../et.tilt.mrc.nxs"]
                      //"--output=../../et.tilt2.mrc.nxs"]
                      //"--output=../../et.tilt3.mrc.nxs"]
-                     "--output=../../ebsd.TiO2_RTA.edaxh5.nxs"]
+                     //"--output=../../ebsd.TiO2_RTA.edaxh5.nxs"]
+                     "--output=../../tem_et.FEI_HAADF_aligned_norm_ad.nxs"]
+                     //"--output=../../tem_et.serie1_-55+55_1mrad_CL=58_spot_4_14k_t=5s.nxs"]
+                     //"--output=../../tem_et.1201_SI_HAADF-bbb53dab8c534bf09079270fa31e637c.nxs"]
                      //"--output=tests/prod/default/output.nxs"]
                      //"--output=tests/prod/ebsd_mtex/output.nxs"]
                      //"--output=tests/prod/ebsd_oina/output.nxs"]
