@@ -29,7 +29,7 @@ def get_dimension_analysis_keyword(hspy_axes_list: list[dict]) -> str:
             if dictionary["units"] is None:
                 units.append("dimensionless")
             else:
-                units.append(f"{ureg(dictionary['units']).to_base_units()}")
+                units.append(f"{ureg(dictionary['units']).to_base_units().units}")
         else:
             logger.warning("get_dimension_analysis_keyword got malformed input")
             return ""

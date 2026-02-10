@@ -139,7 +139,7 @@ class RsciioMrcParser:
                     return False
 
             # scalar settings and strings on specific lines
-            for key, regex, data_type, line_idx in [
+            for key, regex, data_type, line_idx in [  # type: ignore
                 (r"Version", r"(SerialEM.*)", str, 2),
                 (r"ImageFile", r"(.*)", str, 3),
                 (
@@ -160,16 +160,13 @@ class RsciioMrcParser:
                     return False
 
             # array quantities on specific lines
-            for key, regex, data_type, line_idx in [
-                (r"ImageSize", r"(\d+)\s+(\d+)", np.uint32, 4),
-            ]:
-                match = re.search(r"\s*=\s*" + regex, txt_stripped[line_idx])
-                if match:
-                    self.series_meta_data[key] = np.asarray(
-                        (match.group(1), match.group(2)), dtype=data_type
-                    )
-                else:
-                    logger.warning(f"{self.file_path} series_meta_data {key} not found")
+            match = re.search(r"\s*=\s*" + r"(\d+)\s+(\d+)", txt_stripped[4])
+            if match:
+                self.series_meta_data["ImageSize"] = np.asarray(
+                    (match.group(1), match.group(2)), dtype=np.uint32
+                )
+            else:
+                logger.warning(f"{self.file_path} series_meta_data {key} not found")
 
             if self.verbose:
                 for key, value in self.series_meta_data.items():
@@ -227,7 +224,7 @@ class RsciioMrcParser:
                     ),  # "1 / angstrom**2"),
                     # TimeStamp,
                 ]
-                for key, rgx, data_type, unit in scalars:
+                for key, rgx, data_type, unit in scalars:  # type: ignore
                     for jdx in range(s_e["start"], s_e["end"]):
                         match = re.search(key + r"\s*=\s*" + rgx, txt_stripped[jdx])
                         if match:
@@ -328,7 +325,7 @@ class RsciioMrcParser:
                 payload = line.decode("utf-8").strip()
                 if payload != "":
                     token_list = payload.split()
-                    if len(token_list) > 1:
+                    if len(token_list) >= 1:
                         for token in token_list:
                             if token != "":
                                 try:
@@ -341,18 +338,9 @@ class RsciioMrcParser:
                             else:
                                 logger.warning(f"{self.file_path} empty rawtlt")
                                 return False
-                    else:
-                        try:
-                            tilts.append(float(token))
-                        except ValueError:
-                            logger.warning(f"{self.file_path} unable to convert rawtlt")
-                            return False
-                else:
-                    logger.warning(f"{self.file_path} empty payload")
-                    return False
-            # original order matters and is here retained
-        # tilts = ureg.Quantity(np.asarray(tilts, np.float32), ureg.degree)
+
         for image_id, tilt_angle in enumerate(tilts):
+            self.image_meta_data[image_id] = {}
             self.image_meta_data[image_id]["TiltAngle"] = ureg.Quantity(
                 np.float32(tilt_angle), ureg.degree
             )
@@ -419,7 +407,7 @@ class RsciioMrcParser:
             elif self.config["mode"] == "em_mrc_fei":
                 self.process_data_mode_em_mrc_fei(template)
             elif self.config["mode"] == "em_mrc_only":
-                self.process_data_mode_et_mrc_only(template)
+                self.process_data_mode_em_mrc_only(template)
         return template
 
     def process_data_mode_et_mrc_mdoc(self, template: dict) -> dict:
@@ -439,40 +427,41 @@ class RsciioMrcParser:
             axis_names = ["indices_image", "axis_j", "axis_i"]
             template[f"{trg}/@signal"] = f"intensity"
             template[f"{trg}/@axes"] = axis_names
-            for idx, axis_name in enumerate(axis_names[1:]):
+            for idx, axis_name in enumerate(axis_names):
                 axis_idx = len(axis_names) - 1 - idx
                 template[f"{trg}/@AXISNAME_indices[{axis_name}_indices]"] = np.uint32(
-                    len(axis_names) - 1 - idx
+                    axis_idx
                 )
-                offset = obj["axes"][axis_idx]["offset"]
-                step = obj["axes"][axis_idx]["scale"]
-                units = obj["axes"][axis_idx]["units"]
-                count = obj["axes"][axis_idx]["size"]
-                template[f"{trg}/AXISNAME[{axis_name}]"] = {
-                    "compress": np.asarray(
-                        offset
-                        + np.linspace(0, count - 1, num=count, endpoint=True) * step,
-                        np.float64,
-                    ),
-                    "strength": 1,
-                }
-                template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                    f"Coordinate along {axis_name.replace('axis_', '')}-axis ({ureg.Unit(units)})"
-                )
-                template[f"{trg}/AXISNAME[{axis_name}]/@units"] = f"{ureg.Unit(units)}"
-            # indices_image
-            for idx, axis_name in enumerate(axis_names[0:1]):
-                template[f"{trg}/@AXISNAME_indices[{axis_name}_indices]"] = np.uint32(
-                    len(axis_names) - 1 - idx
-                )
-                count = number_of_images
-                template[f"{trg}/AXISNAME[{axis_name}]"] = {
-                    "compress": np.asarray(
-                        np.linspace(0, count - 1, num=count, endpoint=True), np.uint32
-                    ),
-                    "strength": 1,
-                }
-                template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = f"Image ID"
+                if idx != 0:  # axis_j, axis_i
+                    offset = obj["axes"][idx]["offset"]
+                    step = obj["axes"][idx]["scale"]
+                    units = obj["axes"][idx]["units"]
+                    count = obj["axes"][idx]["size"]
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = {
+                        "compress": np.asarray(
+                            offset
+                            + np.linspace(0, count - 1, num=count, endpoint=True)
+                            * step,
+                            np.float64,
+                        ),
+                        "strength": 1,
+                    }
+                    template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
+                        f"Coordinate along {axis_name.replace('axis_', '')}-axis ({ureg.Unit(units)})"
+                    )
+                    template[f"{trg}/AXISNAME[{axis_name}]/@units"] = (
+                        f"{ureg.Unit(units)}"
+                    )
+                else:  # indices_image
+                    count = number_of_images
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = {
+                        "compress": np.asarray(
+                            np.linspace(0, count - 1, num=count, endpoint=True),
+                            np.uint32,
+                        ),
+                        "strength": 1,
+                    }
+                    template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = f"Image ID"
 
             trg = f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event1]/instrument"
             for key, n_columns, path in [
@@ -509,16 +498,6 @@ class RsciioMrcParser:
                     template[f"{path}/@units"] = f"{self.image_meta_data[0][key].units}"
                 del numpy_array
 
-            # alternative A from the rawtlt file
-            # template[f"{trg}/tilt_angle"] = tilts.magnitude
-            # template[f"{trg}/tilt_angle/@long_name"] = f"Tilt angle ({tilts.units})"
-            # template[f"{trg}/tilt_angle/@units"] = f"{tilts.units}"
-            # alternative B from the fei_header
-            # for tilt_idx, tilt_axis in enumerate("a"):  # , "b"):
-            #     count = obj.axes_manager[0].size
-            #     template[f"{trg}/tilt_angle"] = {"compress": obj.original_metadata["fei_header"][f"{tilt_axis}_tilt"][0:count], "strength": 1}
-            #     template[f"{trg}/tilt_angle/@long_name"] = f"Tilt angle ({tilts.units})"
-            #     template[f"{trg}/tilt_angle/@units"] = f"{tilts.units}"
         return template
 
     def process_data_mode_et_mrc_rawtlt(self, template: dict) -> dict:
@@ -537,40 +516,41 @@ class RsciioMrcParser:
             axis_names = ["indices_image", "axis_j", "axis_i"]
             template[f"{trg}/@signal"] = f"intensity"
             template[f"{trg}/@axes"] = axis_names
-            for idx, axis_name in enumerate(axis_names[1:]):
+            for idx, axis_name in enumerate(axis_names):
                 axis_idx = len(axis_names) - 1 - idx
                 template[f"{trg}/@AXISNAME_indices[{axis_name}_indices]"] = np.uint32(
-                    len(axis_names) - 1 - idx
+                    axis_idx
                 )
-                offset = obj["axes"][axis_idx]["offset"]
-                step = obj["axes"][axis_idx]["scale"]
-                units = obj["axes"][axis_idx]["units"]
-                count = obj["axes"][axis_idx]["size"]
-                template[f"{trg}/AXISNAME[{axis_name}]"] = {
-                    "compress": np.asarray(
-                        offset
-                        + np.linspace(0, count - 1, num=count, endpoint=True) * step,
-                        np.float64,
-                    ),
-                    "strength": 1,
-                }
-                template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                    f"Coordinate along {axis_name.replace('axis_', '')}-axis ({ureg.Unit(units)})"
-                )
-                template[f"{trg}/AXISNAME[{axis_name}]/@units"] = f"{ureg.Unit(units)}"
-            # indices_image
-            for idx, axis_name in enumerate(axis_names[0:1]):
-                template[f"{trg}/@AXISNAME_indices[{axis_name}_indices]"] = np.uint32(
-                    len(axis_names) - 1 - idx
-                )
-                count = number_of_images
-                template[f"{trg}/AXISNAME[{axis_name}]"] = {
-                    "compress": np.asarray(
-                        np.linspace(0, count - 1, num=count, endpoint=True), np.uint32
-                    ),
-                    "strength": 1,
-                }
-                template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = f"Image ID"
+                if idx != 0:
+                    offset = obj["axes"][idx]["offset"]
+                    step = obj["axes"][idx]["scale"]
+                    units = obj["axes"][idx]["units"]
+                    count = obj["axes"][idx]["size"]
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = {
+                        "compress": np.asarray(
+                            offset
+                            + np.linspace(0, count - 1, num=count, endpoint=True)
+                            * step,
+                            np.float64,
+                        ),
+                        "strength": 1,
+                    }
+                    template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
+                        f"Coordinate along {axis_name.replace('axis_', '')}-axis ({ureg.Unit(units)})"
+                    )
+                    template[f"{trg}/AXISNAME[{axis_name}]/@units"] = (
+                        f"{ureg.Unit(units)}"
+                    )
+                else:  # indices_image
+                    count = number_of_images
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = {
+                        "compress": np.asarray(
+                            np.linspace(0, count - 1, num=count, endpoint=True),
+                            np.uint32,
+                        ),
+                        "strength": 1,
+                    }
+                    template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = f"Image ID"
 
             trg = f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event1]/instrument"
             for key, n_columns, path in [
@@ -611,4 +591,4 @@ class RsciioMrcParser:
         """TODO"""
         return template
 
-    # maybe process_data_mode_{em_mrc_fei,em_mrc_other} can be combined
+    # maybe some of these process_data_mode_{em_mrc_fei,em_mrc_other} can be combined

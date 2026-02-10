@@ -85,20 +85,16 @@
                      //"../../CENEM_NOMAD/CorMic/Sb2S3/STEM_HAADF-DF-I-DF-O-BF_0953.emd",
                      //"../../CENEM_NOMAD/CorMic/szpzc11/et/tilt.mrc",
                      //"../../CENEM_NOMAD/CorMic/szpzc11/et/tilt.mrc.mdoc",
-                     //"../../tilt.mrc",
-                     //"../../tilt.mrc.mdoc",
-                     //"../../CENEM_NOMAD/CorMic/szpzc11/et/tilt2.mrc",
-                     //"../../CENEM_NOMAD/CorMic/szpzc11/et/tilt2.mrc.mdoc",
-                     //"../../tilt2.mrc",
-                     //"../../tilt2.mrc.mdoc",
-                     //"../../CENEM_NOMAD/CorMic/szpzc11/et/tilt3.mrc",
-                     //"../../CENEM_NOMAD/CorMic/szpzc11/et/tilt3.mrc.mdoc",
+                     "../../decompressed/CorMic/2026_meeting/apm_et/szpzc11/et/tilt.mrc",
+                     "../../decompressed/CorMic/2026_meeting/apm_et/szpzc11/et/tilt.mrc.mdoc",
+                     //"../../decompressed/CorMic/2026_meeting/apm_et/szpzc11/et/tilt2.mrc",
+                     //"../../decompressed/CorMic/2026_meeting/apm_et/szpzc11/et/tilt2.mrc.mdoc",
+                     //"../../decompressed/CorMic/2026_meeting/apm_et/szpzc11/et/tilt3.mrc",
+                     //"../../decompressed/CorMic/2026_meeting/apm_et/szpzc11/et/tilt3.mrc.mdoc",
                      //"examples/deu_erlangen_spiecker/cenem.nxs_eln_data.yaml",
-                     //"../../tilt3.mrc",
-                     //"../../tilt3.mrc.mdoc",
                      //"../../TiO2_RTA.edaxh5",
-                     "../../decompressed/CorMic/2025_meeting/tem_et/FEI_HAADF_aligned_norm_ad.mrc",
-                     "../../decompressed/CorMic/2025_meeting/tem_et/FEI_HAADF_aligned_norm_ad.rawtlt",
+                     //"../../decompressed/CorMic/2025_meeting/tem_et/FEI_HAADF_aligned_norm_ad.mrc",
+                     //"../../decompressed/CorMic/2025_meeting/tem_et/FEI_HAADF_aligned_norm_ad.rawtlt",
                      //"../../decompressed/CorMic/2025_meeting/tem_et/serie1_-55+55_1mrad_CL=58_spot_4_14k_t=5s.mrc",
                      //"../../decompressed/CorMic/2025_meeting/tem_et/1201_SI_HAADF-bbb53dab8c534bf09079270fa31e637c.mrc",
                      //"../../decompressed/CorMic/2025_meeting/tem_et/1201_SI_HAADF-bbb53dab8c534bf09079270fa31e637c.xml",
@@ -128,11 +124,11 @@
                      //"--output=../../tem.sb2s3.002-10x-LV-PO.tif.nxs"]
                      //"--output=../../tem.sb2s3.STEM_HAADF-DF-I-DF-O-BF_0952.emd.nxs"]
                      //"--output=../../tem.sb2s3.STEM_HAADF-DF-I-DF-O-BF_0953.emd.nxs"]
-                     //"--output=../../et.tilt.mrc.nxs"]
-                     //"--output=../../et.tilt2.mrc.nxs"]
-                     //"--output=../../et.tilt3.mrc.nxs"]
+                     "--output=../../apm_et.tilt.mrc.nxs"]
+                     //"--output=../../apm_et.tilt2.mrc.nxs"]
+                     //"--output=../../apm_et.tilt3.mrc.nxs"]
                      //"--output=../../ebsd.TiO2_RTA.edaxh5.nxs"]
-                     "--output=../../tem_et.FEI_HAADF_aligned_norm_ad.nxs"]
+                     //"--output=../../tem_et.FEI_HAADF_aligned_norm_ad.nxs"]
                      //"--output=../../tem_et.serie1_-55+55_1mrad_CL=58_spot_4_14k_t=5s.nxs"]
                      //"--output=../../tem_et.1201_SI_HAADF-bbb53dab8c534bf09079270fa31e637c.nxs"]
                      //"--output=tests/prod/default/output.nxs"]
