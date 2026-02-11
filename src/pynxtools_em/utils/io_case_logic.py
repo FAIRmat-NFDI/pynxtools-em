@@ -44,6 +44,7 @@ VALID_FILE_NAME_SUFFIX_DATA = [
     ".mrc",
     ".mrc.mdoc",
     ".rawtlt",
+    ".shifts",
     ".xml",
 ]
 # the order of this list is significant to assure that whatever is found first and

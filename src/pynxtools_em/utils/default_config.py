@@ -19,3 +19,4 @@
 
 DEFAULT_VERBOSITY: bool = True  # False
 SEPARATOR: str = "____"
+DEFAULT_COMPRESSION_LEVEL = 9
