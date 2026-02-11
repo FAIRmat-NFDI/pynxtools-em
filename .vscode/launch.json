@@ -100,8 +100,9 @@
                      // the following filename causes issues serie1_-55+55_1mrad_CL=58_spot_4_14k_t=5s
                      //"../../decompressed/CorMic/2025_meeting/tem_et/serie1.mrc",
                      //"../../decompressed/CorMic/2025_meeting/tem_et/serie1.shifts",
-                     "../../decompressed/CorMic/2025_meeting/tem_et/1201_SI_HAADF-bbb53dab8c534bf09079270fa31e637c.mrc",
-                     "../../decompressed/CorMic/2025_meeting/tem_et/1201_SI_HAADF-bbb53dab8c534bf09079270fa31e637c.xml",
+                     //this one is so large that we need to skip-verify as otherwise RAM
+                     //"../../decompressed/CorMic/2025_meeting/tem_et/1201_SI_HAADF-bbb53dab8c534bf09079270fa31e637c.mrc",
+                     //"../../decompressed/CorMic/2025_meeting/tem_et/1201_SI_HAADF-bbb53dab8c534bf09079270fa31e637c.xml",
                      "--reader",
                      "em",
                      "--nxdl",
@@ -135,7 +136,7 @@
                      //"--output=../../apm_et.EDS_Yb_L_Map_aligned_norm.nxs"]
                      //"--output=../../tem_et.FEI_HAADF_aligned_norm_ad.nxs"]
                      //"--output=../../tem_et.serie1.nxs"]
-                     "--output=../../tem_et.1201_SI_HAADF-bbb53dab8c534bf09079270fa31e637c.nxs"]
+                     //"--output=../../tem_et.1201_SI_HAADF-bbb53dab8c534bf09079270fa31e637c.nxs"]
                      //"--output=tests/prod/default/output.nxs"]
                      //"--output=tests/prod/ebsd_mtex/output.nxs"]
                      //"--output=tests/prod/ebsd_oina/output.nxs"]

@@ -20,7 +20,6 @@
 
 import numpy as np
 from pynxtools.dataconverter.chunk_cache import CHUNK_CONFIG_DEFAULT
-
 from pynxtools_apm.utils.custom_logging import logger
 
 
