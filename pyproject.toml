@@ -27,7 +27,7 @@ dependencies = [
     "kikuchipy",
     "pyxem",
     "nionswift",
-    "flatdict",
+    "flatdict==4.0.0",
     "xmltodict",
     "xraydb",
     "tzlocal"
@@ -88,11 +88,12 @@ exclude = ["dev/*"]
 [tool.setuptools_scm]
 version_scheme = "no-guess-dev"
 local_scheme = "node-and-date"
-write_to = "src/pynxtools_em/utils/_version.py"
+write_to = "src/pynxtools_em/_version.py"
 git_describe_command = ["git", "describe", "--dirty", "--long", "--tags", "--match", "*[0-9]*", "--abbrev=8"]
 
 [tool.ruff]
 include = ["src/pynxtools_em/*.py", "tests/*.py"]
+exclude = ["src/pynxtools_em/_version.py"]
 line-length = 88
 indent-width = 4
 

@@ -17,7 +17,7 @@
 #
 """Utility tool constants and versioning."""
 
-from pynxtools_em.utils._version import version as __version__
+from pynxtools_em._version import version as __version__
 
 NX_EM_ADEF_NAME = "NXem"
 PYNX_EM_NAME = "pynxtools-em/reader.py"
