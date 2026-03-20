@@ -24,9 +24,9 @@ from xml.parsers.expat import ExpatError
 
 import numpy as np
 import xmltodict
+from pynxtools.dataconverter.chunk import prioritized_axes_heuristic
 from rsciio import mrc
 
-from pynxtools_em.utils.custom_guess_chunk import prioritized_axes_heuristic
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.default_config import (
     DEFAULT_COMPRESSION_LEVEL,
