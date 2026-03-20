@@ -33,4 +33,4 @@ def test_importing_app():
     # this will raise an exception if pydantic model validation fails for the app
     from pynxtools_em.nomad.apps import em_app  # noqa: PLC0415
 
-    assert em_app.app.label == "EM"
+    assert em_app.app.label == "Electron Microscopy"

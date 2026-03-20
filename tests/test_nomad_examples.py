@@ -39,7 +39,7 @@ from pynxtools.testing.nomad_example import (
 
 EXAMPLE_PATH = os.path.join(
     os.path.dirname(__file__),
-    f"..{os.sep}..",
+    "..",
     "src",
     "pynxtools_em",
     "nomad",
