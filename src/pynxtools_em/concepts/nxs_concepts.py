@@ -17,15 +17,15 @@
 #
 """Implement NeXus-specific groups and fields to document software and versions used."""
 
+from pynxtools_em import get_pynxtools_em_version
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
-from pynxtools_em.utils.versioning import PYNX_EM_NAME, PYNX_EM_VERSION
 
 EM_PYNX_TO_NEXUS = {
     "prefix_trg": "/ENTRY[entry*]/profiling",
     "prefix_src": "",
     "use": [
-        ("programID[program1]/program", PYNX_EM_NAME),
-        ("programID[program1]/program/@version", PYNX_EM_VERSION),
+        ("programID[program1]/program", "pynxtools-em"),
+        ("programID[program1]/program/@version", get_pynxtools_em_version()),
     ],
 }
 

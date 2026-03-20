@@ -45,7 +45,7 @@ from pynxtools.dataconverter.helpers import get_nxdl_root_and_path
 
 from pynxtools_em.utils.default_config import SEPARATOR
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
-from pynxtools_em.utils.versioning import pynx_em_version
+from pynxtools_em import get_pynxtools_em_version()
 
 
 def export_to_yaml(fpath: str, lookup_dict: dict[str, str | int]):
@@ -118,7 +118,7 @@ config: dict[str, str | int] = {
     "python_version": f"{sys.version}",
     "working_directory": f"{os.getcwd()}",
     "program_name": f"pynxtools_em/{__name__}",
-    "program_version": f"{pynx_em_version}",
+    "program_version": f"{get_pynxtools_em_version()}",
     "microscope_directory": sys.argv[1],  # e.g. '../../nion_data/'
     "target_directory": sys.argv[2],  # e.g. '../'
     "identifier_file_name": sys.argv[3],  # e.g. 'humans_and_companies.ods'

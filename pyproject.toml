@@ -27,7 +27,7 @@ dependencies = [
     "kikuchipy",
     "pyxem",
     "nionswift",
-    "flatdict",
+    "flatdict>=4.1.0",
     "xmltodict",
     "xraydb",
     "tzlocal"
@@ -56,7 +56,7 @@ docs = [
     "mkdocs-click"
 ]
 nomad = [
-    "nomad-lab[infrastructure]>=1.3.17"
+    "nomad-lab[infrastructure]>=1.4.1"
 ]
 ipynb = [
     "jupyter",
@@ -79,9 +79,6 @@ em = "pynxtools_em.reader:EMReader"
 # em_app_entry_point = "pynxtools_em.nomad.apps:em_app_entry_point"
 em_example_upload_entry_point = "pynxtools_em.nomad.example_uploads:em_example_upload_entry_point"
 
-[tool.setuptools.package-data]
-pynxtools_em = ["_version.py"]
-
 [tool.uv]
 extra-index-url = [
     "https://gitlab.mpcdf.mpg.de/api/v4/projects/2187/packages/pypi/simple",
@@ -95,8 +92,6 @@ exclude = ["dev/*"]
 [tool.setuptools_scm]
 version_scheme = "no-guess-dev"
 local_scheme = "node-and-date"
-write_to = "src/pynxtools_em/_version.py"
-git_describe_command = ["git", "describe", "--dirty", "--long", "--tags", "--match", "*[0-9]*", "--abbrev=8"]
 
 [tool.ruff]
 include = ["src/pynxtools_em/*.py", "tests/*.py"]
