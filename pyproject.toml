@@ -45,7 +45,8 @@ dev = [
     "types-pyyaml",
     "types-pytz",
     "types-requests",
-    "pre-commit"
+    "pre-commit",
+    "cruft"
 ]
 docs = [
     "mkdocs",
