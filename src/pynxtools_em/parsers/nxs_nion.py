@@ -359,7 +359,7 @@ class NionProjectParser:
 
     def parse_project_file(self, template: dict) -> dict:
         """Parse lazily from compressed NionSwift project (nsproj + directory)."""
-        nionswift_proj_mdata = {}
+        nionswift_proj_mdata = fd.FlatDict({}, delimiter="/")
         if self.is_zipped:
             with ZipFile(self.file_path) as zip_file_hdl:
                 for proj_key, proj_file_name in self.proj_file_dict.items():

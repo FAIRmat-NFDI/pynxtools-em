@@ -17,6 +17,8 @@
 #
 """Implement NeXus-specific groups and fields to document software and versions used."""
 
+import flatdict as fd
+
 from pynxtools_em import get_pynxtools_em_version
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 
@@ -38,5 +40,7 @@ class NxEmAppDef:
 
     def parse(self, template: dict) -> dict:
         """Parse application definition."""
-        add_specific_metadata_pint(EM_PYNX_TO_NEXUS, {}, [self.entry_id], template)
+        add_specific_metadata_pint(
+            EM_PYNX_TO_NEXUS, fd.FlatDict({}, delimiter="/"), [self.entry_id], template
+        )
         return template

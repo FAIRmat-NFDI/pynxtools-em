@@ -12,6 +12,11 @@ repos:
     rev: v1.19.1
     hooks:
       - id: mypy  # static type checking
+        # mypy . --install-types --non-interactive then pip freeze | grep types- to see what to add
+        additional_dependencies:
+          - types-pytz
+          - types-PyYAML
+          - types-requests
 
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.21.2

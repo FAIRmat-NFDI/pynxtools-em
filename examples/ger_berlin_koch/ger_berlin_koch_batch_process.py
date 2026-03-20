@@ -43,9 +43,9 @@ import yaml
 from pynxtools.dataconverter.convert import convert
 from pynxtools.dataconverter.helpers import get_nxdl_root_and_path
 
+from pynxtools_em import get_pynxtools_em_version
 from pynxtools_em.utils.default_config import SEPARATOR
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
-from pynxtools_em import get_pynxtools_em_version()
 
 
 def export_to_yaml(fpath: str, lookup_dict: dict[str, str | int]):
@@ -63,7 +63,7 @@ def export_to_text(fpath: str, the_set: set[str]):
 
 def get_user_name_alias(fpath: str, microscope: str = "nion"):
     if microscope == "nion":
-        return fpath[len(f"../../{microscope}_data/") :].split("/")[0]
+        return fpath[len(f"../../{microscope}_data/") :].split("/", maxsplit=1)[0]
     return ""
 
 

@@ -42,7 +42,7 @@ dev = [
     "pytest-cov",
     "pytest-timeout",
     "structlog",
-    "types-pyyaml",
+    "types-PyYAML",
     "types-pytz",
     "types-requests",
     "pre-commit"
