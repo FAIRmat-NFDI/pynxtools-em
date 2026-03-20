@@ -6,7 +6,7 @@
 ![](https://img.shields.io/pypi/l/pynxtools-em)
 ![](https://img.shields.io/pypi/v/pynxtools-em)
 ![](https://coveralls.io/repos/github/FAIRmat-NFDI/pynxtools-em/badge.svg?branch=main)
-[![DOI](https://zenodo.org/badge/759916501.svg)](https://doi.org/10.5281/zenodo.13951684)
+[![DOI](https://zenodo.org/badge/759916501.svg)](https://doi.org/10.5281/zenodo.14263105)
 
 # `pynxtools-em`: A `pynxtools` reader for EM data
 
@@ -20,7 +20,7 @@ It is recommended to use python 3.12 with a dedicated virtual environment for th
 Learn how to manage [python versions](https://github.com/pyenv/pyenv) and
 [virtual environments](https://realpython.com/python-virtual-environments-a-primer/).
 
-This package is a reader plugin for [`pynxtools`](https://github.com/FAIRmat-NFDI/pynxtools) and can be installed together with `pynxtools`:
+This package is a reader plugin for [`pynxtools`](https://github.com/FAIRmat-NFDI/pynxtools) and should be installed together with `pynxtools`:
 
 ```shell
 uv pip install pynxtools[em]

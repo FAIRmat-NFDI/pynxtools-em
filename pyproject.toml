@@ -42,8 +42,8 @@ dev = [
     "pytest-cov",
     "pytest-timeout",
     "structlog",
-    "types-pyyaml",
     "types-pytz",
+    "types-pyyaml",
     "types-requests",
     "pre-commit",
     "cruft"
@@ -56,9 +56,7 @@ docs = [
     "pymdown-extensions",
     "mkdocs-click"
 ]
-nomad = [
-    "nomad-lab[infrastructure]>=1.4.1"
-]
+nomad = ["nomad-lab[infrastructure]>=1.4.1"]
 ipynb = [
     "jupyter",
     "jupyterlab",
@@ -77,8 +75,8 @@ batch = [
 em = "pynxtools_em.reader:EMReader"
 
 [project.entry-points.'nomad.plugin']
-# em_app_entry_point = "pynxtools_em.nomad.apps:em_app_entry_point"
-em_example_upload_entry_point = "pynxtools_em.nomad.example_uploads:em_example_upload_entry_point"
+# em_app = "pynxtools_em.nomad.apps:em_app"
+em_example_upload = "pynxtools_em.nomad.example_uploads:em_example_upload"
 
 [tool.uv]
 extra-index-url = [
@@ -95,7 +93,7 @@ version_scheme = "no-guess-dev"
 local_scheme = "node-and-date"
 
 [tool.ruff]
-include = ["src/pynxtools_em/*.py", "tests/*.py"]
+include = ["src/pynxtools_em/**/*.py", "tests/**/*.py"]
 line-length = 88
 indent-width = 4
 

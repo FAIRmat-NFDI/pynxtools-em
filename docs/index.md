@@ -43,10 +43,11 @@ How-to guides provide step-by-step instructions for a wide range of tasks, with 
 
 ### Learn
 
-The explanation section provides background knowledge on the implementation design.<!--, how the data is structured, how data processing can be incorporated, how the integration works in NOMAD, and more.-->
+The learning section provides background knowledge on the implementation design.<!--, how the data is structured, how data processing can be incorporated, how the integration works in NOMAD, and more.-->
 
-- [Implementation design](explanation/implementation.md)
+- [Implementation design](learn/implementation.md)
 <!-- - [NOMAD EM App](explanation/emapp.md)-->
+- [Note on versioning](learn/versioning.md)
 
 </div>
 <div markdown="block">
