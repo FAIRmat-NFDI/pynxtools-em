@@ -1,0 +1,14 @@
+{
+    "data": {
+        "m_def": "pynxtools.nomad.schema_packages.dataconverter.NexusDataConverter",
+        "input_files": [
+            "InGaN_nanowires_spectra.edaxh5",
+            "eln_data.yaml",
+            "em.oasis.specific.yaml"
+        ],
+        "reader": "em",
+        "nxdl": "NXem",
+        "output": "InGaN_nanowires_spectra.edaxh5.nxs"
+    },
+    "m_ref_archives": {}
+}

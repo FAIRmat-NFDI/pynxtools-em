@@ -1,0 +1,34 @@
+{
+ "data": {
+  "m_def": "../upload/raw/em.scheme.archive.yaml#definitions/section_definitions/0",
+  "output":"eln_data.yaml",
+  "entry": {
+   "experiment_alias": "InGaN Fixed",
+   "start_time": "2025-03-22T10:02:00+00:00",
+   "end_time": "2025-03-22T10:02:00+00:00",
+   "experiment_description": "<p>normal<br /><strong>bold</strong></p>\n<p><em>italics</em></p>"
+  },
+  "sample": {
+   "is_simulation": false,
+   "name": "InGaN",
+   "preparation_date": "2025-03-22T10:02:00+00:00",
+   "chemical_formula": "InGaN",
+   "thickness": 1,
+   "description": "<p>normal<br /><strong>bold</strong></p>\n<p><em>italics</em></p>"
+  },
+  "user": [
+   {
+    "name": "Aidan Campbell",
+    "orcid": "0000-0001-7084-0740"
+   },
+   {
+    "name": "Jonas Lähnemann",
+    "orcid": "0000-0003-4072-2369"
+   },
+   {
+    "name": "Markus Kühbach",
+    "orcid": "0000-0002-7117-5196"
+   }
+  ]
+ }
+}
