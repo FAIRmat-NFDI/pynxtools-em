@@ -39,7 +39,8 @@ from pynxtools_em.nomad.example_uploads import em_example_upload
 
 EXAMPLE_PATH = os.path.join(
     os.path.dirname(__file__),
-    f"..{os.sep}..",
+    "..",
+    "..",
     "src",
     "pynxtools_em",
     "nomad",
