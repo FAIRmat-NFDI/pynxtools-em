@@ -3,7 +3,7 @@
   "m_def": "../upload/raw/em.scheme.archive.yaml#definitions/section_definitions/0",
   "output":"eln_data.yaml",
   "entry": {
-   "experiment_alias": "InGaN Fixed",
+   "experiment_alias": "InGaN",
    "start_time": "2025-03-22T10:02:00+00:00",
    "end_time": "2025-03-22T10:02:00+00:00",
    "experiment_description": "<p>normal<br /><strong>bold</strong></p>\n<p><em>italics</em></p>"
