@@ -37,3 +37,17 @@ def if_str_represents_float(s):
         return isinstance(float(s), float)
     except ValueError:
         return False
+
+
+PILLOW_TIFF_MODE_EXOTIC: tuple[str, ...] = (
+    "P",
+    "PA",
+    "CMYK",
+    "YCbCr",
+    "LAB",
+    "HSV",
+    "BGR;15",
+    "BGR;16",
+    "BGR;24",
+)
+PILLOW_TIFF_MODE_TO_GREYSCALE: tuple[str, ...] = ("LA", "RGB", "RGBA", "RGBX", "RGBa")

@@ -43,10 +43,11 @@ How-to guides provide step-by-step instructions for a wide range of tasks, with 
 
 ### Learn
 
-The explanation section provides background knowledge on the implementation design.<!--, how the data is structured, how data processing can be incorporated, how the integration works in NOMAD, and more.-->
+The learning section provides background knowledge on the implementation design.<!--, how the data is structured, how data processing can be incorporated, how the integration works in NOMAD, and more.-->
 
-- [Implementation design](explanation/implementation.md)
+- [Implementation design](learn/implementation.md)
 <!-- - [NOMAD EM App](explanation/emapp.md)-->
+- [Note on versioning](learn/versioning.md)
 
 </div>
 <div markdown="block">
@@ -68,6 +69,7 @@ for the respective file formats of technology partners of the electron microscop
 - [Gatan DigitalMicrograph DM3/DM4](reference/rsciio_gatan.md)
 - [Hitachi Tagged Image File Format TIFF](reference/tiff_hitachi.md)
 - [JEOL Tagged Image File Format TIFF](reference/tiff_jeol.md)
+- [SerialEM MRC and MDOC File Formats](reference/rsciio_mrc.md)
 - [Nion Co. projects with NDATA and HDF5 files](reference/nxs_nion.md)
 - [Point Electronic DISS Tagged Image File Format TIFF](reference/tiff_point.md)
 - [TESCAN Tagged Image File Format TIFF](reference/tiff_tescan.md)

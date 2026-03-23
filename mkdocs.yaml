@@ -1,7 +1,7 @@
 site_name: Documentation for pynxtools-em
 site_description: |
   The documentation for the pynxtools-em plugin.
-site_author: The NOMAD authors
+site_author: The NOMAD Authors
 repo_url: https://github.com/FAIRmat-NFDI/pynxtools-em
 edit_uri: ""
 
@@ -18,10 +18,11 @@ nav:
     - how-tos/kikuchi.md
     - how-tos/mtex.md
     - how-tos/pyxem.md
-  - Explanation:
-    - explanation/learn.md
-    # - explanation/emapp.md
-    - explanation/implementation.md
+  - Learning:
+    - learn/learn.md
+    # - learn/emapp.md
+    - learn/versioning.md
+    - learn/implementation.md
   - Reference:
     - reference/contextualization.md
     - reference/conventions.md
@@ -31,6 +32,7 @@ nav:
     - reference/rsciio_gatan.md
     - reference/tiff_hitachi.md
     - reference/tiff_jeol.md
+    - reference/rsciio_mrc.md
     - reference/nxs_nion.md
     - reference/tiff_point.md
     - reference/tiff_tescan.md
@@ -94,5 +96,4 @@ extra_css:
 
 extra_javascript:
   - javascript.js
-  - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

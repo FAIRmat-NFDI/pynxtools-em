@@ -107,12 +107,14 @@ Periclase
 Pigeonite
 Pinard
 Prehnite
+Preimage
 Protochip
 Protochips
 Pumpellyite
 Pynxtools
 QUBE
 RDMS
+RGBX
 RSCIIO
 Ringwoodite
 Ronchigram
@@ -210,6 +212,7 @@ iinfo
 ipynb
 isscalar
 issubdtype
+itemsize
 iufc
 iupac
 kdtree
@@ -233,6 +236,7 @@ mrad
 msmse
 mtex
 nanoampere
+ndims
 nimages
 nionswift
 nparr
@@ -261,6 +265,7 @@ pymatgen
 pynxtools
 pyxem
 radioeditbutton
+rawtlt
 rchop
 rediscretized
 regrid
@@ -271,6 +276,7 @@ requery
 rois
 rosettasciio
 rsciio
+rtol
 sgid
 signedinteger
 sothree

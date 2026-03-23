@@ -32,8 +32,8 @@ from pynxtools_em.methods.ebsd import (
     has_hfive_magic_header,
 )
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
-from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -75,6 +75,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                         "2.1.0009.0001",
                         "2.2.0001.0001",
                         "2.5.1001.0001",
+                        "V3.0.0601.0001",
                     ],
                 },
                 "src": {  # actual one for instance resolved by file path
@@ -134,7 +135,6 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
     ) -> dict:
         """Add from where the information was obtained."""
         abbrev = "PROCESS[process]/input"
-        template[f"{trg}/{abbrev}/type"] = "file"
         template[f"{trg}/{abbrev}/file_name"] = file_path
         template[f"{trg}/{abbrev}/checksum"] = checksum
         template[f"{trg}/{abbrev}/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
@@ -195,6 +195,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                                     self.parse_and_normalize_eds_area_rois(
                                         h5r, template
                                     )
+                                self.id_mgn["roi_id"] += 1
 
                             # if area_grp_nm.startswith(("LineScan", "ROILineScan")):
                             # "free form? or (which I assume) orthogonal line grid
@@ -240,6 +241,7 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             # with respect to parent FOV, SPC
             # Free Draw, TODO: parse ../REGION x,y table (relative coordinate)
             # with respect to parent FOV, SPC
+
         return template
 
     def parse_and_normalize_group_ebsd_header(self, fp):
@@ -663,10 +665,14 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
             "j": ureg.Quantity(nxy["lj"] / nxy["j"], ureg.millimeter),
         }
 
+        prfx = f"/ENTRY[entry{self.id_mgn['entry_id']}]/roiID[roi{self.id_mgn['roi_id']}]/eds"
+        template[f"{prfx}/context"] = self.prfx
         prfx = f"/ENTRY[entry{self.id_mgn['entry_id']}]/roiID[roi{self.id_mgn['roi_id']}]/eds/indexing"
         atom_types = set()
         for pair in pairs:
             element = pair[0 : pair.find(" ")]
+            # above logic only works when the emission line has a single character
+            # e.g., "AlK" is pair[0:-1], "O K" is pair[0:1]
             atom_types.add(element)
             trg = f"{prfx}/ELEMENT_SPECIFIC_MAP[{element}]"
             # TODO:: fill also type, file_name, checksum, algorithm of source(NXnote)
@@ -722,7 +728,6 @@ class HdfFiveEdaxApexParser(HdfFiveBaseParser):
                 template[f"{trg}/image_2d/AXISNAME[axis_{dim}]/@units"] = f"{qnt.units}"
         if len(atom_types) > 0:
             template[f"{prfx}/atom_types"] = ", ".join(list(atom_types))
-
         return template
 
     # TODO::these functions were deactivated as they have few examples and have not been

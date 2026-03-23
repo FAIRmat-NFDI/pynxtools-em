@@ -17,7 +17,11 @@
 #
 """Utility functions for working with Nion Co. content and concepts."""
 
+import typing
 import uuid
+
+import numpy as np
+from numpy.lib.format import read_array_header_1_0, read_array_header_2_0
 
 from pynxtools_em.utils.custom_logging import logger
 
@@ -60,3 +64,39 @@ def nion_image_spectrum_or_generic_nxdata(list_of_dict) -> str:
         if len(token) >= 1:
             return "_".join(token)
     return ""
+
+
+def read_numpy_array_metadata(
+    fp: typing.BinaryIO,
+    local_files: dict[int, tuple[bytes, int, int, int]],
+    dir_files: dict[bytes, tuple[int, int]],
+    name_bytes: bytes,
+):
+    """
+    Read the metadata from a numpy data array that is stored in a nionswift zip file
+
+    :param fp: a file pointer
+    :param local_files: the local files structure
+    :param dir_files: the directory headers
+    :param name: the name of the data file to read
+    :return: the numpy data array, if found
+
+    The file pointer will be at a location following the
+    local file entry after this method.
+
+    The local_files and dir_files should be passed from
+    the results of parse_zip.
+    """
+    # combining here the read_data from nionswift
+    if name_bytes in dir_files:
+        fp.seek(local_files[dir_files[name_bytes][1]][1])
+        # instead of returning the entire file here only read the
+        # header that contains shape, type, and storage order
+        # use that fp was opened rb !
+        magic = np.lib.format.read_magic(fp)
+        if magic[0] == 1:
+            header = read_array_header_1_0(fp)
+        else:
+            header = read_array_header_2_0(fp)
+        return header
+    return None

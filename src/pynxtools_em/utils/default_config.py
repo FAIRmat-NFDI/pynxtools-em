@@ -17,4 +17,6 @@
 #
 """Configuration and global defaults."""
 
-DEFAULT_VERBOSITY: bool = False
+DEFAULT_VERBOSITY: bool = True  # False
+SEPARATOR: str = "____"
+DEFAULT_COMPRESSION_LEVEL = 9

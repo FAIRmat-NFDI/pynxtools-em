@@ -26,11 +26,12 @@ from ase.data import chemical_symbols
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.oasis_eln_cfg import (
     OASISELN_EM_ENTRY_TO_NEXUS,
+    OASISELN_EM_PROJECT_TO_NEXUS,
     OASISELN_EM_SAMPLE_TO_NEXUS,
     OASISELN_EM_USER_TO_NEXUS,
 )
-from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 
 
@@ -84,6 +85,7 @@ class NxEmNomadOasisElnSchemaParser:
                 f"Parsing {self.file_path} NOMAD Oasis/ELN with SHA256 {self.file_path_sha256} ..."
             )
             self.parse_entry(template)
+            self.parse_project(template)
             self.parse_sample(template)
             self.parse_atom_types(template)
             self.parse_user(template)
@@ -94,6 +96,14 @@ class NxEmNomadOasisElnSchemaParser:
         identifier = [self.entry_id]
         add_specific_metadata_pint(
             OASISELN_EM_ENTRY_TO_NEXUS, self.flat_metadata, identifier, template
+        )
+        return template
+
+    def parse_project(self, template: dict) -> dict:
+        """Copy data from project section into template."""
+        identifier = [self.entry_id]
+        add_specific_metadata_pint(
+            OASISELN_EM_PROJECT_TO_NEXUS, self.flat_metadata, identifier, template
         )
         return template
 

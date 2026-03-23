@@ -15,22 +15,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Tests for the NOMAD app."""
 
-import pytest
+from packaging.version import InvalidVersion, Version
 
-try:
-    import nomad  # noqa: F401
-except ImportError:
-    pytest.skip(
-        "Skipping NOMAD app tests because nomad-lab is not installed",
-        allow_module_level=True,
-    )
+from pynxtools_em import get_pynxtools_em_version
 
 
-@pytest.mark.skip(reason="Work in progress")
-def test_importing_app():
-    # this will raise an exception if pydantic model validation fails for the app
-    from pynxtools_em.nomad.apps import em_app_entry_point  # noqa: PLC0415
-
-    assert em_app_entry_point.app.label == "EM"
+def test_get_pynxtools_em_version():
+    version = get_pynxtools_em_version()
+    assert version != "unknown_version"
+    try:
+        Version(version)
+    except InvalidVersion:
+        assert False, f"Invalid version: {version}"

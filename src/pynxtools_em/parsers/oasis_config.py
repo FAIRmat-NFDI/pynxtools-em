@@ -29,8 +29,8 @@ from pynxtools_em.configurations.oasis_eln_config_cfg import (
     OASISCFG_EM_NOTE_TO_NEXUS,
     OASISCFG_EM_SAMPLE_TO_NEXUS,
 )
-from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 
 

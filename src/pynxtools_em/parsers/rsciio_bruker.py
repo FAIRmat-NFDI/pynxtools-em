@@ -19,8 +19,8 @@
 
 from rsciio import bruker
 
-from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 
 
@@ -51,47 +51,23 @@ class RsciioBrukerParser:
         self.supported = False
         try:
             self.objs = bruker.file_reader(self.file_path)
-            # TODO::what to do if the content of the file is larger than the available
-            # main memory, one approach to handle this is to have the file_reader parsing
-            # only the collection of the concepts without the actual instance data
-            # based on this one could then plan how much memory has to be reserved
-            # in the template and stream out accordingly
+            # TODO::out-of-memory
             self.supported = True
         except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
 
     def parse(self, template: dict) -> dict:
-        """Perform actual parsing filling cache."""
+        """Perform actual parsing."""
         if self.supported:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
             logger.info(
                 f"Parsing {self.file_path} Bruker with SHA256 {self.file_path_sha256} ..."
             )
-            self.normalize_eds_content(template)
-            self.normalize_eels_content(template)
+            self.parse_content(template)
         return template
 
-    def normalize_eds_content(self, template: dict) -> dict:
-        """TODO implementation."""
-        return template
-
-    def normalize_eels_content(self, template: dict) -> dict:
-        """TODO implementation."""
-        return template
-
-    def process_into_template(self, template: dict) -> dict:
-        """TODO implementation."""
-        if self.supported:
-            self.process_event_data_em_metadata(template)
-            self.process_event_data_em_data(template)
-        return template
-
-    def process_event_data_em_metadata(self, template: dict) -> dict:
-        """TODO implementation."""
-        return template
-
-    def process_event_data_em_data(self, template: dict) -> dict:
-        """TODO implementation."""
+    def parse_content(self, template: dict) -> dict:
+        """Translate tech partner concepts to NeXus concepts."""
         return template

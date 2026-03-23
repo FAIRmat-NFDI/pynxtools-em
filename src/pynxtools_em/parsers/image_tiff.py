@@ -22,8 +22,8 @@ import mmap
 from PIL import Image
 from PIL.TiffTags import TAGS
 
-from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
 
 
 class TiffParser:

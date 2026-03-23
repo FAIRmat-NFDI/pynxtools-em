@@ -1,0 +1,23 @@
+project:
+  name: CorMic
+sample:
+  is_simulation: false
+  name: CorMicNomadDemoDummySample
+user:
+- name: Benjamin Apeleo Zubiri
+  orcid: 0000-0003-0498-7271
+- name: Johannes Böhmer
+  orcid: 0009-0000-8658-6679
+- name: Martin Diener
+  orcid: 0000-0001-7386-5265
+- name: Sabine Hübner
+- name: Alexander Kichigin
+  orcid: 0000-0002-2893-1355
+- name: Thomas Przybilla
+  orcid: 0009-0006-0093-5035
+- name: Johannes Will
+  orcid: 0000-0003-0326-9913
+- name: Mingjian Wu
+  orcid: 0000-0003-2113-0245
+- name: Erdmann Spiecker
+  orcid: 0000-0002-2723-5227

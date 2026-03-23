@@ -15,24 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Utility tool constants and versioning."""
+"""Natural sorting of strings so that image1 comes before image19"""
 
-from pynxtools_em._version import version as __version__
-
-NX_EM_ADEF_NAME = "NXem"
-PYNX_EM_NAME = "pynxtools-em/reader.py"
+import re
+from typing import Any
 
 
-def get_em_exec_version() -> str:
-    # TODO:deprecate, remove when versions are properly resolved with the next NOMAD release
-    # then also remove the function call altogether
-    # tag = get_repo_last_commit()
-    # if tag is not None:
-    #     return f"https://github.com/FAIRmat-NFDI/pynxtools-em/commit/{tag}"
-    if __version__ is not None:
-        return f"{__version__}"
-    else:
-        return "UNKNOWN COMMIT"
-
-
-PYNX_EM_VERSION = get_em_exec_version()
+def natural_key(string: str) -> list[int | str | Any]:
+    return [
+        int(text) if text.isdigit() else text for text in re.split(r"(\d+)", string)
+    ]

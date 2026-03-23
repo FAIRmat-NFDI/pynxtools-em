@@ -15,15 +15,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""Utilities to get metadata of numpy files efficiently."""
 
-import importlib.metadata
+import numpy as np
+from numpy.lib.format import read_array_header_1_0, read_array_header_2_0
 
 
-def get_pynxtools_em_version() -> str:
-    """Attempt getting the version of pynxtools at runtime with fallback."""
-    # for a discussion whether to collect at build or runtime see
-    # https://discuss.python.org/t/please-make-package-version-go-away/58501
-    try:
-        return importlib.metadata.version("pynxtools-em")
-    except importlib.metadata.PackageNotFoundError:
-        return f"unknown_version"
+def get_numpy_info(path):
+    with open(path, "rb") as fp:
+        magic = np.lib.format.read_magic(fp)
+        if magic[0] == 1:
+            header = read_array_header_1_0(fp)
+        else:
+            header = read_array_header_2_0(fp)
+    return header

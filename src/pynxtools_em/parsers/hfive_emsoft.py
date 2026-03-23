@@ -21,8 +21,8 @@ import h5py
 
 from pynxtools_em.methods.ebsd import has_hfive_magic_header
 from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
-from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
 
 
 class HdfFiveEmSoftParser(HdfFiveBaseParser):

@@ -60,8 +60,8 @@ from pynxtools_em.examples.diffraction_pattern_set import (
     SUPPORTED_MODES,
     get_materialsproject_id_and_space_group,
 )
-from pynxtools_em.utils.config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.hfive_web import HFIVE_WEB_MAXIMUM_ROI
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 

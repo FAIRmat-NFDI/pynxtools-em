@@ -21,8 +21,6 @@ import os
 
 import pytest
 
-from pynxtools_em.nomad.example_uploads import em_example_upload
-
 try:
     import nomad  # noqa: F401
 except ImportError:
@@ -37,8 +35,11 @@ from pynxtools.testing.nomad_example import (
     parse_nomad_examples,
 )
 
+from pynxtools_em.nomad.example_uploads import em_example_upload
+
 EXAMPLE_PATH = os.path.join(
     os.path.dirname(__file__),
+    "..",
     "..",
     "src",
     "pynxtools_em",

@@ -25,7 +25,7 @@ except ImportError as exc:
     ) from exc
 
 
-em_example_upload_entry_point = ExampleUploadEntryPoint(
+em_example_upload = ExampleUploadEntryPoint(
     title="Electron Microscopy (EM)",
     category="NeXus Experiment Examples",
     description="""

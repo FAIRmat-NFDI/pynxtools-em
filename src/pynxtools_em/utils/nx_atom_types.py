@@ -43,7 +43,7 @@ class NxEmAtomTypesResolver:
             # indexed phases from EBSD can be used to identify atom_types
             if (
                 re.match(
-                    rf"^/ENTRY\[entry{self.entry_id}\]/roiID\[roi1\]/ebsd/indexing/phaseID\[phase[0-9]+\]/name",
+                    rf"^/ENTRY\[entry{self.entry_id}\]/roiID\[roi[0-9]+\]/ebsd/indexing/phaseID\[phase[0-9]+\]/name",
                     key,
                 )
                 is not None
@@ -62,7 +62,7 @@ class NxEmAtomTypesResolver:
             # indexed EDS element-specific mappings can be used to identify atom_types
             if (
                 re.match(
-                    rf"^/ENTRY\[entry{self.entry_id}\]/roiID\[roi1\]/eds/indexing/atom_types",
+                    rf"^/ENTRY\[entry{self.entry_id}\]/roiID\[roi[0-9]+\]/eds/indexing/atom_types",
                     key,
                 )
                 is not None

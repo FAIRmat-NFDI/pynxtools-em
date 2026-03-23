@@ -17,15 +17,17 @@
 #
 """Implement NeXus-specific groups and fields to document software and versions used."""
 
+import flatdict as fd
+
+from pynxtools_em import get_pynxtools_em_version
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
-from pynxtools_em.utils.versioning import PYNX_EM_NAME, PYNX_EM_VERSION
 
 EM_PYNX_TO_NEXUS = {
     "prefix_trg": "/ENTRY[entry*]/profiling",
     "prefix_src": "",
     "use": [
-        ("programID[program1]/program", PYNX_EM_NAME),
-        ("programID[program1]/program/@version", PYNX_EM_VERSION),
+        ("programID[program1]/program", "pynxtools-em"),
+        ("programID[program1]/program/@version", get_pynxtools_em_version()),
     ],
 }
 
@@ -38,5 +40,7 @@ class NxEmAppDef:
 
     def parse(self, template: dict) -> dict:
         """Parse application definition."""
-        add_specific_metadata_pint(EM_PYNX_TO_NEXUS, {}, [self.entry_id], template)
+        add_specific_metadata_pint(
+            EM_PYNX_TO_NEXUS, fd.FlatDict({}, delimiter="/"), [self.entry_id], template
+        )
         return template
