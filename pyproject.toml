@@ -75,7 +75,7 @@ batch = [
 em = "pynxtools_em.reader:EMReader"
 
 [project.entry-points.'nomad.plugin']
-em_app = "pynxtools_em.nomad.apps:em_app"
+# em_app = "pynxtools_em.nomad.apps:em_app"
 em_example_upload = "pynxtools_em.nomad.example_uploads:em_example_upload"
 
 [tool.uv]
