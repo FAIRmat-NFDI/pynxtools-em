@@ -179,6 +179,7 @@ ebeam
 edaxh
 edgecolor
 eiger
+emapp
 emsoft
 endianness
 equi
