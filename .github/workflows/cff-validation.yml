@@ -14,26 +14,30 @@ on:
       - "CITATION.cff"
       - ".github/workflows/cff-validation.yml"
 
+env:
+  UV_VERSION: 0.9
+  PYTHON_VERSION: 3.12
+
 jobs:
   validate-cff:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python_version: ["3.12"]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+            version: env.UV_VERSION
+
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python_version }}
-
+            python-version: env.PYTHON_VERSION
       - name: Install cffconvert
         run: |
-          pip install cffconvert
+          uv pip install cffconvert
+
 
       - name: Validate CITATION.cff
         run: |
