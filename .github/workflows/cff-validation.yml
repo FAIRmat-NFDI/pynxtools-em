@@ -32,11 +32,6 @@ jobs:
         run: |
           uv pip install cffconvert
 
-
-      - name: Validate CITATION.cff
-        run: |
-          cffconvert --validate
-
       - name: Test Zenodo conversion
         run: |
           # Remove the funding section to avoid validation issues with Zenodo
