@@ -40,6 +40,6 @@ jobs:
       - name: Test Zenodo conversion
         run: |
           # Remove the funding section to avoid validation issues with Zenodo
-          head -n $(($(grep -n "^funding:" CITATION.cff | cut -d: -f1) - 1)) CITATION.cff > temp && mv temp CITATION.cff
+          sed -i '/^funding:/,$d' CITATION.cff 
 
           cffconvert --validate --format zenodo || exit 1
