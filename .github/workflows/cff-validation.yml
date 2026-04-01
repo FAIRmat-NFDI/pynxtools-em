@@ -28,13 +28,10 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - name: Install cffconvert
-        run: |
-          uv pip install cffconvert
 
       - name: Test Zenodo conversion
         run: |
           # Remove the funding section to avoid validation issues with Zenodo
           sed -i '/^funding:/,$d' CITATION.cff 
 
-          cffconvert --validate --format zenodo || exit 1
+          uv run --with cffconvert cffconvert --validate --format zenodo || exit 1
