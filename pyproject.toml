@@ -23,7 +23,7 @@ classifiers = [
 dependencies = [
     "pynxtools>=0.13.2",
     "hyperspy>=1.7.6",
-    "rosettasciio",
+    "rosettasciio>=0.12.0",
     "kikuchipy",
     "pyxem",
     "nionswift",
