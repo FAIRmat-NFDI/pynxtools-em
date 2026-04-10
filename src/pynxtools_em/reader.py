@@ -21,9 +21,9 @@ import os
 from time import perf_counter_ns
 from typing import Any
 
-import numpy as np
 from pynxtools.dataconverter.readers.base.reader import BaseReader
 
+from examples.usa_evanston_yan.nexus_em_ebsd_patterns import DiffractionPatternSetParser
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 from pynxtools_em.examples.custom_reference_frame import (
     NxEmCustomElnCustomReferenceFrame,
@@ -39,9 +39,6 @@ from pynxtools_em.parsers.hfive_edax import HdfFiveEdaxOimAnalysisParser
 
 # from pynxtools_em.parsers.hfive_emsoft import HdfFiveEmSoftParser
 from pynxtools_em.parsers.hfive_oxford import HdfFiveOxfordInstrumentsParser
-from pynxtools_em.parsers.image_diffraction_pattern_set import (
-    DiffractionPatternSetParser,
-)
 from pynxtools_em.parsers.image_png_protochips import ProtochipsPngSetParser
 from pynxtools_em.parsers.image_tiff_fei_legacy import FeiLegacyTiffParser
 from pynxtools_em.parsers.image_tiff_hitachi import HitachiTiffParser
@@ -64,6 +61,7 @@ from pynxtools_em.utils.nx_atom_types import NxEmAtomTypesResolver
 
 # from pynxtools_em.parsers.zip_ebsd_parser import NxEmOmZipEbsdParser
 from pynxtools_em.utils.nx_default_plots import NxEmDefaultPlotResolver
+from pynxtools_em.utils.profiling import simple_profiling
 
 
 class EMReader(BaseReader):
@@ -83,6 +81,16 @@ class EMReader(BaseReader):
         logger.info(os.getcwd())
         tic = perf_counter_ns()
         template.clear()
+
+        production: bool = False
+        if not production:
+            # parsers in development
+            parser = DiffractionPatternSetParser(file_paths[0])
+            parser.parse(template)
+
+            toc = perf_counter_ns()
+            simple_profiling(template, tic, toc)
+            return template
 
         # so we need the following input:
         # logical analysis which use case
@@ -152,7 +160,6 @@ class EMReader(BaseReader):
                 RsciioGatanParser,
                 NxEmNxsMtexParser,
                 NionProjectParser,
-                DiffractionPatternSetParser,
                 FeiLegacyTiffParser,
             ]
             for parser_type in parsers_no_sidecar_file:
@@ -191,9 +198,8 @@ class EMReader(BaseReader):
 
         logger.debug("Forward instantiated template to the NXS writer...")
         toc = perf_counter_ns()
-        trg = f"/ENTRY[entry{entry_id}]/profiling/template_filling_elapsed_time"
-        template[f"{trg}"] = np.float64((toc - tic) / 1.0e9)
-        template[f"{trg}/@units"] = "s"
+        simple_profiling(template, tic, toc, entry_id)
+
         return template
 
 

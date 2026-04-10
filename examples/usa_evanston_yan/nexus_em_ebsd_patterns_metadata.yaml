@@ -10,6 +10,7 @@
     - 90.0
     build_date: 2023-11-22 19:47:22.589000
     database_version: 2023.11.1
+    elements: Ho, N
     emmet_version: 0.72.20
     identifier/identifier: mp-1001844
     identifier/is_persistent: false
@@ -29,6 +30,7 @@
     - 90.0
     build_date: 2023-11-22 19:46:50.972000
     database_version: 2023.11.1
+    elements: Mn, Sn
     emmet_version: 0.72.20
     identifier/identifier: mp-1009206
     identifier/is_persistent: false
@@ -48,6 +50,7 @@
     - 90.0
     build_date: 2023-11-22 19:45:45.752000
     database_version: 2023.11.1
+    elements: As, N, Sr
     emmet_version: 0.72.20
     identifier/identifier: mp-1013537
     identifier/is_persistent: false
@@ -67,6 +70,7 @@
     - 90.0
     build_date: 2023-11-22 19:47:16.595000
     database_version: 2023.11.1
+    elements: C, Pt, Sc
     emmet_version: 0.72.20
     identifier/identifier: mp-1018628
     identifier/is_persistent: false
@@ -86,6 +90,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:37.485000
     database_version: 2023.11.1
+    elements: B, Pt, Y
     emmet_version: 0.72.20
     identifier/identifier: mp-1018644
     identifier/is_persistent: false
@@ -105,6 +110,7 @@
     - 90.0
     build_date: 2023-11-22 19:50:57.624000
     database_version: 2023.11.1
+    elements: Na, O, P
     emmet_version: 0.72.20
     identifier/identifier: mp-1020638
     identifier/is_persistent: false
@@ -124,6 +130,7 @@
     - 90.0
     build_date: 2023-11-22 19:46:38.071000
     database_version: 2023.11.1
+    elements: I, Sn
     emmet_version: 0.72.20
     identifier/identifier: mp-1067833
     identifier/is_persistent: false
@@ -143,6 +150,7 @@
     - 90.0
     build_date: 2023-11-22 19:49:19.733000
     database_version: 2023.11.1
+    elements: Cd, Mg
     emmet_version: 0.72.20
     identifier/identifier: mp-1094839
     identifier/is_persistent: false
@@ -162,6 +170,7 @@
     - 90.0
     build_date: 2023-11-22 19:52:32.608000
     database_version: 2023.11.1
+    elements: Bi, Li, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1102865
     identifier/is_persistent: false
@@ -181,6 +190,7 @@
     - 90.0
     build_date: 2023-11-22 19:45:51.618000
     database_version: 2023.11.1
+    elements: Hg, Sc
     emmet_version: 0.72.20
     identifier/identifier: mp-11471
     identifier/is_persistent: false
@@ -200,6 +210,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:28.488000
     database_version: 2023.11.1
+    elements: Al, Cu, N
     emmet_version: 0.72.20
     identifier/identifier: mp-1147771
     identifier/is_persistent: false
@@ -219,6 +230,7 @@
     - 90.0
     build_date: 2023-11-22 19:38:27.695000
     database_version: 2023.11.1
+    elements: Mg, Tl
     emmet_version: 0.72.20
     identifier/identifier: mp-11498
     identifier/is_persistent: false
@@ -227,7 +239,8 @@
     phase_name: MgTl
     pymatgen_version: 2023.11.12
     space_group: 221
-  mp-11652: {}
+  mp-11652:
+    elements: O, Pb, Yb
   mp-1183130:
     a_b_c:
     - 4.081513
@@ -239,6 +252,7 @@
     - 90.0
     build_date: 2023-11-22 19:49:38.087000
     database_version: 2023.11.1
+    elements: Ag, Al
     emmet_version: 0.72.20
     identifier/identifier: mp-1183130
     identifier/is_persistent: false
@@ -258,6 +272,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:21.240000
     database_version: 2023.11.1
+    elements: Al, Cu
     emmet_version: 0.72.20
     identifier/identifier: mp-1183161
     identifier/is_persistent: false
@@ -277,6 +292,7 @@
     - 90.0
     build_date: 2023-11-22 19:48:50.538000
     database_version: 2023.11.1
+    elements: Ce, O, Pu
     emmet_version: 0.72.20
     identifier/identifier: mp-1183759
     identifier/is_persistent: false
@@ -296,6 +312,7 @@
     - 90.0
     build_date: 2023-11-22 19:38:28.082000
     database_version: 2023.11.1
+    elements: Dy, In, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1183823
     identifier/is_persistent: false
@@ -315,6 +332,7 @@
     - 90.0
     build_date: 2023-11-22 19:50:41.923000
     database_version: 2023.11.1
+    elements: As, Cs, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1183911
     identifier/is_persistent: false
@@ -334,6 +352,7 @@
     - 90.0
     build_date: 2023-11-22 19:43:54.167000
     database_version: 2023.11.1
+    elements: Cs, Pa
     emmet_version: 0.72.20
     identifier/identifier: mp-1183930
     identifier/is_persistent: false
@@ -353,6 +372,7 @@
     - 90.0
     build_date: 2023-11-22 19:46:32.239000
     database_version: 2023.11.1
+    elements: Cu, Hg, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1184044
     identifier/is_persistent: false
@@ -372,6 +392,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:12.408000
     database_version: 2023.11.1
+    elements: Ge, Hg
     emmet_version: 0.72.20
     identifier/identifier: mp-1184571
     identifier/is_persistent: false
@@ -391,6 +412,7 @@
     - 90.0
     build_date: 2023-11-22 19:48:42.877000
     database_version: 2023.11.1
+    elements: In, Pt
     emmet_version: 0.72.20
     identifier/identifier: mp-1184825
     identifier/is_persistent: false
@@ -410,6 +432,7 @@
     - 90.0
     build_date: 2023-11-22 19:49:08.355000
     database_version: 2023.11.1
+    elements: Cr, K
     emmet_version: 0.72.20
     identifier/identifier: mp-1184874
     identifier/is_persistent: false
@@ -429,6 +452,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:12.024000
     database_version: 2023.11.1
+    elements: Ho, Np
     emmet_version: 0.72.20
     identifier/identifier: mp-1184926
     identifier/is_persistent: false
@@ -448,6 +472,7 @@
     - 90.0
     build_date: 2023-11-22 19:45:20.232000
     database_version: 2023.11.1
+    elements: K, Pm
     emmet_version: 0.72.20
     identifier/identifier: mp-1184963
     identifier/is_persistent: false
@@ -467,6 +492,7 @@
     - 90.0
     build_date: 2023-11-22 19:52:14.149000
     database_version: 2023.11.1
+    elements: La, Y
     emmet_version: 0.72.20
     identifier/identifier: mp-1185037
     identifier/is_persistent: false
@@ -486,6 +512,7 @@
     - 90.0
     build_date: 2023-11-22 19:47:32.610000
     database_version: 2023.11.1
+    elements: Eu, K
     emmet_version: 0.72.20
     identifier/identifier: mp-1185081
     identifier/is_persistent: false
@@ -505,6 +532,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:14.565000
     database_version: 2023.11.1
+    elements: K, U
     emmet_version: 0.72.20
     identifier/identifier: mp-1185213
     identifier/is_persistent: false
@@ -524,6 +552,7 @@
     - 90.0
     build_date: 2023-11-22 19:46:31.084000
     database_version: 2023.11.1
+    elements: Ac, Li, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1185297
     identifier/is_persistent: false
@@ -543,6 +572,7 @@
     - 90.0
     build_date: 2023-11-22 19:38:18.389000
     database_version: 2023.11.1
+    elements: Np, Ti
     emmet_version: 0.72.20
     identifier/identifier: mp-1186363
     identifier/is_persistent: false
@@ -562,6 +592,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:21.909000
     database_version: 2023.11.1
+    elements: Pm, Ti
     emmet_version: 0.72.20
     identifier/identifier: mp-1186532
     identifier/is_persistent: false
@@ -581,6 +612,7 @@
     - 90.0
     build_date: 2023-11-22 19:38:40.956000
     database_version: 2023.11.1
+    elements: Er, O, Pm
     emmet_version: 0.72.20
     identifier/identifier: mp-1186557
     identifier/is_persistent: false
@@ -600,6 +632,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:08.424000
     database_version: 2023.11.1
+    elements: Dy, Pr
     emmet_version: 0.72.20
     identifier/identifier: mp-1186705
     identifier/is_persistent: false
@@ -619,6 +652,7 @@
     - 90.0
     build_date: 2023-11-22 19:49:31.622000
     database_version: 2023.11.1
+    elements: Be, O, Ti
     emmet_version: 0.72.20
     identifier/identifier: mp-1187465
     identifier/is_persistent: false
@@ -638,6 +672,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:29.794000
     database_version: 2023.11.1
+    elements: Ag, Tl
     emmet_version: 0.72.20
     identifier/identifier: mp-1187490
     identifier/is_persistent: false
@@ -657,6 +692,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:53.953000
     database_version: 2023.11.1
+    elements: Bi, Dy, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1207000
     identifier/is_persistent: false
@@ -676,6 +712,7 @@
     - 90.0
     build_date: 2023-11-22 19:38:41.827000
     database_version: 2023.11.1
+    elements: Ca, H, Pd
     emmet_version: 0.72.20
     identifier/identifier: mp-1207169
     identifier/is_persistent: false
@@ -695,6 +732,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:47.524000
     database_version: 2023.11.1
+    elements: Co, Fe, N
     emmet_version: 0.72.20
     identifier/identifier: mp-1212650
     identifier/is_persistent: false
@@ -714,6 +752,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:01.774000
     database_version: 2023.11.1
+    elements: Al, Co, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1435808
     identifier/is_persistent: false
@@ -733,6 +772,7 @@
     - 90.0
     build_date: 2023-11-22 19:38:26.594000
     database_version: 2023.11.1
+    elements: O, Ti, Y
     emmet_version: 0.72.20
     identifier/identifier: mp-1436662
     identifier/is_persistent: false
@@ -752,6 +792,7 @@
     - 90.0
     build_date: 2023-11-22 19:46:19.319000
     database_version: 2023.11.1
+    elements: Al, Cu, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1504314
     identifier/is_persistent: false
@@ -771,6 +812,7 @@
     - 90.0
     build_date: 2023-11-22 19:49:19.141000
     database_version: 2023.11.1
+    elements: Mg, Tm
     emmet_version: 0.72.20
     identifier/identifier: mp-1505
     identifier/is_persistent: false
@@ -790,6 +832,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:42.139000
     database_version: 2023.11.1
+    elements: Mg, Pr
     emmet_version: 0.72.20
     identifier/identifier: mp-1548
     identifier/is_persistent: false
@@ -809,6 +852,7 @@
     - 90.0
     build_date: 2023-11-22 19:52:09.137000
     database_version: 2023.11.1
+    elements: C, Nd, Rh
     emmet_version: 0.72.20
     identifier/identifier: mp-16287
     identifier/is_persistent: false
@@ -828,6 +872,7 @@
     - 90.0
     build_date: 2023-11-22 19:52:31.510000
     database_version: 2023.11.1
+    elements: Cu, Tb
     emmet_version: 0.72.20
     identifier/identifier: mp-1837
     identifier/is_persistent: false
@@ -847,6 +892,7 @@
     - 90.0
     build_date: 2023-11-22 19:50:32.519000
     database_version: 2023.11.1
+    elements: Co, Fe
     emmet_version: 0.72.20
     identifier/identifier: mp-18695
     identifier/is_persistent: false
@@ -866,6 +912,7 @@
     - 90.0
     build_date: 2023-11-22 19:48:47.199000
     database_version: 2023.11.1
+    elements: C, Nd, Pb
     emmet_version: 0.72.20
     identifier/identifier: mp-20808
     identifier/is_persistent: false
@@ -885,6 +932,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:07.379000
     database_version: 2023.11.1
+    elements: Al, Sc
     emmet_version: 0.72.20
     identifier/identifier: mp-2121
     identifier/is_persistent: false
@@ -904,6 +952,7 @@
     - 90.0
     build_date: 2023-11-22 19:46:52.682000
     database_version: 2023.11.1
+    elements: B, Gd
     emmet_version: 0.72.20
     identifier/identifier: mp-22266
     identifier/is_persistent: false
@@ -923,6 +972,7 @@
     - 90.0
     build_date: 2023-11-22 19:47:27.587000
     database_version: 2023.11.1
+    elements: Rh, Zr
     emmet_version: 0.72.20
     identifier/identifier: mp-229
     identifier/is_persistent: false
@@ -942,6 +992,7 @@
     - 90.0
     build_date: 2023-11-22 19:49:57.036000
     database_version: 2023.11.1
+    elements: Pd, Sc
     emmet_version: 0.72.20
     identifier/identifier: mp-2677
     identifier/is_persistent: false
@@ -961,6 +1012,7 @@
     - 90.0
     build_date: 2023-11-22 19:50:07.217000
     database_version: 2023.11.1
+    elements: Ca, O, Sn
     emmet_version: 0.72.20
     identifier/identifier: mp-29241
     identifier/is_persistent: false
@@ -980,6 +1032,7 @@
     - 90.0
     build_date: 2023-11-22 19:43:53.993000
     database_version: 2023.11.1
+    elements: Ir, Y
     emmet_version: 0.72.20
     identifier/identifier: mp-30746
     identifier/is_persistent: false
@@ -999,6 +1052,7 @@
     - 90.0
     build_date: 2023-11-22 19:38:18.732000
     database_version: 2023.11.1
+    elements: B, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-7700
     identifier/is_persistent: false
@@ -1018,6 +1072,7 @@
     - 90.0
     build_date: 2023-11-22 19:45:24.833000
     database_version: 2023.11.1
+    elements: C, Ga, Pr
     emmet_version: 0.72.20
     identifier/identifier: mp-8368
     identifier/is_persistent: false
@@ -1037,6 +1092,7 @@
     - 90.0001091599368
     build_date: 2023-11-22 19:47:48.325000
     database_version: 2023.11.1
+    elements: Ga, Pa
     emmet_version: 0.72.20
     identifier/identifier: mp-861982
     identifier/is_persistent: false
@@ -1056,6 +1112,7 @@
     - 90.0
     build_date: 2023-11-22 19:49:53.826000
     database_version: 2023.11.1
+    elements: Pa, Te
     emmet_version: 0.72.20
     identifier/identifier: mp-862863
     identifier/is_persistent: false
@@ -1075,6 +1132,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:19.155000
     database_version: 2023.11.1
+    elements: Na, O, Rb
     emmet_version: 0.72.20
     identifier/identifier: mp-975274
     identifier/is_persistent: false
@@ -1083,7 +1141,8 @@
     phase_name: RbNaO3
     pymatgen_version: 2023.11.12
     space_group: 221
-  mp-979984: {}
+  mp-979984:
+    elements: P, Yb
   mp-980945:
     a_b_c:
     - 4.133433
@@ -1095,6 +1154,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:10.290000
     database_version: 2023.11.1
+    elements: Nb, Ti
     emmet_version: 0.72.20
     identifier/identifier: mp-980945
     identifier/is_persistent: false
@@ -1115,6 +1175,7 @@
     - 90.0
     build_date: 2023-11-22 19:43:58.186000
     database_version: 2023.11.1
+    elements: Ba, Cu, O, Pb
     emmet_version: 0.72.20
     identifier/identifier: mp-1023127
     identifier/is_persistent: false
@@ -1134,6 +1195,7 @@
     - 90.0
     build_date: 2023-11-22 19:47:49.367000
     database_version: 2023.11.1
+    elements: Cl, Na
     emmet_version: 0.72.20
     identifier/identifier: mp-1078558
     identifier/is_persistent: false
@@ -1153,6 +1215,7 @@
     - 90.0
     build_date: 2023-11-22 19:38:46.424000
     database_version: 2023.11.1
+    elements: Pt, Tl
     emmet_version: 0.72.20
     identifier/identifier: mp-1079689
     identifier/is_persistent: false
@@ -1172,6 +1235,7 @@
     - 90.0
     build_date: 2023-11-22 19:45:14.387000
     database_version: 2023.11.1
+    elements: Ba, Ce, Cu, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1096779
     identifier/is_persistent: false
@@ -1191,6 +1255,7 @@
     - 90.0
     build_date: 2023-11-22 19:51:05.288000
     database_version: 2023.11.1
+    elements: Mg, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1101930
     identifier/is_persistent: false
@@ -1210,6 +1275,7 @@
     - 90.0
     build_date: 2023-11-22 19:43:59.833000
     database_version: 2023.11.1
+    elements: Ir, Mo
     emmet_version: 0.72.20
     identifier/identifier: mp-1120
     identifier/is_persistent: false
@@ -1229,6 +1295,7 @@
     - 90.0
     build_date: 2023-11-22 19:45:24.156000
     database_version: 2023.11.1
+    elements: Be, Mo
     emmet_version: 0.72.20
     identifier/identifier: mp-11271
     identifier/is_persistent: false
@@ -1248,6 +1315,7 @@
     - 90.0
     build_date: 2023-11-22 19:45:28.546000
     database_version: 2023.11.1
+    elements: Cl, Rh
     emmet_version: 0.72.20
     identifier/identifier: mp-1147675
     identifier/is_persistent: false
@@ -1267,6 +1335,7 @@
     - 90.0
     build_date: 2023-11-22 19:49:03.790000
     database_version: 2023.11.1
+    elements: Hg
     emmet_version: 0.72.20
     identifier/identifier: mp-1184657
     identifier/is_persistent: false
@@ -1286,6 +1355,7 @@
     - 90.0
     build_date: 2023-11-22 19:45:42.008000
     database_version: 2023.11.1
+    elements: Co, Er, Ge
     emmet_version: 0.72.20
     identifier/identifier: mp-1196873
     identifier/is_persistent: false
@@ -1305,6 +1375,7 @@
     - 90.0000146785373
     build_date: 2023-11-22 19:49:23.694000
     database_version: 2023.11.1
+    elements: La, Ru, Sn
     emmet_version: 0.72.20
     identifier/identifier: mp-1196992
     identifier/is_persistent: false
@@ -1324,6 +1395,7 @@
     - 90.0
     build_date: 2023-11-22 19:48:26.103000
     database_version: 2023.11.1
+    elements: Gd, Ge, Ru
     emmet_version: 0.72.20
     identifier/identifier: mp-1197955
     identifier/is_persistent: false
@@ -1343,6 +1415,7 @@
     - 89.99977737480697
     build_date: 2023-11-22 19:45:41.336000
     database_version: 2023.11.1
+    elements: Nd, Ru, Sn
     emmet_version: 0.72.20
     identifier/identifier: mp-1198161
     identifier/is_persistent: false
@@ -1362,6 +1435,7 @@
     - 90.0
     build_date: 2023-11-22 19:49:42.390000
     database_version: 2023.11.1
+    elements: Ge, Os, Y
     emmet_version: 0.72.20
     identifier/identifier: mp-1198205
     identifier/is_persistent: false
@@ -1382,6 +1456,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:03.281000
     database_version: 2023.11.1
+    elements: Ge, Ru, Sm
     emmet_version: 0.72.20
     identifier/identifier: mp-1200023
     identifier/is_persistent: false
@@ -1401,6 +1476,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:41.532000
     database_version: 2023.11.1
+    elements: Al, Ir
     emmet_version: 0.72.20
     identifier/identifier: mp-1200220
     identifier/is_persistent: false
@@ -1420,6 +1496,7 @@
     - 90.0
     build_date: 2023-11-22 19:45:30.890000
     database_version: 2023.11.1
+    elements: Ge, Ir, Sm
     emmet_version: 0.72.20
     identifier/identifier: mp-1201653
     identifier/is_persistent: false
@@ -1439,6 +1516,7 @@
     - 90.0
     build_date: 2023-11-22 19:49:13.183000
     database_version: 2023.11.1
+    elements: Ge, Ir, Pr
     emmet_version: 0.72.20
     identifier/identifier: mp-1201823
     identifier/is_persistent: false
@@ -1458,6 +1536,7 @@
     - 89.99988202617963
     build_date: 2023-11-22 19:44:23.805000
     database_version: 2023.11.1
+    elements: Co, Sn, Tb
     emmet_version: 0.72.20
     identifier/identifier: mp-1201880
     identifier/is_persistent: false
@@ -1477,6 +1556,7 @@
     - 90.0
     build_date: 2023-11-22 19:45:01.647000
     database_version: 2023.11.1
+    elements: Co, Gd, Sn
     emmet_version: 0.72.20
     identifier/identifier: mp-1202112
     identifier/is_persistent: false
@@ -1497,6 +1577,7 @@
     - 90.0
     build_date: 2023-11-22 19:38:46.857000
     database_version: 2023.11.1
+    elements: Ir, Lu, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-1202962
     identifier/is_persistent: false
@@ -1516,6 +1597,7 @@
     - 90.0
     build_date: 2023-11-22 19:38:37.920000
     database_version: 2023.11.1
+    elements: Er, Os, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-1202967
     identifier/is_persistent: false
@@ -1535,6 +1617,7 @@
     - 90.0
     build_date: 2023-11-22 19:45:53.261000
     database_version: 2023.11.1
+    elements: Co, Gd, Ge
     emmet_version: 0.72.20
     identifier/identifier: mp-1202982
     identifier/is_persistent: false
@@ -1555,6 +1638,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:11.824000
     database_version: 2023.11.1
+    elements: Ge, Nd, Os
     emmet_version: 0.72.20
     identifier/identifier: mp-1203492
     identifier/is_persistent: false
@@ -1575,6 +1659,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:53.207000
     database_version: 2023.11.1
+    elements: Dy, Ge, Rh
     emmet_version: 0.72.20
     identifier/identifier: mp-1204450
     identifier/is_persistent: false
@@ -1594,6 +1679,7 @@
     - 90.0
     build_date: 2023-11-22 19:49:55.451000
     database_version: 2023.11.1
+    elements: Ge, Rh, Sm
     emmet_version: 0.72.20
     identifier/identifier: mp-1204494
     identifier/is_persistent: false
@@ -1613,6 +1699,7 @@
     - 90.0
     build_date: 2023-11-22 19:50:26.455000
     database_version: 2023.11.1
+    elements: Re, W
     emmet_version: 0.72.20
     identifier/identifier: mp-1206445
     identifier/is_persistent: false
@@ -1632,6 +1719,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:55.542000
     database_version: 2023.11.1
+    elements: Co, Sn, Th
     emmet_version: 0.72.20
     identifier/identifier: mp-1208367
     identifier/is_persistent: false
@@ -1651,6 +1739,7 @@
     - 90.00066637288487
     build_date: 2023-11-22 19:46:51.376000
     database_version: 2023.11.1
+    elements: Pr, Ru, Sn
     emmet_version: 0.72.20
     identifier/identifier: mp-1210053
     identifier/is_persistent: false
@@ -1670,6 +1759,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:09.113000
     database_version: 2023.11.1
+    elements: Ba, O, Pt
     emmet_version: 0.72.20
     identifier/identifier: mp-1214338
     identifier/is_persistent: false
@@ -1689,6 +1779,7 @@
     - 90.0
     build_date: 2023-11-22 19:45:49.502000
     database_version: 2023.11.1
+    elements: Ce, In, Pt
     emmet_version: 0.72.20
     identifier/identifier: mp-1214689
     identifier/is_persistent: false
@@ -1708,6 +1799,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:27.655000
     database_version: 2023.11.1
+    elements: Ba, Cu, Gd, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1214933
     identifier/is_persistent: false
@@ -1727,6 +1819,7 @@
     - 90.0
     build_date: 2023-11-22 19:38:36.454000
     database_version: 2023.11.1
+    elements: Cr, Ga
     emmet_version: 0.72.20
     identifier/identifier: mp-1231
     identifier/is_persistent: false
@@ -1746,6 +1839,7 @@
     - 90.0
     build_date: 2023-11-22 19:50:46.445000
     database_version: 2023.11.1
+    elements: Cr, Ru
     emmet_version: 0.72.20
     identifier/identifier: mp-1272
     identifier/is_persistent: false
@@ -1765,6 +1859,7 @@
     - 90.0
     build_date: 2023-11-22 19:38:43.123000
     database_version: 2023.11.1
+    elements: Cd, O, Pd
     emmet_version: 0.72.20
     identifier/identifier: mp-13675
     identifier/is_persistent: false
@@ -1784,6 +1879,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:23.722000
     database_version: 2023.11.1
+    elements: Nd, Pd, S
     emmet_version: 0.72.20
     identifier/identifier: mp-15227
     identifier/is_persistent: false
@@ -1803,6 +1899,7 @@
     - 90.0
     build_date: 2023-11-22 19:51:02.781000
     database_version: 2023.11.1
+    elements: Nb, Rh
     emmet_version: 0.72.20
     identifier/identifier: mp-1545
     identifier/is_persistent: false
@@ -1822,6 +1919,7 @@
     - 90.0
     build_date: 2023-11-22 19:38:24.718000
     database_version: 2023.11.1
+    elements: Au, Ti
     emmet_version: 0.72.20
     identifier/identifier: mp-1786
     identifier/is_persistent: false
@@ -1841,6 +1939,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:27.663000
     database_version: 2023.11.1
+    elements: Nb, Sb
     emmet_version: 0.72.20
     identifier/identifier: mp-2053
     identifier/is_persistent: false
@@ -1860,6 +1959,7 @@
     - 90.00026574067425
     build_date: 2023-11-22 19:48:11.672000
     database_version: 2023.11.1
+    elements: Eu, Pd, S
     emmet_version: 0.72.20
     identifier/identifier: mp-20961
     identifier/is_persistent: false
@@ -1879,6 +1979,7 @@
     - 90.0
     build_date: 2023-11-22 19:49:27.810000
     database_version: 2023.11.1
+    elements: O, W
     emmet_version: 0.72.20
     identifier/identifier: mp-21369
     identifier/is_persistent: false
@@ -1898,6 +1999,7 @@
     - 90.00001182896924
     build_date: 2023-11-22 19:38:23.924000
     database_version: 2023.11.1
+    elements: In, Nb
     emmet_version: 0.72.20
     identifier/identifier: mp-22060
     identifier/is_persistent: false
@@ -1917,6 +2019,7 @@
     - 90.0
     build_date: 2023-11-22 19:48:23.769000
     database_version: 2023.11.1
+    elements: Nb, Pb
     emmet_version: 0.72.20
     identifier/identifier: mp-22068
     identifier/is_persistent: false
@@ -1936,6 +2039,7 @@
     - 90.0
     build_date: 2023-11-22 19:38:39.261000
     database_version: 2023.11.1
+    elements: Ga, Mo
     emmet_version: 0.72.20
     identifier/identifier: mp-2377
     identifier/is_persistent: false
@@ -1955,6 +2059,7 @@
     - 90.0
     build_date: 2023-11-22 19:48:55.728000
     database_version: 2023.11.1
+    elements: La, Pd, S
     emmet_version: 0.72.20
     identifier/identifier: mp-2889
     identifier/is_persistent: false
@@ -1974,6 +2079,7 @@
     - 89.99997733848573
     build_date: 2023-11-22 19:45:04.699000
     database_version: 2023.11.1
+    elements: La, Rh, Sn
     emmet_version: 0.72.20
     identifier/identifier: mp-30513
     identifier/is_persistent: false
@@ -1993,6 +2099,7 @@
     - 90.0
     build_date: 2023-11-22 19:38:19.742000
     database_version: 2023.11.1
+    elements: Mo, Zr
     emmet_version: 0.72.20
     identifier/identifier: mp-30790
     identifier/is_persistent: false
@@ -2012,6 +2119,7 @@
     - 90.0
     build_date: 2023-11-22 19:45:50.476000
     database_version: 2023.11.1
+    elements: Pb, V
     emmet_version: 0.72.20
     identifier/identifier: mp-30830
     identifier/is_persistent: false
@@ -2031,6 +2139,7 @@
     - 90.0
     build_date: 2023-11-22 19:45:41.267000
     database_version: 2023.11.1
+    elements: Sn, Ta
     emmet_version: 0.72.20
     identifier/identifier: mp-30871
     identifier/is_persistent: false
@@ -2050,6 +2159,7 @@
     - 90.0000286487905
     build_date: 2023-11-22 19:46:36.102000
     database_version: 2023.11.1
+    elements: Ca, Rh, Sn
     emmet_version: 0.72.20
     identifier/identifier: mp-4363
     identifier/is_persistent: false
@@ -2069,6 +2179,7 @@
     - 90.0
     build_date: 2023-11-22 19:45:44.643000
     database_version: 2023.11.1
+    elements: Ge, Mo
     emmet_version: 0.72.20
     identifier/identifier: mp-494
     identifier/is_persistent: false
@@ -2088,6 +2199,7 @@
     - 90.0
     build_date: 2023-11-22 19:51:36.541000
     database_version: 2023.11.1
+    elements: Ir, Ti
     emmet_version: 0.72.20
     identifier/identifier: mp-544
     identifier/is_persistent: false
@@ -2107,6 +2219,7 @@
     - 90.0
     build_date: 2023-11-22 19:44:04.079000
     database_version: 2023.11.1
+    elements: Ge, V
     emmet_version: 0.72.20
     identifier/identifier: mp-672337
     identifier/is_persistent: false
@@ -2126,6 +2239,7 @@
     - 89.9996348570946
     build_date: 2023-11-22 19:44:16.045000
     database_version: 2023.11.1
+    elements: Co, La, Sn
     emmet_version: 0.72.20
     identifier/identifier: mp-672373
     identifier/is_persistent: false
@@ -2145,6 +2259,7 @@
     - 90.00005390316542
     build_date: 2023-11-22 19:44:28.503000
     database_version: 2023.11.1
+    elements: Nd, Rh, Sn
     emmet_version: 0.72.20
     identifier/identifier: mp-680552
     identifier/is_persistent: false
@@ -2164,6 +2279,7 @@
     - 89.9999602606713
     build_date: 2023-11-22 19:44:00.873000
     database_version: 2023.11.1
+    elements: O, Pt, Sr
     emmet_version: 0.72.20
     identifier/identifier: mp-756374
     identifier/is_persistent: false
@@ -2184,6 +2300,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:45:09.731000
     database_version: 2023.11.1
+    elements: Cs, F, Tl
     emmet_version: 0.72.20
     identifier/identifier: mp-1078203
     identifier/is_persistent: false
@@ -2203,6 +2320,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:46:17.066000
     database_version: 2023.11.1
+    elements: Cl, Mg, N
     emmet_version: 0.72.20
     identifier/identifier: mp-1078952
     identifier/is_persistent: false
@@ -2222,6 +2340,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:49:01.979000
     database_version: 2023.11.1
+    elements: F, Ga, Rb
     emmet_version: 0.72.20
     identifier/identifier: mp-1113627
     identifier/is_persistent: false
@@ -2241,6 +2360,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:52:31.342000
     database_version: 2023.11.1
+    elements: Cd, Cu, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1147639
     identifier/is_persistent: false
@@ -2260,6 +2380,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:51:35.445000
     database_version: 2023.11.1
+    elements: Ba, Mo
     emmet_version: 0.72.20
     identifier/identifier: mp-1183316
     identifier/is_persistent: false
@@ -2279,6 +2400,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:46:46.634000
     database_version: 2023.11.1
+    elements: Ca, Eu, Mg
     emmet_version: 0.72.20
     identifier/identifier: mp-1183637
     identifier/is_persistent: false
@@ -2298,6 +2420,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:45:31.498000
     database_version: 2023.11.1
+    elements: Cu, Ga, Pd
     emmet_version: 0.72.20
     identifier/identifier: mp-1184030
     identifier/is_persistent: false
@@ -2317,6 +2440,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:45:35.012000
     database_version: 2023.11.1
+    elements: Er, Mg, Tc
     emmet_version: 0.72.20
     identifier/identifier: mp-1184126
     identifier/is_persistent: false
@@ -2336,6 +2460,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:48:09.822000
     database_version: 2023.11.1
+    elements: Er, Mg, Pd
     emmet_version: 0.72.20
     identifier/identifier: mp-1184235
     identifier/is_persistent: false
@@ -2355,6 +2480,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:50:41.968000
     database_version: 2023.11.1
+    elements: As, Ge
     emmet_version: 0.72.20
     identifier/identifier: mp-1184561
     identifier/is_persistent: false
@@ -2374,6 +2500,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:51:44.410000
     database_version: 2023.11.1
+    elements: Al, Cd, Ho
     emmet_version: 0.72.20
     identifier/identifier: mp-1184596
     identifier/is_persistent: false
@@ -2382,7 +2509,8 @@
     phase_name: Ho2AlCd
     pymatgen_version: 2023.11.12
     space_group: 225
-  mp-1185027: {}
+  mp-1185027:
+    elements: Au, La, Yb
   mp-1185239:
     a_b_c:
     - 4.790275245721885
@@ -2394,6 +2522,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:43:58.795000
     database_version: 2023.11.1
+    elements: Li, Pd, Tl
     emmet_version: 0.72.20
     identifier/identifier: mp-1185239
     identifier/is_persistent: false
@@ -2413,6 +2542,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:50:52.752000
     database_version: 2023.11.1
+    elements: Au, Hg, Mg
     emmet_version: 0.72.20
     identifier/identifier: mp-1185760
     identifier/is_persistent: false
@@ -2432,6 +2562,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:45:07.162000
     database_version: 2023.11.1
+    elements: Fe, Mn, V
     emmet_version: 0.72.20
     identifier/identifier: mp-1186011
     identifier/is_persistent: false
@@ -2451,6 +2582,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:44:03.575000
     database_version: 2023.11.1
+    elements: Na, Sn
     emmet_version: 0.72.20
     identifier/identifier: mp-1186080
     identifier/is_persistent: false
@@ -2470,6 +2602,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:44:16.955000
     database_version: 2023.11.1
+    elements: Ho, Na
     emmet_version: 0.72.20
     identifier/identifier: mp-1186145
     identifier/is_persistent: false
@@ -2489,6 +2622,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:44:34.991000
     database_version: 2023.11.1
+    elements: In, Na, Tl
     emmet_version: 0.72.20
     identifier/identifier: mp-1186185
     identifier/is_persistent: false
@@ -2508,6 +2642,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:50:57.737000
     database_version: 2023.11.1
+    elements: Ag, Eu, Pr
     emmet_version: 0.72.20
     identifier/identifier: mp-1186519
     identifier/is_persistent: false
@@ -2527,6 +2662,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:51:07.921000
     database_version: 2023.11.1
+    elements: Hg, Pu
     emmet_version: 0.72.20
     identifier/identifier: mp-1186792
     identifier/is_persistent: false
@@ -2546,6 +2682,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:49:20.521000
     database_version: 2023.11.1
+    elements: In, Sm, Tl
     emmet_version: 0.72.20
     identifier/identifier: mp-1187001
     identifier/is_persistent: false
@@ -2565,6 +2702,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:38:29.765000
     database_version: 2023.11.1
+    elements: Ac, Cd, Sr
     emmet_version: 0.72.20
     identifier/identifier: mp-1187153
     identifier/is_persistent: false
@@ -2584,6 +2722,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:50:54.301000
     database_version: 2023.11.1
+    elements: In, Tb, Tm
     emmet_version: 0.72.20
     identifier/identifier: mp-1187384
     identifier/is_persistent: false
@@ -2603,6 +2742,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:38:35.198000
     database_version: 2023.11.1
+    elements: Ho, Ir, Y
     emmet_version: 0.72.20
     identifier/identifier: mp-1187856
     identifier/is_persistent: false
@@ -2622,6 +2762,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:44:29.500000
     database_version: 2023.11.1
+    elements: Ba, Ho, O, U
     emmet_version: 0.72.20
     identifier/identifier: mp-1205585
     identifier/is_persistent: false
@@ -2641,6 +2782,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:49:42.480000
     database_version: 2023.11.1
+    elements: Ba, Mo, O, Tb
     emmet_version: 0.72.20
     identifier/identifier: mp-1205597
     identifier/is_persistent: false
@@ -2660,6 +2802,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:46:30.715000
     database_version: 2023.11.1
+    elements: F, Li, Ta
     emmet_version: 0.72.20
     identifier/identifier: mp-1206962
     identifier/is_persistent: false
@@ -2679,6 +2822,7 @@
     - 59.99998857586235
     build_date: 2023-11-22 19:44:15.368000
     database_version: 2023.11.1
+    elements: B, Th
     emmet_version: 0.72.20
     identifier/identifier: mp-12570
     identifier/is_persistent: false
@@ -2698,6 +2842,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:38:38.830000
     database_version: 2023.11.1
+    elements: Eu, Nb, O, Pr
     emmet_version: 0.72.20
     identifier/identifier: mp-1516366
     identifier/is_persistent: false
@@ -2717,6 +2862,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:52:31.018000
     database_version: 2023.11.1
+    elements: Bi, Cr, O, Sr
     emmet_version: 0.72.20
     identifier/identifier: mp-1520897
     identifier/is_persistent: false
@@ -2736,6 +2882,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:38:42.341000
     database_version: 2023.11.1
+    elements: Dy, Pd, Sn
     emmet_version: 0.72.20
     identifier/identifier: mp-21014
     identifier/is_persistent: false
@@ -2755,6 +2902,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:46:30.372000
     database_version: 2023.11.1
+    elements: B, H, K
     emmet_version: 0.72.20
     identifier/identifier: mp-23950
     identifier/is_persistent: false
@@ -2774,6 +2922,7 @@
     - 60.00000415443593
     build_date: 2023-11-22 19:38:27.127000
     database_version: 2023.11.1
+    elements: H, Sm
     emmet_version: 0.72.20
     identifier/identifier: mp-24658
     identifier/is_persistent: false
@@ -2793,6 +2942,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:45:33.259000
     database_version: 2023.11.1
+    elements: O, Pa
     emmet_version: 0.72.20
     identifier/identifier: mp-2735
     identifier/is_persistent: false
@@ -2812,6 +2962,7 @@
     - 59.99999383426424
     build_date: 2023-11-22 19:51:49.415000
     database_version: 2023.11.1
+    elements: Co, Fe, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-5436
     identifier/is_persistent: false
@@ -2831,6 +2982,7 @@
     - 60.000691997472465
     build_date: 2023-11-22 19:44:50.698000
     database_version: 2023.11.1
+    elements: Cu, O, Pb
     emmet_version: 0.72.20
     identifier/identifier: mp-559633
     identifier/is_persistent: false
@@ -2850,6 +3002,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:47:02.171000
     database_version: 2023.11.1
+    elements: Ba, O, Ru, Y
     emmet_version: 0.72.20
     identifier/identifier: mp-6428
     identifier/is_persistent: false
@@ -2869,6 +3022,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:48:19.352000
     database_version: 2023.11.1
+    elements: Ba, O, Re, Y
     emmet_version: 0.72.20
     identifier/identifier: mp-6430
     identifier/is_persistent: false
@@ -2888,6 +3042,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:44:12.756000
     database_version: 2023.11.1
+    elements: H, K, Re
     emmet_version: 0.72.20
     identifier/identifier: mp-690789
     identifier/is_persistent: false
@@ -2907,6 +3062,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:44:10.295000
     database_version: 2023.11.1
+    elements: Ag, Al, Ho
     emmet_version: 0.72.20
     identifier/identifier: mp-861934
     identifier/is_persistent: false
@@ -2926,6 +3082,7 @@
     - 60.00007107271105
     build_date: 2023-11-22 19:45:36.611000
     database_version: 2023.11.1
+    elements: Ge, Li, Pm
     emmet_version: 0.72.20
     identifier/identifier: mp-861955
     identifier/is_persistent: false
@@ -2945,6 +3102,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:38:31.665000
     database_version: 2023.11.1
+    elements: Er, Li, Tl
     emmet_version: 0.72.20
     identifier/identifier: mp-862492
     identifier/is_persistent: false
@@ -2964,6 +3122,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:49:59.793000
     database_version: 2023.11.1
+    elements: Ir, Pm, Pt
     emmet_version: 0.72.20
     identifier/identifier: mp-863721
     identifier/is_persistent: false
@@ -2983,6 +3142,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:44:43.917000
     database_version: 2023.11.1
+    elements: Hf, Ir, Sc
     emmet_version: 0.72.20
     identifier/identifier: mp-865000
     identifier/is_persistent: false
@@ -3002,6 +3162,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:46:19.001000
     database_version: 2023.11.1
+    elements: Ac, Te, Tl
     emmet_version: 0.72.20
     identifier/identifier: mp-865028
     identifier/is_persistent: false
@@ -3021,6 +3182,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:44:02.736000
     database_version: 2023.11.1
+    elements: Al, Dy, Zn
     emmet_version: 0.72.20
     identifier/identifier: mp-865159
     identifier/is_persistent: false
@@ -3040,6 +3202,7 @@
     - 60.000256616567434
     build_date: 2023-11-22 19:43:55.190000
     database_version: 2023.11.1
+    elements: Li, Pd, Sc
     emmet_version: 0.72.20
     identifier/identifier: mp-865184
     identifier/is_persistent: false
@@ -3059,6 +3222,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:47:05.554000
     database_version: 2023.11.1
+    elements: Mn, Os, Tm
     emmet_version: 0.72.20
     identifier/identifier: mp-865451
     identifier/is_persistent: false
@@ -3078,6 +3242,7 @@
     - 59.99106317723092
     build_date: 2023-11-22 19:44:20.027000
     database_version: 2023.11.1
+    elements: Ge, Ru, Ti
     emmet_version: 0.72.20
     identifier/identifier: mp-865640
     identifier/is_persistent: false
@@ -3097,6 +3262,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:45:08.282000
     database_version: 2023.11.1
+    elements: Mn, Ti, W
     emmet_version: 0.72.20
     identifier/identifier: mp-865656
     identifier/is_persistent: false
@@ -3105,7 +3271,8 @@
     phase_name: TiMn2W
     pymatgen_version: 2023.11.12
     space_group: 225
-  mp-865815: {}
+  mp-865815:
+    elements: Au, Pd, Yb
   mp-865895:
     a_b_c:
     - 4.245339543997447
@@ -3117,6 +3284,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:44:04.559000
     database_version: 2023.11.1
+    elements: Ga, Ge, Ru
     emmet_version: 0.72.20
     identifier/identifier: mp-865895
     identifier/is_persistent: false
@@ -3136,6 +3304,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:38:45.388000
     database_version: 2023.11.1
+    elements: Li, Zn
     emmet_version: 0.72.20
     identifier/identifier: mp-865907
     identifier/is_persistent: false
@@ -3155,6 +3324,7 @@
     - 59.986638907926135
     build_date: 2023-11-22 19:46:32.621000
     database_version: 2023.11.1
+    elements: Gd, Mg, Rh
     emmet_version: 0.72.20
     identifier/identifier: mp-866059
     identifier/is_persistent: false
@@ -3174,6 +3344,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:38:31.221000
     database_version: 2023.11.1
+    elements: Ho, Ta
     emmet_version: 0.72.20
     identifier/identifier: mp-973969
     identifier/is_persistent: false
@@ -3193,6 +3364,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:52:10.628000
     database_version: 2023.11.1
+    elements: Fe, Li, Pd
     emmet_version: 0.72.20
     identifier/identifier: mp-973979
     identifier/is_persistent: false
@@ -3212,6 +3384,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:47:51.702000
     database_version: 2023.11.1
+    elements: Nd, Tl, Tm
     emmet_version: 0.72.20
     identifier/identifier: mp-974708
     identifier/is_persistent: false
@@ -3231,6 +3404,7 @@
     - 59.98821254414338
     build_date: 2023-11-22 19:44:37.963000
     database_version: 2023.11.1
+    elements: Er, In, Nd
     emmet_version: 0.72.20
     identifier/identifier: mp-975442
     identifier/is_persistent: false
@@ -3250,6 +3424,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:46:36.997000
     database_version: 2023.11.1
+    elements: Er, Mg, Pr
     emmet_version: 0.72.20
     identifier/identifier: mp-976151
     identifier/is_persistent: false
@@ -3269,6 +3444,7 @@
     - 59.99998918584434
     build_date: 2023-11-22 19:45:53.851000
     database_version: 2023.11.1
+    elements: Ru, Ta, V
     emmet_version: 0.72.20
     identifier/identifier: mp-977382
     identifier/is_persistent: false
@@ -3289,6 +3465,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:44:46.721000
     database_version: 2023.11.1
+    elements: Ca, W
     emmet_version: 0.72.20
     identifier/identifier: mp-1067260
     identifier/is_persistent: false
@@ -3308,6 +3485,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:44:15.232000
     database_version: 2023.11.1
+    elements: Gd, S
     emmet_version: 0.72.20
     identifier/identifier: mp-1077072
     identifier/is_persistent: false
@@ -3327,6 +3505,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:44:43.062000
     database_version: 2023.11.1
+    elements: Ce, Se
     emmet_version: 0.72.20
     identifier/identifier: mp-1080252
     identifier/is_persistent: false
@@ -3346,6 +3525,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:46:35.279000
     database_version: 2023.11.1
+    elements: Dy, Mn, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1096945
     identifier/is_persistent: false
@@ -3365,6 +3545,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:45:15.804000
     database_version: 2023.11.1
+    elements: In, S
     emmet_version: 0.72.20
     identifier/identifier: mp-1147622
     identifier/is_persistent: false
@@ -3384,6 +3565,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:44:31.552000
     database_version: 2023.11.1
+    elements: Co, O, Rb
     emmet_version: 0.72.20
     identifier/identifier: mp-1147736
     identifier/is_persistent: false
@@ -3403,6 +3585,7 @@
     - 60.00000371068201
     build_date: 2023-11-22 19:44:15.361000
     database_version: 2023.11.1
+    elements: Sn
     emmet_version: 0.72.20
     identifier/identifier: mp-117
     identifier/is_persistent: false
@@ -3422,6 +3605,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:44:25.525000
     database_version: 2023.11.1
+    elements: Cs, Ga, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1178397
     identifier/is_persistent: false
@@ -3441,6 +3625,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:45:08.720000
     database_version: 2023.11.1
+    elements: Dy, Mg
     emmet_version: 0.72.20
     identifier/identifier: mp-1183802
     identifier/is_persistent: false
@@ -3460,6 +3645,7 @@
     - 119.99998112164735
     build_date: 2023-11-22 19:48:27.795000
     database_version: 2023.11.1
+    elements: Eu, Mg
     emmet_version: 0.72.20
     identifier/identifier: mp-1184321
     identifier/is_persistent: false
@@ -3479,6 +3665,7 @@
     - 59.99999191449639
     build_date: 2023-11-22 19:46:04.236000
     database_version: 2023.11.1
+    elements: Mg, Tm
     emmet_version: 0.72.20
     identifier/identifier: mp-1187676
     identifier/is_persistent: false
@@ -3498,6 +3685,7 @@
     - 59.99998767796002
     build_date: 2023-11-22 19:46:16.089000
     database_version: 2023.11.1
+    elements: Al, Pr
     emmet_version: 0.72.20
     identifier/identifier: mp-1189
     identifier/is_persistent: false
@@ -3517,6 +3705,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:48:35.236000
     database_version: 2023.11.1
+    elements: Ge, In, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1190319
     identifier/is_persistent: false
@@ -3536,6 +3725,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:51:39.586000
     database_version: 2023.11.1
+    elements: Nd, O, Pd
     emmet_version: 0.72.20
     identifier/identifier: mp-1210248
     identifier/is_persistent: false
@@ -3555,6 +3745,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:48:13.917000
     database_version: 2023.11.1
+    elements: Al, Ni, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1248873
     identifier/is_persistent: false
@@ -3574,6 +3765,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:49:10.668000
     database_version: 2023.11.1
+    elements: Al, Fe, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1258020
     identifier/is_persistent: false
@@ -3593,6 +3785,7 @@
     - 59.9999858461875
     build_date: 2023-11-22 19:48:27.572000
     database_version: 2023.11.1
+    elements: Rh, Tb
     emmet_version: 0.72.20
     identifier/identifier: mp-1310
     identifier/is_persistent: false
@@ -3612,6 +3805,7 @@
     - 59.9999898284622
     build_date: 2023-11-22 19:51:01.350000
     database_version: 2023.11.1
+    elements: Cd, Li
     emmet_version: 0.72.20
     identifier/identifier: mp-1437
     identifier/is_persistent: false
@@ -3631,6 +3825,7 @@
     - 60.00000009791132
     build_date: 2023-11-22 19:38:21.814000
     database_version: 2023.11.1
+    elements: Ir, La
     emmet_version: 0.72.20
     identifier/identifier: mp-1463
     identifier/is_persistent: false
@@ -3650,6 +3845,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:45:22.366000
     database_version: 2023.11.1
+    elements: Ho, S
     emmet_version: 0.72.20
     identifier/identifier: mp-16378
     identifier/is_persistent: false
@@ -3669,6 +3865,7 @@
     - 60.00010652231323
     build_date: 2023-11-22 19:44:08.756000
     database_version: 2023.11.1
+    elements: Fe, Sm
     emmet_version: 0.72.20
     identifier/identifier: mp-1729
     identifier/is_persistent: false
@@ -3688,6 +3885,7 @@
     - 59.99999732513408
     build_date: 2023-11-22 19:43:55.450000
     database_version: 2023.11.1
+    elements: Er, Rh
     emmet_version: 0.72.20
     identifier/identifier: mp-1762
     identifier/is_persistent: false
@@ -3707,6 +3905,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:47:00.756000
     database_version: 2023.11.1
+    elements: Mn, Np
     emmet_version: 0.72.20
     identifier/identifier: mp-1859
     identifier/is_persistent: false
@@ -3726,6 +3925,7 @@
     - 59.99982599694167
     build_date: 2023-11-22 19:48:32.984000
     database_version: 2023.11.1
+    elements: Ni, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-18766
     identifier/is_persistent: false
@@ -3745,6 +3945,7 @@
     - 60.0002068368444
     build_date: 2023-11-22 19:49:26.930000
     database_version: 2023.11.1
+    elements: Mn, O, Y
     emmet_version: 0.72.20
     identifier/identifier: mp-18831
     identifier/is_persistent: false
@@ -3764,6 +3965,7 @@
     - 60.00000074672902
     build_date: 2023-11-22 19:38:37.182000
     database_version: 2023.11.1
+    elements: Mo, Na, O
     emmet_version: 0.72.20
     identifier/identifier: mp-18852
     identifier/is_persistent: false
@@ -3783,6 +3985,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:44:57.094000
     database_version: 2023.11.1
+    elements: Co, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-19071
     identifier/is_persistent: false
@@ -3802,6 +4005,7 @@
     - 59.99999800180075
     build_date: 2023-11-22 19:47:51.037000
     database_version: 2023.11.1
+    elements: Cd, In, O
     emmet_version: 0.72.20
     identifier/identifier: mp-19803
     identifier/is_persistent: false
@@ -3821,6 +4025,7 @@
     - 60.00034673577341
     build_date: 2023-11-22 19:44:52.542000
     database_version: 2023.11.1
+    elements: Al, Gd
     emmet_version: 0.72.20
     identifier/identifier: mp-19923
     identifier/is_persistent: false
@@ -3840,6 +4045,7 @@
     - 59.999978874982034
     build_date: 2023-11-22 19:45:58.197000
     database_version: 2023.11.1
+    elements: La, Ru
     emmet_version: 0.72.20
     identifier/identifier: mp-2019
     identifier/is_persistent: false
@@ -3859,6 +4065,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:48:48.338000
     database_version: 2023.11.1
+    elements: Pt, Pu
     emmet_version: 0.72.20
     identifier/identifier: mp-20644
     identifier/is_persistent: false
@@ -3878,6 +4085,7 @@
     - 60.00069918753975
     build_date: 2023-11-22 19:47:34.234000
     database_version: 2023.11.1
+    elements: Fe, U
     emmet_version: 0.72.20
     identifier/identifier: mp-21050
     identifier/is_persistent: false
@@ -3897,6 +4105,7 @@
     - 60.00171459664424
     build_date: 2023-11-22 19:44:57.951000
     database_version: 2023.11.1
+    elements: Lu, Ni
     emmet_version: 0.72.20
     identifier/identifier: mp-2130
     identifier/is_persistent: false
@@ -3916,6 +4125,7 @@
     - 59.999991865728724
     build_date: 2023-11-22 19:50:39.131000
     database_version: 2023.11.1
+    elements: Hf, Mo
     emmet_version: 0.72.20
     identifier/identifier: mp-2363
     identifier/is_persistent: false
@@ -3935,6 +4145,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:52:34.657000
     database_version: 2023.11.1
+    elements: Fe, Pr
     emmet_version: 0.72.20
     identifier/identifier: mp-2373
     identifier/is_persistent: false
@@ -3954,6 +4165,7 @@
     - 59.99999260998425
     build_date: 2023-11-22 19:38:47.599000
     database_version: 2023.11.1
+    elements: Mg, Nd
     emmet_version: 0.72.20
     identifier/identifier: mp-2389
     identifier/is_persistent: false
@@ -3973,6 +4185,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:45:56.953000
     database_version: 2023.11.1
+    elements: Dy, Mn
     emmet_version: 0.72.20
     identifier/identifier: mp-2483
     identifier/is_persistent: false
@@ -3992,6 +4205,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:44:27.579000
     database_version: 2023.11.1
+    elements: O, Ti
     emmet_version: 0.72.20
     identifier/identifier: mp-25262
     identifier/is_persistent: false
@@ -4011,6 +4225,7 @@
     - 60.001015940126194
     build_date: 2023-11-22 19:48:48.844000
     database_version: 2023.11.1
+    elements: Co, Dy
     emmet_version: 0.72.20
     identifier/identifier: mp-2628
     identifier/is_persistent: false
@@ -4030,6 +4245,7 @@
     - 59.99999611696749
     build_date: 2023-11-22 19:38:29.127000
     database_version: 2023.11.1
+    elements: Pt, Y
     emmet_version: 0.72.20
     identifier/identifier: mp-2674
     identifier/is_persistent: false
@@ -4049,6 +4265,7 @@
     - 60.00000364327616
     build_date: 2023-11-22 19:51:10.456000
     database_version: 2023.11.1
+    elements: La, Ni
     emmet_version: 0.72.20
     identifier/identifier: mp-2708
     identifier/is_persistent: false
@@ -4068,6 +4285,7 @@
     - 59.99999417759841
     build_date: 2023-11-22 19:44:08.562000
     database_version: 2023.11.1
+    elements: Ir, Tb
     emmet_version: 0.72.20
     identifier/identifier: mp-2725
     identifier/is_persistent: false
@@ -4087,6 +4305,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:38:19.812000
     database_version: 2023.11.1
+    elements: Ho, Mn
     emmet_version: 0.72.20
     identifier/identifier: mp-2769
     identifier/is_persistent: false
@@ -4106,6 +4325,7 @@
     - 59.99994672245153
     build_date: 2023-11-22 19:51:45.379000
     database_version: 2023.11.1
+    elements: Dy, Ni
     emmet_version: 0.72.20
     identifier/identifier: mp-421
     identifier/is_persistent: false
@@ -4125,6 +4345,7 @@
     - 59.99999355879371
     build_date: 2023-11-22 19:47:56.891000
     database_version: 2023.11.1
+    elements: Ga, Mg, O
     emmet_version: 0.72.20
     identifier/identifier: mp-4590
     identifier/is_persistent: false
@@ -4144,6 +4365,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:44:04.370000
     database_version: 2023.11.1
+    elements: Al, Fe, O
     emmet_version: 0.72.20
     identifier/identifier: mp-505623
     identifier/is_persistent: false
@@ -4163,6 +4385,7 @@
     - 59.997023204168045
     build_date: 2023-11-22 19:48:12.805000
     database_version: 2023.11.1
+    elements: Li, O, Ti
     emmet_version: 0.72.20
     identifier/identifier: mp-5670
     identifier/is_persistent: false
@@ -4182,6 +4405,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:44:18.718000
     database_version: 2023.11.1
+    elements: Mg, Sn
     emmet_version: 0.72.20
     identifier/identifier: mp-570543
     identifier/is_persistent: false
@@ -4201,6 +4425,7 @@
     - 60.00000117069544
     build_date: 2023-11-22 19:44:47.313000
     database_version: 2023.11.1
+    elements: Ce, Ir
     emmet_version: 0.72.20
     identifier/identifier: mp-582
     identifier/is_persistent: false
@@ -4220,6 +4445,7 @@
     - 59.99993639936479
     build_date: 2023-11-22 19:43:56.314000
     database_version: 2023.11.1
+    elements: Ho, Ni
     emmet_version: 0.72.20
     identifier/identifier: mp-673
     identifier/is_persistent: false
@@ -4239,6 +4465,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:46:16.359000
     database_version: 2023.11.1
+    elements: H, Ti, Zr
     emmet_version: 0.72.20
     identifier/identifier: mp-690799
     identifier/is_persistent: false
@@ -4258,6 +4485,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:44:15.090000
     database_version: 2023.11.1
+    elements: Nd, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-7105
     identifier/is_persistent: false
@@ -4277,6 +4505,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:49:45.860000
     database_version: 2023.11.1
+    elements: Ca, O, Sm
     emmet_version: 0.72.20
     identifier/identifier: mp-754240
     identifier/is_persistent: false
@@ -4296,6 +4525,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:44:33.378000
     database_version: 2023.11.1
+    elements: F, Li, Mn
     emmet_version: 0.72.20
     identifier/identifier: mp-754446
     identifier/is_persistent: false
@@ -4315,6 +4545,7 @@
     - 60.00000000000001
     build_date: 2023-11-22 19:45:10.571000
     database_version: 2023.11.1
+    elements: Ho, Mn, O
     emmet_version: 0.72.20
     identifier/identifier: mp-754918
     identifier/is_persistent: false
@@ -4334,6 +4565,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:44:57.602000
     database_version: 2023.11.1
+    elements: Cr, Na, O
     emmet_version: 0.72.20
     identifier/identifier: mp-755611
     identifier/is_persistent: false
@@ -4353,6 +4585,7 @@
     - 59.99999999999999
     build_date: 2023-11-22 19:45:04.568000
     database_version: 2023.11.1
+    elements: Fe, Mg, O
     emmet_version: 0.72.20
     identifier/identifier: mp-768465
     identifier/is_persistent: false
@@ -4372,6 +4605,7 @@
     - 119.99999999999999
     build_date: 2023-11-22 19:38:39.283000
     database_version: 2023.11.1
+    elements: Be, Co, O
     emmet_version: 0.72.20
     identifier/identifier: mp-770957
     identifier/is_persistent: false
@@ -4391,6 +4625,7 @@
     - 59.999996723542864
     build_date: 2023-11-22 19:52:04.267000
     database_version: 2023.11.1
+    elements: Cr, Zr
     emmet_version: 0.72.20
     identifier/identifier: mp-903
     identifier/is_persistent: false
@@ -4410,6 +4645,7 @@
     - 59.99994514036379
     build_date: 2023-11-22 19:47:19.512000
     database_version: 2023.11.1
+    elements: Mg, Zn
     emmet_version: 0.72.20
     identifier/identifier: mp-978269
     identifier/is_persistent: false
@@ -4430,6 +4666,7 @@
     - 88.78850227961945
     build_date: 2023-11-22 19:52:13.915000
     database_version: 2023.11.1
+    elements: Hg
     emmet_version: 0.72.20
     identifier/identifier: mp-1017981
     identifier/is_persistent: false
@@ -4449,6 +4686,7 @@
     - 109.47122063448948
     build_date: 2023-11-22 19:38:36.890000
     database_version: 2023.11.1
+    elements: Ga, Mn
     emmet_version: 0.72.20
     identifier/identifier: mp-1069288
     identifier/is_persistent: false
@@ -4468,6 +4706,7 @@
     - 109.47121317253792
     build_date: 2023-11-22 19:47:33.632000
     database_version: 2023.11.1
+    elements: Dy
     emmet_version: 0.72.20
     identifier/identifier: mp-10751
     identifier/is_persistent: false
@@ -4487,6 +4726,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:47:03.365000
     database_version: 2023.11.1
+    elements: B, Eu, Li, N
     emmet_version: 0.72.20
     identifier/identifier: mp-1097959
     identifier/is_persistent: false
@@ -4506,6 +4746,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:45:13.586000
     database_version: 2023.11.1
+    elements: La, Mn, O, V
     emmet_version: 0.72.20
     identifier/identifier: mp-1105477
     identifier/is_persistent: false
@@ -4525,6 +4766,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:49:59.544000
     database_version: 2023.11.1
+    elements: Dy, Ge, Ir
     emmet_version: 0.72.20
     identifier/identifier: mp-1105803
     identifier/is_persistent: false
@@ -4544,6 +4786,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:51:09.070000
     database_version: 2023.11.1
+    elements: Co, Ge, Hf
     emmet_version: 0.72.20
     identifier/identifier: mp-1105833
     identifier/is_persistent: false
@@ -4563,6 +4806,7 @@
     - 109.47123697023187
     build_date: 2023-11-22 19:50:02.934000
     database_version: 2023.11.1
+    elements: Fe, Ga, Ho
     emmet_version: 0.72.20
     identifier/identifier: mp-1106297
     identifier/is_persistent: false
@@ -4582,6 +4826,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:45:18.358000
     database_version: 2023.11.1
+    elements: Ca, K, O, W
     emmet_version: 0.72.20
     identifier/identifier: mp-1147522
     identifier/is_persistent: false
@@ -4601,6 +4846,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:45:16.189000
     database_version: 2023.11.1
+    elements: Cu, La, O, Se
     emmet_version: 0.72.20
     identifier/identifier: mp-1147534
     identifier/is_persistent: false
@@ -4620,6 +4866,7 @@
     - 109.47122526720531
     build_date: 2023-11-22 19:44:03.579000
     database_version: 2023.11.1
+    elements: Cu, La, Mo, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1147539
     identifier/is_persistent: false
@@ -4639,6 +4886,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:38:35.217000
     database_version: 2023.11.1
+    elements: Ba, Bi, Ca, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1147549
     identifier/is_persistent: false
@@ -4658,6 +4906,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:49:16.869000
     database_version: 2023.11.1
+    elements: Cu, La, O, Te
     emmet_version: 0.72.20
     identifier/identifier: mp-1147683
     identifier/is_persistent: false
@@ -4677,6 +4926,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:51:47.327000
     database_version: 2023.11.1
+    elements: Dy, Ge, Rh
     emmet_version: 0.72.20
     identifier/identifier: mp-1181515
     identifier/is_persistent: false
@@ -4696,6 +4946,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:50:32.562000
     database_version: 2023.11.1
+    elements: Ge, Ru, Sc
     emmet_version: 0.72.20
     identifier/identifier: mp-1188796
     identifier/is_persistent: false
@@ -4715,6 +4966,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:51:56.231000
     database_version: 2023.11.1
+    elements: Ge, Ir, Tb
     emmet_version: 0.72.20
     identifier/identifier: mp-1188834
     identifier/is_persistent: false
@@ -4734,6 +4986,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:38:19.622000
     database_version: 2023.11.1
+    elements: Ge, Os, U
     emmet_version: 0.72.20
     identifier/identifier: mp-1189490
     identifier/is_persistent: false
@@ -4753,6 +5006,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:45:52.649000
     database_version: 2023.11.1
+    elements: Ir, Sc, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-1189689
     identifier/is_persistent: false
@@ -4773,6 +5027,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:43.254000
     database_version: 2023.11.1
+    elements: Cd, Ce, Pd
     emmet_version: 0.72.20
     identifier/identifier: mp-1190285
     identifier/is_persistent: false
@@ -4792,6 +5047,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:47:01.327000
     database_version: 2023.11.1
+    elements: Nd, Ni, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-1190765
     identifier/is_persistent: false
@@ -4811,6 +5067,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:45:37.504000
     database_version: 2023.11.1
+    elements: Ho, Ni, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-1191275
     identifier/is_persistent: false
@@ -4830,6 +5087,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:47:10.378000
     database_version: 2023.11.1
+    elements: Ni, Si, Sm
     emmet_version: 0.72.20
     identifier/identifier: mp-1191578
     identifier/is_persistent: false
@@ -4849,6 +5107,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:38:44.620000
     database_version: 2023.11.1
+    elements: Gd, Ni, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-1192140
     identifier/is_persistent: false
@@ -4868,6 +5127,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:47:04.553000
     database_version: 2023.11.1
+    elements: Al, Dy, H, Ni
     emmet_version: 0.72.20
     identifier/identifier: mp-1196242
     identifier/is_persistent: false
@@ -4887,6 +5147,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:47:33.726000
     database_version: 2023.11.1
+    elements: Na, O, Sr, U
     emmet_version: 0.72.20
     identifier/identifier: mp-1210252
     identifier/is_persistent: false
@@ -4906,6 +5167,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:49
     database_version: 2023.11.1
+    elements: Ga, Ho, Pd
     emmet_version: 0.72.20
     identifier/identifier: mp-1212232
     identifier/is_persistent: false
@@ -4925,6 +5187,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:07.130000
     database_version: 2023.11.1
+    elements: Ga, Ho, Pt
     emmet_version: 0.72.20
     identifier/identifier: mp-1212255
     identifier/is_persistent: false
@@ -4944,6 +5207,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:38:36.653000
     database_version: 2023.11.1
+    elements: In, Ni
     emmet_version: 0.72.20
     identifier/identifier: mp-1212307
     identifier/is_persistent: false
@@ -4963,6 +5227,7 @@
     - 89.99982749057088
     build_date: 2023-11-22 19:44:45.370000
     database_version: 2023.11.1
+    elements: Fe, O, Re, Sr
     emmet_version: 0.72.20
     identifier/identifier: mp-1218429
     identifier/is_persistent: false
@@ -4982,6 +5247,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:52.956000
     database_version: 2023.11.1
+    elements: Mn, O, Pr, Sr
     emmet_version: 0.72.20
     identifier/identifier: mp-1218433
     identifier/is_persistent: false
@@ -5001,6 +5267,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:43:58.227000
     database_version: 2023.11.1
+    elements: Ce, Mn, O, Sr
     emmet_version: 0.72.20
     identifier/identifier: mp-1218514
     identifier/is_persistent: false
@@ -5020,6 +5287,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:46:35.831000
     database_version: 2023.11.1
+    elements: Ba, Ir, Na, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1228077
     identifier/is_persistent: false
@@ -5039,6 +5307,7 @@
     - 109.47122882874268
     build_date: 2023-11-22 19:49:10.828000
     database_version: 2023.11.1
+    elements: Cu, F, Sb
     emmet_version: 0.72.20
     identifier/identifier: mp-1232290
     identifier/is_persistent: false
@@ -5058,6 +5327,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:24.769000
     database_version: 2023.11.1
+    elements: Ba, Cu, Mo, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1232318
     identifier/is_persistent: false
@@ -5077,6 +5347,7 @@
     - 109.47121481709904
     build_date: 2023-11-22 19:44:06.294000
     database_version: 2023.11.1
+    elements: Li
     emmet_version: 0.72.20
     identifier/identifier: mp-135
     identifier/is_persistent: false
@@ -5096,6 +5367,7 @@
     - 109.47121843607798
     build_date: 2023-11-22 19:49:22.753000
     database_version: 2023.11.1
+    elements: Mo, Sb
     emmet_version: 0.72.20
     identifier/identifier: mp-1521
     identifier/is_persistent: false
@@ -5115,6 +5387,7 @@
     - 109.47121196874247
     build_date: 2023-11-22 19:51:40.929000
     database_version: 2023.11.1
+    elements: Ga, Ni
     emmet_version: 0.72.20
     identifier/identifier: mp-16852
     identifier/is_persistent: false
@@ -5134,6 +5407,7 @@
     - 109.47114752168027
     build_date: 2023-11-22 19:51:35.115000
     database_version: 2023.11.1
+    elements: Si, Tc, U
     emmet_version: 0.72.20
     identifier/identifier: mp-20471
     identifier/is_persistent: false
@@ -5153,6 +5427,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:45:48.993000
     database_version: 2023.11.1
+    elements: He
     emmet_version: 0.72.20
     identifier/identifier: mp-23158
     identifier/is_persistent: false
@@ -5172,6 +5447,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:45:54.116000
     database_version: 2023.11.1
+    elements: Co
     emmet_version: 0.72.20
     identifier/identifier: mp-2647057
     identifier/is_persistent: false
@@ -5191,6 +5467,7 @@
     - 109.47121347123053
     build_date: 2023-11-22 19:46:22.201000
     database_version: 2023.11.1
+    elements: Os, Sn
     emmet_version: 0.72.20
     identifier/identifier: mp-2729
     identifier/is_persistent: false
@@ -5210,6 +5487,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:05.424000
     database_version: 2023.11.1
+    elements: Cl, K, Mn
     emmet_version: 0.72.20
     identifier/identifier: mp-27901
     identifier/is_persistent: false
@@ -5229,6 +5507,7 @@
     - 109.47120235749885
     build_date: 2023-11-22 19:47:02.420000
     database_version: 2023.11.1
+    elements: Tl
     emmet_version: 0.72.20
     identifier/identifier: mp-39
     identifier/is_persistent: false
@@ -5248,6 +5527,7 @@
     - 109.47123636644342
     build_date: 2023-11-22 19:38:34.407000
     database_version: 2023.11.1
+    elements: Zr
     emmet_version: 0.72.20
     identifier/identifier: mp-41
     identifier/is_persistent: false
@@ -5267,6 +5547,7 @@
     - 109.47122430529606
     build_date: 2023-11-22 19:49:54.766000
     database_version: 2023.11.1
+    elements: F, Nb
     emmet_version: 0.72.20
     identifier/identifier: mp-466
     identifier/is_persistent: false
@@ -5286,6 +5567,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:38:39.005000
     database_version: 2023.11.1
+    elements: Dy, Fe, O
     emmet_version: 0.72.20
     identifier/identifier: mp-504491
     identifier/is_persistent: false
@@ -5305,6 +5587,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:50:33.645000
     database_version: 2023.11.1
+    elements: Ba, Bi, Na, O
     emmet_version: 0.72.20
     identifier/identifier: mp-559352
     identifier/is_persistent: false
@@ -5324,6 +5607,7 @@
     - 109.47122430835766
     build_date: 2023-11-22 19:48:21.313000
     database_version: 2023.11.1
+    elements: Ga, Pt, Tb
     emmet_version: 0.72.20
     identifier/identifier: mp-568053
     identifier/is_persistent: false
@@ -5343,6 +5627,7 @@
     - 109.47121702018374
     build_date: 2023-11-22 19:44:44.922000
     database_version: 2023.11.1
+    elements: C
     emmet_version: 0.72.20
     identifier/identifier: mp-570002
     identifier/is_persistent: false
@@ -5362,6 +5647,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:45:27.883000
     database_version: 2023.11.1
+    elements: Si, W
     emmet_version: 0.72.20
     identifier/identifier: mp-570334
     identifier/is_persistent: false
@@ -5381,6 +5667,7 @@
     - 109.47123233750334
     build_date: 2023-11-22 19:51:27.091000
     database_version: 2023.11.1
+    elements: K
     emmet_version: 0.72.20
     identifier/identifier: mp-58
     identifier/is_persistent: false
@@ -5400,6 +5687,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:56.845000
     database_version: 2023.11.1
+    elements: O, Pt
     emmet_version: 0.72.20
     identifier/identifier: mp-601193
     identifier/is_persistent: false
@@ -5419,6 +5707,7 @@
     - 109.471213179239
     build_date: 2023-11-22 19:45:01.061000
     database_version: 2023.11.1
+    elements: Br
     emmet_version: 0.72.20
     identifier/identifier: mp-673171
     identifier/is_persistent: false
@@ -5438,6 +5727,7 @@
     - 109.47130039435342
     build_date: 2023-11-22 19:50:20.664000
     database_version: 2023.11.1
+    elements: Ca, H, Rh
     emmet_version: 0.72.20
     identifier/identifier: mp-697126
     identifier/is_persistent: false
@@ -5457,6 +5747,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:45:23.840000
     database_version: 2023.11.1
+    elements: C, N, Na
     emmet_version: 0.72.20
     identifier/identifier: mp-724972
     identifier/is_persistent: false
@@ -5476,6 +5767,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:47:30.970000
     database_version: 2023.11.1
+    elements: Ba, Li, O, Sb
     emmet_version: 0.72.20
     identifier/identifier: mp-7971
     identifier/is_persistent: false
@@ -5495,6 +5787,7 @@
     - 109.47120359658807
     build_date: 2023-11-22 19:51:02.825000
     database_version: 2023.11.1
+    elements: F, S
     emmet_version: 0.72.20
     identifier/identifier: mp-8560
     identifier/is_persistent: false
@@ -5514,6 +5807,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:49:22.256000
     database_version: 2023.11.1
+    elements: B, Li, N, Sr
     emmet_version: 0.72.20
     identifier/identifier: mp-9723
     identifier/is_persistent: false
@@ -5533,6 +5827,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:38:46.832000
     database_version: 2023.11.1
+    elements: Kr
     emmet_version: 0.72.20
     identifier/identifier: mp-974400
     identifier/is_persistent: false
@@ -5553,6 +5848,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:25.064000
     database_version: 2023.11.1
+    elements: Fe, Ge, Na, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1013864
     identifier/is_persistent: false
@@ -5572,6 +5868,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:38.827000
     database_version: 2023.11.1
+    elements: Al, Na, O, P
     emmet_version: 0.72.20
     identifier/identifier: mp-1020161
     identifier/is_persistent: false
@@ -5591,6 +5888,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:38:44.642000
     database_version: 2023.11.1
+    elements: Fe, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-1143147
     identifier/is_persistent: false
@@ -5610,6 +5908,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:45:18.873000
     database_version: 2023.11.1
+    elements: O, Sb, Si, Zn
     emmet_version: 0.72.20
     identifier/identifier: mp-1154534
     identifier/is_persistent: false
@@ -5629,6 +5928,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:51:36.912000
     database_version: 2023.11.1
+    elements: Mg, Ni, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-1154758
     identifier/is_persistent: false
@@ -5648,6 +5948,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:01.085000
     database_version: 2023.11.1
+    elements: Ag, Ca, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-1157153
     identifier/is_persistent: false
@@ -5667,6 +5968,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:45:32.315000
     database_version: 2023.11.1
+    elements: Mg, O, Si, W
     emmet_version: 0.72.20
     identifier/identifier: mp-1157231
     identifier/is_persistent: false
@@ -5686,6 +5988,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:47:33.640000
     database_version: 2023.11.1
+    elements: Co, O, Si, Y
     emmet_version: 0.72.20
     identifier/identifier: mp-1157336
     identifier/is_persistent: false
@@ -5705,6 +6008,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:38:34.920000
     database_version: 2023.11.1
+    elements: Al, Ni, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-1157674
     identifier/is_persistent: false
@@ -5724,6 +6028,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:52:11.902000
     database_version: 2023.11.1
+    elements: Ca, O, Si, V
     emmet_version: 0.72.20
     identifier/identifier: mp-1163934
     identifier/is_persistent: false
@@ -5743,6 +6048,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:38:27.899000
     database_version: 2023.11.1
+    elements: Ca, Cu, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-1163936
     identifier/is_persistent: false
@@ -5762,6 +6068,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:49:53.754000
     database_version: 2023.11.1
+    elements: Mg, O, Sb, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-1163940
     identifier/is_persistent: false
@@ -5781,6 +6088,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:32.602000
     database_version: 2023.11.1
+    elements: Al, O, Si, V
     emmet_version: 0.72.20
     identifier/identifier: mp-1163942
     identifier/is_persistent: false
@@ -5800,6 +6108,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:52:24.495000
     database_version: 2023.11.1
+    elements: Bi, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-1172356
     identifier/is_persistent: false
@@ -5819,6 +6128,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:52:15.748000
     database_version: 2023.11.1
+    elements: Cr, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-1172462
     identifier/is_persistent: false
@@ -5838,6 +6148,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:45:51.075000
     database_version: 2023.11.1
+    elements: Cr, Na, O, V
     emmet_version: 0.72.20
     identifier/identifier: mp-1202673
     identifier/is_persistent: false
@@ -5858,6 +6169,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:32.813000
     database_version: 2023.11.1
+    elements: Al, Cr, O, Y
     emmet_version: 0.72.20
     identifier/identifier: mp-1207891
     identifier/is_persistent: false
@@ -5877,6 +6189,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:46:45.871000
     database_version: 2023.11.1
+    elements: Al, O, Sc, Tm
     emmet_version: 0.72.20
     identifier/identifier: mp-1207916
     identifier/is_persistent: false
@@ -5896,6 +6209,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:48:04.805000
     database_version: 2023.11.1
+    elements: Cr, Ga, O, Y
     emmet_version: 0.72.20
     identifier/identifier: mp-1207967
     identifier/is_persistent: false
@@ -5915,6 +6229,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:38:28.816000
     database_version: 2023.11.1
+    elements: Fe, O, Tm
     emmet_version: 0.72.20
     identifier/identifier: mp-1208209
     identifier/is_persistent: false
@@ -5934,6 +6249,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:14.518000
     database_version: 2023.11.1
+    elements: Mn, Na, O, V
     emmet_version: 0.72.20
     identifier/identifier: mp-1210577
     identifier/is_persistent: false
@@ -5953,6 +6269,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:48.704000
     database_version: 2023.11.1
+    elements: Er, Li, O, Te
     emmet_version: 0.72.20
     identifier/identifier: mp-1210989
     identifier/is_persistent: false
@@ -5972,6 +6289,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:45:11.152000
     database_version: 2023.11.1
+    elements: Li, O, Tb, Te
     emmet_version: 0.72.20
     identifier/identifier: mp-1211213
     identifier/is_persistent: false
@@ -5991,6 +6309,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:45:46.205000
     database_version: 2023.11.1
+    elements: Li, Lu, O, Te
     emmet_version: 0.72.20
     identifier/identifier: mp-1211646
     identifier/is_persistent: false
@@ -6010,6 +6329,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:38:44.629000
     database_version: 2023.11.1
+    elements: Cd, Ge, Mn, O
     emmet_version: 0.72.20
     identifier/identifier: mp-1212395
     identifier/is_persistent: false
@@ -6029,6 +6349,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:51:41.071000
     database_version: 2023.11.1
+    elements: Al, Gd, O, Sc
     emmet_version: 0.72.20
     identifier/identifier: mp-1213017
     identifier/is_persistent: false
@@ -6048,6 +6369,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:00.905000
     database_version: 2023.11.1
+    elements: Al, Dy, O, Sc
     emmet_version: 0.72.20
     identifier/identifier: mp-1213138
     identifier/is_persistent: false
@@ -6067,6 +6389,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:45:45.022000
     database_version: 2023.11.1
+    elements: Ca, Cu, O, V
     emmet_version: 0.72.20
     identifier/identifier: mp-1214197
     identifier/is_persistent: false
@@ -6086,6 +6409,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:55.850000
     database_version: 2023.11.1
+    elements: O, Si, V, Zn
     emmet_version: 0.72.20
     identifier/identifier: mp-1251134
     identifier/is_persistent: false
@@ -6105,6 +6429,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:46:01.866000
     database_version: 2023.11.1
+    elements: Ni, O, Si, Zn
     emmet_version: 0.72.20
     identifier/identifier: mp-1257835
     identifier/is_persistent: false
@@ -6124,6 +6449,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:46:28.784000
     database_version: 2023.11.1
+    elements: Fe, O, Si, Zn
     emmet_version: 0.72.20
     identifier/identifier: mp-1258162
     identifier/is_persistent: false
@@ -6143,6 +6469,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:45:28.819000
     database_version: 2023.11.1
+    elements: Cu, Mg, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-1265011
     identifier/is_persistent: false
@@ -6162,6 +6489,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:48:04.534000
     database_version: 2023.11.1
+    elements: Ca, Ge, O, Ti
     emmet_version: 0.72.20
     identifier/identifier: mp-1324516
     identifier/is_persistent: false
@@ -6181,6 +6509,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:48:38.584000
     database_version: 2023.11.1
+    elements: Ge, Mg, O, V
     emmet_version: 0.72.20
     identifier/identifier: mp-1327460
     identifier/is_persistent: false
@@ -6200,6 +6529,7 @@
     - 109.47121988975427
     build_date: 2023-11-22 19:51:59.111000
     database_version: 2023.11.1
+    elements: Ge, O, Ti, Zn
     emmet_version: 0.72.20
     identifier/identifier: mp-1328181
     identifier/is_persistent: false
@@ -6219,6 +6549,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:49:36.299000
     database_version: 2023.11.1
+    elements: Ge, Mn, O, Zn
     emmet_version: 0.72.20
     identifier/identifier: mp-1363500
     identifier/is_persistent: false
@@ -6238,6 +6569,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:48:22.587000
     database_version: 2023.11.1
+    elements: Ni, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-1364379
     identifier/is_persistent: false
@@ -6257,6 +6589,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:48:36.602000
     database_version: 2023.11.1
+    elements: O, Si, Ti
     emmet_version: 0.72.20
     identifier/identifier: mp-1364577
     identifier/is_persistent: false
@@ -6276,6 +6609,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:38:45.656000
     database_version: 2023.11.1
+    elements: Mn, O, Si, V
     emmet_version: 0.72.20
     identifier/identifier: mp-14046
     identifier/is_persistent: false
@@ -6295,6 +6629,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:38:30.490000
     database_version: 2023.11.1
+    elements: Ca, In, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-14052
     identifier/is_persistent: false
@@ -6314,6 +6649,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:51:54.874000
     database_version: 2023.11.1
+    elements: Al, Lu, O
     emmet_version: 0.72.20
     identifier/identifier: mp-14132
     identifier/is_persistent: false
@@ -6333,6 +6669,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:46.964000
     database_version: 2023.11.1
+    elements: Al, Gd, O
     emmet_version: 0.72.20
     identifier/identifier: mp-14133
     identifier/is_persistent: false
@@ -6352,6 +6689,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:51:58.924000
     database_version: 2023.11.1
+    elements: As, Cr, Na, O
     emmet_version: 0.72.20
     identifier/identifier: mp-16383
     identifier/is_persistent: false
@@ -6371,6 +6709,7 @@
     - 109.4712446439498
     build_date: 2023-11-22 19:44:47.246000
     database_version: 2023.11.1
+    elements: Al, O, Y
     emmet_version: 0.72.20
     identifier/identifier: mp-3050
     identifier/is_persistent: false
@@ -6390,6 +6729,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:50:27.347000
     database_version: 2023.11.1
+    elements: Ga, O, Y
     emmet_version: 0.72.20
     identifier/identifier: mp-5444
     identifier/is_persistent: false
@@ -6409,6 +6749,7 @@
     - 109.47136614187589
     build_date: 2023-11-22 19:49:10.541000
     database_version: 2023.11.1
+    elements: Fe, Mn, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-555470
     identifier/is_persistent: false
@@ -6428,6 +6769,7 @@
     - 109.47121856648454
     build_date: 2023-11-22 19:47:02.561000
     database_version: 2023.11.1
+    elements: O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-558891
     identifier/is_persistent: false
@@ -6447,6 +6789,7 @@
     - 109.47113405494046
     build_date: 2023-11-22 19:45:28.307000
     database_version: 2023.11.1
+    elements: Ga, O, Sm
     emmet_version: 0.72.20
     identifier/identifier: mp-5800
     identifier/is_persistent: false
@@ -6466,6 +6809,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:46:29.967000
     database_version: 2023.11.1
+    elements: Mn, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-5802
     identifier/is_persistent: false
@@ -6485,6 +6829,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:38:48.004000
     database_version: 2023.11.1
+    elements: Ga, O, Tb
     emmet_version: 0.72.20
     identifier/identifier: mp-5965
     identifier/is_persistent: false
@@ -6504,6 +6849,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:46:58.886000
     database_version: 2023.11.1
+    elements: Al, Ca, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-6008
     identifier/is_persistent: false
@@ -6523,6 +6869,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:45:19.588000
     database_version: 2023.11.1
+    elements: Al, Mg, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-6073
     identifier/is_persistent: false
@@ -6542,6 +6889,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:30.908000
     database_version: 2023.11.1
+    elements: Ca, O, Sc, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-6255
     identifier/is_persistent: false
@@ -6561,6 +6909,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:48:01.088000
     database_version: 2023.11.1
+    elements: Al, Mn, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-6480
     identifier/is_persistent: false
@@ -6580,6 +6929,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:45:08.216000
     database_version: 2023.11.1
+    elements: Fe, Mg, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-6551
     identifier/is_persistent: false
@@ -6599,6 +6949,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:46:31.004000
     database_version: 2023.11.1
+    elements: Cr, Fe, O, Si
     emmet_version: 0.72.20
     identifier/identifier: mp-6670
     identifier/is_persistent: false
@@ -6618,6 +6969,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:46:43.650000
     database_version: 2023.11.1
+    elements: Al, F, Li, Na
     emmet_version: 0.72.20
     identifier/identifier: mp-6711
     identifier/is_persistent: false
@@ -6637,6 +6989,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:47:33.693000
     database_version: 2023.11.1
+    elements: Li, O, P, Ti
     emmet_version: 0.72.20
     identifier/identifier: mp-757914
     identifier/is_persistent: false
@@ -6656,6 +7009,7 @@
     - 109.47122063449069
     build_date: 2023-11-22 19:44:44.243000
     database_version: 2023.11.1
+    elements: Al, Dy, O
     emmet_version: 0.72.20
     identifier/identifier: mp-772195
     identifier/is_persistent: false
