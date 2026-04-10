@@ -65,9 +65,11 @@ from pynxtools_em.utils.default_config import (
 from pynxtools_em.utils.hfive_web import HFIVE_WEB_MAXIMUM_ROI
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
-THIS_MODULE_PATH = os.path.abspath(__file__).replace("/nexus_em_ebsd_patterns.py", "")
+THIS_MODULE_PATH = os.path.abspath(__file__).replace(
+    "/usa_evanston_yan_ebsd_patterns.py", ""
+)
 EXAMPLE_FILE_PREFIX = "original_data/original_data_0/train/"
-MATERIALS_PROJECT_METADATA = f"{THIS_MODULE_PATH}/diffraction_pattern_meta.yaml"
+MATERIALS_PROJECT_METADATA = f"{THIS_MODULE_PATH}/usa_evanston_yan_ebsd_patterns.yaml"
 SUPPORTED_FORMATS = ["bmp", "gif", "jpg", "png", "tif", "tiff"]
 SUPPORTED_MODES = ["L", "I"]
 
@@ -261,27 +263,27 @@ class DiffractionPatternSetParser:
             "database_version",
             # "build_date",
             # "license",
-            "identifier/identifier",
-            "identifier/service",
         ]:
             if concept in meta:
                 template[f"{trg}/{concept}"] = meta[concept]
+
+        if "identifier/identifier" in meta and "identifier/service" in meta:
+            template[f"{trg}/identifier"] = meta["identifier/identifier"]
+            template[f"{trg}/identifier/@type"] = meta["identifier/service"]
 
         if all(
             concept in meta
             for concept in ["phase_name", "space_group", "a_b_c", "angles"]
         ):
-            trg = (
-                f"/ENTRY[entry{self.entry_id}]/simulation/PROCESS[config]/PHASE[phase1]"
-            )
+            trg = f"/ENTRY[entry{self.entry_id}]/simulation/PHASE[phase1]"
             template[f"{trg}/phase_name"] = meta["phase_name"]
 
-            trg = f"/ENTRY[entry{self.entry_id}]/simulation/PROCESS[config]/PHASE[phase1]/UNIT_CELL[unit_cell]"
+            trg = f"/ENTRY[entry{self.entry_id}]/simulation/PHASE[phase1]/UNIT_CELL[unit_cell]"
             template[f"{trg}/space_group"] = f"{meta['space_group']}"
-            for idx, suffix in "a_b_c".split("_"):
+            for idx, suffix in enumerate("a_b_c".split("_")):
                 template[f"{trg}/{suffix}"] = np.float32(meta["a_b_c"][idx])
                 template[f"{trg}/{suffix}/@units"] = f"{ureg.angstrom}"
-            for idx, suffix in "alpha_beta_gamma".split("_"):
+            for idx, suffix in enumerate("alpha_beta_gamma".split("_")):
                 template[f"{trg}/{suffix}"] = np.float32(meta["angles"][idx])
                 template[f"{trg}/{suffix}/@units"] = f"{ureg.degree}"
 
@@ -290,7 +292,7 @@ class DiffractionPatternSetParser:
                 meta["elements"]
             )
 
-        trg = f"/ENTRY[entry{self.entry_id}]/simulation/PROCESS[results]/IMAGE[image1]/stack_2d"
+        trg = f"/ENTRY[entry{self.entry_id}]/simulation/IMAGE[image1]/stack_2d"
         if "identifier/identifier" in meta and "phase_name" in meta:
             template[f"{trg}/title"] = (
                 f"{meta['identifier/identifier']}, {meta['phase_name']}"

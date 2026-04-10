@@ -23,13 +23,15 @@ from typing import Any
 
 from pynxtools.dataconverter.readers.base.reader import BaseReader
 
-from examples.usa_evanston_yan.nexus_em_ebsd_patterns import DiffractionPatternSetParser
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 from pynxtools_em.examples.custom_reference_frame import (
     NxEmCustomElnCustomReferenceFrame,
 )
 from pynxtools_em.examples.ebsd_database_eln import NxEmCustomElnEbsdDatabase
 from pynxtools_em.examples.ger_berlin_koch_eln import NxEmCustomElnGerBerlinKoch
+from pynxtools_em.examples.usa_evanston_yan_ebsd_patterns import (
+    DiffractionPatternSetParser,
+)
 from pynxtools_em.parsers.hfive_apex import HdfFiveEdaxApexParser
 from pynxtools_em.parsers.hfive_bruker import HdfFiveBrukerEspritParser
 

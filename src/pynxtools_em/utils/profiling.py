@@ -21,13 +21,31 @@ import platform
 
 import numpy as np
 
+# try:
+#     from cpuinfo import get_cpu_info
+#
+#     HAS_CPU_INFO: bool = True
+# except ImportError:
+#     HAS_CPU_INFO: bool = False
+
 
 def simple_profiling(template: dict, tic: int, toc: int, entry_id: int = 1) -> dict:
     """Get simple profiling and system analytics."""
     trg = f"/ENTRY[entry{entry_id}]/profiling"
-    template[f"{trg}/model"] = f"{platform.processor()}"
+    # if HAS_CPU_INFO:
+    #     info = get_cpu_info()
+    #     aggregate = []
+    #     for key in ["processor_type", "model", "family", "stepping", "flags"]:
+    #         if key in info.keys():
+    #             aggregate.append(info[key])
+    #     if len(aggregate) > 0:
+    #         template[f"{trg}/model"] = ", ".join([f"{value}" for value in aggregate])
+    # else:
+    #     template[f"{trg}/model"] = "unknown"
     template[f"{trg}/architecture"] = f"{platform.machine()}"
-    template[f"{trg}/operating_system"] = f"{platform.system()}"
+    template[f"{trg}/operating_system"] = (
+        f"{platform.uname().system}, {platform.uname().release}, {platform.uname().version}"
+    )
     template[f"{trg}/max_processes"] = np.uint32(1)
     template[f"{trg}/max_threads"] = np.uint32(1)
     template[f"{trg}/max_gpus"] = np.uint32(0)

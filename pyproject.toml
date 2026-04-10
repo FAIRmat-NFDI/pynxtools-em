@@ -46,7 +46,8 @@ dev = [
     "types-pyyaml",
     "types-requests",
     "pre-commit",
-    "cruft"
+    "cruft",
+    # "py-cpuinfo",
 ]
 docs = [
     "mkdocs",
