@@ -43,8 +43,11 @@
 # shared and thus not possible to add to what NXem as a data model is capable of holding
 # this parser is meant how combine the key commands with which such ad hoc studies
 # can be organized using NeXus to contextualize using research data management software
+# https://doi.org/10.1093/mam/ozae044.178
 
 import mmap
+import os
+import re
 from typing import Any
 from zipfile import ZipFile
 
@@ -52,18 +55,47 @@ import numpy as np
 import yaml
 from PIL import Image
 
-from pynxtools_em.examples.diffraction_pattern_set import (
-    EXAMPLE_FILE_PREFIX,
-    MATERIALS_PROJECT_METADATA,
-    PIL_DTYPE_TO_NPY_DTYPE,
-    SUPPORTED_FORMATS,
-    SUPPORTED_MODES,
-    get_materialsproject_id_and_space_group,
-)
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.hfive_web import HFIVE_WEB_MAXIMUM_ROI
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
+
+THIS_MODULE_PATH = os.path.abspath(__file__).replace("/diffraction_pattern_set.py", "")
+EXAMPLE_FILE_PREFIX = "original_data/original_data_0/train/"
+MATERIALS_PROJECT_METADATA = f"{THIS_MODULE_PATH}/diffraction_pattern_meta.yaml"
+SUPPORTED_FORMATS = ["bmp", "gif", "jpg", "png", "tif", "tiff"]
+SUPPORTED_MODES = ["L", "I"]
+from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.default_config import SEPARATOR
+
+
+def get_materialsproject_id_and_space_group(
+    fpath: str, verbose: bool = False
+) -> tuple[str, int] | tuple[None, None]:
+    if 1 <= int(fpath[fpath.rfind("/") - 3 : fpath.rfind("/")]) <= 230:
+        fname = fpath[fpath.rfind("/") + 1 :]
+        materialsproject_id = re.compile(r"^mp-(?:\d+)_").search(fname)
+        mp = materialsproject_id.group()[0:-1]
+        space_group_id = re.compile(r"^(?:\d{1}|\d{2}|\d{3})_").search(
+            fname.replace(materialsproject_id.group(), "")
+        )
+        spc = space_group_id.group()[0:-1]
+        tail = fname.replace(
+            f"{materialsproject_id.group()}{space_group_id.group()}", ""
+        )
+        if verbose:
+            logger.debug(
+                f"{fpath}\n{fname}\n{mp}{SEPARATOR}{type(mp)}\n{spc}{SEPARATOR}{type(spc)}\n{tail}{SEPARATOR}{type(tail)}"
+            )
+        return mp, int(spc)
+    return None, None
+
+
+# https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-modes
+PIL_DTYPE_TO_NPY_DTYPE = {
+    "L": np.uint8,
+    "I": np.int32,
+}
 
 
 class DiffractionPatternSetParser:
