@@ -242,9 +242,8 @@ class DiffractionPatternSetParser:
                         )
                         del stack_2d
 
-                        # stop early
-                        if self.entry_id > 2:
-                            break
+                        # if self.entry_id > 2:  # stop early for debugging purposes
+                        #     break
         return template
 
     def process_stack_to_template(
