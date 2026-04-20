@@ -26,13 +26,17 @@ from PIL import Image, ImageSequence
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_jeol_cfg import (
     JEOL_DYNAMIC_VARIOUS_NX,
+    JEOL_KEYWORD_TO_PINT_UNITS,
     JEOL_STATIC_VARIOUS_NX,
 )
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY, SEPARATOR
+from pynxtools_em.utils.default_config import SEPARATOR
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
+from pynxtools_em.utils.get_xmp import extract_full_xmp
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
+
+STRING_DECODER_CODECS = ["utf-8", "utf-16", "utf-16-be", "utf-16-le", "latin-1"]
 
 
 class JeolTiffParser:
@@ -40,7 +44,7 @@ class JeolTiffParser:
         self,
         file_paths: list[str],
         entry_id: int = 1,
-        verbose: bool = DEFAULT_VERBOSITY,
+        verbose: bool = True,  # DEFAULT_VERBOSITY,
     ):
         self.flat_dict_meta = fd.FlatDict({}, "/")
         self.entry_id = entry_id if entry_id > 0 else 1
@@ -83,11 +87,101 @@ class JeolTiffParser:
         except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
-        if self.txt_file_path == "":  # metadata if at all packed into the TIFF
-            # if so check if valid and if these contain version information
+        if self.txt_file_path == "":  # hunt for metadata inside the TIFF file
+            root = extract_full_xmp(self.file_path)
+            create_date = root.find(
+                ".//xmp:CreateDate", {"xmp": "http://ns.adobe.com/xap/1.0/"}
+            )
+            if create_date is not None:
+                self.flat_dict_meta["XMP_CREATE_DATE"] = create_date.text.strip()
+
+            with Image.open(self.file_path, mode="r") as fp:  # custom TIFF tags
+                for key, value in fp.tag_v2.items():
+                    if self.verbose:
+                        logger.info(f"{key}, {value}")
+                    if key != 37500:
+                        # 270 comment e.g. username sample name
+                        # 271 manufacturer
+                        # 272 instrument model
+                        continue
+
+                    # JEOL custom TIFF tag 37500 includes encoded metadata
+                    # for other microscope that metadata is in sidecar text files
+                    payload = fp.tag_v2[37500]
+                    if not payload.startswith(b"UNICODE"):
+                        continue
+                    decoded: str | None = None
+                    for codec in STRING_DECODER_CODECS:
+                        try:
+                            decoded = payload[len(b"UNICODE") :].decode(codec)
+                            logger.info(f"JEOL metadata payload decoded with {codec}")
+                            break
+                        except UnicodeDecodeError:
+                            continue
+                    if decoded is None:
+                        logger.warning(
+                            f"{self.file_path} JEOL TIFF without sidecar unable to retrieve metadata"
+                        )
+                    for chunk in decoded.split("\t"):
+                        if "=" not in chunk:
+                            logger.info(f"Ignore line {SEPARATOR}{chunk}{SEPARATOR}")
+                            continue
+                        keyword, tokens = chunk.strip().replace("\x00", "").split("=")
+                        keyword = keyword.replace(
+                            keyword,
+                            keyword[1:] if keyword.startswith("$") else keyword,
+                        )
+                        values = [string_to_number(token) for token in tokens.split()]
+                        if JEOL_KEYWORD_TO_PINT_UNITS[keyword] == "":
+                            quantity = values[0]
+                        else:
+                            if keyword == "CM_FIELD_OF_VIEW":
+                                quantity = ureg.Quantity(
+                                    [
+                                        string_to_number(
+                                            value.replace("µm", "").strip()
+                                        )
+                                        for value in values
+                                    ],
+                                    JEOL_KEYWORD_TO_PINT_UNITS[keyword],
+                                )
+                            elif keyword == "CM_PIXEL_SIZE":
+                                quantity = ureg.Quantity(
+                                    [
+                                        string_to_number(
+                                            value.replace("nm", "").strip()
+                                        )
+                                        for value in values
+                                    ],
+                                    JEOL_KEYWORD_TO_PINT_UNITS[keyword],
+                                )
+                            elif keyword == "SM_DWELL_TIME":
+                                quantity = ureg.Quantity(values[0])
+                            else:
+                                if (
+                                    JEOL_KEYWORD_TO_PINT_UNITS[keyword]
+                                    == "dimensionless"
+                                ):
+                                    quantity = (
+                                        ureg.Quantity(values[0])
+                                        if len(values) == 1
+                                        else ureg.Quantity(np.asarray(values))
+                                    )
+                                else:
+                                    quantity = (
+                                        ureg.Quantity(
+                                            values[0],
+                                            JEOL_KEYWORD_TO_PINT_UNITS[keyword],
+                                        )
+                                        if len(values) == 1
+                                        else ureg.Quantity(
+                                            np.asarray(values),
+                                            JEOL_KEYWORD_TO_PINT_UNITS[keyword],
+                                        )
+                                    )
+                        self.flat_dict_meta[keyword] = quantity
             self.supported = True
-            return
-        else:
+        else:  # hunt for metadata using sidecar file
             try:
                 with open(self.txt_file_path) as txt:
                     txt = [

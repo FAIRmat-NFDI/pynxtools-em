@@ -9,7 +9,7 @@
             "type": "python", //"debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "../.py3.13.2/bin/dataconverter",
+            "program": "../.py3.12.3/bin/dataconverter",
             "env": {
                 "PYDEVD_CONTAINER_RANDOM_ACCESS_MAX_ITEMS": "10000"
             },
