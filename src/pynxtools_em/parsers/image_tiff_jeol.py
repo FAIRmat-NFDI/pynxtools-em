@@ -30,7 +30,7 @@ from pynxtools_em.configurations.image_tiff_jeol_cfg import (
     JEOL_STATIC_VARIOUS_NX,
 )
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.default_config import SEPARATOR
+from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY, SEPARATOR
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.get_xmp import extract_full_xmp
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
@@ -44,7 +44,7 @@ class JeolTiffParser:
         self,
         file_paths: list[str],
         entry_id: int = 1,
-        verbose: bool = True,  # DEFAULT_VERBOSITY,
+        verbose: bool = DEFAULT_VERBOSITY,
     ):
         self.flat_dict_meta = fd.FlatDict({}, "/")
         self.entry_id = entry_id if entry_id > 0 else 1
@@ -98,7 +98,7 @@ class JeolTiffParser:
             with Image.open(self.file_path, mode="r") as fp:  # custom TIFF tags
                 for key, value in fp.tag_v2.items():
                     if self.verbose:
-                        logger.info(f"{key}, {value}")
+                        logger.debug(f"{key}, {value}")
                     if key != 37500:
                         # 270 comment e.g. username sample name
                         # 271 manufacturer
