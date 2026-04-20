@@ -9,7 +9,7 @@
             "type": "python", //"debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "../../.py3.13.11/bin/dataconverter",
+            "program": "../.py3.13.2/bin/dataconverter",
             "env": {
                 "PYDEVD_CONTAINER_RANDOM_ACCESS_MAX_ITEMS": "10000"
             },
@@ -44,6 +44,7 @@
                      //"tests/data/image_hitachi_su8000/SEM_Ti_Grade_2_G (1).txt",
                      //"tests/data/image_jeol/20240227_A1_2m_0_FA3_1.txt",
                      //"tests/data/image_jeol/20240227_A1_2m_0_FA3_1.tif",
+                     "tests/data/image_jeol/JEOL_HZB_data.tiff",
                      //"tests/data/image_point_electronic/Defekt1.tif",
                      //"tests/data/image_protochips/ReductionOfFeOxSmall.zip",
                      //"tests/data/image_tescan_mira/CZ04-2_102_Pic_2.tif",
@@ -160,7 +161,7 @@
                      //"--output=tests/prod/image_fei_legacy_tem/output.nxs"]
                      //"--output=tests/prod/image_hitachi/output.nxs"]
                      //"--output=tests/prod/image_hitachi_su8000/output.nxs"]
-                     //"--output=tests/prod/image_jeol/output.nxs"]
+                     "--output=tests/prod/image_jeol/output.nxs"]
                      //"--output=tests/prod/image_point_electronic/output.nxs"]
                      //"--output=tests/prod/image_protochips/output.nxs"]
                      //"--output=tests/prod/image_tescan_mira/output.nxs"]

@@ -42,37 +42,30 @@ class JeolTiffParser:
         entry_id: int = 1,
         verbose: bool = DEFAULT_VERBOSITY,
     ):
-        tif_txt = ["", ""]
-        if (
-            len(file_paths) == 2
-            and file_paths[0][0 : file_paths[0].rfind(".")]
-            == file_paths[1][0 : file_paths[0].rfind(".")]
-        ):
-            for entry in file_paths:
-                if entry.lower().endswith((".tif", ".tiff")):
-                    tif_txt[0] = entry
-                elif entry.lower().endswith(".txt"):
-                    tif_txt[1] = entry
-            if all(value != "" for value in tif_txt):
-                self.file_path = tif_txt[0]
-                self.entry_id = entry_id if entry_id > 0 else 1
-                self.verbose = verbose
-                self.id_mgn: dict[str, int] = {"event_id": 1}
-                self.txt_file_path = tif_txt[1]
-                self.flat_dict_meta = fd.FlatDict({}, "/")
-                self.version: dict = {}
-                self.supported = False
-                self.check_if_tiff_jeol()
+        self.flat_dict_meta = fd.FlatDict({}, "/")
+        self.entry_id = entry_id if entry_id > 0 else 1
+        self.verbose = verbose
+        self.id_mgn: dict[str, int] = {"event_id": 1}
+        self.version: dict = {}
+        self.supported = False
+
+        case_selector: dict[str, list[str]] = {"tif": [], "txt": []}
+        for file_path in file_paths:
+            if file_path.lower().endswith((".tif", ".tiff")):
+                case_selector["tif"].append(file_path)
+            elif file_path.lower().endswith(".txt"):
+                case_selector["txt"].append(file_path)
+        if len(case_selector["tif"]) == 1:
+            self.file_path = case_selector["tif"][0]
+            if len(case_selector["txt"]) == 1:
+                self.txt_file_path = case_selector["txt"][0]
             else:
-                logger.warning(
-                    f"Parser {self.__class__.__name__} needs TIF and TXT file !"
-                )
-                self.supported = False
-        else:
+                self.txt_file_path = ""
+            self.check_if_tiff_jeol()
+        if not self.supported:
             logger.debug(
-                f"Parser {self.__class__.__name__} finds no content in {tif_txt} that it supports"
+                f"Parser {self.__class__.__name__} finds no content in {file_paths} not content or combination that it supports"
             )
-            self.supported = False
 
     def check_if_tiff_jeol(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file.
@@ -90,41 +83,49 @@ class JeolTiffParser:
         except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
-
-        with open(self.txt_file_path) as txt:
-            txt = [
-                line.strip().lstrip("$")
-                for line in txt.readlines()
-                if line.strip() != "" and line.startswith("$")
-            ]
-
-            self.flat_dict_meta = fd.FlatDict({}, "/")
-            for line in txt:
-                tmp = line.split()
-                if len(tmp) == 2:
-                    if tmp[0] not in self.flat_dict_meta:
-                        # replace with pint parsing and catching multiple exceptions
-                        # as it is exemplified in the tiff_zeiss parser
-                        if tmp[0] != "SM_MICRON_MARKER":
-                            self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
+        if self.txt_file_path == "":  # metadata if at all packed into the TIFF
+            # if so check if valid and if these contain version information
+            self.supported = True
+            return
+        else:
+            try:
+                with open(self.txt_file_path) as txt:
+                    txt = [
+                        line.strip().lstrip("$")
+                        for line in txt.readlines()
+                        if line.strip() != "" and line.startswith("$")
+                    ]
+                    for line in txt:
+                        tmp = line.split()
+                        if len(tmp) == 2:
+                            if tmp[0] not in self.flat_dict_meta:
+                                # replace with pint parsing and catching multiple exceptions
+                                # as it is exemplified in the tiff_zeiss parser
+                                if tmp[0] != "SM_MICRON_MARKER":
+                                    self.flat_dict_meta[tmp[0]] = string_to_number(
+                                        tmp[1]
+                                    )
+                                else:
+                                    self.flat_dict_meta[tmp[0]] = ureg.Quantity(tmp[1])
+                            else:
+                                logger.warning(f"Found duplicated key {tmp[0]} !")
                         else:
-                            self.flat_dict_meta[tmp[0]] = ureg.Quantity(tmp[1])
-                    else:
-                        logger.warning(f"Found duplicated key {tmp[0]} !")
-                else:
-                    logger.debug(f"{line} is currently ignored !")
-
-            if self.verbose:
-                for key, value in self.flat_dict_meta.items():
-                    logger.info(f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
-
-            if all(
-                key in self.flat_dict_meta for key in ["SEM_DATA_VERSION", "CM_LABEL"]
-            ):
-                if (self.flat_dict_meta["SEM_DATA_VERSION"] == 1) and (
-                    self.flat_dict_meta["CM_LABEL"] == "JEOL"
+                            logger.debug(f"{line} is currently ignored !")
+                if all(
+                    key in self.flat_dict_meta
+                    for key in ["SEM_DATA_VERSION", "CM_LABEL"]
                 ):
-                    self.supported = True
+                    if (self.flat_dict_meta["SEM_DATA_VERSION"] == 1) and (
+                        self.flat_dict_meta["CM_LABEL"] == "JEOL"
+                    ):
+                        self.supported = True
+            except (OSError, FileNotFoundError):
+                logger.warning(f"{self.txt_file_path} either FileNotFound or IOError !")
+                return
+
+        if self.verbose:
+            for key, value in self.flat_dict_meta.items():
+                logger.info(f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""
