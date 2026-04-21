@@ -218,11 +218,15 @@ def set_value(template: dict, trg: str, src_val: Any, trg_dtype: str = "") -> di
         elif isinstance(src_val, ureg.Quantity):
             if isinstance(src_val.magnitude, (np.ndarray, np.generic)):
                 template[f"{trg}"] = map_to_dtype(trg_dtype, src_val.magnitude)
-                if is_not_special_unit(src_val):
+                if is_not_special_unit(src_val) and not isinstance(
+                    template[f"{trg}"], bool
+                ):
                     template[f"{trg}/@units"] = f"{src_val.units}"
-            elif np.isscalar(src_val.magnitude):  # bool typically not expected
+            elif np.isscalar(src_val.magnitude):
                 template[f"{trg}"] = map_to_dtype(trg_dtype, src_val.magnitude)
-                if is_not_special_unit(src_val):
+                if is_not_special_unit(src_val) and not isinstance(
+                    template[f"{trg}"], bool
+                ):
                     template[f"{trg}/@units"] = f"{src_val.units}"
             else:
                 raise TypeError(
@@ -323,7 +327,7 @@ def map_functor(
             set_value(template, trg, src_values, trg_dtype_key)
         elif case == "case_three_str":  # str, ureg.Unit, str
             src_val = mdata.get(f"{prfx_src}{cmd[2]}")
-            if not src_val:
+            if src_val is None:
                 continue
             trg = var_path_to_specific_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_val, ureg.Quantity):
@@ -372,7 +376,7 @@ def map_functor(
             )
         elif case == "case_five_str":
             src_val = mdata.get(f"{prfx_src}{cmd[2]}")
-            if not src_val:
+            if src_val is None:
                 continue
             trg = var_path_to_specific_path(f"{prfx_trg}/{cmd[0]}", ids)
             if isinstance(src_val, ureg.Quantity):

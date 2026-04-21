@@ -160,17 +160,13 @@ class EMReader(BaseReader):
                 parser.parse(template)
 
         if len(case.dat) >= 1:
-            parsers_opt_sidecar: list[type] = [TescanTiffParser]
+            parsers_opt_sidecar: list[type] = [TescanTiffParser, JeolTiffParser]
             for parser_type in parsers_opt_sidecar:
                 parser = parser_type(case.dat, entry_id)
                 parser.parse(template)
 
         if len(case.dat) == 2:
-            parsers_req_sidecar: list[type] = [
-                JeolTiffParser,
-                HitachiTiffParser,
-                RsciioMrcParser,
-            ]
+            parsers_req_sidecar: list[type] = [HitachiTiffParser, RsciioMrcParser]
             for parser_type in parsers_req_sidecar:
                 parser = parser_type(case.dat, entry_id)
                 parser.parse(template)

@@ -23,16 +23,25 @@ import flatdict as fd
 import numpy as np
 from PIL import Image, ImageSequence
 
-from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
+from pynxtools_em.concepts.mapping_functors_pint import (
+    add_specific_metadata_pint,
+    var_path_to_specific_path,
+)
 from pynxtools_em.configurations.image_tiff_jeol_cfg import (
+    JEOL_DYNAMIC_SCAN_NX,
     JEOL_DYNAMIC_VARIOUS_NX,
+    JEOL_EXTRA_VARIOUS_NX,
+    JEOL_KEYWORD_TO_PINT_UNITS,
     JEOL_STATIC_VARIOUS_NX,
 )
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY, SEPARATOR
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
+from pynxtools_em.utils.get_xmp import extract_full_xmp
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
+
+STRING_DECODER_CODECS = ["utf-8", "utf-16", "utf-16-be", "utf-16-le", "latin-1"]
 
 
 class JeolTiffParser:
@@ -42,37 +51,30 @@ class JeolTiffParser:
         entry_id: int = 1,
         verbose: bool = DEFAULT_VERBOSITY,
     ):
-        tif_txt = ["", ""]
-        if (
-            len(file_paths) == 2
-            and file_paths[0][0 : file_paths[0].rfind(".")]
-            == file_paths[1][0 : file_paths[0].rfind(".")]
-        ):
-            for entry in file_paths:
-                if entry.lower().endswith((".tif", ".tiff")):
-                    tif_txt[0] = entry
-                elif entry.lower().endswith(".txt"):
-                    tif_txt[1] = entry
-            if all(value != "" for value in tif_txt):
-                self.file_path = tif_txt[0]
-                self.entry_id = entry_id if entry_id > 0 else 1
-                self.verbose = verbose
-                self.id_mgn: dict[str, int] = {"event_id": 1}
-                self.txt_file_path = tif_txt[1]
-                self.flat_dict_meta = fd.FlatDict({}, "/")
-                self.version: dict = {}
-                self.supported = False
-                self.check_if_tiff_jeol()
+        self.flat_dict_meta = fd.FlatDict({}, "/")
+        self.entry_id = entry_id if entry_id > 0 else 1
+        self.verbose = verbose
+        self.id_mgn: dict[str, int] = {"event_id": 1}
+        self.version: dict = {}
+        self.supported = False
+
+        case_selector: dict[str, list[str]] = {"tif": [], "txt": []}
+        for file_path in file_paths:
+            if file_path.lower().endswith((".tif", ".tiff")):
+                case_selector["tif"].append(file_path)
+            elif file_path.lower().endswith(".txt"):
+                case_selector["txt"].append(file_path)
+        if len(case_selector["tif"]) == 1:
+            self.file_path = case_selector["tif"][0]
+            if len(case_selector["txt"]) == 1:
+                self.txt_file_path = case_selector["txt"][0]
             else:
-                logger.warning(
-                    f"Parser {self.__class__.__name__} needs TIF and TXT file !"
-                )
-                self.supported = False
-        else:
+                self.txt_file_path = ""
+            self.check_if_tiff_jeol()
+        if not self.supported:
             logger.debug(
-                f"Parser {self.__class__.__name__} finds no content in {tif_txt} that it supports"
+                f"Parser {self.__class__.__name__} finds no content in {file_paths} not content or combination that it supports"
             )
-            self.supported = False
 
     def check_if_tiff_jeol(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file.
@@ -90,41 +92,146 @@ class JeolTiffParser:
         except (OSError, FileNotFoundError):
             logger.warning(f"{self.file_path} either FileNotFound or IOError !")
             return
-
-        with open(self.txt_file_path) as txt:
-            txt = [
-                line.strip().lstrip("$")
-                for line in txt.readlines()
-                if line.strip() != "" and line.startswith("$")
-            ]
-
-            self.flat_dict_meta = fd.FlatDict({}, "/")
-            for line in txt:
-                tmp = line.split()
-                if len(tmp) == 2:
-                    if tmp[0] not in self.flat_dict_meta:
-                        # replace with pint parsing and catching multiple exceptions
-                        # as it is exemplified in the tiff_zeiss parser
-                        if tmp[0] != "SM_MICRON_MARKER":
-                            self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
-                        else:
-                            self.flat_dict_meta[tmp[0]] = ureg.Quantity(tmp[1])
-                    else:
-                        logger.warning(f"Found duplicated key {tmp[0]} !")
-                else:
-                    logger.debug(f"{line} is currently ignored !")
-
+        if self.txt_file_path == "":  # hunt for metadata inside the TIFF file
+            root = extract_full_xmp(self.file_path)
             if self.verbose:
-                for key, value in self.flat_dict_meta.items():
-                    logger.info(f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
+                for element in root.iter():
+                    logger.info(f"{element.tag}, {element.text}")
+            create_date = root.find(
+                ".//xmp:CreateDate", {"xmp": "http://ns.adobe.com/xap/1.0/"}
+            )
+            if create_date is not None:
+                self.flat_dict_meta["xmp_create_date"] = create_date.text.strip()
 
-            if all(
-                key in self.flat_dict_meta for key in ["SEM_DATA_VERSION", "CM_LABEL"]
-            ):
-                if (self.flat_dict_meta["SEM_DATA_VERSION"] == 1) and (
-                    self.flat_dict_meta["CM_LABEL"] == "JEOL"
+            with Image.open(self.file_path, mode="r") as fp:  # custom TIFF tags
+                for key, value in fp.tag_v2.items():
+                    if self.verbose:
+                        logger.info(f"{key}, {value}")
+                    if key != 37500:
+                        if key not in [270, 271, 272]:
+                            continue
+                        elif key == 270:
+                            self.flat_dict_meta["tif_tag_description"] = value.strip()
+                        elif key == 271:
+                            self.flat_dict_meta["tif_tag_vendor"] = value.strip()
+                        else:
+                            self.flat_dict_meta["tif_tag_model"] = value.strip()
+
+                    # JEOL custom TIFF tag 37500 includes encoded metadata
+                    # for other microscope that metadata is in sidecar text files
+                    payload = fp.tag_v2[37500]
+                    if not payload.startswith(b"UNICODE"):
+                        continue
+                    decoded: str | None = None
+                    for codec in STRING_DECODER_CODECS:
+                        try:
+                            decoded = payload[len(b"UNICODE") :].decode(codec)
+                            logger.info(f"JEOL metadata payload decoded with {codec}")
+                            break
+                        except UnicodeDecodeError:
+                            continue
+                    if decoded is None:
+                        logger.warning(
+                            f"{self.file_path} JEOL TIFF without sidecar unable to retrieve metadata"
+                        )
+                    for chunk in decoded.split("\t"):
+                        if "=" not in chunk:
+                            logger.info(f"Ignore line {SEPARATOR}{chunk}{SEPARATOR}")
+                            continue
+                        keyword, tokens = chunk.strip().replace("\x00", "").split("=")
+                        keyword = keyword.replace(
+                            keyword,
+                            keyword[1:] if keyword.startswith("$") else keyword,
+                        )
+                        values = [string_to_number(token) for token in tokens.split()]
+                        if JEOL_KEYWORD_TO_PINT_UNITS[keyword] == "":
+                            quantity = values[0]
+                        else:
+                            if keyword == "CM_FIELD_OF_VIEW":
+                                quantity = ureg.Quantity(
+                                    [
+                                        string_to_number(
+                                            value.replace("µm", "").strip()
+                                        )
+                                        for value in values
+                                    ],
+                                    JEOL_KEYWORD_TO_PINT_UNITS[keyword],
+                                )
+                            elif keyword == "CM_PIXEL_SIZE":
+                                quantity = ureg.Quantity(
+                                    [
+                                        string_to_number(
+                                            value.replace("nm", "").strip()
+                                        )
+                                        for value in values
+                                    ],
+                                    JEOL_KEYWORD_TO_PINT_UNITS[keyword],
+                                )
+                            elif keyword == "SM_DWELL_TIME":
+                                quantity = ureg.Quantity(values[0])
+                            else:
+                                if (
+                                    JEOL_KEYWORD_TO_PINT_UNITS[keyword]
+                                    == "dimensionless"
+                                ):
+                                    quantity = (
+                                        ureg.Quantity(values[0])
+                                        if len(values) == 1
+                                        else ureg.Quantity(np.asarray(values))
+                                    )
+                                else:
+                                    quantity = (
+                                        ureg.Quantity(
+                                            values[0],
+                                            JEOL_KEYWORD_TO_PINT_UNITS[keyword],
+                                        )
+                                        if len(values) == 1
+                                        else ureg.Quantity(
+                                            np.asarray(values),
+                                            JEOL_KEYWORD_TO_PINT_UNITS[keyword],
+                                        )
+                                    )
+                        self.flat_dict_meta[keyword] = quantity
+            self.supported = True
+        else:  # hunt for metadata using sidecar file
+            try:
+                with open(self.txt_file_path) as txt:
+                    txt = [
+                        line.strip().lstrip("$")
+                        for line in txt.readlines()
+                        if line.strip() != "" and line.startswith("$")
+                    ]
+                    for line in txt:
+                        tmp = line.split()
+                        if len(tmp) == 2:
+                            if tmp[0] not in self.flat_dict_meta:
+                                # replace with pint parsing and catching multiple exceptions
+                                # as it is exemplified in the tiff_zeiss parser
+                                if tmp[0] != "SM_MICRON_MARKER":
+                                    self.flat_dict_meta[tmp[0]] = string_to_number(
+                                        tmp[1]
+                                    )
+                                else:
+                                    self.flat_dict_meta[tmp[0]] = ureg.Quantity(tmp[1])
+                            else:
+                                logger.warning(f"Found duplicated key {tmp[0]} !")
+                        else:
+                            logger.debug(f"{line} is currently ignored !")
+                if all(
+                    key in self.flat_dict_meta
+                    for key in ["SEM_DATA_VERSION", "CM_LABEL"]
                 ):
-                    self.supported = True
+                    if (self.flat_dict_meta["SEM_DATA_VERSION"] == 1) and (
+                        self.flat_dict_meta["CM_LABEL"] == "JEOL"
+                    ):
+                        self.supported = True
+            except (OSError, FileNotFoundError):
+                logger.warning(f"{self.txt_file_path} either FileNotFound or IOError !")
+                return
+
+        if self.verbose:
+            for key, value in self.flat_dict_meta.items():
+                logger.info(f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""
@@ -195,6 +302,19 @@ class JeolTiffParser:
                         "i": physical_length / resolution,
                         "j": physical_length / resolution,
                     }
+                elif "CM_PIXEL_SIZE" in self.flat_dict_meta and np.shape(
+                    self.flat_dict_meta["CM_PIXEL_SIZE"].magnitude
+                ) == (2,):
+                    sxy = {
+                        "i": ureg.Quantity(
+                            self.flat_dict_meta["CM_PIXEL_SIZE"].magnitude[1],
+                            self.flat_dict_meta["CM_PIXEL_SIZE"].units,
+                        ).to(ureg.meter),
+                        "j": ureg.Quantity(
+                            self.flat_dict_meta["CM_PIXEL_SIZE"].magnitude[0],
+                            self.flat_dict_meta["CM_PIXEL_SIZE"].units,
+                        ).to(ureg.meter),
+                    }  # JEOL seems to report square pixel
                 else:
                     logger.warning("Assuming pixel width and height unit is unitless!")
                 nxy = {"i": np.shape(nparr)[1], "j": np.shape(nparr)[0]}
@@ -221,33 +341,36 @@ class JeolTiffParser:
                 del nparr
         return template
 
-    def add_various_dynamic(self, template: dict) -> dict:
-        """Add several event-based concepts with similar template path prefixes dynamic."""
-        identifier = [self.entry_id, self.id_mgn["event_id"], 1]
-        add_specific_metadata_pint(
-            JEOL_DYNAMIC_VARIOUS_NX,
-            self.flat_dict_meta,
-            identifier,
-            template,
-        )
-        return template
-
-    def add_various_static(self, template: dict) -> dict:
-        """Add several event-based concepts with similar template path prefixes static."""
-        identifier = [self.entry_id, self.id_mgn["event_id"], 1]
-        add_specific_metadata_pint(
-            JEOL_STATIC_VARIOUS_NX,
-            self.flat_dict_meta,
-            identifier,
-            template,
-        )
-        return template
-
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
         logger.debug(f"Mapping some of JEOL metadata on respective NeXus concepts...")
-        self.add_various_dynamic(template)
-        self.add_various_static(template)
-        # ... add more as required ...
+        identifier = [self.entry_id, self.id_mgn["event_id"], 1]
+
+        if "SM_DETECTOR" in self.flat_dict_meta:
+            detection_mode_map: dict[str, str] = {"SED": "secondary_electron"}
+            for jeol_term, nexus_term in detection_mode_map.items():
+                if self.flat_dict_meta["SM_DETECTOR"] == jeol_term:
+                    trg = var_path_to_specific_path(
+                        f"/ENTRY[entry*]/measurement/eventID[event*]", identifier
+                    )
+                    template[f"{trg}/type"] = nexus_term
+                    break
+
+        for mapping in [
+            JEOL_DYNAMIC_VARIOUS_NX,
+            JEOL_STATIC_VARIOUS_NX,
+            JEOL_DYNAMIC_SCAN_NX,
+            JEOL_EXTRA_VARIOUS_NX,
+        ]:
+            add_specific_metadata_pint(
+                mapping,
+                self.flat_dict_meta,
+                identifier,
+                template,
+            )
         return template
+        # self.add_various_dynamic(template)
+        # self.add_various_static(template)
+        # # ... add more as required ...
+        # return template
