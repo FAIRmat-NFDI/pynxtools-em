@@ -29,7 +29,7 @@ JEOL_KEYWORD_TO_PINT_UNITS = {
     "CM_BRIGHTNESS": "dimensionless",
     "CM_ACCEL_VOLT": ureg.kilovolt,
     "CM_MAG": "dimensionless",
-    "CM_STAGE_POSITION": ureg.micrometer,
+    "CM_STAGE_POSITION": ureg.micrometer,  # ??? x, y, z, tilts?
     "CM_FIELD_OF_VIEW": ureg.micrometer,
     "CM_PIXEL_SIZE": ureg.nanometer,
     "CM_SEGMENT_NUMBER": "dimensionless",
@@ -70,23 +70,39 @@ JEOL_KEYWORD_TO_PINT_UNITS = {
 
 
 JEOL_DYNAMIC_VARIOUS_NX: dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]",
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument",
     "prefix_src": "",
+    "map_to_bool": [("optics/dynamic_focus_correction", "MP_DYNAMIC_FOCUS")],
     "map_to_f8": [
-        ("instrument/optics/magnification", ureg.nx_dimensionless, "CM_MAG"),
         (
-            "instrument/optics/working_distance",
-            ureg.meter,
-            "SM_WD",
-            ureg.millimeter,
+            "stageID[stage]/position",
+            ureg.micrometer,
+            "CM_STAGE_POSITION",
+            ureg.micrometer,
         ),
+        ("optics/magnification", ureg.nx_dimensionless, "CM_MAG"),
+        ("optics/working_distance", ureg.meter, "SM_WD", ureg.millimeter),
         (
-            "instrument/ebeam_column/electron_source/voltage",
+            "ebeam_column/electron_source/voltage",
             ureg.volt,
             "CM_ACCEL_VOLTAGE",
             ureg.kilovolt,
         ),
+        (
+            "ebeam_column/electron_source/voltage",
+            ureg.volt,
+            "CM_ACCEL_VOLT",
+            ureg.kilovolt,
+        ),
+        ("optics/rotation", ureg.degree, "SM_SCAN_ROTATION", ureg.degree),
     ],
+}
+
+
+JEOL_DYNAMIC_SCAN_NX: dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/eventID[event*]/instrument/ebeam_column/scan_controller",
+    "prefix_src": "",
+    "map_to_f8": [("dwell_time", ureg.second, "SM_DWELL_TIME", ureg.second)],
 }
 
 
@@ -96,5 +112,17 @@ JEOL_STATIC_VARIOUS_NX: dict[str, Any] = {
     "use": [("vendor", "JEOL")],
     "map": [
         ("model", "CM_INSTRUMENT"),
+        ("model", "tif_tag_model"),
+        ("vendor", "tif_tag_vendor"),
+    ],
+}
+
+
+JEOL_EXTRA_VARIOUS_NX: dict[str, Any] = {
+    "prefix_trg": "/ENTRY[entry*]",
+    "prefix_src": "",
+    "map": [
+        ("start_time", "xmp_create_date"),
+        ("experiment_description", "tif_tag_description"),
     ],
 }

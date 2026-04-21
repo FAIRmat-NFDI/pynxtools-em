@@ -23,9 +23,14 @@ import flatdict as fd
 import numpy as np
 from PIL import Image, ImageSequence
 
-from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
+from pynxtools_em.concepts.mapping_functors_pint import (
+    add_specific_metadata_pint,
+    var_path_to_specific_path,
+)
 from pynxtools_em.configurations.image_tiff_jeol_cfg import (
+    JEOL_DYNAMIC_SCAN_NX,
     JEOL_DYNAMIC_VARIOUS_NX,
+    JEOL_EXTRA_VARIOUS_NX,
     JEOL_KEYWORD_TO_PINT_UNITS,
     JEOL_STATIC_VARIOUS_NX,
 )
@@ -89,21 +94,28 @@ class JeolTiffParser:
             return
         if self.txt_file_path == "":  # hunt for metadata inside the TIFF file
             root = extract_full_xmp(self.file_path)
+            if self.verbose:
+                for element in root.iter():
+                    logger.info(f"{element.tag}, {element.text}")
             create_date = root.find(
                 ".//xmp:CreateDate", {"xmp": "http://ns.adobe.com/xap/1.0/"}
             )
             if create_date is not None:
-                self.flat_dict_meta["XMP_CREATE_DATE"] = create_date.text.strip()
+                self.flat_dict_meta["xmp_create_date"] = create_date.text.strip()
 
             with Image.open(self.file_path, mode="r") as fp:  # custom TIFF tags
                 for key, value in fp.tag_v2.items():
                     if self.verbose:
-                        logger.debug(f"{key}, {value}")
+                        logger.info(f"{key}, {value}")
                     if key != 37500:
-                        # 270 comment e.g. username sample name
-                        # 271 manufacturer
-                        # 272 instrument model
-                        continue
+                        if key not in [270, 271, 272]:
+                            continue
+                        elif key == 270:
+                            self.flat_dict_meta["tif_tag_description"] = value.strip()
+                        elif key == 271:
+                            self.flat_dict_meta["tif_tag_vendor"] = value.strip()
+                        else:
+                            self.flat_dict_meta["tif_tag_model"] = value.strip()
 
                     # JEOL custom TIFF tag 37500 includes encoded metadata
                     # for other microscope that metadata is in sidecar text files
@@ -290,6 +302,19 @@ class JeolTiffParser:
                         "i": physical_length / resolution,
                         "j": physical_length / resolution,
                     }
+                elif "CM_PIXEL_SIZE" in self.flat_dict_meta and np.shape(
+                    self.flat_dict_meta["CM_PIXEL_SIZE"].magnitude
+                ) == (2,):
+                    sxy = {
+                        "i": ureg.Quantity(
+                            self.flat_dict_meta["CM_PIXEL_SIZE"].magnitude[1],
+                            self.flat_dict_meta["CM_PIXEL_SIZE"].units,
+                        ).to(ureg.meter),
+                        "j": ureg.Quantity(
+                            self.flat_dict_meta["CM_PIXEL_SIZE"].magnitude[0],
+                            self.flat_dict_meta["CM_PIXEL_SIZE"].units,
+                        ).to(ureg.meter),
+                    }  # JEOL seems to report square pixel
                 else:
                     logger.warning("Assuming pixel width and height unit is unitless!")
                 nxy = {"i": np.shape(nparr)[1], "j": np.shape(nparr)[0]}
@@ -316,33 +341,36 @@ class JeolTiffParser:
                 del nparr
         return template
 
-    def add_various_dynamic(self, template: dict) -> dict:
-        """Add several event-based concepts with similar template path prefixes dynamic."""
-        identifier = [self.entry_id, self.id_mgn["event_id"], 1]
-        add_specific_metadata_pint(
-            JEOL_DYNAMIC_VARIOUS_NX,
-            self.flat_dict_meta,
-            identifier,
-            template,
-        )
-        return template
-
-    def add_various_static(self, template: dict) -> dict:
-        """Add several event-based concepts with similar template path prefixes static."""
-        identifier = [self.entry_id, self.id_mgn["event_id"], 1]
-        add_specific_metadata_pint(
-            JEOL_STATIC_VARIOUS_NX,
-            self.flat_dict_meta,
-            identifier,
-            template,
-        )
-        return template
-
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
         # contextualization to understand how the image relates to the EM session
         logger.debug(f"Mapping some of JEOL metadata on respective NeXus concepts...")
-        self.add_various_dynamic(template)
-        self.add_various_static(template)
-        # ... add more as required ...
+        identifier = [self.entry_id, self.id_mgn["event_id"], 1]
+
+        if "SM_DETECTOR" in self.flat_dict_meta:
+            detection_mode_map: dict[str, str] = {"SED": "secondary_electron"}
+            for jeol_term, nexus_term in detection_mode_map.items():
+                if self.flat_dict_meta["SM_DETECTOR"] == jeol_term:
+                    trg = var_path_to_specific_path(
+                        f"/ENTRY[entry*]/measurement/eventID[event*]", identifier
+                    )
+                    template[f"{trg}/type"] = nexus_term
+                    break
+
+        for mapping in [
+            JEOL_DYNAMIC_VARIOUS_NX,
+            JEOL_STATIC_VARIOUS_NX,
+            JEOL_DYNAMIC_SCAN_NX,
+            JEOL_EXTRA_VARIOUS_NX,
+        ]:
+            add_specific_metadata_pint(
+                mapping,
+                self.flat_dict_meta,
+                identifier,
+                template,
+            )
         return template
+        # self.add_various_dynamic(template)
+        # self.add_various_static(template)
+        # # ... add more as required ...
+        # return template
