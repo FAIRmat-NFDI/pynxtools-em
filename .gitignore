@@ -204,3 +204,4 @@ tests/run_tests.sh
 .virtual_documents
 tests/data
 tests/prod
+!examples/oasisb/*.json
