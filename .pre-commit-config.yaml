@@ -40,6 +40,6 @@ repos:
           - README.md
           - CITATION.cff
           - docs/**/*
-          - src/pynxtools_em/**/*.{py|ipynb}
-          - tests/**/*.{py|ipynb}
-          - examples/**/*.{md,py,ipynb}
+          # - src/pynxtools_em/**/*.{py|ipynb}
+          # - tests/**/*.{py|ipynb}
+          # - examples/**/*.{md,py,ipynb}
