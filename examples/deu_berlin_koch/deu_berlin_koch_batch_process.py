@@ -26,7 +26,7 @@
 # e.g., nion, JEOL, Zeiss, stuff is parsed using pynxtools-em to generate
 # one NeXus/HDF5 file per project
 
-# python3 ger_berlin_koch_batch_process.py 'microscope_dir' '.' 'humans_and_companies.ods' 'nion_data_metadata.ods'
+# python3 deu_berlin_koch_batch_process.py 'microscope_dir' '.' 'humans_and_companies.ods' 'nion_data_metadata.ods'
 import gc
 import logging
 import os
@@ -130,7 +130,7 @@ config: dict[str, str | int] = {
 
 
 INCREMENTAL_REPORTING = 100 * (1024**3)  # in bytes, right now each 100 GiB
-DEFAULT_LOGGER_NAME = "ger_berlin_koch_group_process"
+DEFAULT_LOGGER_NAME = "deu_berlin_koch_group_process"
 logger = logging.getLogger(DEFAULT_LOGGER_NAME)
 ffmt = "%(levelname)s %(asctime)s %(message)s"
 tfmt = "%Y-%m-%dT%H:%M:%S.%z"  # .%f%z"
