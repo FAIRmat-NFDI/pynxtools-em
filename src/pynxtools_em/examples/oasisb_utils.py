@@ -27,6 +27,7 @@ def get_project_id(project_name: str, typ: str = "D") -> str:
     """Convert integer project_name ids like 1, 2, 3, ..., to three-digit format with prefix D for dataset or A for article."""
     if 1 <= len(project_name) <= 3:  # typ == "D" or typ == "A" and
         return f"{'0' * (3 - len(project_name))}{project_name}"  # {typ}
+    return ""
 
 
 # print(get_project_id("1"))
