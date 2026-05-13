@@ -205,3 +205,4 @@ tests/run_tests.sh
 tests/data
 tests/prod
 !examples/oasisb/*.json
+!examples/oasisb/*.ipynb
