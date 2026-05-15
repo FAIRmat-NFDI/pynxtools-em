@@ -307,3 +307,11 @@ xraylines
 xvector
 zaxis
 zenodo
+rarfile
+sevenzip
+creationtime
+readall
+getbuffer
+nbytes
+oasisb
+openalex
