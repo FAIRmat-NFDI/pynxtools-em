@@ -66,8 +66,11 @@ ipynb = [
 batch = [
     "odfpy",
     "openpyxl",
-    "requests",
-    "pycountry"
+    "bibtexparser",
+    "pycountry",
+    "rarfile",
+    "py7zr<=1.0.0",  # read and readall were deprecated with >=1.x
+    "requests"
 ]
 
 [project.urls]

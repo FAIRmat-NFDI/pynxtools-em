@@ -28,7 +28,7 @@ import py7zr
 import rarfile
 
 # import blake3
-from pynxtools_apm.utils.default_config import SEPARATOR
+from pynxtools_em.utils.default_config import SEPARATOR
 
 HASHING = True
 
@@ -181,6 +181,7 @@ def analyze_sevenzip_file(
             fpath_stripped = fpath.replace(right_stripped, "")
             with py7zr.SevenZipFile(fpath, "r") as seven_file_hdl:
                 mdata: dict[str, dict[str, str | int]] = {}
+
                 for obj in seven_file_hdl.list():
                     if obj.uncompressed > 0:  # no bookkeeping of directories in that 7z
                         key = obj.filename
@@ -192,6 +193,13 @@ def analyze_sevenzip_file(
                             # = datetime.datetime(*obj.creationtime).timestamp()
                             mdata[key]["size"] = obj.uncompressed
                 if hashing:
+                    # read and readall became deprecated in py7zr >=1.x
+                    # data = seven_file_hdl.read()
+                    # for key, ifo in mdata.items():
+                    #     bio = data[key]
+                    #     sh = hashlib.sha256(bio.getbuffer())
+                    #     mdata[key]["sha256"] = sh.hexdigest()
+
                     for key, bio in seven_file_hdl.readall().items():
                         if key in mdata:
                             sh = hashlib.sha256(bio.getbuffer())
@@ -201,6 +209,7 @@ def analyze_sevenzip_file(
                             issues.append(
                                 f"{fpath_stripped}{SEPARATOR}KeyError {key} not found"
                             )
+
                     for key in mdata:
                         results.append(
                             f"{fpath_stripped}:{key};{mdata[key]['size']};{mdata[key]['mtime']};{mdata[key]['sha256']}"
