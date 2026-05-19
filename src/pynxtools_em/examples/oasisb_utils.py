@@ -18,10 +18,20 @@
 
 import logging
 import os
+import shutil
+import sys
 
 import pandas as pd
 import yaml
 from pycountry import countries
+
+from pynxtools_em import get_pynxtools_em_version
+from pynxtools_em.examples.get_file_from_archive_formats import (
+    get_file_from_rar,
+    get_file_from_sevenzip,
+    get_file_from_tar,
+    get_file_from_zip,
+)
 
 
 def get_project_id(project_name: str, typ: str = "D") -> str:
@@ -76,7 +86,7 @@ def is_valid_alpha3(code: str) -> bool:
 EM_EBSD_MTEX_MIME_TYPES_SIDECAR: list[tuple[str, str]] = [
     # common file formats for EBSD we preprocess with MTex and then pynxtools-em
     # first value of each pair is always the master, the second that of the sidecar
-    (".cpr", ".crc"),  # Oxford Instruments
+    (".crc", ".cpr"),  # Oxford Instruments
 ]
 
 EM_EBSD_MTEX_MIME_TYPES_SOLITARY: list[str] = [
@@ -95,17 +105,13 @@ EM_EBSD_MTEX_MIME_TYPES_SOLITARY: list[str] = [
 CSV_HEADER_FOR_HASH_FILE = "file_path:archive_path;byte_size;unix_mtime;sha256sum"
 
 
-DEFAULT_LOGGER_NAME = "convert_legacy_data"
-logger = logging.getLogger(DEFAULT_LOGGER_NAME)
-line_formatting = "%(levelname)s %(asctime)s %(message)s"
-time_formatting = "%Y-%m-%dT%H:%M:%S.%z"  # .%f%z"
-formatter = logging.Formatter(line_formatting, time_formatting)
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-
-
 def prepare_em_ebsd_mtex(
-    config_file_path: str, project_id: str, trg_directory: str
+    config_file_path: str,
+    src_directory: str,
+    project_id: str,
+    trg_directory: str,
+    report: bool = True,
+    write: bool = True,
 ) -> dict[str, dict[str, int]]:
     """
     Load EBSD files from a configuration file, identify MTex-processable files,
@@ -115,10 +121,16 @@ def prepare_em_ebsd_mtex(
     ----------
     config_file_path : str
         Configuration file (ODS spreadsheet) that lists all files of project with alias project_id.
+    src_directory : str
+        Directory prefix where to find archive or files that should be processed.
     project_id : str
         Three-digit integer string 001, 002, ..., 999 alias of the project.
     trg_directory : str
         Directory where processable files will be decompressed.
+    report : bool
+        If True will write a csv file to trg_directory named {project_id}.decompressed.log
+    write : bool
+        If True will decompress files to disk.
 
     Returns
     -------
@@ -128,7 +140,24 @@ def prepare_em_ebsd_mtex(
         - any errors encountered
     """
 
-    # summary statistics
+    log_path = f"{trg_directory}{os.sep}{project_id}.decompressed.log"
+    logger = logging.getLogger(f"{project_id}")
+    logger.setLevel(logging.DEBUG)
+    fh = logging.FileHandler(log_path, mode="w")
+    line_formatting = "%(levelname)s %(asctime)s %(message)s"
+    time_formatting = "%Y-%m-%dT%H:%M:%S.%z"
+    formatter = logging.Formatter(line_formatting, time_formatting)
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+
+    if report:
+        logger.info(f"python_version: {sys.version.replace(' ', '_')}")
+        logger.info(f"working_directory: {os.getcwd()}")
+        logger.info(f"pynxtools_em version: {get_pynxtools_em_version()}")
+        # logger.info(f"target_directory: {trg_directory}")
+        # logger.info(f"config_file: {config_file_path}")
+        # logger.info(f"project_id: {project_id}")
+
     status: dict[str, dict[str, int]] = {}
     for sidecar in EM_EBSD_MTEX_MIME_TYPES_SIDECAR:
         if len(sidecar) == 2:
@@ -195,91 +224,70 @@ def prepare_em_ebsd_mtex(
                 elif name.count(":") == 1:
                     prefix = name.rsplit(":", 1)[1]
                 else:
-                    print(f">>>>>>>>>>>>{name}")
+                    prefix = name
+
                 for case in [
                     f"{prefix}{sidecar[1].lower()}",
                     f"{prefix}{sidecar[1].upper()}",
                 ]:
-                    if (
-                        case in file_to_hash
-                    ):  # register master and its sidecar, will not register twice cuz of above conditional filtering on sidecar[0]
-                        decompressed[name] = (
-                            f"{trg_directory}{os.sep}{project_id}.{hash}.{file_to_hash[case]}{sidecar[0]}"
-                        )
-                        decompressed[case] = (
-                            f"{trg_directory}{os.sep}{project_id}.{hash}.{file_to_hash[case]}{sidecar[1]}"
-                        )
+                    if case in file_to_hash:
+                        # register master and its sidecar, will not register twice
+                        # cuz of above conditional filtering on sidecar[0]
+                        decompressed[
+                            f"{src_directory}{os.sep}{project_id}{os.sep}{name}"
+                        ] = f"{trg_directory}{os.sep}{project_id}.{hash}.{file_to_hash[case]}{sidecar[0]}"
+                        decompressed[
+                            f"{src_directory}{os.sep}{project_id}{os.sep}{case}"
+                        ] = f"{trg_directory}{os.sep}{project_id}.{hash}.{file_to_hash[case]}{sidecar[1]}"
                         status["_".join([val[1:] for val in sidecar])]["n"] += 1
                         break
                 break
-    # for src, trg in decompressed.items():
-    #     print(f"{trg}")
+
+    archive_handlers = {
+        get_file_from_zip: (".zip", ".eln"),
+        get_file_from_tar: (".tar", ".tar.gz", ".tar.bz2", ".tar.xz"),
+        get_file_from_rar: (".rar"),
+        get_file_from_sevenzip: (".7z"),
+    }
+
+    if not write:
+        if report:
+            for src, trg in decompressed.items():
+                logger.info(f"{src} > {trg}")
+    else:
+        for src, trg in decompressed.items():
+            if src.count(":") == 1:
+                archive_file_path, file_path = src.split(":")
+                trg_directory, trg_file_name = trg.rsplit(os.sep, 1)
+
+                for handler, extensions in archive_handlers.items():
+                    if archive_file_path.lower().endswith(extensions):  # type: ignore
+                        success = handler(
+                            archive_file_path, file_path, trg_directory, trg_file_name
+                        )
+                        if report:
+                            if success:
+                                logger.info(f"{src} > {trg}")
+                            else:
+                                logger.error(f"{src} > {trg}")
+                        break  # stop checking other handlers once matched
+            else:
+                try:
+                    return_value: str = shutil.copy2(src, trg)
+                    if report:
+                        if return_value == trg:
+                            logger.info(f"{src} > {trg}")
+                        else:
+                            logger.error(f"{src} > {trg}")
+                except OSError:
+                    logger.error(f"{src} > {trg}")
 
     return status
 
 
 """
         trg_file_name = f"{row.project_name}.{row_idx}.{col_idx}.{file_to_hash[value]}.{value[value.rfind('.') + 1 :].lower()}"
-        if value.count(":") == 1:
-            tmp = value.split(":")
-            archiv_file_path = (
-                f"{src_directory}{os.sep}{row.project_name}{os.sep}{tmp[0]}"
-            )
-            file_path = tmp[1]
-            if archiv_file_path.lower().endswith((".zip", ".eln")):
-                if not get_file_from_zip(
-                    archiv_file_path,
-                    file_path,
-                    trg_directory,
-                    trg_file_name,
-                ):
-                    print(
-                        f"zip >>>> {archiv_file_path}, {file_path} >>>> {trg_file_name}"
-                    )
-            elif archiv_file_path.lower().endswith(
-                (".tar", ".tar.gz", ".tar.bz2", ".tar.xz")
-            ):
-                if not get_file_from_tar(
-                    archiv_file_path,
-                    file_path,
-                    trg_directory,
-                    trg_file_name,
-                ):
-                    print(
-                        f"tar >>>> {archiv_file_path}, {file_path} >>>> {trg_file_name}"
-                    )
-            elif archiv_file_path.lower().endswith(".rar"):
-                if not get_file_from_rar(
-                    archiv_file_path,
-                    file_path,
-                    trg_directory,
-                    trg_file_name,
-                ):
-                    print(
-                        f"rar >>>> {archiv_file_path}, {file_path} >>>> {trg_file_name}"
-                    )
-            elif archiv_file_path.lower().endswith(".7z"):
-                if not get_file_from_sevenz(
-                    archiv_file_path,
-                    file_path,
-                    trg_directory,
-                    trg_file_name,
-                ):
-                    print(
-                        f"sevenz >>>> {archiv_file_path}, {file_path} >>>> {trg_file_name}"
-                    )
-            del tmp, archiv_file_path, file_path
-        else:
-            try:
-                shutil.copy2(
-                    f"{src_directory}{os.sep}{data}{os.sep}{row.project_name}{value}",
-                    f"{trg_directory}{os.sep}{trg_file_name}",
-                )
-            except OSError:
-                print(
-                    f"file >>>> {src_directory}{os.sep}{row.project_name}{os.sep}{value} >>>> {trg_file_name}"
-                )
-        del trg_file_name
+
 del spread_sheet_for_project
 
 unpack_instructions = {}
