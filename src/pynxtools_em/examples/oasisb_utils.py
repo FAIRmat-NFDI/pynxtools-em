@@ -209,7 +209,9 @@ def prepare_em_ebsd_mtex(
     for hash, name in hash_to_file.items():
         typ = name.rsplit(".", 1)[1].lower()
         if f".{typ}" in EM_EBSD_MTEX_MIME_TYPES_SOLITARY:
-            decompressed[name] = f"{trg_directory}{os.sep}{project_id}.{hash}.{typ}"
+            decompressed[f"{src_directory}{os.sep}{project_id}{os.sep}{name}"] = (
+                f"{trg_directory}{os.sep}{project_id}.{hash}.{typ}"
+            )
             status[typ]["n"] += 1
             continue
         for sidecar in EM_EBSD_MTEX_MIME_TYPES_SIDECAR:
