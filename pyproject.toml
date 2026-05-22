@@ -22,7 +22,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pynxtools>=0.14.0",
+    "pynxtools==0.14.0",
     "hyperspy>=1.7.6",
     "rosettasciio",
     "kikuchipy",
@@ -38,7 +38,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "mypy",
-    "ruff>=0.15.0",
+    "ruff>=0.15",
     "pytest",
     "pytest-cov",
     "pytest-timeout",
