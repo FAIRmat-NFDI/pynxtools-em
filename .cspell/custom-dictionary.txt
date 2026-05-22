@@ -154,6 +154,7 @@ Zoisite
 aabb
 angstroem
 appdef
+atomtypes
 autostem
 backscatter
 bijective
@@ -163,6 +164,7 @@ continously
 cought
 couhatched
 countrate
+creationtime
 csys
 dataconverter
 datatypes
@@ -195,6 +197,7 @@ flytime
 frombuffer
 functors
 geoscience
+getbuffer
 getxmp
 granularization
 granularized
@@ -237,6 +240,7 @@ mrad
 msmse
 mtex
 nanoampere
+nbytes
 ndims
 nimages
 nionswift
@@ -249,9 +253,11 @@ nvariadic
 nxdata
 nxdl
 nxdls
+oasisb
 ompacite
 omphacite
 oned
+openalex
 orcid
 orix
 overconstrained
@@ -266,8 +272,10 @@ pymatgen
 pynxtools
 pyxem
 radioeditbutton
+rarfile
 rawtlt
 rchop
+readall
 rediscretized
 regrid
 regridding
@@ -278,6 +286,8 @@ rois
 rosettasciio
 rsciio
 rtol
+sevenz
+sevenzip
 sgid
 signedinteger
 sothree
@@ -307,11 +317,3 @@ xraylines
 xvector
 zaxis
 zenodo
-rarfile
-sevenzip
-creationtime
-readall
-getbuffer
-nbytes
-oasisb
-openalex
