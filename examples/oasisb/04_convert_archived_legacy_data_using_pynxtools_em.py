@@ -36,7 +36,6 @@ from pynxtools.dataconverter.helpers import (
     get_nxdl_root_and_path,
     get_pynxtools_version,
 )
-
 from pynxtools_apm import get_pynxtools_apm_version
 from pynxtools_apm.examples.oasisb_eln import generate_oasis_specific_yaml
 from pynxtools_apm.examples.oasisb_utils import generate_file_to_hash
