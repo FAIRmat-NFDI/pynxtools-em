@@ -83,35 +83,76 @@ def is_valid_alpha3(code: str) -> bool:
         return False
 
 
-EM_EBSD_MTEX_MIME_TYPES_SIDECAR: list[tuple[str, str]] = [
+EM_MTEX_MIME_TYPES_SIDECAR: list[tuple[str, str]] = [
     # common file formats for EBSD we preprocess with MTex and then pynxtools-em
     # first value of each pair is always the master, the second that of the sidecar
     (".crc", ".cpr"),  # Oxford Instruments
 ]
 
-EM_EBSD_MTEX_MIME_TYPES_SOLITARY: list[str] = [
+EM_MTEX_MIME_TYPES_SOLITARY: list[str] = [
     # common file formats for EBSD we preprocess with MTex and then pynxtools-em
     ".ang",  # TSL/EDAX OIM
     ".osc",  # Oxford Instruments
     ".ctf",  # Channel text file
 ]
 
+EM_HFIVE_MIME_TYPES_SIDECAR: list[tuple[str, str]] = []
 
-# EM_EBSD_KPY_MIME_TYPES = [
-#     # common file formats for EBSD we process straight with pynxtools-em using kikuchipy
-# ]
+EM_HFIVE_MIME_TYPES_SOLITARY: list[str] = [
+    ".h5oina",
+    ".h5",
+    ".oh5",
+    ".hdf",
+    ".hdf5",
+    ".edaxh5",
+]
+
+EM_IMAGE_MIME_TYPES_SIDECAR: list[tuple[str, str]] = [
+    # common file formats for images we process straight with pynxtools-em
+    (".tif", ".txt"),  # JEOL, Hitachi
+    (".tif", "-tif.hdr"),  # TESCAN
+    (".tiff", ".txt"),  #  JEOL, Hitachi
+]
+
+EM_IMAGE_MIME_TYPES_SOLITARY: list[str] = [
+    # common file formats for images we process straight with pynxtools-em
+    ".tif",  # JEOL, Hitachi, Zeiss, ThermoFisher
+    ".tiff",
+]
+
+EM_MIXED_MIME_TYPES_SIDECAR: list[tuple[str, str]] = [
+    # common file formats for mixed content we process straight with pynxtools-em
+]
+
+EM_MIXED_MIME_TYPES_SOLITARY: list[str] = [
+    # common file formats for spectra we process straight with pynxtools-em
+    ".ipj",  # Oxford Instruments INCA
+    ".msa",  # EMSA/MSA
+    ".bcf",
+    ".dm3",
+    ".dm4",
+    ".dm5",
+    ".emd",
+]
+
+EM_HDR_MIME_TYPES_SIDECAR: list[tuple[str, str]] = []
+
+EM_HDR_MIME_TYPES_SOLITARY: list[str] = [".hdr"]
 
 
 CSV_HEADER_FOR_HASH_FILE = "file_path:archive_path;byte_size;unix_mtime;sha256sum"
 
 
-def prepare_em_ebsd_mtex(
+def prepare_parsing(
     config_file_path: str,
     src_directory: str,
     project_id: str,
     trg_directory: str,
-    report: bool = True,
-    write: bool = True,
+    report: bool,
+    write: bool,
+    mime_type: str,
+    mime_type_solitary: list[str],
+    mime_type_sidecar: list[tuple[str, str]],
 ) -> dict[str, dict[str, int]]:
     """
     Load EBSD files from a configuration file, identify MTex-processable files,
@@ -140,17 +181,17 @@ def prepare_em_ebsd_mtex(
         - any errors encountered
     """
 
-    log_path = f"{trg_directory}{os.sep}{project_id}.decompressed.log"
-    logger = logging.getLogger(f"{project_id}")
-    logger.setLevel(logging.DEBUG)
-    fh = logging.FileHandler(log_path, mode="w")
-    line_formatting = "%(levelname)s %(asctime)s %(message)s"
-    time_formatting = "%Y-%m-%dT%H:%M:%S.%z"
-    formatter = logging.Formatter(line_formatting, time_formatting)
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
-
     if report:
+        log_path = f"{trg_directory}{os.sep}{project_id}.{mime_type}.decompressed.csv"
+        logger = logging.getLogger(f"{project_id}")
+        logger.setLevel(logging.DEBUG)
+        fh = logging.FileHandler(log_path, mode="w")
+        line_formatting = "%(levelname)s;%(asctime)s;%(message)s"
+        time_formatting = "%Y-%m-%dT%H:%M:%S.%z"
+        formatter = logging.Formatter(line_formatting, time_formatting)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+
         logger.info(f"python_version: {sys.version.replace(' ', '_')}")
         logger.info(f"working_directory: {os.getcwd()}")
         logger.info(f"pynxtools_em version: {get_pynxtools_em_version()}")
@@ -159,10 +200,10 @@ def prepare_em_ebsd_mtex(
         # logger.info(f"project_id: {project_id}")
 
     status: dict[str, dict[str, int]] = {}
-    for sidecar in EM_EBSD_MTEX_MIME_TYPES_SIDECAR:
+    for sidecar in mime_type_sidecar:
         if len(sidecar) == 2:
             status["_".join([typ[1:] for typ in sidecar])] = {"n": 0, "size": 0}
-    for typ in EM_EBSD_MTEX_MIME_TYPES_SOLITARY:
+    for typ in mime_type_solitary:
         status[typ[1:]] = {"n": 0, "size": 0}
 
     with open(config_file_path) as fp:
@@ -186,16 +227,17 @@ def prepare_em_ebsd_mtex(
             ignore in file_name for ignore in ["__MACOS", ".DS_Store"]
         ) or file_name.startswith("._"):
             continue
-        # select files of likely target mime_type (likely cuz here only inspect ending, which is no guarantee though)
-        if line.path.lower().endswith(tuple(EM_EBSD_MTEX_MIME_TYPES_SOLITARY)) or any(
-            line.path.lower().endswith(sidecar)
-            for sidecar in EM_EBSD_MTEX_MIME_TYPES_SIDECAR
+        # inspect only the file name ending is no guarantee that the file of a format
+        # that pynxtools can parse, details checks are the duty of the parser
+        if line.path.lower().endswith(tuple(mime_type_solitary)) or any(
+            line.path.lower().endswith(sidecar) for sidecar in mime_type_sidecar
         ):
             file_to_hash[line.path] = line.sha256  # type: ignore
-            # no duplicates possible inside any individual (sub)directory, irrespective if compressed or not, for each project
+            # no duplicates possible inside any individual (sub)directory,
+            # irrespective if compressed or not, for each project
 
-    # ignore duplicates for NOMAD as for the example we do not wish to store copies
-    # duplicates can be sitting in different subdirectories across a project
+    # ignore duplicates for NOMAD, as for the example, we do not wish to store copies
+    # of duplicated files across different subdirectories/projects
     hash_to_file: dict[str, str] = {}
     for (
         name,
@@ -208,13 +250,13 @@ def prepare_em_ebsd_mtex(
     decompressed: dict[str, str] = {}  # src file as key, trg file name as value
     for hash, name in hash_to_file.items():
         typ = name.rsplit(".", 1)[1].lower()
-        if f".{typ}" in EM_EBSD_MTEX_MIME_TYPES_SOLITARY:
+        if f".{typ}" in mime_type_solitary:
             decompressed[f"{src_directory}{os.sep}{project_id}{os.sep}{name}"] = (
                 f"{trg_directory}{os.sep}{project_id}.{hash}.{typ}"
             )
             status[typ]["n"] += 1
             continue
-        for sidecar in EM_EBSD_MTEX_MIME_TYPES_SIDECAR:
+        for sidecar in mime_type_sidecar:
             if (
                 f".{typ}" == sidecar[0]
             ):  # first value is typ of the master file, avoid registering twice
@@ -245,18 +287,14 @@ def prepare_em_ebsd_mtex(
                         break
                 break
 
-    archive_handlers = {
-        get_file_from_zip: (".zip", ".eln"),
-        get_file_from_tar: (".tar", ".tar.gz", ".tar.bz2", ".tar.xz"),
-        get_file_from_rar: (".rar"),
-        get_file_from_sevenzip: (".7z"),
-    }
+    if write:
+        archive_handlers = {
+            get_file_from_zip: (".zip", ".eln"),
+            get_file_from_tar: (".tar", ".tar.gz", ".tar.bz2", ".tar.xz"),
+            get_file_from_rar: (".rar"),
+            get_file_from_sevenzip: (".7z"),
+        }
 
-    if not write:
-        if report:
-            for src, trg in decompressed.items():
-                logger.info(f"{src} > {trg}")
-    else:
         for src, trg in decompressed.items():
             if src.count(":") == 1:
                 archive_file_path, file_path = src.split(":")
@@ -269,20 +307,24 @@ def prepare_em_ebsd_mtex(
                         )
                         if report:
                             if success:
-                                logger.info(f"{src} > {trg}")
+                                logger.info(f"{src};;{trg}")
                             else:
-                                logger.error(f"{src} > {trg}")
+                                logger.error(f"{src};;{trg}")
                         break  # stop checking other handlers once matched
             else:
                 try:
                     return_value: str = shutil.copy2(src, trg)
                     if report:
                         if return_value == trg:
-                            logger.info(f"{src} > {trg}")
+                            logger.info(f"{src};;{trg}")
                         else:
-                            logger.error(f"{src} > {trg}")
+                            logger.error(f"{src};;{trg}")
                 except OSError:
-                    logger.error(f"{src} > {trg}")
+                    logger.error(f"{src};;{trg}")
+    else:
+        if report:
+            for src, trg in decompressed.items():
+                logger.info(f"{src};;{trg}")
 
     return status
 
