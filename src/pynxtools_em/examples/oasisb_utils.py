@@ -258,7 +258,10 @@ def prepare_parsing(
             continue
         for sidecar in mime_type_sidecar:
             if (
-                f".{typ}" == sidecar[0]
+                f".{typ}"
+                == sidecar[
+                    0
+                ]  # TODO modify logic to pick up ".tif", "-tif.hdr" for TESCAN
             ):  # first value is typ of the master file, avoid registering twice
                 if name.count(os.sep) > 0:
                     tokenize: list[str] = name.rsplit(os.sep, 1)
