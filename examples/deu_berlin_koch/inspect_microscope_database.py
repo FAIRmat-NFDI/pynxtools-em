@@ -35,12 +35,16 @@ def inspect(root_path: str, output: str = f"in"):
 
 
 def main():
-    root = sys.argv[1] if len(sys.argv) > 1 or sys.argv[1] == "" else "."
-    name = (
-        sys.argv[2]
-        if len(sys.argv) > 2 or sys.argv[2] == ""
-        else "inspect_microscope_database"
-    )
+    if len(sys.argv) > 1:
+        root = sys.argv[1]
+    else:
+        root = "."
+
+    if len(sys.argv) > 2:
+        name = sys.argv[2]
+    else:
+        name = "inspect_microscope_database"
+
     inspect(root, name)
 
 
