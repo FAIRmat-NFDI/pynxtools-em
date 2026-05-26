@@ -57,6 +57,24 @@ layout_one: list[str] = [
     rf"^\$\$EM_PIXELSPERMETER_Y {FLOAT}{BREAK}$",
 ]
 
+layout_two: list[str] = [
+    rf"^\$CM_FORMAT {BREAK}$",
+    rf"^\$CM_VERSION 0.1{BREAK}$",
+    rf"^\$CM_COMMENT  {BREAK}$",
+    rf"^\$CM_DATE {DATE}{BREAK}$",
+    rf"^\$CM_TIME {TIME}{BREAK}$",
+    rf"^\$CM_OPERATOR {CHARS_NO_BREAK}{BREAK}$",
+    rf"^\$CM_INSTRUMENT JEM-2200FS{BREAK}$",
+    rf"^\$CM_NAME Specimen{BREAK}$",
+    rf"^\$CM_FRAME_SIZE {INT} {INT}{BREAK}$",
+    rf"^\$CM_DATA_BIT {INT}{BREAK}$",
+    rf"^\$CM_EFECT_BIT {INT}{BREAK}$",
+    rf"^\$CM_ACCEL_VOLT 200{BREAK}$",
+    rf"^\$CM_MAG {INT}{BREAK}$",
+    rf"^\$CM_SIGNAL TEM{BREAK}$",
+    rf"^\$\$EM_PIXELSPERMETER_X {FLOAT}{BREAK}$",
+    rf"^\$\$EM_PIXELSPERMETER_Y {FLOAT}{BREAK}$",
+]
 
 def does_file_conform_with_layout(path: str, layout: list[str]) -> bool:
     """Check if path is a text file and if so follows the specific line-by-line layout as defined in layout."""
@@ -88,17 +106,22 @@ def inspect_jeol_metadata(root_path: str, prefix: str, write: bool = True) -> No
                 if path.lower().endswith(".txt"):
                     print(path)
                     charset_normalizer_analysis = from_path(path).best()
-                    for name, layout in [("1", layout_one)]:
-                        status = does_file_conform_with_layout(path, layout_one)
-                        if not status:
-                            if charset_normalizer_analysis:
-                                print(
-                                    f"{name}, {path}, {charset_normalizer_analysis.encoding}, {charset_normalizer_analysis.percent_chaos}"
-                                )
-                            else:
-                                print(
-                                    f"{name}, {path}, charset_normalizer_analysis inconclusive"
-                                )
+                    if charset_normalizer_analysis:
+                        print(
+                            f"{path}, {charset_normalizer_analysis.encoding}, {charset_normalizer_analysis.percent_chaos}"
+                        )
+
+                    layout_analysis: list[str] = []
+                    for name, layout in [
+                        ("layout_1", layout_one),
+                        ("layout_2", layout_two)
+                    ]:
+                        status = does_file_conform_with_layout(path, layout)
+                        if status:
+                            layout_analysis.append(name)
+
+                    print(f"{path}, {layout_analysis}")
+
         # with open(f"{prefix}.directories.csv", "w") as fp:
         #     fp.write("\n".join(csv_directories))
 
