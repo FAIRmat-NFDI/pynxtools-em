@@ -94,14 +94,18 @@ def does_file_conform_with_layout(path: str, layout: list[str]) -> bool:
         for codec in STRING_DECODER_CODECS:
             try:
                 txt = raw.decode(codec)
+                print(f"{codec}")
             except UnicodeDecodeError:
                 continue
 
         if txt is None:
+            print(f"txt is None")
             return False
         if not isinstance(txt, list):
+            print(f"txt is not list")
             return False
         if not all(isinstance(val, str) for val in txt):
+            print(f"txt is not all str")
             return False
 
         """
