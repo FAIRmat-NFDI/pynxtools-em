@@ -22,23 +22,40 @@ import os
 import sys
 
 
-def inspect(root_path: str, prefix: str) -> None:
+def inspect(root_path: str, prefix: str, write: bool = False) -> None:
     """Recursively list all directories and files in root_path."""
-    csv_directories = []
-    csv_files = []
-    for root, dirs, files in os.walk(root_path):
-        for name in dirs:
-            csv_directories.append(os.path.join(root, name))
-        for name in files:
-            csv_files.append(os.path.join(root, name))
+    csv_directories: list[str] = []
+    csv_files: list[str] = []
+    if write:
+        for root, dirs, files in os.walk(root_path):
+            for name in dirs:
+                csv_directories.append(os.path.join(root, name))
+            for name in files:
+                csv_files.append(os.path.join(root, name))
 
-    with open(f"{prefix}.directories.csv", "w") as fp:
-        fp.write("\n".join(csv_directories))
-    with open(f"{prefix}.files.csv", "w") as fp:
-        fp.write("\n".join(csv_files))
+            with open(f"{prefix}.directories.csv", "w") as fp:
+                fp.write("\n".join(csv_directories))
+            with open(f"{prefix}.files.csv", "w") as fp:
+                fp.write("\n".join(csv_files))
+    else:
+        mime_types: dict[str, int] = {}  # file type ending as key, counts as value
+        for root, dirs, files in os.walk(root_path):
+            for name in files:
+                token = os.path.join(root, name).rsplit(".", 1)
+                if len(token) == 2:
+                    # no .lower() on endings to inspect typical variants (".TIF", ".tif")
+                    if token[1] in mime_types:
+                        mime_types[token[1]] += 1
+                    else:
+                        mime_types[token[1]] = 1
+
+        for mime_type, count in mime_types.items():
+            print(f"{mime_type}, {count}")
 
 
 def main():
+    # e.g. call via
+    # `python3 inspect_microscope_database.py /microscope_data microscope_data`
     if len(sys.argv) > 1:
         root_path = sys.argv[1]
     else:
