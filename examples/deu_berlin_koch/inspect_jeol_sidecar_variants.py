@@ -78,6 +78,7 @@ def inspect_jeol_metadata(root_path: str, prefix: str, write: bool = True) -> No
             for name in files:
                 path = os.path.join(root, name)
                 if path.lower().endswith(".txt"):
+                    print(path)
                     charset_normalizer_analysis = from_path(path).best()
                     for name, layout in [("1", layout_one)]:
                         status = does_file_conform_with_layout(path, layout_one)
