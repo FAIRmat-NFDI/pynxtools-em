@@ -29,6 +29,14 @@ from charset_normalizer import from_bytes, from_path
 
 from pynxtools_em.examples.get_sha256_of_directories import SEPARATOR
 
+STRING_DECODER_CODECS = [
+    "utf-8",
+    "utf-16",
+    "utf-16-be",
+    "utf-16-le",
+    "cp1252",
+]  # "latin-1"]
+
 BREAK = r"(?:\r\n?|\n)"
 FLOAT = r"(?:\d+(?:\.\d*)?|\.\d+)"
 INT = r"\d+"
@@ -83,38 +91,63 @@ def does_file_conform_with_layout(path: str, layout: list[str]) -> bool:
     # if magic.from_file(path, mime=True) == "text/plain":  # libmagic alternative but outdated compared to
     if puremagic.from_file(path) == ".txt":
         raw = open(path, "rb").read()
+        for codec in STRING_DECODER_CODECS:
+            try:
+                txt = raw.decode(codec)
+            except UnicodeDecodeError:
+                continue
+
+        if txt is None:
+            return False
+        if not isinstance(txt, list):
+            return False
+        if not all(isinstance(val, str) for val in txt):
+            return False
+
+        """
+        # utf-8
+        try:
+            txt = raw.decode("utf-8")
+            print("utf-8")
+        except UnicodeDecodeError:
+            pass
+
+        # typical windows encoding
+        with open(path, encoding="cp1252") as fp:
+            txt = fp.readlines() # type: ignore[assignment]
+            print(f"cp1252")
+
         # utf byte order mark
         for enc, bom in [
             ("utf-8-sig", b"\xef\xbb\xbf"),
             ("utf-16-le", b"\xff\xfe"),
             ("utf-16-be", b"\xfe\xff"),
         ]:
-            if raw.startswith(bom):
-                txt = raw.decode(enc)
-        # utf-8
-        try:
-            txt = raw.decode("utf-8")
-        except UnicodeDecodeError:
-            pass
+            try:
+                if raw.startswith(bom):
+                    txt = raw.decode(enc)
+                    print(f"{enc}")
+            except UnicodeDecodeError:
+                pass
 
         best = from_bytes(raw).best()
         if best:
             txt = str(best)
+            print(f"best")
         else:
-            # typical windows encoding
-            with open(path, encoding="cp1252") as fp:
-                txt = fp.readlines() # type: ignore[assignment]
+            return False
+        """
 
         n_lines_layout: int = len(layout)
         for idx, line in enumerate(txt):
             if idx < n_lines_layout:
                 if not re.fullmatch(layout[idx], line):
-                    print(f"not fullmatch {layout[idx]}")
+                    print(f"not fullmatch {layout[idx]}, {SEPARATOR}{line}{SEPARATOR}")
                     conforms = False
                     break
             else:
                 conforms = False
-                print(f"not {idx} < {n_lines_layout}")
+                print(f"not {idx} < {n_lines_layout}, {SEPARATOR}{line}{SEPARATOR}")
                 break
     return conforms
 
