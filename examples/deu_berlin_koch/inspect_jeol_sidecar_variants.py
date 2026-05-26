@@ -31,11 +31,12 @@ from pynxtools_em.examples.get_sha256_of_directories import SEPARATOR
 
 STRING_DECODER_CODECS = [
     "utf-8",
+    "cp1252",
     "utf-16",
     "utf-16-be",
     "utf-16-le",
-    "cp1252",
-]  # "latin-1"]
+    "latin-1",  # TODO not as robust ?
+]
 
 BREAK = r"(?:\r\n?|\n)"
 FLOAT = r"(?:\d+(?:\.\d*)?|\.\d+)"
@@ -90,24 +91,16 @@ def does_file_conform_with_layout(path: str, layout: list[str]) -> bool:
     conforms: bool = True
     # if magic.from_file(path, mime=True) == "text/plain":  # libmagic alternative but outdated compared to
     if puremagic.from_file(path) == ".txt":
-        raw = open(path, "rb").read()
+        txt: list[str] | None = None
         for codec in STRING_DECODER_CODECS:
             try:
-                txt = raw.decode(codec)
-                print(f"{codec}")
+                with open(path, encoding=codec) as fp:
+                    txt = fp.readlines()
                 break
             except UnicodeDecodeError:
                 continue
-
-        print(f"{type(txt)}")
         if txt is None:
             print(f"txt is None")
-            return False
-        if not isinstance(txt, list):
-            print(f"txt is not list")
-            return False
-        if not all(isinstance(val, str) for val in txt):
-            print(f"txt is not all str")
             return False
 
         """
@@ -145,7 +138,7 @@ def does_file_conform_with_layout(path: str, layout: list[str]) -> bool:
         """
 
         n_lines_layout: int = len(layout)
-        for idx, line in enumerate(txt.readlines()):
+        for idx, line in enumerate(txt):
             if idx < n_lines_layout:
                 if not re.fullmatch(layout[idx], line):
                     print(f"not fullmatch {layout[idx]}, {SEPARATOR}{line}{SEPARATOR}")
