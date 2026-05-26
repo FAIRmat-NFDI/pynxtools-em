@@ -109,7 +109,7 @@ select = [
     "W", # pycodestyle
     "PL", # pylint
     "UP", # pyupgrade
-    "F401", # remove unused import
+    # "F401", # remove unused import
     "I001", # sort imports
     "NPY201", # upgrade numpy v2
 ]
