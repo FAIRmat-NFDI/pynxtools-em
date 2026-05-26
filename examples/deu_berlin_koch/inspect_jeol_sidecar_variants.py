@@ -25,22 +25,21 @@ import re
 import sys
 
 import puremagic  # modern, pythonic replacement but not that covering
-from charset_normalizer import from_path
+from charset_normalizer import from_bytes, from_path
 
 from pynxtools_em.examples.get_sha256_of_directories import SEPARATOR
-
-# JEOL, Hannah/20210225_CsPbBrI40Big_TEMIsrael/1.txt
 
 BREAK = r"(?:\r\n?|\n)"
 FLOAT = r"(?:\d+(?:\.\d*)?|\.\d+)"
 INT = r"\d+"
 DATE = r"([1-9]|0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])/\d{4}"  # e.g. 5/25/2026
 TIME = r"(0[1-9]|1[0-9]|2[0-3]):(0[1-9]|1[0-9]|2[0-3]):(0[1-9]|1[0-9]|2[0-3]) (AM|PM)"
-CHARS_NO_BREAK = r"[^\r\n]+"
+CHARS_NO_BREAK = r"[^\r\n]*"  # + one or more, * zero or more, ? zero or one
 
+# JEOL, Hannah/20210225_CsPbBrI40Big_TEMIsrael/1.txt
 layout_one: list[str] = [
     rf"^\$CM_FORMAT {BREAK}$",
-    rf"^\$CM_VERSION {BREAK}$",
+    rf"^\$CM_VERSION {CHARS_NO_BREAK}{BREAK}$",
     rf"^\$CM_COMMENT  {BREAK}$",
     rf"^\$CM_DATE {DATE}{BREAK}$",
     rf"^\$CM_TIME {TIME}{BREAK}$",
@@ -57,41 +56,64 @@ layout_one: list[str] = [
     rf"^\$\$EM_PIXELSPERMETER_Y {FLOAT}{BREAK}$",
 ]
 
+# Robert/2021_03_19_ZnGaO/STEM/ZnGaO_stem01_ADF_CL10cm_spot07nm_25kx_ZA100_ovw.txt
 layout_two: list[str] = [
     rf"^\$CM_FORMAT {BREAK}$",
     rf"^\$CM_VERSION 0.1{BREAK}$",
-    rf"^\$CM_COMMENT  {BREAK}$",
+    rf"^\$CM_COMMENT {BREAK}$",
     rf"^\$CM_DATE {DATE}{BREAK}$",
     rf"^\$CM_TIME {TIME}{BREAK}$",
     rf"^\$CM_OPERATOR {CHARS_NO_BREAK}{BREAK}$",
     rf"^\$CM_INSTRUMENT JEM-2200FS{BREAK}$",
-    rf"^\$CM_NAME Specimen{BREAK}$",
-    rf"^\$CM_FRAME_SIZE {INT} {INT}{BREAK}$",
-    rf"^\$CM_DATA_BIT {INT}{BREAK}$",
-    rf"^\$CM_EFECT_BIT {INT}{BREAK}$",
-    rf"^\$CM_ACCEL_VOLT 200{BREAK}$",
+    rf"^\$CM_ACCEL_VOLT {FLOAT}{BREAK}$",
     rf"^\$CM_MAG {INT}{BREAK}$",
-    rf"^\$CM_SIGNAL TEM{BREAK}$",
-    rf"^\$\$EM_PIXELSPERMETER_X {FLOAT}{BREAK}$",
-    rf"^\$\$EM_PIXELSPERMETER_Y {FLOAT}{BREAK}$",
+    rf"^\$CM_SIGNAL DFI  {BREAK}$",
+    rf"^\$\$SM_FILM_NUMBER {INT}{BREAK}$",
+    rf"^\$\$SM_WD {FLOAT}{BREAK}$",
+    rf"^\$\$SM_MICRON_BAR {INT}{BREAK}$",
+    rf"^\$\$SM_MICRON_MARKER 1µm{BREAK}$",
+    rf"^\$\$SM_FONT_SIZE {INT} {INT}{BREAK}$",
+    rf"^\$\$SM_DISPLAY_MODE {CHARS_NO_BREAK}{BREAK}$",
 ]
+
 
 def does_file_conform_with_layout(path: str, layout: list[str]) -> bool:
     """Check if path is a text file and if so follows the specific line-by-line layout as defined in layout."""
     conforms: bool = True
     # if magic.from_file(path, mime=True) == "text/plain":  # libmagic alternative but outdated compared to
     if puremagic.from_file(path) == ".txt":
-        with open(path) as fp:
-            n_lines_layout: int = len(layout)
-            txt = fp.readlines()
-            for idx, line in enumerate(txt):
-                if idx < n_lines_layout:
-                    if not re.fullmatch(layout[idx], line):
-                        conforms = False
-                        break
-                else:
+        raw = open(path, "rb").read()
+        # utf byte order mark
+        for enc, bom in [
+            ("utf-8-sig", b"\xef\xbb\xbf"),
+            ("utf-16-le", b"\xff\xfe"),
+            ("utf-16-be", b"\xfe\xff"),
+        ]:
+            if raw.startswith(bom):
+                txt = raw.decode(enc)
+        # utf-8
+        try:
+            txt = raw.decode("utf-8")
+        except UnicodeDecodeError:
+            pass
+
+        best = from_bytes(raw).best()
+        if best:
+            txt = str(best)
+        else:
+            # typical windows encoding
+            with open(path, encoding="cp1252") as fp:
+                txt = fp.readlines() # type: ignore[assignment]
+
+        n_lines_layout: int = len(layout)
+        for idx, line in enumerate(txt):
+            if idx < n_lines_layout:
+                if not re.fullmatch(layout[idx], line):
                     conforms = False
                     break
+            else:
+                conforms = False
+                break
     return conforms
 
 
@@ -114,7 +136,7 @@ def inspect_jeol_metadata(root_path: str, prefix: str, write: bool = True) -> No
                     layout_analysis: list[str] = []
                     for name, layout in [
                         ("layout_1", layout_one),
-                        ("layout_2", layout_two)
+                        ("layout_2", layout_two),
                     ]:
                         status = does_file_conform_with_layout(path, layout)
                         if status:
