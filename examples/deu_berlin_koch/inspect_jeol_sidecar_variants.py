@@ -20,11 +20,12 @@
 
 # test code for working with data from jeol_data before putting it into pynxtools-em
 # import magic  # ancient but most robust print(magic.from_file(path, mime=True))
-import sys
 import os
 import re
+import sys
 
 import puremagic  # modern, pythonic replacement but not that covering
+from charset_normalizer import from_path
 
 from pynxtools_em.examples.get_sha256_of_directories import SEPARATOR
 
@@ -77,10 +78,18 @@ def inspect_jeol_metadata(root_path: str, prefix: str, write: bool = True) -> No
             for name in files:
                 path = os.path.join(root, name)
                 if path.lower().endswith(".txt"):
+                    charset_normalizer_analysis = from_path(path).best()
                     for name, layout in [("1", layout_one)]:
                         status = does_file_conform_with_layout(path, layout_one)
                         if not status:
-                            print(f"{name}, {path}")
+                            if charset_normalizer_analysis:
+                                print(
+                                    f"{name}, {path}, {charset_normalizer_analysis.encoding}, {charset_normalizer_analysis.percent_chaos}"
+                                )
+                            else:
+                                print(
+                                    f"{name}, {path}, charset_normalizer_analysis inconclusive"
+                                )
         # with open(f"{prefix}.directories.csv", "w") as fp:
         #     fp.write("\n".join(csv_directories))
 
