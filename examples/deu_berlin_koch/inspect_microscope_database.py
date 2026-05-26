@@ -27,8 +27,7 @@ def inspect(root_path: str, output: str = f"in"):
     csv = []
     for root, dirs, files in os.walk(root_path):
         for name in dirs + files:
-            csv.append(name)
-            # csv.append(os.path.join(root, name))
+            csv.append(os.path.join(root, name))
 
     with open(f"{output}.csv", "w") as fp:
         fp.write("\n".join(csv))
