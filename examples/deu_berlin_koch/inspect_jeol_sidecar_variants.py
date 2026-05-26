@@ -30,23 +30,31 @@ from charset_normalizer import from_path
 from pynxtools_em.examples.get_sha256_of_directories import SEPARATOR
 
 # JEOL, Hannah/20210225_CsPbBrI40Big_TEMIsrael/1.txt
+
+BREAK = r"(?:\r\n?|\n)"
+FLOAT = r"(?:\d+(?:\.\d*)?|\.\d+)"
+INT = r"\d+"
+DATE = r"([1-9]|0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])/\d{4}"  # e.g. 5/25/2026
+TIME = r"(0[1-9]|1[0-9]|2[0-3]):(0[1-9]|1[0-9]|2[0-3]):(0[1-9]|1[0-9]|2[0-3]) (AM|PM)"
+CHARS_NO_BREAK = r"[^\r\n]+"
+
 layout_one: list[str] = [
-    r"^\$CM_FORMAT (?:\r\n|\n)$",
-    r"^\$CM_VERSION (?:\r\n|\n)$",
-    r"^\$CM_COMMENT  (?:\r\n|\n)$",
-    r"^\$CM_DATE ([1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])/\d{4}(?:\r\n|\n)$",
-    r"^\$CM_TIME (0[1-9]|1[0-9]|2[0-3]):(0[1-9]|1[0-9]|2[0-3]):(0[1-9]|1[0-9]|2[0-3]) (AM|PM)(?:\r\n|\n)$",
-    r"^\$CM_OPERATOR [^\r\n]+(?:\r\n|\n)$",
-    r"^\$CM_INSTRUMENT JEM-2200FS(?:\r\n|\n)$",
-    r"^\$CM_NAME Specimen(?:\r\n|\n)$",
-    r"^\$CM_FRAME_SIZE \d+ \d+(?:\r\n|\n)$",
-    r"^\$CM_DATA_BIT \d+(?:\r\n|\n)$",
-    r"^\$CM_EFECT_BIT \d+(?:\r\n|\n)$",
-    r"^\$CM_ACCEL_VOLT 200(?:\r\n|\n)$",
-    r"^\$CM_MAG \d+(?:\r\n|\n)$",
-    r"^\$CM_SIGNAL TEM(?:\r\n|\n)$",
-    r"^\$\$EM_PIXELSPERMETER_X (?:\d+(?:\.\d*)?|\.\d+)(?:\r\n|\n)$",
-    r"^\$\$EM_PIXELSPERMETER_Y (?:\d+(?:\.\d*)?|\.\d+)(?:\r\n|\n)$",
+    rf"^\$CM_FORMAT {BREAK}$",
+    rf"^\$CM_VERSION {BREAK}$",
+    rf"^\$CM_COMMENT  {BREAK}$",
+    rf"^\$CM_DATE {DATE}{BREAK}$",
+    rf"^\$CM_TIME {TIME}{BREAK}$",
+    rf"^\$CM_OPERATOR {CHARS_NO_BREAK}{BREAK}$",
+    rf"^\$CM_INSTRUMENT JEM-2200FS{BREAK}$",
+    rf"^\$CM_NAME Specimen{BREAK}$",
+    rf"^\$CM_FRAME_SIZE {INT} {INT}{BREAK}$",
+    rf"^\$CM_DATA_BIT {INT}{BREAK}$",
+    rf"^\$CM_EFECT_BIT {INT}{BREAK}$",
+    rf"^\$CM_ACCEL_VOLT 200{BREAK}$",
+    rf"^\$CM_MAG {INT}{BREAK}$",
+    rf"^\$CM_SIGNAL TEM{BREAK}$",
+    rf"^\$\$EM_PIXELSPERMETER_X {FLOAT}{BREAK}$",
+    rf"^\$\$EM_PIXELSPERMETER_Y {FLOAT}{BREAK}$",
 ]
 
 
