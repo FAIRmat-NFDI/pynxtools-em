@@ -109,10 +109,12 @@ def does_file_conform_with_layout(path: str, layout: list[str]) -> bool:
         for idx, line in enumerate(txt):
             if idx < n_lines_layout:
                 if not re.fullmatch(layout[idx], line):
+                    print(f"not fullmatch {layout[idx]}")
                     conforms = False
                     break
             else:
                 conforms = False
+                print(f"not {idx} < {n_lines_layout}")
                 break
     return conforms
 
