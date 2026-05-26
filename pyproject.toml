@@ -70,7 +70,8 @@ batch = [
     "pycountry",
     "rarfile",
     "py7zr<1.0.0",  # read and readall were deprecated with >=1.x
-    "requests"
+    "requests",
+    "puremagic"
 ]
 
 [project.urls]
