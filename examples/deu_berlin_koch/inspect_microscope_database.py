@@ -23,10 +23,11 @@ import sys
 
 
 def inspect(root_path: str, prefix: str, write: bool = False) -> None:
-    """Recursively list all directories and files in root_path."""
-    csv_directories: list[str] = []
-    csv_files: list[str] = []
+    """Either recursively list all directories and files in root_path or summarize used file types."""
+
     if write:
+        csv_directories: list[str] = []
+        csv_files: list[str] = []
         for root, dirs, files in os.walk(root_path):
             for name in dirs:
                 csv_directories.append(os.path.join(root, name))
@@ -49,7 +50,9 @@ def inspect(root_path: str, prefix: str, write: bool = False) -> None:
                     else:
                         mime_types[token[1]] = 1
 
-        for mime_type, count in mime_types.items():
+        for mime_type, count in sorted(
+            mime_types.items(), key=lambda x: x[1], reverse=True
+        ):
             print(f"{mime_type}, {count}")
 
 
