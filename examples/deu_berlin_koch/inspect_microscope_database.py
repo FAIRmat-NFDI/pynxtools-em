@@ -22,29 +22,34 @@ import os
 import sys
 
 
-def inspect(root_path: str, output: str = f"in"):
+def inspect(root_path: str, prefix: str) -> None:
     """Recursively list all directories and files in root_path."""
-    csv = []
+    csv_directories = []
+    csv_files = []
     for root, dirs, files in os.walk(root_path):
-        for name in dirs + files:
-            csv.append(os.path.join(root, name))
+        for name in dirs:
+            csv_directories.append(os.path.join(root, name))
+        for name in files:
+            csv_files.append(os.path.join(root, name))
 
-    with open(f"{output}.csv", "w") as fp:
-        fp.write("\n".join(csv))
+    with open(f"{prefix}.directories.csv", "w") as fp:
+        fp.write("\n".join(csv_directories))
+    with open(f"{prefix}.files.csv", "w") as fp:
+        fp.write("\n".join(csv_files))
 
 
 def main():
     if len(sys.argv) > 1:
-        root = sys.argv[1]
+        root_path = sys.argv[1]
     else:
-        root = "."
+        root_path = "."
 
     if len(sys.argv) > 2:
-        name = sys.argv[2]
+        prefix = sys.argv[2]
     else:
-        name = "inspect_microscope_database"
+        prefix = "inspect_microscope_database"
 
-    inspect(root, name)
+    inspect(root_path, prefix)
 
 
 if __name__ == "__main__":
