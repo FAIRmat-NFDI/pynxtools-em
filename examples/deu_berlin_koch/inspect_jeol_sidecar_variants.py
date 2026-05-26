@@ -95,9 +95,11 @@ def does_file_conform_with_layout(path: str, layout: list[str]) -> bool:
             try:
                 txt = raw.decode(codec)
                 print(f"{codec}")
+                break
             except UnicodeDecodeError:
                 continue
 
+        print(f"{type(txt)}")
         if txt is None:
             print(f"txt is None")
             return False
@@ -143,7 +145,7 @@ def does_file_conform_with_layout(path: str, layout: list[str]) -> bool:
         """
 
         n_lines_layout: int = len(layout)
-        for idx, line in enumerate(txt):
+        for idx, line in enumerate(txt.readlines()):
             if idx < n_lines_layout:
                 if not re.fullmatch(layout[idx], line):
                     print(f"not fullmatch {layout[idx]}, {SEPARATOR}{line}{SEPARATOR}")
