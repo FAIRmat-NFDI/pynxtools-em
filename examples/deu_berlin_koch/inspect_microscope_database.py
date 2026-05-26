@@ -22,7 +22,7 @@ import os
 import sys
 
 
-def inspect(root_path: str, prefix: str, write: bool = False) -> None:
+def inspect_directory(root_path: str, prefix: str, write: bool = False) -> None:
     """Either recursively list all directories and files in root_path or summarize used file types."""
 
     if write:
@@ -69,7 +69,7 @@ def main():
     else:
         prefix = "inspect_microscope_database"
 
-    inspect(root_path, prefix)
+    inspect_directory(root_path, prefix)
 
 
 if __name__ == "__main__":
