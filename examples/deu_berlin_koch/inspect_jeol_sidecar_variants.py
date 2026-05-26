@@ -20,6 +20,7 @@
 
 # test code for working with data from jeol_data before putting it into pynxtools-em
 # import magic  # ancient but most robust print(magic.from_file(path, mime=True))
+import sys
 import os
 import re
 
@@ -86,7 +87,7 @@ def inspect_jeol_metadata(root_path: str, prefix: str, write: bool = True) -> No
 
 def main():
     # e.g. call via
-    # `python3 inspect_jeol_metadata_variants.py /microscope_data microscope_data`
+    # `python3 inspect_jeol_metadata_variants.py /microscope_data inspect_jeol_metadata`
     if len(sys.argv) > 1:
         root_path = sys.argv[1]
     else:
