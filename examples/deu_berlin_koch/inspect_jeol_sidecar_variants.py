@@ -42,7 +42,7 @@ BREAK = r"(?:\r\n?|\n)"
 FLOAT = r"(?:\d+(?:\.\d*)?|\.\d+)"
 INT = r"\d+"
 DATE = r"([1-9]|0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[0-1])/\d{4}"  # e.g. 5/25/2026
-TIME = r"((?:[0-9]|1[0-9]|2[0-4]):(?:[0-9]|[1-5][0-9]|00):(?:[0-9]|[1-5][0-9]|00) (AM|PM)"
+TIME = r"(?:0?[1-9]|1[0-2]):(?:[0-5][0-9]):(?:[0-5][0-9]) (AM|PM)"
 CHARS_NO_BREAK = r"[^\r\n]*"  # + one or more, * zero or more, ? zero or one
 LENGTH = r"\d+(?:\.\d+)?\s?(?:nm|µm)"
 
@@ -87,7 +87,9 @@ layout_two: list[str] = [
 ]
 
 
-def does_file_conform_with_layout(path: str, layout: list[str], verbose: bool = False) -> bool:
+def does_file_conform_with_layout(
+    path: str, layout: list[str], verbose: bool = False
+) -> bool:
     """Check if path is a text file and if so follows the specific line-by-line layout as defined in layout."""
     conforms: bool = True
     # if magic.from_file(path, mime=True) == "text/plain":  # libmagic alternative but outdated compared to
@@ -110,7 +112,9 @@ def does_file_conform_with_layout(path: str, layout: list[str], verbose: bool = 
             if idx < n_lines_layout:
                 if not re.fullmatch(layout[idx], line):
                     if verbose:
-                        print(f"not fullmatch {layout[idx]}, {SEPARATOR}{line}{SEPARATOR}")
+                        print(
+                            f"not fullmatch {layout[idx]}, {SEPARATOR}{line}{SEPARATOR}"
+                        )
                     return False
             else:
                 if verbose:
