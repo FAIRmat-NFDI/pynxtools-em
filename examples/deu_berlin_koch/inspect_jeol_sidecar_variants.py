@@ -42,8 +42,9 @@ BREAK = r"(?:\r\n?|\n)"
 FLOAT = r"(?:\d+(?:\.\d*)?|\.\d+)"
 INT = r"\d+"
 DATE = r"([1-9]|0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[0-1])/\d{4}"  # e.g. 5/25/2026
-TIME = r"([0-2][0-9]):([0-6][0-9]):([0-6][0-9]) (AM|PM)"
+TIME = r"((?:[0-9]|1[0-9]|2[0-4]):(?:[0-9]|[1-5][0-9]|00):(?:[0-9]|[1-5][0-9]|00) (AM|PM)"
 CHARS_NO_BREAK = r"[^\r\n]*"  # + one or more, * zero or more, ? zero or one
+LENGTH = r"\d+(?:\.\d+)?\s?(?:nm|µm)"
 
 # JEOL, Hannah/20210225_CsPbBrI40Big_TEMIsrael/1.txt
 layout_one: list[str] = [
@@ -58,7 +59,7 @@ layout_one: list[str] = [
     rf"^\$CM_FRAME_SIZE {INT} {INT}{BREAK}$",
     rf"^\$CM_DATA_BIT {INT}{BREAK}$",
     rf"^\$CM_EFECT_BIT {INT}{BREAK}$",
-    rf"^\$CM_ACCEL_VOLT 200{BREAK}$",
+    rf"^\$CM_ACCEL_VOLT 200{BREAK}$",  # 200 to replace by {INT}
     rf"^\$CM_MAG {INT}{BREAK}$",
     rf"^\$CM_SIGNAL TEM{BREAK}$",
     rf"^\$\$EM_PIXELSPERMETER_X {FLOAT}{BREAK}$",
@@ -76,11 +77,11 @@ layout_two: list[str] = [
     rf"^\$CM_INSTRUMENT JEM-2200FS{BREAK}$",
     rf"^\$CM_ACCEL_VOLT {FLOAT}{BREAK}$",
     rf"^\$CM_MAG {INT}{BREAK}$",
-    rf"^\$CM_SIGNAL DFI  {BREAK}$",
+    rf"^\$CM_SIGNAL {CHARS_NO_BREAK}{BREAK}$",  # "DFI  " in the prototype
     rf"^\$\$SM_FILM_NUMBER {INT}{BREAK}$",
     rf"^\$\$SM_WD {FLOAT}{BREAK}$",
     rf"^\$\$SM_MICRON_BAR {INT}{BREAK}$",
-    rf"^\$\$SM_MICRON_MARKER 1µm{BREAK}$",
+    rf"^\$\$SM_MICRON_MARKER {LENGTH}{BREAK}$",
     rf"^\$\$SM_FONT_SIZE {INT} {INT}{BREAK}$",
     rf"^\$\$SM_DISPLAY_MODE {CHARS_NO_BREAK}{BREAK}$",
 ]
