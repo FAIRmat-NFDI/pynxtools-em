@@ -86,7 +86,7 @@ layout_two: list[str] = [
 ]
 
 
-def does_file_conform_with_layout(path: str, layout: list[str]) -> bool:
+def does_file_conform_with_layout(path: str, layout: list[str], verbose: bool = False) -> bool:
     """Check if path is a text file and if so follows the specific line-by-line layout as defined in layout."""
     conforms: bool = True
     # if magic.from_file(path, mime=True) == "text/plain":  # libmagic alternative but outdated compared to
@@ -100,55 +100,23 @@ def does_file_conform_with_layout(path: str, layout: list[str]) -> bool:
             except UnicodeDecodeError:
                 continue
         if txt is None:
-            print(f"txt is None")
+            if verbose:
+                print(f"txt is None")
             return False
-
-        """
-        # utf-8
-        try:
-            txt = raw.decode("utf-8")
-            print("utf-8")
-        except UnicodeDecodeError:
-            pass
-
-        # typical windows encoding
-        with open(path, encoding="cp1252") as fp:
-            txt = fp.readlines() # type: ignore[assignment]
-            print(f"cp1252")
-
-        # utf byte order mark
-        for enc, bom in [
-            ("utf-8-sig", b"\xef\xbb\xbf"),
-            ("utf-16-le", b"\xff\xfe"),
-            ("utf-16-be", b"\xfe\xff"),
-        ]:
-            try:
-                if raw.startswith(bom):
-                    txt = raw.decode(enc)
-                    print(f"{enc}")
-            except UnicodeDecodeError:
-                pass
-
-        best = from_bytes(raw).best()
-        if best:
-            txt = str(best)
-            print(f"best")
-        else:
-            return False
-        """
 
         n_lines_layout: int = len(layout)
         for idx, line in enumerate(txt):
             if idx < n_lines_layout:
                 if not re.fullmatch(layout[idx], line):
-                    print(f"not fullmatch {layout[idx]}, {SEPARATOR}{line}{SEPARATOR}")
-                    conforms = False
-                    break
+                    if verbose:
+                        print(f"not fullmatch {layout[idx]}, {SEPARATOR}{line}{SEPARATOR}")
+                    return False
             else:
-                conforms = False
-                print(f"not {idx} < {n_lines_layout}, {SEPARATOR}{line}{SEPARATOR}")
-                break
-    return conforms
+                if verbose:
+                    print(f"not {idx} < {n_lines_layout}, {SEPARATOR}{line}{SEPARATOR}")
+                return False
+
+    return True
 
 
 def inspect_jeol_metadata(root_path: str, prefix: str, write: bool = True) -> None:
