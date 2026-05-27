@@ -23,6 +23,7 @@
 import os
 import re
 import sys
+from pathlib import Path
 
 import puremagic  # modern, pythonic replacement but not that covering
 from charset_normalizer import from_bytes, from_path
@@ -91,7 +92,9 @@ def does_file_conform_with_layout(
     path: str, layout: list[str], verbose: bool = False
 ) -> bool:
     """Check if path is a text file and if so follows the specific line-by-line layout as defined in layout."""
-    conforms: bool = True
+    if Path(path).stat().st_size == 0:
+        return False
+
     # if magic.from_file(path, mime=True) == "text/plain":  # libmagic alternative but outdated compared to
     if puremagic.from_file(path) == ".txt":
         txt: list[str] | None = None
@@ -135,6 +138,11 @@ def inspect_jeol_metadata(
             for name in files:
                 path = os.path.join(root, name)
                 if path.lower().endswith(".txt"):
+                    # check if there is a matching main file (i.e. tif or bmp image)
+                    if not os.path.isfile(
+                        f"{path.rsplit('.', 1)[0]}.bmp"
+                    ) and not os.path.isfile(f"{path.rsplit('.', 1)[0]}.tif"):
+                        continue
                     if verbose:
                         charset_normalizer_analysis = from_path(path).best()
                         if charset_normalizer_analysis:
