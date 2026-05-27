@@ -48,10 +48,10 @@ CHARS_NO_BREAK = r"[^\r\n]*"  # + one or more, * zero or more, ? zero or one
 LENGTH = r"\d+(?:\.\d+)?\s?(?:nm|µm)"
 
 # JEOL, Hannah/20210225_CsPbBrI40Big_TEMIsrael/1.txt
-layout_one: list[str] = [
+JEOL_LAYOUT_ONE: list[str] = [
     rf"^\$CM_FORMAT {BREAK}$",
     rf"^\$CM_VERSION {CHARS_NO_BREAK}{BREAK}$",
-    rf"^\$CM_COMMENT  {BREAK}$",
+    rf"^\$CM_COMMENT {CHARS_NO_BREAK}{BREAK}$",
     rf"^\$CM_DATE {DATE}{BREAK}$",
     rf"^\$CM_TIME {TIME}{BREAK}$",
     rf"^\$CM_OPERATOR {CHARS_NO_BREAK}{BREAK}$",
@@ -68,7 +68,7 @@ layout_one: list[str] = [
 ]
 
 # Robert/2021_03_19_ZnGaO/STEM/ZnGaO_stem01_ADF_CL10cm_spot07nm_25kx_ZA100_ovw.txt
-layout_two: list[str] = [
+JEOL_LAYOUT_TWO: list[str] = [
     rf"^\$CM_FORMAT {BREAK}$",
     rf"^\$CM_VERSION 0.1{BREAK}$",
     rf"^\$CM_COMMENT {BREAK}$",
@@ -152,8 +152,8 @@ def inspect_jeol_metadata(
 
                     layout_analysis: list[str] = []
                     for name, layout in [
-                        ("layout_1", layout_one),
-                        ("layout_2", layout_two),
+                        ("layout_1", JEOL_LAYOUT_ONE.copy()),
+                        ("layout_2", JEOL_LAYOUT_TWO.copy()),
                     ]:
                         status = does_file_conform_with_layout(path, layout)
                         if status:
