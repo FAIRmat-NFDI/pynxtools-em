@@ -84,6 +84,41 @@ def is_valid_alpha3(code: str) -> bool:
         return False
 
 
+APM_MIME_TYPES_SIDECAR: list[tuple[str, str]] = []
+
+APM_MIME_TYPES_SOLITARY: list[str] = [
+    # common file formats for acquisition, reconstruction, and ranging
+    ".apt",  # Cameca/AP Suite APT file format currently most used
+    ".pos",  # Cameca/IVAS position and mass-to-charge minimal result of reconstruction and mass-to-charge calibration
+    ".epos",  # Cameca/IVAS extended POS file, additional data classically designed to assist open-source software development of data analysis algorithms
+    ".ato",  # Rouen, GPM
+    # will almost always find ".csv",  # sometimes used serialization of reconstructions
+    # ranging definitions
+    ".env",  # Rouen, GPM
+    ".rrng",  # classical Miller-style ranging definitions
+    ".rng",  # classical Miller-style ranging definitions
+    # ".fig.txt",  # serialized ranging definitions from Erlangen Matlab Atom Probe Toolbox fig file
+    # mixed mode, open-source, exotic stuff, and legacy
+    # will almost always find # ".h5",  # Erlangen OXCART raw, ranging, and reconstruction, pyccapt
+    # will almost always find # ".hdf",
+    # will almost always find # ".hdf5",  # Cameca HDF5 from Materials Data Facility
+    ".analysis",  # XML-based Imago legacy IVAS state file
+    ".analysisset",  # eventually modern? XML-based Cameca/IVAS state file
+    # ".nxs",  # NeXus/HDF5
+    # will almost always find # ".raw",  # Stuttgart TAP-style instruments
+    # "_trimmed.txt",  # Stuttgart APyT complete mass spectrum analysis results file
+    # "_xyz.txt",  # Stuttgart APyT reconstruction analysis results file
+    # "db.yaml",  # Stuttgart APyT database file
+    ".ops",  # legacy 3DAP acquisition, Oxford Position-Sensitive Atom Probe (PoSAP)
+    # CAMECA_ROOT_MIME_TYPES
+    ".str",  # raw files, acquisition, unprocessed hits
+    ".rraw",  # raw files, acquisition, unprocessed hits
+    ".rhit",  # classical, IVAS results and parameter of hit finding and analysis steps up to reconstruction and ranging
+    ".hits",  # newer, AP Suite results and parameter of hit finding and analysis steps up to reconstruction and ranging
+    ".root",  # parameterization of reconstruction and ranging
+]
+
+
 EM_MTEX_MIME_TYPES_SIDECAR: list[tuple[str, str]] = [
     # common file formats for EBSD we preprocess with MTex and then pynxtools-em
     # first value of each pair is always the master, the second that of the sidecar
