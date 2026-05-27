@@ -124,7 +124,9 @@ def does_file_conform_with_layout(
     return True
 
 
-def inspect_jeol_metadata(root_path: str, prefix: str, write: bool = True) -> None:
+def inspect_jeol_metadata(
+    root_path: str, prefix: str, write: bool = True, verbose: bool = False
+) -> None:
     """Recurse all files in root_path, if metadata sidecar file, check if matches any known formatting."""
 
     if write:
@@ -133,12 +135,12 @@ def inspect_jeol_metadata(root_path: str, prefix: str, write: bool = True) -> No
             for name in files:
                 path = os.path.join(root, name)
                 if path.lower().endswith(".txt"):
-                    print(path)
-                    charset_normalizer_analysis = from_path(path).best()
-                    if charset_normalizer_analysis:
-                        print(
-                            f"{path}, {charset_normalizer_analysis.encoding}, {charset_normalizer_analysis.percent_chaos}"
-                        )
+                    if verbose:
+                        charset_normalizer_analysis = from_path(path).best()
+                        if charset_normalizer_analysis:
+                            print(
+                                f"{path}, {charset_normalizer_analysis.encoding}, {charset_normalizer_analysis.percent_chaos}"
+                            )
 
                     layout_analysis: list[str] = []
                     for name, layout in [
@@ -149,7 +151,8 @@ def inspect_jeol_metadata(root_path: str, prefix: str, write: bool = True) -> No
                         if status:
                             layout_analysis.append(name)
 
-                    print(f"{path}, {layout_analysis}")
+                    if len(layout_analysis) == 0 or verbose:
+                        print(f"{path}, {layout_analysis}")
 
         # with open(f"{prefix}.directories.csv", "w") as fp:
         #     fp.write("\n".join(csv_directories))
