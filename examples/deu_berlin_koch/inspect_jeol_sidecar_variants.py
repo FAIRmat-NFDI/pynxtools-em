@@ -159,7 +159,7 @@ def inspect_jeol_metadata(
                         if status:
                             layout_analysis.append(name)
 
-                    if len(layout_analysis) == 0 or verbose:
+                    if len(layout_analysis) == 0:  # or verbose:
                         print(f"{path}, {layout_analysis}")
 
         # with open(f"{prefix}.directories.csv", "w") as fp:
