@@ -41,8 +41,8 @@ STRING_DECODER_CODECS = [
 BREAK = r"(?:\r\n?|\n)"
 FLOAT = r"(?:\d+(?:\.\d*)?|\.\d+)"
 INT = r"\d+"
-DATE = r"([1-9]|0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])/\d{4}"  # e.g. 5/25/2026
-TIME = r"(0[1-9]|1[0-9]|2[0-3]):(0[1-9]|1[0-9]|2[0-3]):(0[1-9]|1[0-9]|2[0-3]) (AM|PM)"
+DATE = r"([1-9]|0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[0-1])/\d{4}"  # e.g. 5/25/2026
+TIME = r"([0-2][0-9]):([0-6][0-9]):([0-6][0-9]) (AM|PM)"
 CHARS_NO_BREAK = r"[^\r\n]*"  # + one or more, * zero or more, ? zero or one
 
 # JEOL, Hannah/20210225_CsPbBrI40Big_TEMIsrael/1.txt
