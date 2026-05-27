@@ -19,6 +19,7 @@
 """Copy content for a local inspection."""
 
 import os
+import shutil
 import sys
 
 
@@ -37,7 +38,9 @@ def partial_copy(root_path: str, target_path: str, write: bool = True) -> None:
                         print(
                             f"{path};{target_path}{os.sep}{path.rsplit(os.sep, 1)[1]}"
                         )
-                        # shutil.Copy2(path, f"{target_path}{os.sep}{path.rsplit(os.sep, 1)[1]}")
+                        shutil.copy2(
+                            path, f"{target_path}{os.sep}{path.rsplit(os.sep, 1)[1]}"
+                        )
                         continue
 
 
