@@ -40,12 +40,16 @@ STRING_DECODER_CODECS = [
 ]
 
 BREAK = r"(?:\r\n?|\n)"
+BUTT = rf"(?:{BREAK})?"
 FLOAT = r"(?:\d+(?:\.\d*)?|\.\d+)"
 INT = r"\d+"
-DATE = r"([1-9]|0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[0-1])/\d{4}"  # e.g. 5/25/2026
-TIME = r"(?:0?[1-9]|1[0-2]):(?:[0-5][0-9]):(?:[0-5][0-9]) (AM|PM)"
+# DATE = r"(0[1-9]|[12][0-9]|3[0-1])/(0[1-9]|[12][0-9]|3[0-1])/\d{4}"  # e.g. 5/25/2026
+# DATE = r"(?:(?:0?[1-9]|1[0-2])/(?:0?[1-9]|[12][0-9]|3[01])|(?:0?[1-9]|[12][0-9]|3[01])/(?:0?[1-9]|1[0-2]))/\d{4}"
+DATE = r"(?:\d{1,2}/\d{1,2}/\d{4}|\d{4}/\d{1,2}/\d{1,2})"
+TIME = r"(?:(?:0?[1-9]|1[0-9]|2[0-3]):(?:[0-5][0-9]):(?:[0-5][0-9])(?: AM| PM)?|(?:(?:AM|PM) )?(?:0?[1-9]|1[0-9]|2[0-3]):(?:[0-5][0-9]))"
 CHARS_NO_BREAK = r"[^\r\n]*"  # + one or more, * zero or more, ? zero or one
-LENGTH = r"\d+(?:\.\d+)?\s?(?:nm|µm)"
+LENGTH = r"\d+(?:\.\d+)?\s?(?:nm|µm|mm|cm)"
+SIGNAL = r"(TEM|DIFF|STEM DF|STEM BF|Spectrum|NON)"
 
 # JEOL, Hannah/20210225_CsPbBrI40Big_TEMIsrael/1.txt
 JEOL_LAYOUT_ONE: list[str] = [
@@ -56,15 +60,15 @@ JEOL_LAYOUT_ONE: list[str] = [
     rf"^\$CM_TIME {TIME}{BREAK}$",
     rf"^\$CM_OPERATOR {CHARS_NO_BREAK}{BREAK}$",
     rf"^\$CM_INSTRUMENT JEM-2200FS{BREAK}$",
-    rf"^\$CM_NAME Specimen{BREAK}$",
+    rf"^\$CM_NAME {CHARS_NO_BREAK}{BREAK}$",  # often CHARS_NO_BREAK often Specimen
     rf"^\$CM_FRAME_SIZE {INT} {INT}{BREAK}$",
     rf"^\$CM_DATA_BIT {INT}{BREAK}$",
     rf"^\$CM_EFECT_BIT {INT}{BREAK}$",
-    rf"^\$CM_ACCEL_VOLT 200{BREAK}$",  # 200 to replace by {INT}
+    rf"^\$CM_ACCEL_VOLT {INT}{BREAK}$",  # for Koch group JEOL-2200FS observed 200 and 0
     rf"^\$CM_MAG {INT}{BREAK}$",
-    rf"^\$CM_SIGNAL TEM{BREAK}$",
+    rf"^\$CM_SIGNAL {SIGNAL}{BREAK}$",
     rf"^\$\$EM_PIXELSPERMETER_X {FLOAT}{BREAK}$",
-    rf"^\$\$EM_PIXELSPERMETER_Y {FLOAT}{BREAK}$",
+    rf"^\$\$EM_PIXELSPERMETER_Y {FLOAT}{BUTT}$",
 ]
 
 # Robert/2021_03_19_ZnGaO/STEM/ZnGaO_stem01_ADF_CL10cm_spot07nm_25kx_ZA100_ovw.txt
@@ -84,7 +88,7 @@ JEOL_LAYOUT_TWO: list[str] = [
     rf"^\$\$SM_MICRON_BAR {INT}{BREAK}$",
     rf"^\$\$SM_MICRON_MARKER {LENGTH}{BREAK}$",
     rf"^\$\$SM_FONT_SIZE {INT} {INT}{BREAK}$",
-    rf"^\$\$SM_DISPLAY_MODE {CHARS_NO_BREAK}{BREAK}$",
+    rf"^\$\$SM_DISPLAY_MODE {CHARS_NO_BREAK}{BUTT}$",
 ]
 
 
@@ -110,6 +114,13 @@ def does_file_conform_with_layout(
                 print(f"txt is None")
             return False
 
+        if len(txt) == 0:
+            return False
+
+        print(f">>>>>>>>>>>{txt[0]}")
+        if not txt[0].startswith("$CM_FORMAT"):  # JEOL text file signature
+            return False
+
         n_lines_layout: int = len(layout)
         for idx, line in enumerate(txt):
             if idx < n_lines_layout:
@@ -133,7 +144,7 @@ def inspect_jeol_metadata(
     """Recurse all files in root_path, if metadata sidecar file, check if matches any known formatting."""
 
     if write:
-        # summary: dict[str, list[str]] = {"layout_one": []}
+        layouts: dict[int, list[str]] = {1: JEOL_LAYOUT_ONE, 2: JEOL_LAYOUT_TWO}
         for root, dirs, files in os.walk(root_path):
             for name in files:
                 path = os.path.join(root, name)
@@ -150,14 +161,11 @@ def inspect_jeol_metadata(
                                 f"{path}, {charset_normalizer_analysis.encoding}, {charset_normalizer_analysis.percent_chaos}"
                             )
 
-                    layout_analysis: list[str] = []
-                    for name, layout in [
-                        ("layout_1", JEOL_LAYOUT_ONE.copy()),
-                        ("layout_2", JEOL_LAYOUT_TWO.copy()),
-                    ]:
+                    layout_analysis: list[int] = []
+                    for key, layout in layouts.items():
                         status = does_file_conform_with_layout(path, layout)
                         if status:
-                            layout_analysis.append(name)
+                            layout_analysis.append(key)
 
                     if len(layout_analysis) == 0:  # or verbose:
                         print(f"{path}, {layout_analysis}")
