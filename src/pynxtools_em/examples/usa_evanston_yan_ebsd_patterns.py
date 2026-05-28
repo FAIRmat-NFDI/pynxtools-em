@@ -43,27 +43,64 @@
 # shared and thus not possible to add to what NXem as a data model is capable of holding
 # this parser is meant how combine the key commands with which such ad hoc studies
 # can be organized using NeXus to contextualize using research data management software
+# https://doi.org/10.1093/mam/ozae044.178
 
 import mmap
+import os
+import re
 from typing import Any
 from zipfile import ZipFile
 
 import numpy as np
 import yaml
 from PIL import Image
+from pynxtools.dataconverter.chunk import prioritized_axes_heuristic
 
-from pynxtools_em.examples.diffraction_pattern_set import (
-    EXAMPLE_FILE_PREFIX,
-    MATERIALS_PROJECT_METADATA,
-    PIL_DTYPE_TO_NPY_DTYPE,
-    SUPPORTED_FORMATS,
-    SUPPORTED_MODES,
-    get_materialsproject_id_and_space_group,
-)
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.default_config import (
+    DEFAULT_COMPRESSION_LEVEL,
+    DEFAULT_VERBOSITY,
+    SEPARATOR,
+)
 from pynxtools_em.utils.hfive_web import HFIVE_WEB_MAXIMUM_ROI
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
+
+THIS_MODULE_PATH = os.path.abspath(__file__).replace(
+    "/usa_evanston_yan_ebsd_patterns.py", ""
+)
+EXAMPLE_FILE_PREFIX = "original_data/original_data_0/train/"
+MATERIALS_PROJECT_METADATA = f"{THIS_MODULE_PATH}/usa_evanston_yan_ebsd_patterns.yaml"
+SUPPORTED_FORMATS = ["bmp", "gif", "jpg", "png", "tif", "tiff"]
+SUPPORTED_MODES = ["L", "I"]
+
+
+def get_materialsproject_id_and_space_group(
+    fpath: str, verbose: bool = False
+) -> tuple[str, int] | tuple[None, None]:
+    if 1 <= int(fpath[fpath.rfind("/") - 3 : fpath.rfind("/")]) <= 230:
+        fname = fpath[fpath.rfind("/") + 1 :]
+        materialsproject_id = re.compile(r"^mp-(?:\d+)_").search(fname)
+        mp = materialsproject_id.group()[0:-1]
+        space_group_id = re.compile(r"^(?:\d{1}|\d{2}|\d{3})_").search(
+            fname.replace(materialsproject_id.group(), "")
+        )
+        spc = space_group_id.group()[0:-1]
+        tail = fname.replace(
+            f"{materialsproject_id.group()}{space_group_id.group()}", ""
+        )
+        if verbose:
+            logger.debug(
+                f"{fpath}\n{fname}\n{mp}{SEPARATOR}{type(mp)}\n{spc}{SEPARATOR}{type(spc)}\n{tail}{SEPARATOR}{type(tail)}"
+            )
+        return mp, int(spc)
+    return None, None
+
+
+# https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-modes
+PIL_DTYPE_TO_NPY_DTYPE = {
+    "L": np.uint8,
+    "I": np.int32,
+}
 
 
 class DiffractionPatternSetParser:
@@ -204,6 +241,9 @@ class DiffractionPatternSetParser:
                             template, self.mp_meta[sgid][mpid], stack_2d
                         )
                         del stack_2d
+
+                        # if self.entry_id > 2:  # stop early for debugging purposes
+                        #     break
         return template
 
     def process_stack_to_template(
@@ -211,69 +251,63 @@ class DiffractionPatternSetParser:
     ) -> dict:
         """Add respective heavy data."""
         trg = f"/ENTRY[entry{self.entry_id}]/simulation"
-        template[f"{trg}/programID[program1]/program"] = "EMsoft"
-        template[f"{trg}/programID[program1]/program/@version"] = (
+        template[f"{trg}/PROGRAM[program1]/program"] = "EMsoft"
+        template[f"{trg}/PROGRAM[program1]/program/@version"] = (
             "not reported in the paper"
         )
-        trg = f"/ENTRY[entry{self.entry_id}]/simulation/config"
+        trg = f"/ENTRY[entry{self.entry_id}]/simulation/PROCESS[config]"
         for concept in [
             "emmet_version",
             "pymatgen_version",
             "database_version",
             # "build_date",
-            "license",
+            # "license",
         ]:
             if concept in meta:
                 template[f"{trg}/{concept}"] = meta[concept]
 
-        if all(
-            val in meta
-            for val in [
-                "identifier/identifier",
-                "identifier/service",
-                "a_b_c",
-                "angles",
-                "space_group",
-            ]
-        ):
+        if "identifier/identifier" in meta and "identifier/service" in meta:
             template[f"{trg}/identifier"] = meta["identifier/identifier"]
             template[f"{trg}/identifier/@type"] = meta["identifier/service"]
-            template[f"{trg}/a_b_c"] = np.asarray(meta["a_b_c"], np.float32)
-            template[f"{trg}/a_b_c/@units"] = f"{ureg.angstrom}"
-            template[f"{trg}/alpha_beta_gamma"] = np.asarray(meta["angles"], np.float32)
-            template[f"{trg}/alpha_beta_gamma/@units"] = f"{ureg.degree}"
+
+        if all(
+            concept in meta
+            for concept in ["phase_name", "space_group", "a_b_c", "angles"]
+        ):
+            trg = f"/ENTRY[entry{self.entry_id}]/simulation/PHASE[phase1]"
+            template[f"{trg}/phase_name"] = meta["phase_name"]
+
+            trg = f"/ENTRY[entry{self.entry_id}]/simulation/PHASE[phase1]/UNIT_CELL[unit_cell]"
             template[f"{trg}/space_group"] = f"{meta['space_group']}"
+            for idx, suffix in enumerate("a_b_c".split("_")):
+                template[f"{trg}/{suffix}"] = np.float32(meta["a_b_c"][idx])
+                template[f"{trg}/{suffix}/@units"] = f"{ureg.angstrom}"
+            for idx, suffix in enumerate("alpha_beta_gamma".split("_")):
+                template[f"{trg}/{suffix}"] = np.float32(meta["angles"][idx])
+                template[f"{trg}/{suffix}/@units"] = f"{ureg.degree}"
 
-        # TODO::requery MaterialsProject to get missing information chemical_formula
-        if "atom_types" in meta:
+        if "elements" in meta:
             template[f"/ENTRY[entry{self.entry_id}]/sampleID[sample]/atom_types"] = (
-                meta["atom_types"]
+                meta["elements"]
             )
-        if "chemical_formula" in meta:
-            template[
-                f"/ENTRY[entry{self.entry_id}]/sampleID[sample]/chemical_formula"
-            ] = meta["chemical_formula"]
-            # TODO::needs to be Hill
 
-        trg = (
-            f"/ENTRY[entry{self.entry_id}]/simulation/results/imageID[image1]/stack_2d"
-        )
+        trg = f"/ENTRY[entry{self.entry_id}]/simulation/IMAGE[image1]/stack_2d"
         if "identifier/identifier" in meta and "phase_name" in meta:
             template[f"{trg}/title"] = (
                 f"{meta['identifier/identifier']}, {meta['phase_name']}"
             )
         else:
             template[f"{trg}/title"] = f"MaterialsProject ID was not API-retrievable"
-        # trg = f"/ENTRY[entry{self.entry_id}]/simulation/config/phaseID[phase1]"
-        # template[f"{trg}/@NX_class"] = "NXphase"  # TODO::should be made part of NXem
-        # trg = f"/ENTRY[entry{self.entry_id}]/roiID[roi1]/ebsd/indexing/phaseID[phase1]"
-        # template[f"{trg}/@NX_class"] = "NXdata"  # TODO::should be made part of NXem
         template[f"{trg}/@signal"] = "real"
         template[f"{trg}/@AXISNAME_indices[axis_i_indices]"] = np.uint32(2)
         template[f"{trg}/@AXISNAME_indices[axis_j_indices]"] = np.uint32(1)
         template[f"{trg}/@AXISNAME_indices[indices_image_indices]"] = np.uint32(0)
         template[f"{trg}/@axes"] = ["indices_image", "axis_j", "axis_i"]
-        template[f"{trg}/real"] = {"compress": stack_2d, "strength": 1}
+        template[f"{trg}/real"] = {
+            "compress": stack_2d,
+            "chunks": prioritized_axes_heuristic(stack_2d, (0, 1, 2)),
+            "strength": DEFAULT_COMPRESSION_LEVEL,
+        }
         template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
         n_i_y_x = {
             "indices_image": np.shape(stack_2d)[0],
@@ -282,15 +316,21 @@ class DiffractionPatternSetParser:
         }
         # TODO::apply proper scaling because these are dimensions in diffraction space !
         for axis, n in n_i_y_x.items():
-            template[f"{trg}/AXISNAME[{axis}]"] = {
-                "compress": np.asarray(
-                    np.linspace(0, n - 1, num=n, endpoint=True), np.uint32
-                ),
-                "strength": 1,
-            }
-            template[f"{trg}/AXISNAME[{axis}]/@long_name"] = (
-                f"Coordinate along {axis.replace('axis_', '')}-axis (pixel)"
+            numpy_array = np.asarray(
+                np.linspace(0, n - 1, num=n, endpoint=True), np.uint32
             )
-            # TODO::template[f"{trg}/AXISNAME[axis_{dim}]/@units"]
+            template[f"{trg}/AXISNAME[{axis}]"] = {
+                "compress": numpy_array,
+                "chunks": prioritized_axes_heuristic(numpy_array, (0,)),
+                "strength": DEFAULT_COMPRESSION_LEVEL,
+            }
+            if axis != "indices_image":
+                template[f"{trg}/AXISNAME[{axis}]/@long_name"] = (
+                    f"Coordinate along {axis.replace('axis_', '')}-axis (pixel)"
+                )
+            else:
+                template[f"{trg}/AXISNAME[{axis}]/@long_name"] = (
+                    f"Each image a random orientation"
+                )
         self.entry_id += 1
         return template
