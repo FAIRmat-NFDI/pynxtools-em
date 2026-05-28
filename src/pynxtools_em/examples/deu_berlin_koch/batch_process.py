@@ -91,12 +91,12 @@ def generate_eln_data_yaml(
     )
 
     eln_data["user"] = []
-    for aliases, mdict in lookup.items():
+    for aliases, metadata_dict in lookup.items():
         if user_name_alias in [val.strip() for val in aliases.split(";")]:
             user_dict = {}
-            user_dict["name"] = mdict["first_surname"]
-            if mdict["id"] != "none_found":
-                user_dict["orcid"] = f"{mdict['id'][len('https://orcid.org/') :]}"
+            user_dict["name"] = metadata_dict["first_surname"]
+            if metadata_dict["id"] != "none_found":
+                user_dict["orcid"] = f"{metadata_dict['id'][len('https://orcid.org/') :]}"
             eln_data["user"].append(user_dict)
             break
 
@@ -132,9 +132,7 @@ config: dict[str, str | int] = {
 INCREMENTAL_REPORTING = 100 * (1024**3)  # in bytes, right now each 100 GiB
 DEFAULT_LOGGER_NAME = "deu_berlin_koch_group_process"
 logger = logging.getLogger(DEFAULT_LOGGER_NAME)
-ffmt = "%(levelname)s %(asctime)s %(message)s"
-tfmt = "%Y-%m-%dT%H:%M:%S.%z"  # .%f%z"
-formatter = logging.Formatter(ffmt, tfmt)
+formatter = logging.Formatter("%(levelname)s %(asctime)s %(message)s", "%Y-%m-%dT%H:%M:%S.%z")  # .%f%z")
 
 
 def switch_root_logfile(filename, log_level=logging.DEBUG):

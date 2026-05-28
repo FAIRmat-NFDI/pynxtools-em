@@ -15,6 +15,7 @@ Bytownite
 COLORMODEL
 CSMB
 CSYS
+Cameca
 Ceta
 Chlorapatite
 Chloritoid
@@ -39,13 +40,16 @@ EBSD
 ECOLUMN
 EDAX
 EDAXH
+EFECT
 EFTEM
 ELEMENTOVRLAYIMGCOLLECTIONPARAMS
+EMSA
 ESBD
 ESEM
 ESOURCE
 Elstar
 Erdmann
+Erlangen
 Eucentric
 FOVIMAGE
 FOVIMAGECOLLECTIONPARAMS
@@ -66,11 +70,14 @@ Hortonolite
 Hydroxylapatite
 ICME
 IUPAC
+IVAS
+IVAS
 Imager
 JEOL
 Kernke
 Kikuchi
 Kocks
+Kuehbach
 Kühbach
 LAUEGROUP
 LINEIMAGECOLLECTIONPARAMS
@@ -99,6 +106,7 @@ OINA
 ORIX
 Omphacite
 Orthopyroxene
+PIXELSPERMETER
 PMTBF
 PMTDF
 PYNX
@@ -152,6 +160,7 @@ YSTEP
 Zirc
 Zoisite
 aabb
+analysisset
 angstroem
 appdef
 atomtypes
@@ -166,6 +175,7 @@ couhatched
 countrate
 creationtime
 csys
+cygdrive
 dataconverter
 datatypes
 descr
@@ -222,6 +232,7 @@ iupac
 kdtree
 kikuchi
 kikuchipy
+libmagic
 macroscale
 magboard
 mainfile
@@ -239,6 +250,7 @@ mpid
 mrad
 msmse
 mtex
+mytarget
 nanoampere
 nbytes
 ndims
@@ -248,6 +260,7 @@ nparr
 nsnd
 nsprj
 nsproj
+nsprojects
 ntrigger
 nvariadic
 nxdata
@@ -268,6 +281,9 @@ polyline
 polylines
 preharmonized
 prfx
+project
+puremagic
+pyccapt
 pymatgen
 pynxtools
 pyxem
@@ -282,8 +298,11 @@ regridding
 reindexing
 reqs
 requery
+rhit
 rois
 rosettasciio
+rraw
+rrng
 rsciio
 rtol
 sevenz
@@ -295,6 +314,7 @@ spotsize
 strct
 stwo
 superalloy
+surrogateescape
 sversion
 taenite
 templatized
