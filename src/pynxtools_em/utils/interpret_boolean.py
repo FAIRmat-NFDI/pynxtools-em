@@ -46,6 +46,10 @@ def try_interpret_as_boolean(arg: Any, probe=False):
             raise KeyError(
                 f"try_to_interpret_as_boolean argument {arg} does not yield key even for {arg.lower()} !"
             )
+    elif isinstance(arg, int):
+        if arg == 0:
+            return False
+        return True
     else:
         raise ValueError(
             f"try_to_interpret_as_boolean argument {arg} cannot be converted to bool !"

@@ -205,7 +205,7 @@ class RsciioMrcParser:
             for block_id, s_e in metadata_block_start_end.items():
                 self.image_meta_data[block_id] = {}
                 scalars = [
-                    (r"TiltAngle", r"([+-]?\d+(?:\.\d+)?)", np.float64, ureg.degrees),
+                    (r"TiltAngle", r"([+-]?\d+(?:\.\d+)?)", np.float64, ureg.degree),
                     (
                         r"Magnification",
                         r"(\d+(?:\.\d+)?)",
@@ -222,7 +222,7 @@ class RsciioMrcParser:
                         r"RotationAngle",
                         r"([+-]?\d+(?:\.\d+)?)",
                         np.float64,
-                        ureg.degrees,
+                        ureg.degree,
                     ),
                     (r"ExposureTime", r"([+-]?\d+(?:\.\d+)?)", np.float64, ureg.second),
                     (r"Binning", r"(\d+)", np.uint32, ureg.dimensionless),
