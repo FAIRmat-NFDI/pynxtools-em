@@ -20,7 +20,7 @@
                      //"tests/data/ebsd_mtex/output.custom_eln_data.yaml",
                      //"tests/data/ebsd_mtex/032.39c6e5a5083b0eef64e2fd93aaa155ea5fa00650eaf715f167a38cfcc5e6cf67.ctf.mtex.h5",
                      //"tests/data/ebsd_oina/093.98c4ce3a524cadfe060485ec8206143ac02ff112c92bccd2d19df7f331f00a4b.h5oina.nxs",
-                     //"tests/data/ger_berlin_koch_group/output.custom_eln_data.yaml",
+                     //"tests/data/deu_berlin_koch_group/output.custom_eln_data.yaml",
                      //"tests/data/hfive_apex_algao/AlGaO.h5",
                      //"tests/data/hfive_apex_ingan/InGaN_nanowires_map.edaxh5",
                      //"tests/data/hfive_apex_nibase/2023-08-16_Ni_NFDI.edaxh5",
@@ -141,7 +141,7 @@
                      //"--output=tests/prod/default/output.nxs"]
                      //"--output=tests/prod/ebsd_mtex/output.nxs"]
                      //"--output=tests/prod/ebsd_oina/output.nxs"]
-                     //"--output=tests/prod/ger_berlin_koch_group/output.nxs"]
+                     //"--output=tests/prod/deu_berlin_koch_group/output.nxs"]
                      //"--output=tests/prod/hfive_apex_algao/output.nxs"]
                      //"--output=tests/prod/hfive_apex_ingan/output.nxs"]
                      //"--output=tests/prod/hfive_apex_nibase/output.nxs"]
