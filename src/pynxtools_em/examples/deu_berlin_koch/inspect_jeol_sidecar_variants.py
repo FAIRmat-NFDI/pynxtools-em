@@ -59,7 +59,7 @@ JEOL_LAYOUT_ONE: list[str] = [
     rf"^\$CM_DATE {DATE}{BREAK}$",
     rf"^\$CM_TIME {TIME}{BREAK}$",
     rf"^\$CM_OPERATOR {CHARS_NO_BREAK}{BREAK}$",
-    rf"^\$CM_INSTRUMENT JEM-2200FS{BREAK}$",
+    rf"^\$CM_INSTRUMENT {CHARS_NO_BREAK}{BREAK}$",
     rf"^\$CM_NAME {CHARS_NO_BREAK}{BREAK}$",  # often CHARS_NO_BREAK often Specimen
     rf"^\$CM_FRAME_SIZE {INT} {INT}{BREAK}$",
     rf"^\$CM_DATA_BIT {INT}{BREAK}$",
@@ -79,7 +79,7 @@ JEOL_LAYOUT_TWO: list[str] = [
     rf"^\$CM_DATE {DATE}{BREAK}$",
     rf"^\$CM_TIME {TIME}{BREAK}$",
     rf"^\$CM_OPERATOR {CHARS_NO_BREAK}{BREAK}$",
-    rf"^\$CM_INSTRUMENT JEM-2200FS{BREAK}$",
+    rf"^\$CM_INSTRUMENT {CHARS_NO_BREAK}{BREAK}$",
     rf"^\$CM_ACCEL_VOLT {FLOAT}{BREAK}$",
     rf"^\$CM_MAG {INT}{BREAK}$",
     rf"^\$CM_SIGNAL {CHARS_NO_BREAK}{BREAK}$",  # "DFI  " in the prototype
@@ -117,7 +117,6 @@ def does_file_conform_with_layout(
         if len(txt) == 0:
             return False
 
-        print(f">>>>>>>>>>>{txt[0]}")
         if not txt[0].startswith("$CM_FORMAT"):  # JEOL text file signature
             return False
 
