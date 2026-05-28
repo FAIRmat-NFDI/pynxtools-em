@@ -28,8 +28,8 @@ from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
 from pynxtools_em.examples.custom_reference_frame import (
     NxEmCustomElnCustomReferenceFrame,
 )
+from pynxtools_em.examples.deu_berlin_koch_eln import NxEmCustomElnDeuBerlinKoch
 from pynxtools_em.examples.ebsd_database_eln import NxEmCustomElnEbsdDatabase
-from pynxtools_em.examples.ger_berlin_koch_eln import NxEmCustomElnGerBerlinKoch
 from pynxtools_em.parsers.hfive_apex import HdfFiveEdaxApexParser
 from pynxtools_em.parsers.hfive_bruker import HdfFiveBrukerEspritParser
 
@@ -118,8 +118,8 @@ class EMReader(BaseReader):
         if len(case.cst) == 1:
             logger.debug("Parse (meta)data coming from a customized ELN...")
             custom_eln_parser_types: list[tuple[str, type]] = [
-                ("ger_berlin_koch_group", NxEmCustomElnGerBerlinKoch),
-                ("ger_berlin_ebsd_database", NxEmCustomElnEbsdDatabase),
+                ("deu_berlin_koch_group", NxEmCustomElnDeuBerlinKoch),
+                ("deu_berlin_ebsd_database", NxEmCustomElnEbsdDatabase),
                 ("custom_reference_frame", NxEmCustomElnCustomReferenceFrame),
             ]
             for parser_id, parser_type in custom_eln_parser_types:
