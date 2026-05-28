@@ -96,7 +96,9 @@ def generate_eln_data_yaml(
             user_dict = {}
             user_dict["name"] = metadata_dict["first_surname"]
             if metadata_dict["id"] != "none_found":
-                user_dict["orcid"] = f"{metadata_dict['id'][len('https://orcid.org/') :]}"
+                user_dict["orcid"] = (
+                    f"{metadata_dict['id'][len('https://orcid.org/') :]}"
+                )
             eln_data["user"].append(user_dict)
             break
 
@@ -124,7 +126,7 @@ config: dict[str, str | int] = {
     "identifier_file_name": sys.argv[3],  # e.g. 'humans_and_companies.ods'
     "legacy_nsproj_fpath": sys.argv[4],  # e.g. 'nion_data_metadata.ods'
     "project_id_start": int(sys.argv[5]),  # which project to start, inclusive
-    "project_id_end": int(sys.argv[6]),  # which projct to end, inclusive
+    "project_id_end": int(sys.argv[6]),  # which project to end, inclusive
     "legacy_nsproj_fpath_white_list": sys.argv[7],
 }
 
@@ -132,7 +134,9 @@ config: dict[str, str | int] = {
 INCREMENTAL_REPORTING = 100 * (1024**3)  # in bytes, right now each 100 GiB
 DEFAULT_LOGGER_NAME = "deu_berlin_koch_group_process"
 logger = logging.getLogger(DEFAULT_LOGGER_NAME)
-formatter = logging.Formatter("%(levelname)s %(asctime)s %(message)s", "%Y-%m-%dT%H:%M:%S.%z")  # .%f%z")
+formatter = logging.Formatter(
+    "%(levelname)s %(asctime)s %(message)s", "%Y-%m-%dT%H:%M:%S.%z"
+)  # .%f%z")
 
 
 def switch_root_logfile(filename, log_level=logging.DEBUG):
