@@ -204,5 +204,9 @@ tests/run_tests.sh
 .virtual_documents
 tests/data
 tests/prod
+examples/oasisb/aaa_legacy_*
+examples/oasisb/openalex
 !examples/oasisb/*.json
 !examples/oasisb/*.ipynb
+examples/oasisb/harvest.*
+src/pynxtools_em/examples/tmp
