@@ -86,7 +86,7 @@ VELOX_DYNAMIC_OPTICS_NX: dict[str, Any] = {
             "Optics/BeamConvergence",
             ureg.milliradian,
         ),
-        ("rotation", ureg.degrees, "Optics/ScanRotation", ureg.degrees),
+        ("rotation", ureg.degree, "Optics/ScanRotation", ureg.degree),
         ("dose_rate", ureg.dose_rate, "Optics/DoseRate", ureg.dose_rate),
     ],
 }
@@ -98,8 +98,8 @@ VELOX_DYNAMIC_STAGE_NX: dict[str, Any] = {
     "prefix_src": "",
     "map_to_str": [("design", "Stage/HolderType")],
     "map_to_f8": [
-        ("tilt1", ureg.radian, "Stage/AlphaTilt", ureg.degrees),
-        ("tilt2", ureg.radian, "Stage/BetaTilt", ureg.degrees),
+        ("tilt1", ureg.radian, "Stage/AlphaTilt", ureg.degree),
+        ("tilt2", ureg.radian, "Stage/BetaTilt", ureg.degree),
         (
             "position",
             ureg.meter,
