@@ -143,6 +143,14 @@ EM_HFIVE_MIME_TYPES_SOLITARY: list[str] = [
     ".edaxh5",
 ]
 
+EM_KPY_MIME_TYPES_SIDECAR: list[tuple[str, str]] = []
+
+EM_KPY_MIME_TYPES_SOLITARY: list[str] = [
+    ".up1",
+    ".up2",
+    ".oip",
+]
+
 EM_IMAGE_MIME_TYPES_SIDECAR: list[tuple[str, str]] = [
     # common file formats for images we process straight with pynxtools-em
     (".tif", "-tif.hdr"),  # TESCAN

@@ -16,7 +16,10 @@
 # limitations under the License.
 #
 
+import logging
 import re
+
+logger = logging.getLogger("pynxtools-em")
 
 
 def is_valid_doi(token: str) -> bool:
@@ -24,10 +27,9 @@ def is_valid_doi(token: str) -> bool:
     return bool(re.match(pattern, token, re.IGNORECASE))
 
 
-# print(is_valid_doi("10.5281/zenodo.11128117"))
-
-
-def get_bibliographical_metadata(bib: dict, project_id: str) -> list[str]:
+def get_bibliographical_metadata(
+    bib: dict, project_id: str, verbose: bool = False
+) -> list[str]:
     """Get dataset and article citation_key for given project."""
     matching: dict[str, list[str]] = {
         "data": [],
@@ -37,19 +39,22 @@ def get_bibliographical_metadata(bib: dict, project_id: str) -> list[str]:
         for prefix, cls in [("D", "data"), ("A", "paper")]:
             if key.startswith(f"{prefix}{project_id}"):
                 matching[cls].append(key)
+    if verbose:
+        for cls, matches in matching.items():
+            logger.info(f"{cls}, {matches}")
     data_article: list[str] = ["", ""]
-    # print(matching)
     for idx, cls, entry_type in [
         (0, "data", "an original dataset"),
         (1, "paper", "an original research article"),
     ]:
         if len(matching[cls]) == 0:
-            print(
-                f"{'ERROR' if cls == 'data' else 'WARNING'}, {project_id} has no reference for {entry_type}"
-            )
-            # print(f"@Misc{{D_{camel_case_project_name}}},\n  author={{}},\n note = {{personal communication}},\n year = {{2024}},\n}},")
+            if verbose:
+                if cls == "data":
+                    logger.error(f"{project_id} has no reference for {entry_type}")
+                else:
+                    logger.warning(f"{project_id} has no reference for {entry_type}")
         elif len(matching[cls]) > 1:
-            print(f"WARNING, {project_id} has more than one reference for {entry_type}")
+            logger.warning(f"{project_id} has more than one reference for {entry_type}")
         else:
             data_article[idx] = matching[cls][0]
     return data_article
