@@ -1,9 +1,13 @@
 # Custom Dictionary Words
 AXISNAME
+Acmite
+Aegirine
 Albrecht
 Aluminium
+Anorthoclase
 Apreo
 Aragonit
+Arfvedsonite
 BYTOWNITE
 Backscatter
 Benedikt
@@ -12,11 +16,13 @@ Britton
 Brockhauser
 Bruker
 Bytownite
+CMCM
 COLORMODEL
 CSMB
 CSYS
 Cameca
 Ceta
+Chalcopyrite
 Chlorapatite
 Chloritoid
 Clinochlore
@@ -33,6 +39,7 @@ Defocus
 Dierner
 Dnumber
 Draxl
+Drits
 Dwelltime
 EBEAM
 EBIC
@@ -51,6 +58,7 @@ Elstar
 Erdmann
 Erlangen
 Eucentric
+Eudialyte
 FOVIMAGE
 FOVIMAGECOLLECTIONPARAMS
 FOVIPR
@@ -61,6 +69,7 @@ Gatan
 Glaucophane
 Graeff
 Grossular
+Gruner
 HAADF
 HFIVE
 HVHS
@@ -69,11 +78,12 @@ Heiko
 Hortonolite
 Hydroxylapatite
 ICME
+ICSD
 IUPAC
-IVAS
 IVAS
 Imager
 JEOL
+JOMTAA
 Kernke
 Kikuchi
 Kocks
@@ -156,10 +166,12 @@ Wadsleyite
 Wehnelt
 Whitlockite
 XSTEP
+YBCO
 YSTEP
 Zirc
 Zoisite
 aabb
+amcsd
 analysisset
 angstroem
 appdef
@@ -198,6 +210,7 @@ equi
 equisized
 ezero
 facecolor
+ferrian
 ferroan
 filtermode
 flatdict
