@@ -37,7 +37,7 @@ def get_bibliographical_metadata(
     }
     for key in bib:
         for prefix, cls in [("D", "data"), ("A", "paper")]:
-            if key.startswith(f"{prefix}{project_id}"):
+            if key == f"{prefix}{project_id}":  # .startswith(f"{prefix}{project_id}"):
                 matching[cls].append(key)
     if verbose:
         for cls, matches in matching.items():
