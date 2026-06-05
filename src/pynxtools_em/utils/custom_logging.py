@@ -19,4 +19,4 @@
 
 import logging
 
-logger = logging.getLogger("pynxtools")
+logger = logging.getLogger("pynxtools-em")
