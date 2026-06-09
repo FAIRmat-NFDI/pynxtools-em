@@ -44,6 +44,7 @@ def process_project(
     hash_file: str,
     source_directory: str,
     target_directory: str,
+    mime_type: str,
     alias_prefix_secret: str = "",
     openalex_file: str = "",
     logger_file_path_suffix: str = "",
@@ -52,7 +53,7 @@ def process_project(
     # generate_nexus_file: bool = True,
     # time_zone_info: ZoneInfo = ZoneInfo("Europe/Berlin"),
 ) -> None:
-    """Run pynxtools-microstructure to generate a NeXus/HDF5 file for each *.mtex.h5 EBSD file in the project named project_name.
+    """Run pynxtools-em to generate a NeXus/HDF5 file for each *.mtex.h5 EBSD file in the project named project_name.
 
     project_name : name of the legacy EM/MTex project for which this function processes all entries,
         e.g. "D001" is a project-specific such name
@@ -64,6 +65,8 @@ def process_project(
     hash_file : csv file which stores the hash and original file name of each file from a project
     source_directory : location of EM/MTex files that the parser should convert
     target_directory : location where generated NeXus/HDF5 and log files should be stored
+    mime_type : file format suffix to identify EM domain files (e.g. "dm3", "emd"), no leading "."
+    alias_prefix_secret : prefix for the local location where to store mappings for aliasing file names
     openalex_file : (optional) project-name-specific JSON file, retrieved from OpenAlex
         to provide additional metadata context to a project, e.g. D001.son
     logger_file_path_suffix : suffix to add to the name of the log file, e.g. run01
@@ -75,9 +78,13 @@ def process_project(
         "working_directory": f"{os.getcwd()}",
         "project_name": project_name,
         "bib_file": bib_file,
+        "hash_file": hash_file,
         "source_directory": source_directory,
         "target_directory": target_directory,
+        "alias_prefix_secret": alias_prefix_secret,
         "openalex_file": openalex_file,
+        "logger_file_path_suffix": logger_file_path_suffix,
+        "nomad_project_name": nomad_project_name,
         "pynxtools_version": f"{get_pynxtools_version()}",
         "pynxtools_em_version": f"{get_pynxtools_em_version()}",
     }
@@ -139,14 +146,19 @@ def process_project(
             for _ in range(3):
                 next(fp)
             for line in fp:
-                # logger lines formatted e.g. like this "INFO 2026-05-19T21:40:49.+0200 /mnt/Map_1.crc > /mnt/e.crc"
-                match = re.match(r"^INFO\s+(\S+)\s+(.+?)\s+>\s+(.+)$", line.rstrip())
-                parts: list[str] = list(match.groups()) if match else []
+                # logger lines formatted
+                # e.g. like this "INFO 2026-05-19T21:40:49.+0200 /mnt/Map_1.crc > /mnt/e.crc"
+                # match = re.match(r"^INFO\s+(\S+)\s+(.+?)\s+>\s+(.+)$", line.rstrip())
+                # parts: list[str] = list(match.groups()) if match else []
+                # e.g. like this "INFO;2026-06-09T12:34:41.+0200;a.zip:b.emd;;b.emd"
+                parts: list[str] = (
+                    line.rstrip().split(";")[1:] if line.startswith("INFO;") else []
+                )
                 if len(parts) == 3:
                     alias: str = parts[1].replace(alias_prefix_secret, "")
                     # the file passed to MTex to obtain an .mtex.h5
                     original: str = parts[2]
-                    # the file we pass to pynxtools-microstructure for parsing to NeXus
+                    # the file we pass to pynxtools-em for parsing to NeXus
                     alias_to_original[original] = alias
                     del alias, original
     except (FileNotFoundError, OSError):
@@ -170,12 +182,20 @@ def process_project(
         except (FileNotFoundError, json.JSONDecodeError, OSError, TypeError):
             logger.error(f"Unable to load {openalex_file}")
 
-    # one NeXus file per incoming mtex.h5 file
-    pattern = os.path.join(source_directory, f"{project_name}.*.mtex.h5")
-    preprocessed_hfive_files: list[str] = glob.glob(pattern)
+    # one NeXus file per incoming domain-specific file
+    if mime_type not in ["dm3"]:
+        logger.error(
+            f"EM domain-specific mime_type is not included in the list of supported ones"
+        )
+        return
 
-    for hfive_file in preprocessed_hfive_files:
-        file_name = hfive_file.rsplit(os.sep, 1)[1]
+    pattern = os.path.join(source_directory, f"{project_name}.*.{mime_type}")
+    domain_specifically_formatted_files: list[str] = glob.glob(pattern)
+
+    for domain_file in domain_specifically_formatted_files:
+        file_name = domain_file.rsplit(os.sep, 1)[1]
+
+        # TODO deal with sidecar files
 
         # define the name of the NeXus file
         output_file_path = f"{target_directory}{os.sep}{file_name}.nxs"
@@ -203,24 +223,22 @@ def process_project(
             )
             continue
 
-        pynx_open_input_files: list[str] = [hfive_file, eln_file_path]
-        logger.info(f"pynxtools-microstructure {pynx_open_input_files}")
+        pynx_open_input_files: list[str] = [domain_file, eln_file_path]
+        logger.info(f"pynxtools-em {pynx_open_input_files}")
 
         try:
             _ = convert(
                 input_file=tuple(pynx_open_input_files),
-                reader="microstructure",
+                reader="em",
                 nxdl=nxdl,
                 append=False,
                 skip_verify=True,
                 ignore_undocumented=True,
                 output=output_file_path,
             )
-            logger.info(f"pynxtools-microstructure {output_file_path} success")
+            logger.info(f"pynxtools-em {output_file_path} success")
         except Exception:
-            logger.exception(
-                f"pynxtools-microstructure {output_file_path} failed", exc_info=True
-            )
+            logger.exception(f"pynxtools-em {output_file_path} failed", exc_info=True)
 
     # with open(
     #     f"{target_directory}{os.sep}{project_name}.{logger_file_path_suffix}.csv", "w"
