@@ -26,6 +26,7 @@ import numpy as np
 import xmltodict
 from PIL import Image, ImageSequence
 from pint import UndefinedUnitError
+from pynxtools.dataconverter.chunk import prioritized_axes_heuristic
 
 # https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
@@ -43,7 +44,10 @@ from pynxtools_em.configurations.image_tiff_fei_cfg import (
     FEI_TECNAI_STATIC_VARIOUS_NX,
 )
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.default_config import (
+    DEFAULT_COMPRESSION_LEVEL,
+    DEFAULT_VERBOSITY,
+)
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
@@ -192,7 +196,7 @@ class FeiLegacyTiffParser:
         identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
-                nparr = np.flipud(np.array(img))
+                numpy_array = np.flipud(np.array(img))
                 # logger.debug(f"type: {type(nparr)}, dtype: {nparr.dtype}, shape: {np.shape(nparr)}")
                 # TODO::discussion points
                 # - how do you know we have an image of real space vs. imaginary space (from the metadata?)
@@ -217,7 +221,13 @@ class FeiLegacyTiffParser:
                 template[f"{trg}/@axes"] = []
                 for dim in dims[::-1]:
                     template[f"{trg}/@axes"].append(f"axis_{dim}")
-                template[f"{trg}/real"] = {"compress": nparr, "strength": 1}
+                template[f"{trg}/real"] = {
+                    "compress": numpy_array,
+                    "strength": DEFAULT_COMPRESSION_LEVEL,
+                    "chunks": prioritized_axes_heuristic(
+                        numpy_array, np.arange(numpy_array.ndim)
+                    ),
+                }
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
@@ -254,7 +264,7 @@ class FeiLegacyTiffParser:
                             "Assuming pixel width and height unit is unitless!"
                         )
 
-                nxy = {"i": np.shape(nparr)[1], "j": np.shape(nparr)[0]}
+                nxy = {"i": np.shape(numpy_array)[1], "j": np.shape(numpy_array)[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
                 # tags 40962 and 40963 do not exist in example datasets from the community!
@@ -272,28 +282,32 @@ class FeiLegacyTiffParser:
                 # image in number of pixel
                 for dim in dims:
                     if self.supported == FEI_LEGACY_TECNAI_TEM:
+                        numpy_array = np.asarray(
+                            np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True),
+                            dtype=np.float32,
+                        )
                         template[f"{trg}/AXISNAME[axis_{dim}]"] = {
-                            "compress": np.asarray(
-                                np.linspace(
-                                    0, nxy[dim] - 1, num=nxy[dim], endpoint=True
-                                ),
-                                dtype=np.float32,
+                            "compress": numpy_array,
+                            "strength": DEFAULT_COMPRESSION_LEVEL,
+                            "chunks": prioritized_axes_heuristic(
+                                numpy_array, np.arange(numpy_array.ndim)
                             ),
-                            "strength": 1,
                         }
                         template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
                             f"Coordinate along {dim}-axis (pixel)"
                         )
                     elif self.supported == FEI_LEGACY_HELIOS_SEM:
+                        numpy_array = np.asarray(
+                            np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
+                            * sxy[dim].magnitude,
+                            dtype=np.float32,
+                        )
                         template[f"{trg}/AXISNAME[axis_{dim}]"] = {
-                            "compress": np.asarray(
-                                np.linspace(
-                                    0, nxy[dim] - 1, num=nxy[dim], endpoint=True
-                                )
-                                * sxy[dim].magnitude,
-                                dtype=np.float32,
+                            "compress": numpy_array,
+                            "strength": DEFAULT_COMPRESSION_LEVEL,
+                            "chunks": prioritized_axes_heuristic(
+                                numpy_array, np.arange(numpy_array.ndim)
                             ),
-                            "strength": 1,
                         }
                         template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
                             f"Coordinate along {dim}-axis ({sxy[dim].units if not sxy[dim].dimensionless else 'pixel'})"
@@ -304,7 +318,7 @@ class FeiLegacyTiffParser:
                             )
 
                 identifier_image += 1
-                del nparr
+                del numpy_array
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:
