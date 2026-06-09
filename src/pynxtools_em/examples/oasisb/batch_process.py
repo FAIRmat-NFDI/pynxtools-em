@@ -73,6 +73,11 @@ def process_project(
     nomad_project_name : human-readable name used to display in the NOMAD UI overview
     """
 
+    pattern = os.path.join(source_directory, f"{project_name}.*.{mime_type}")
+    domain_specifically_formatted_files: list[str] = glob.glob(pattern)
+    if len(domain_specifically_formatted_files) == 0:
+        return
+
     config: dict[str, str] = {
         "python_version": f"{sys.version}",
         "working_directory": f"{os.getcwd()}",
@@ -192,8 +197,8 @@ def process_project(
         )
         return
 
-    pattern = os.path.join(source_directory, f"{project_name}.*.{mime_type}")
-    domain_specifically_formatted_files: list[str] = glob.glob(pattern)
+    # pattern = os.path.join(source_directory, f"{project_name}.*.{mime_type}")
+    # domain_specifically_formatted_files: list[str] = glob.glob(pattern)
 
     for domain_file in domain_specifically_formatted_files:
         file_name = domain_file.rsplit(os.sep, 1)[1]

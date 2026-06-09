@@ -142,21 +142,20 @@ class RsciioEmsaParser:
         """Map some of the EMSA/MSA-specific metadata concepts on NeXus concepts."""
         identifier: list[int] = [self.entry_id, self.id_mgn["event_id"], 1]
         original_metadata = fd.FlatDict(obj["original_metadata"], "/")
-        for keyword, value in original_metadata.items():
-            original_metadata[keyword] = string_to_number(value)
+        for key, value in original_metadata.items():
+            original_metadata[key] = string_to_number(value)
 
-        if "DATE" in original_metadata and "TIME" in original_metadata:
-            dt = datetime.strptime(
-                f"{original_metadata['DATE']} {original_metadata['TIME']}",
-                "%d-%b-%Y %H:%M",
-            )
-            template[f"/ENTRY[entry{identifier[0]}]/start_time"] = f"{dt.isoformat()}"
+        if all(key in original_metadata for key in ["DATE", "TIME"]):
+            if all(original_metadata[key] != "" for key in ["DATE", "TIME"]):
+                template[f"/ENTRY[entry{identifier[0]}]/start_time"] = (
+                    f"{datetime.strptime(f'''{original_metadata['DATE']} {original_metadata['TIME']}''', '%d-%b-%Y %H:%M').isoformat()}"
+                )
 
-        for keyword in original_metadata:
-            if keyword.startswith("BEAMKV"):
+        for key in original_metadata:
+            if key.startswith("BEAMKV"):
                 trg = f"/ENTRY[entry{self.id_mgn['event_id']}]/measurement/eventID[event{self.id_mgn['event_id']}]instrument/ebeam_column/electron_source"
                 quantity = ureg.Quantity(
-                    np.float64(original_metadata[keyword]), ureg.kilovolt
+                    np.float64(original_metadata[key]), ureg.kilovolt
                 ).to(ureg.volt)
                 template[f"{trg}/voltage"] = quantity.magnitude
                 template[f"{trg}/voltage/@units"] = f"{quantity.units}"
