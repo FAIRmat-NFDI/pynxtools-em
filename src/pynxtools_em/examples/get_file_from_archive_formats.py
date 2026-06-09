@@ -29,6 +29,8 @@ import rarfile
 
 BUFFER_SIZE = 1024 * 1024
 
+from pynxtools_em.utils.custom_logging import logger
+
 
 def get_file_from_zip(
     zip_file_path: str,
@@ -49,8 +51,10 @@ def get_file_from_zip(
                 ):
                     shutil.copyfileobj(src, dst)
             return os.path.isfile(target_file)
+        else:
+            return True
     except (FileNotFoundError, KeyError, zipfile.BadZipFile) as exception:
-        print(f"Error extracting file from zip: {exception}")
+        logger.error(f"Extracting file from zip: {exception}")
     return False
 
 
@@ -75,13 +79,15 @@ def get_file_from_tar(
                 ):
                     shutil.copyfileobj(src, dst)
             return os.path.isfile(target_file)
+        else:
+            return True
     except (
         FileNotFoundError,  # tar file missing or target path invalid
         KeyError,  # member not found in archive
         tarfile.TarError,  # corrupt / unsupported tar
         ValueError,  # not a regular file
     ) as exception:
-        print(f"Error extracting file from tar: {exception}")
+        logger.error(f"Extracting file from tar: {exception}")
     return False
 
 
@@ -106,13 +112,15 @@ def get_file_from_rar(
                 ):
                     shutil.copyfileobj(src, dst)
             return os.path.isfile(target_file)
+        else:
+            return True
     except (
         FileNotFoundError,
         KeyError,
         rarfile.Error,
         ValueError,
     ) as exception:
-        print(f"Error extracting file from rar: {exception}")
+        logger.error(f"Extracting file from rar: {exception}")
     return False
 
 
@@ -140,6 +148,8 @@ def get_file_from_sevenzip(
                 with open(target_file, "wb", buffering=BUFFER_SIZE) as dst:  # streaming
                     shutil.copyfileobj(src, dst, length=BUFFER_SIZE)
             return os.path.isfile(target_file)
+        else:
+            return True
     except (
         FileNotFoundError,
         KeyError,
@@ -148,5 +158,5 @@ def get_file_from_sevenzip(
         py7zr.exceptions.UnsupportedCompressionMethodError,
         ValueError,
     ) as exception:
-        print(f"Error extracting file from 7z: {exception}")
+        logger.error(f"Extracting file from 7z: {exception}")
     return False

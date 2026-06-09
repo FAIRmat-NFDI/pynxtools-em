@@ -166,6 +166,7 @@ EM_IMAGE_MIME_TYPES_SOLITARY: list[str] = [
 
 EM_MIXED_MIME_TYPES_SIDECAR: list[tuple[str, str]] = [
     # common file formats for mixed content we process straight with pynxtools-em
+    (".emi", ".ser"),  # EDAX, TIA
 ]
 
 EM_MIXED_MIME_TYPES_SOLITARY: list[str] = [
@@ -173,6 +174,7 @@ EM_MIXED_MIME_TYPES_SOLITARY: list[str] = [
     ".ipj",  # Oxford Instruments INCA
     ".msa",  # EMSA/MSA
     ".bcf",
+    ".dm2",
     ".dm3",
     ".dm4",
     ".dm5",

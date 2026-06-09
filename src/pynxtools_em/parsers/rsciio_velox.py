@@ -19,6 +19,7 @@
 
 import flatdict as fd
 import numpy as np
+from pynxtools.dataconverter.chunk import prioritized_axes_heuristic
 from rsciio import emd
 
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
@@ -36,7 +37,11 @@ from pynxtools_em.configurations.rsciio_velox_cfg import (
 )
 from pynxtools_em.methods.ebsd import has_hfive_magic_header
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY, SEPARATOR
+from pynxtools_em.utils.default_config import (
+    DEFAULT_COMPRESSION_LEVEL,
+    DEFAULT_VERBOSITY,
+    SEPARATOR,
+)
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -54,18 +59,17 @@ class RsciioVeloxParser:
         self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
     ):
         if file_path:
-            self.file_path = file_path
-            self.entry_id = entry_id if entry_id > 0 else 1
-            self.verbose = verbose
-            # for id_mgn check pynxtools-em v0.2 of this velox reader
-            self.id_mgn: dict = {
+            self.file_path: str = file_path
+            self.entry_id: int = entry_id if entry_id > 0 else 1
+            self.verbose: bool = verbose
+            self.id_mgn: dict[str, int] = {
                 "event_id": 1,
                 "event_img": 1,
                 "event_spc": 1,
                 "roi": 1,
                 "eds_img": 1,
             }
-            self.version: dict = {
+            self.version: dict[str, dict[str, list[str]]] = {
                 "trg": {
                     "Core/MetadataDefinitionVersion": ["7.9"],
                     "Core/MetadataSchemaVersion": ["v1/2013/07"],
@@ -75,15 +79,15 @@ class RsciioVeloxParser:
                     "Core/MetadataSchemaVersion": None,
                 },
             }
-            self.obj_idx_supported: list = []
-            self.supported = False
+            self.obj_idx_supported: list[int] = []
+            self.supported: bool = False
             self.check_if_supported()
             if not self.supported:
                 logger.debug(
                     f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
                 )
         else:
-            logger.warning(f"Parser {self.__class__.__name__} needs Velox EMD file !")
+            logger.warning(f"Parser {self.__class__.__name__} needs Velox EMD file")
             self.supported = False
 
     def check_if_supported(self):
@@ -106,15 +110,19 @@ class RsciioVeloxParser:
                     continue
                 if not all_req_keywords_in_dict(obj, reqs):
                     continue
-                original_metadata = fd.FlatDict(
-                    obj["original_metadata"], "/"
-                )  # could be optimized
+                original_metadata = fd.FlatDict(obj["original_metadata"], "/")
                 if "Core/MetadataDefinitionVersion" in original_metadata:
+                    logger.info(
+                        f"Core/MetadataDefinitionVersion {original_metadata['Core/MetadataDefinitionVersion']}"
+                    )
                     if (
                         original_metadata["Core/MetadataDefinitionVersion"]
                         not in self.version["trg"]["Core/MetadataDefinitionVersion"]
                     ):
                         continue
+                    logger.info(
+                        f"Core/MetadataSchemaVersion {original_metadata['Core/MetadataSchemaVersion']}"
+                    )
                     if (
                         original_metadata["Core/MetadataSchemaVersion"]
                         not in self.version["trg"]["Core/MetadataSchemaVersion"]
@@ -128,7 +136,7 @@ class RsciioVeloxParser:
             ):  # there is at least some supported content
                 self.supported = True
         except (OSError, FileNotFoundError, ValueError):
-            logger.warning(f"{self.file_path} FileNotFound, IOError, or ValueError !")
+            logger.error(f"{self.file_path} FileNotFound, IOError, or ValueError")
             return
 
     def parse(self, template: dict) -> dict:
@@ -157,12 +165,12 @@ class RsciioVeloxParser:
 
     def process_event_data_em_metadata(self, obj: dict, template: dict) -> dict:
         """Map some of the TFS/FEI/Velox-specific metadata concepts on NeXus concepts."""
-        identifier = [self.entry_id, self.id_mgn["event_id"], 1]
-        flat_orig_meta = fd.FlatDict(obj["original_metadata"], "/")
-        for keyword, value in flat_orig_meta.items():
-            flat_orig_meta[keyword] = string_to_number(value)
+        identifier: list[int] = [self.entry_id, self.id_mgn["event_id"], 1]
+        original_metadata = fd.FlatDict(obj["original_metadata"], "/")
+        for keyword, value in original_metadata.items():
+            original_metadata[keyword] = string_to_number(value)
         if self.verbose:
-            for keyword, value in flat_orig_meta.items():
+            for keyword, value in original_metadata.items():
                 logger.info(f"{keyword}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
 
         if (len(identifier) != 3) or (not all(isinstance(x, int) for x in identifier)):
@@ -170,7 +178,7 @@ class RsciioVeloxParser:
         trg = f"/ENTRY[entry{identifier[0]}]/measurement/eventID[event{identifier[1]}]/instrument/ebeam_column"
         # using an own function like add_dynamic_lens_metadata may be needed
         # if specific NeXus group have some extra formatting
-        lens_idx = 1
+        lens_idx: int = 1
         for lens_name in [
             "C1",
             "C2",
@@ -184,17 +192,19 @@ class RsciioVeloxParser:
             "Projector1",
             "Projector2",
         ]:
-            toggle = False
-            if f"Optics/{lens_name}LensIntensity" in flat_orig_meta:
+            toggle: bool = False
+            if f"Optics/{lens_name}LensIntensity" in original_metadata:
                 template[f"{trg}/lensID[lens{lens_idx}]/power_setting"] = (
-                    string_to_number(flat_orig_meta[f"Optics/{lens_name}LensIntensity"])
+                    string_to_number(
+                        original_metadata[f"Optics/{lens_name}LensIntensity"]
+                    )
                 )
                 if lens_name != "Gun":
                     template[f"{trg}/lensID[lens{lens_idx}]/power_setting/@units"] = "%"
                 toggle = True
-            if f"Optics/{lens_name}LensMode" in flat_orig_meta:
+            if f"Optics/{lens_name}LensMode" in original_metadata:
                 template[f"{trg}/lensID[lens{lens_idx}]/mode"] = string_to_number(
-                    flat_orig_meta[f"Optics/{lens_name}LensMode"]
+                    original_metadata[f"Optics/{lens_name}LensMode"]
                 )
                 toggle = True
             if toggle:
@@ -203,16 +213,16 @@ class RsciioVeloxParser:
                 ] = f"{lens_name}"
                 lens_idx += 1
 
-        aperture_idx = 1
+        aperture_idx: int = 1
         # condenser lenses
         for lens_name in [
             "C1",
             "C2",
             "C3",
         ]:
-            if f"Optics/{lens_name} Aperture" in flat_orig_meta:
+            if f"Optics/{lens_name} Aperture" in original_metadata:
                 qnt = ureg.Quantity(
-                    string_to_number(flat_orig_meta[f"Optics/{lens_name} Aperture"]),
+                    string_to_number(original_metadata[f"Optics/{lens_name} Aperture"]),
                     ureg.micrometer,
                 )
                 template[f"{trg}/apertureID[aperture{aperture_idx}]/setting"] = (
@@ -228,9 +238,9 @@ class RsciioVeloxParser:
 
         # other/special lenses
         for lens_name in ["OBJ", "SA"]:
-            if f"Optics/{lens_name} Aperture" in flat_orig_meta:
+            if f"Optics/{lens_name} Aperture" in original_metadata:
                 template[f"{trg}/apertureID[aperture{aperture_idx}]/status"] = (
-                    flat_orig_meta[f"Optics/{lens_name} Aperture"]
+                    original_metadata[f"Optics/{lens_name} Aperture"]
                 )
                 template[
                     f"/ENTRY[entry{identifier[0]}]/measurement/instrument/ebeam_column/apertureID[aperture{aperture_idx}]/name"
@@ -243,16 +253,16 @@ class RsciioVeloxParser:
             VELOX_DYNAMIC_VARIOUS_NX,
             VELOX_DYNAMIC_OPTICS_NX,
         ]:
-            add_specific_metadata_pint(cfg, flat_orig_meta, identifier, template)
+            add_specific_metadata_pint(cfg, original_metadata, identifier, template)
 
         add_specific_metadata_pint(
-            VELOX_STATIC_FABRICATION_NX, flat_orig_meta, identifier, template
+            VELOX_STATIC_FABRICATION_NX, original_metadata, identifier, template
         )
         add_specific_metadata_pint(
-            VELOX_DYNAMIC_STAGE_NX, flat_orig_meta, identifier, template
+            VELOX_DYNAMIC_STAGE_NX, original_metadata, identifier, template
         )
         add_specific_metadata_pint(
-            VELOX_DYNAMIC_EBEAM_NX, flat_orig_meta, identifier, template
+            VELOX_DYNAMIC_EBEAM_NX, original_metadata, identifier, template
         )
         return template
 
@@ -260,36 +270,33 @@ class RsciioVeloxParser:
         self, src: str, trg: str, file_path: str, checksum: str, template: dict
     ) -> dict:
         """Add from where the information was obtained."""
-        abbrev = f"PROCESS[process]/input"
-        template[f"{trg}/{abbrev}/file_name"] = file_path
-        template[f"{trg}/{abbrev}/checksum"] = checksum
-        template[f"{trg}/{abbrev}/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
+        parent: str = f"{trg}/PROCESS[process]/input"
+        template[f"{parent}/file_name"] = file_path
+        template[f"{parent}/checksum"] = checksum
+        template[f"{parent}/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
         if src != "":
-            template[f"{trg}/{abbrev}/context"] = f"{src}"
+            template[f"{parent}/context"] = f"{src}"
         return template
 
     def process_event_data_em_data(self, obj: dict, template: dict) -> dict:
         """Map Velox-specifically formatted data arrays on NeXus NXdata/NXimage/NXspectrum."""
-        flat_hspy_meta = fd.FlatDict(obj["metadata"], "/")
-        if "General/title" not in flat_hspy_meta:
+        metadata = fd.FlatDict(obj["metadata"], "/")
+        if "General/title" not in metadata:
+            logger.warning(f"Missing General/title metadata keyword")
             return template
 
-        # flat_orig_meta = fd.FlatDict(obj["original_metadata"], "/")
         axes = obj["axes"]
-        unit_combination = velox_image_spectrum_or_generic_nxdata(axes)
+        unit_combination: str = velox_image_spectrum_or_generic_nxdata(axes)
         if unit_combination == "":
             return template
         if self.verbose:
-            logger.debug(axes)
-            logger.debug(f"{unit_combination}, {np.shape(obj['data'])}")
-            logger.debug(
-                f"entry_id {self.entry_id}, event_id {self.id_mgn['event_id']}"
-            )
+            logger.info(axes)
+            logger.info(f"{unit_combination}, {np.shape(obj['data'])}")
+            logger.info(f"entry_id {self.entry_id}, event_id {self.id_mgn['event_id']}")
 
-        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event{self.id_mgn['event_id']}]"
+        prfx: str = f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event{self.id_mgn['event_id']}]"
         # this is the place when you want to skip individually the writing of NXdata
         # return template
-        axis_names = None
         if unit_combination in VELOX_WHICH_SPECTRUM:
             # self.annotate_information_source(
             #     "",
@@ -299,11 +306,17 @@ class RsciioVeloxParser:
             #     template,
             # )
             trg = f"{prfx}/spectrumID[spectrum1]/{VELOX_WHICH_SPECTRUM[unit_combination][0]}"
-            template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
+            template[f"{trg}/title"] = f"{metadata['General/title']}"
             template[f"{trg}/@signal"] = f"intensity"
-            template[f"{trg}/intensity"] = {"compress": obj["data"], "strength": 1}
+            template[f"{trg}/intensity"] = {
+                "compress": obj["data"],
+                "chunks": prioritized_axes_heuristic(
+                    obj["data"], np.arange(obj["data"].ndim)
+                ),
+                "strength": DEFAULT_COMPRESSION_LEVEL,
+            }
             template[f"{trg}/intensity/@long_name"] = f"Counts"
-            axis_names = VELOX_WHICH_SPECTRUM[unit_combination][1]
+            axis_names: str | list[str] = VELOX_WHICH_SPECTRUM[unit_combination][1]
         elif unit_combination in VELOX_WHICH_IMAGE:
             # self.annotate_information_source(
             #     "",
@@ -313,9 +326,15 @@ class RsciioVeloxParser:
             #     template,
             # )
             trg = f"{prfx}/imageID[image1]/{VELOX_WHICH_IMAGE[unit_combination][0]}"
-            template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
+            template[f"{trg}/title"] = f"{metadata['General/title']}"
             template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
-            template[f"{trg}/real"] = {"compress": obj["data"], "strength": 1}
+            template[f"{trg}/real"] = {
+                "compress": obj["data"],
+                "chunks": prioritized_axes_heuristic(
+                    obj["data"], np.arange(obj["data"].ndim)
+                ),
+                "strength": DEFAULT_COMPRESSION_LEVEL,
+            }
             template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
             axis_names = VELOX_WHICH_IMAGE[unit_combination][1]
         else:
@@ -327,9 +346,15 @@ class RsciioVeloxParser:
             #     template,
             # )
             trg = f"{prfx}/DATA[data1]"
-            template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
+            template[f"{trg}/title"] = f"{metadata['General/title']}"
             template[f"{trg}/@signal"] = f"data"
-            template[f"{trg}/data"] = {"compress": obj["data"], "strength": 1}
+            template[f"{trg}/data"] = {
+                "compress": obj["data"],
+                "chunks": prioritized_axes_heuristic(
+                    obj["data"], np.arange(obj["data"].ndim)
+                ),
+                "strength": DEFAULT_COMPRESSION_LEVEL,
+            }
             axis_names = ["axis_i", "axis_j", "axis_k", "axis_m", "axis_n"][
                 0 : len(unit_combination.split("_"))
             ]  # TODO mind order
@@ -350,30 +375,39 @@ class RsciioVeloxParser:
                 units = axis["units"]
                 count = np.shape(obj["data"])[idx]
                 if units == "":
-                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
+                    numpy_array = np.asarray(
                         offset
                         + np.linspace(0, count - 1, num=count, endpoint=True) * step,
                         np.float32,
                     )
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = {
+                        "compress": numpy_array,
+                        "chunks": prioritized_axes_heuristic(
+                            numpy_array, np.arange(numpy_array.ndim)
+                        ),
+                        "strength": DEFAULT_COMPRESSION_LEVEL,
+                    }
                     if unit_combination in VELOX_WHICH_SPECTRUM:
-                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Identifier spectrum"
-                        )
+                        long_name = "Identifier spectrum"
                     elif unit_combination in VELOX_WHICH_IMAGE:
-                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Identifier image"
-                        )
+                        long_name = "Identifier image"
                     else:
-                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"{axis_name}"
-                            # unitless | dimensionless i.e. no unit in long_name
-                        )
+                        long_name = axis_name
+                        # unitless | dimensionless i.e. no unit in long_name
+                    template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = long_name
                 else:
-                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
+                    numpy_array = np.asarray(
                         offset
                         + np.linspace(0, count - 1, num=count, endpoint=True) * step,
                         dtype=np.float32,
                     )
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = {
+                        "compress": numpy_array,
+                        "chunks": prioritized_axes_heuristic(
+                            numpy_array, np.arange(numpy_array.ndim)
+                        ),
+                        "strength": DEFAULT_COMPRESSION_LEVEL,
+                    }
                     template[f"{trg}/AXISNAME[{axis_name}]/@units"] = (
                         f"{ureg.Unit(units)}"
                     )

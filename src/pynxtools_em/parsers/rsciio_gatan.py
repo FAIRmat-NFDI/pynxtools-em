@@ -19,6 +19,7 @@
 
 import flatdict as fd
 import numpy as np
+from pynxtools.dataconverter.chunk import prioritized_axes_heuristic
 from rsciio import digitalmicrograph as gatan
 
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
@@ -30,7 +31,11 @@ from pynxtools_em.configurations.rsciio_gatan_cfg import (
     GATAN_WHICH_SPECTRUM,
 )
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY, SEPARATOR
+from pynxtools_em.utils.default_config import (
+    DEFAULT_COMPRESSION_LEVEL,
+    DEFAULT_VERBOSITY,
+    SEPARATOR,
+)
 from pynxtools_em.utils.gatan_utils import gatan_image_spectrum_or_generic_nxdata
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
@@ -47,12 +52,12 @@ class RsciioGatanParser:
         self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
     ):
         if file_path:
-            self.file_path = file_path
-            self.entry_id = entry_id if entry_id > 0 else 1
-            self.verbose = verbose
+            self.file_path: str = file_path
+            self.entry_id: int = entry_id if entry_id > 0 else 1
+            self.verbose: bool = verbose
             self.id_mgn: dict[str, int] = {"event_id": 1}
             self.version: dict = {}
-            self.supported = False
+            self.supported: bool = False
             self.check_if_supported()
             if not self.supported:
                 logger.debug(
@@ -66,7 +71,7 @@ class RsciioGatanParser:
 
     def check_if_supported(self):
         self.supported = False
-        if not self.file_path.lower().endswith(("dm3", "dm4")):
+        if not self.file_path.lower().endswith(("dm2", "dm3", "dm4")):
             return
         try:
             self.objs = gatan.file_reader(
@@ -82,22 +87,22 @@ class RsciioGatanParser:
                     continue
                 if not all_req_keywords_in_dict(obj, reqs):
                     continue
-                # flat_metadata = fd.FlatDict(obj["original_metadata"], "/")
+                # original_metadata = fd.FlatDict(obj["original_metadata"], "/")
                 # TODO::add version distinction logic from rsciio_velox
                 obj_idx_supported.append(idx)
                 if self.verbose:
-                    logger.debug(f"{idx}-th obj is supported")
+                    logger.debug(f"{idx}-th object is supported")
             if len(obj_idx_supported) > 0:  # at least some supported content
                 self.supported = True
         except (OSError, FileNotFoundError):
-            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
+            logger.error(f"{self.file_path} either FileNotFound or IOError")
             return
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing."""
         if self.supported:
             with open(self.file_path, "rb", 0) as fp:
-                self.file_path_sha256 = get_sha256_of_file_content(fp)
+                self.file_path_sha256: str = get_sha256_of_file_content(fp)
             logger.info(
                 f"Parsing {self.file_path} Gatan with SHA256 {self.file_path_sha256} ..."
             )
@@ -119,7 +124,7 @@ class RsciioGatanParser:
             self.process_event_data_em_data(obj, template)
             self.id_mgn["event_id"] += 1
             if self.verbose:
-                logger.debug(f"obj{idx}, dims {obj['axes']}")
+                logger.info(f"obj{idx}, dims {obj['axes']}")
         return template
 
     def process_event_data_em_metadata(self, obj: dict, template: dict) -> dict:
@@ -127,21 +132,21 @@ class RsciioGatanParser:
         # use an own function for each instead of a loop of a template function call
         # as for each section there are typically always some extra formatting
         # steps required
-        flat_metadata = fd.FlatDict(obj["original_metadata"], "/")
-        identifier = [self.entry_id, self.id_mgn["event_id"], 1]
+        original_metadata = fd.FlatDict(obj["original_metadata"], "/")
+        identifier: list[int] = [self.entry_id, self.id_mgn["event_id"], 1]
         for cfg in [
             GATAN_STATIC_VARIOUS_NX,
             GATAN_DYNAMIC_STAGE_NX,
             GATAN_DYNAMIC_VARIOUS_NX,
         ]:
-            add_specific_metadata_pint(cfg, flat_metadata, identifier, template)
+            add_specific_metadata_pint(cfg, original_metadata, identifier, template)
         return template
 
     def annotate_information_source(
         self, src: str, trg: str, file_path: str, checksum: str, template: dict
     ) -> dict:
         """Add from where the information was obtained."""
-        abbrev = "PROCESS[process]/input"
+        abbrev: str = "PROCESS[process]/input"
         template[f"{trg}/{abbrev}/file_name"] = file_path
         template[f"{trg}/{abbrev}/checksum"] = checksum
         template[f"{trg}/{abbrev}/algorithm"] = DEFAULT_CHECKSUM_ALGORITHM
@@ -156,21 +161,20 @@ class RsciioGatanParser:
         # "data", "axes", "metadata", "original_metadata", "mapping"
         flat_hspy_meta = fd.FlatDict(obj["metadata"], "/")
         if "General/title" not in flat_hspy_meta:
+            logger.warning(f"Missing General/title metadata keyword")
             return template
 
         # flat_orig_meta = fd.FlatDict(obj["original_metadata"], "/")
         axes = obj["axes"]
-        unit_combination = gatan_image_spectrum_or_generic_nxdata(axes)
+        unit_combination: str = gatan_image_spectrum_or_generic_nxdata(axes)
         if unit_combination == "":
             return template
         if self.verbose:
-            logger.debug(axes)
-            logger.debug(f"{unit_combination}, {np.shape(obj['data'])}")
-            logger.debug(
-                f"entry_id {self.entry_id}, event_id {self.id_mgn['event_id']}"
-            )
+            logger.info(axes)
+            logger.info(f"{unit_combination}, {np.shape(obj['data'])}")
+            logger.info(f"entry_id {self.entry_id}, event_id {self.id_mgn['event_id']}")
 
-        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event{self.id_mgn['event_id']}]"
+        prfx: str = f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event{self.id_mgn['event_id']}]"
         self.id_mgn["event_id"] += 1
 
         # this is the place when you want to skip individually the writing of NXdata
@@ -188,7 +192,13 @@ class RsciioGatanParser:
             trg = f"{prfx}/spectrumID[spectrum1]/{GATAN_WHICH_SPECTRUM[unit_combination][0]}"
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"intensity"
-            template[f"{trg}/intensity"] = {"compress": obj["data"], "strength": 1}
+            template[f"{trg}/intensity"] = {
+                "compress": obj["data"],
+                "chunks": prioritized_axes_heuristic(
+                    obj["data"], np.arange(obj["data"].ndim)
+                ),
+                "strength": DEFAULT_COMPRESSION_LEVEL,
+            }
             template[f"{trg}/intensity/@long_name"] = f"Counts"
             axis_names = GATAN_WHICH_SPECTRUM[unit_combination][1]
         elif unit_combination in GATAN_WHICH_IMAGE:
@@ -202,7 +212,13 @@ class RsciioGatanParser:
             trg = f"{prfx}/imageID[image1]/{GATAN_WHICH_IMAGE[unit_combination][0]}"
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
-            template[f"{trg}/real"] = {"compress": obj["data"], "strength": 1}
+            template[f"{trg}/real"] = {
+                "compress": obj["data"],
+                "chunks": prioritized_axes_heuristic(
+                    obj["data"], np.arange(obj["data"].ndim)
+                ),
+                "strength": DEFAULT_COMPRESSION_LEVEL,
+            }
             template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
             axis_names = GATAN_WHICH_IMAGE[unit_combination][1]
         else:
@@ -216,7 +232,13 @@ class RsciioGatanParser:
             trg = f"{prfx}/DATA[data1]"
             template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
             template[f"{trg}/@signal"] = f"data"
-            template[f"{trg}/data"] = {"compress": obj["data"], "strength": 1}
+            template[f"{trg}/data"] = {
+                "compress": obj["data"],
+                "chunks": prioritized_axes_heuristic(
+                    obj["data"], np.arange(obj["data"].ndim)
+                ),
+                "strength": DEFAULT_COMPRESSION_LEVEL,
+            }
             axis_names = ["axis_i", "axis_j", "axis_k", "axis_m", "axis_n"][
                 0 : len(unit_combination.split("_"))
             ]  # mind, different to Nion and other tech partners here no [::-1] reversal
@@ -239,11 +261,18 @@ class RsciioGatanParser:
                 units = axis["units"]
                 count = np.shape(obj["data"])[idx]
                 if units == "":
-                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
+                    numpy_array = np.asarray(
                         offset
                         + np.linspace(0, count - 1, num=count, endpoint=True) * step,
                         dtype=np.float32,
                     )
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = {
+                        "compress": numpy_array,
+                        "chunks": prioritized_axes_heuristic(
+                            numpy_array, np.arange(numpy_array.ndim)
+                        ),
+                        "strength": DEFAULT_COMPRESSION_LEVEL,
+                    }
                     if unit_combination in GATAN_WHICH_SPECTRUM:
                         template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
                             f"Identifier spectrum"
@@ -258,11 +287,18 @@ class RsciioGatanParser:
                             # unitless | dimensionless i.e. no unit in long_name
                         )
                 else:
-                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
+                    numpy_array = np.asarray(
                         offset
                         + np.linspace(0, count - 1, num=count, endpoint=True) * step,
                         dtype=np.float32,
                     )
+                    template[f"{trg}/AXISNAME[{axis_name}]"] = {
+                        "compress": numpy_array,
+                        "chunks": prioritized_axes_heuristic(
+                            numpy_array, np.arange(numpy_array.ndim)
+                        ),
+                        "strength": DEFAULT_COMPRESSION_LEVEL,
+                    }
                     template[f"{trg}/AXISNAME[{axis_name}]/@units"] = (
                         f"{ureg.Unit(units)}"
                     )
