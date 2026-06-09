@@ -25,6 +25,8 @@ from pynxtools_em.utils.custom_logging import logger
 VALID_FILE_NAME_SUFFIX_CONFIG = [".yaml", ".yml"]
 VALID_FILE_NAME_SUFFIX_DATA = [
     ".emd",
+    ".msa",
+    ".dm2",
     ".dm3",
     ".dm4",
     ".dm5",

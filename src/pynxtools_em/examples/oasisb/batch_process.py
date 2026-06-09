@@ -147,23 +147,26 @@ def process_project(
                 next(fp)
             for line in fp:
                 # logger lines formatted
-                # e.g. like this "INFO 2026-05-19T21:40:49.+0200 /mnt/Map_1.crc > /mnt/e.crc"
+                # old decompression log files are formatted like this "INFO 2026-05-19T21:40:49.+0200 /mnt/Map_1.crc > /mnt/e.crc"
                 # match = re.match(r"^INFO\s+(\S+)\s+(.+?)\s+>\s+(.+)$", line.rstrip())
                 # parts: list[str] = list(match.groups()) if match else []
-                # e.g. like this "INFO;2026-06-09T12:34:41.+0200;a.zip:b.emd;;b.emd"
-                parts: list[str] = (
-                    line.rstrip().split(";")[1:] if line.startswith("INFO;") else []
-                )
-                if len(parts) == 3:
-                    alias: str = parts[1].replace(alias_prefix_secret, "")
+                # new decompression log files are formatted like this "INFO;2026-06-09T12:34:41.+0200;a.zip:b.emd;;b.emd"
+                parts: list[str] = line.split(";") if line.startswith("INFO;") else []
+                # old decompression logs
+                # if len(parts) == 3:
+                #     alias: str = parts[1].replace(alias_prefix_secret, "")
+                #     original: str = parts[2]
+                # new decompression logs
+                if len(parts) == 5:
+                    alias: str = parts[2].replace(alias_prefix_secret, "")
                     # the file passed to MTex to obtain an .mtex.h5
-                    original: str = parts[2]
+                    original: str = parts[4]
                     # the file we pass to pynxtools-em for parsing to NeXus
                     alias_to_original[original] = alias
                     del alias, original
     except (FileNotFoundError, OSError):
-        logger.error(f"Unable to load {hash_file}")
-        return
+        logger.warning(f"Unable to load {hash_file}")
+        # return
     logger.info(f"File name aliasing has {len(alias_to_original)} entries")
 
     # we inject already queried content from the OpenAlex literature reference database
@@ -183,7 +186,7 @@ def process_project(
             logger.error(f"Unable to load {openalex_file}")
 
     # one NeXus file per incoming domain-specific file
-    if mime_type not in ["dm3"]:
+    if mime_type not in ["msa", "emd", "dm3", "dm4"]:
         logger.error(
             f"EM domain-specific mime_type is not included in the list of supported ones"
         )

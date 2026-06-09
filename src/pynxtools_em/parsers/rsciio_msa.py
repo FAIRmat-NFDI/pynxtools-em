@@ -17,19 +17,34 @@
 #
 """Parser for reading content from (E)MSA *.emsa via rosettasciio."""
 
-# import flatdict as fd
-# import numpy as np
+from datetime import datetime
+
+import flatdict as fd
+import numpy as np
+from pynxtools.dataconverter.chunk import prioritized_axes_heuristic
 from rsciio import msa
 
-# from pynxtools_em.configurations.rsciio_velox_cfg import
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
+from pynxtools_em.utils.default_config import (
+    DEFAULT_COMPRESSION_LEVEL,
+    DEFAULT_VERBOSITY,
+    SEPARATOR,
+)
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
-
-# from pynxtools_em.utils.pint_custom_unit_registry import ureg
+from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.rsciio_hspy_utils import all_req_keywords_in_dict
+from pynxtools_em.utils.string_conversions import string_to_number
 
-# from pynxtools_em.utils.velox_utils import velox_image_spectrum_or_generic_nxdata
+"""
+def proper_counts(array: np.ndarray) -> np.ndarray:
+    if array.ndim == 1 and all(value.is_integer() for value in array):
+        min = np.min(array)
+        max = np.max(array)
+        for bitdepth in [1, 2, 4, 8]:
+            if 0 <= min and max <= 2**(8 * bitdepth):
+                return array
+    return array
+"""
 
 
 class RsciioEmsaParser:
@@ -39,16 +54,16 @@ class RsciioEmsaParser:
         self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
     ):
         if file_path:
-            self.file_path = file_path
-            self.entry_id = entry_id if entry_id > 0 else 1
-            self.verbose = verbose
-            self.id_mgn: dict = {
+            self.file_path: str = file_path
+            self.entry_id: int = entry_id if entry_id > 0 else 1
+            self.verbose: bool = verbose
+            self.id_mgn: dict[str, int] = {
                 "event_id": 1,
                 "event_spc": 1,
                 "roi": 1,
             }
             # TODO version check
-            self.supported = False
+            self.supported: bool = False
             self.obj_idx_supported: list[int] = []
             self.check_if_supported()
             if not self.supported:
@@ -77,13 +92,18 @@ class RsciioEmsaParser:
                 if not all_req_keywords_in_dict(obj, reqs):
                     continue
                 # TODO version check
+                if len(obj["axes"]) != 1:
+                    logger.warning(
+                        f"{self.file_path} EMSA files should have only one one-dimensional spectrum"
+                    )
+                    return
                 self.obj_idx_supported.append(idx)
                 if self.verbose:
                     logger.debug(f"{idx}-th obj is supported")
             if len(self.obj_idx_supported) > 0:
                 self.supported = True
         except (OSError, FileNotFoundError, ValueError):
-            logger.warning(f"{self.file_path} FileNotFound, IOError, or ValueError !")
+            logger.warning(f"{self.file_path} OS,FileNotFound, or ValueError !")
             return
 
     def parse(self, template: dict) -> dict:
@@ -105,239 +125,114 @@ class RsciioEmsaParser:
                 continue
             if not all_req_keywords_in_dict(obj, reqs):
                 continue
+            if self.verbose:
+                logger.info("original_metadata")
+                for keyword, value in obj["original_metadata"].items():
+                    logger.info(f"{keyword}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
+                logger.info("metadata")
+                for keyword, value in obj["metadata"].items():
+                    logger.info(f"{keyword}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
+                logger.info(f"{obj['axes']}")
             self.process_event_data_em_data(obj, template)
             if self.verbose:
                 logger.debug(f"obj{idx}, dims {obj['axes']}")
         return template
 
     def process_event_data_em_metadata(self, obj: dict, template: dict) -> dict:
-        """Map some of the TFS/FEI/Velox-specific metadata concepts on NeXus concepts."""
-        pass
-        """
-        identifier = [self.entry_id, self.id_mgn["event_id"], 1]
-        flat_orig_meta = fd.FlatDict(obj["original_metadata"], "/")
-        for keyword, value in flat_orig_meta.items():
-            flat_orig_meta[keyword] = string_to_number(value)
-        if self.verbose:
-            for keyword, value in flat_orig_meta.items():
-                logger.info(f"{keyword}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
+        """Map some of the EMSA/MSA-specific metadata concepts on NeXus concepts."""
+        identifier: list[int] = [self.entry_id, self.id_mgn["event_id"], 1]
+        original_metadata = fd.FlatDict(obj["original_metadata"], "/")
+        for keyword, value in original_metadata.items():
+            original_metadata[keyword] = string_to_number(value)
 
-        if (len(identifier) != 3) or (not all(isinstance(x, int) for x in identifier)):
-            logger.warning(f"Argument identifier {identifier} needs three int values!")
-        trg = f"/ENTRY[entry{identifier[0]}]/measurement/eventID[event{identifier[1]}]/instrument/ebeam_column"
-        # using an own function like add_dynamic_lens_metadata may be needed
-        # if specific NeXus group have some extra formatting
-        lens_idx = 1
-        for lens_name in [
-            "C1",
-            "C2",
-            "C3",
-            "Diffraction",
-            "Gun",
-            "Intermediate",
-            "MiniCondenser",
-            "Lorentz",
-            "Objective",
-            "Projector1",
-            "Projector2",
-        ]:
-            toggle = False
-            if f"Optics/{lens_name}LensIntensity" in flat_orig_meta:
-                template[f"{trg}/lensID[lens{lens_idx}]/power_setting"] = (
-                    string_to_number(flat_orig_meta[f"Optics/{lens_name}LensIntensity"])
-                )
-                if lens_name != "Gun":
-                    template[f"{trg}/lensID[lens{lens_idx}]/power_setting/@units"] = "%"
-                toggle = True
-            if f"Optics/{lens_name}LensMode" in flat_orig_meta:
-                template[f"{trg}/lensID[lens{lens_idx}]/mode"] = string_to_number(
-                    flat_orig_meta[f"Optics/{lens_name}LensMode"]
-                )
-                toggle = True
-            if toggle:
-                template[
-                    f"/ENTRY[entry{identifier[0]}]/measurement/instrument/ebeam_column/lensID[lens{lens_idx}]/name"
-                ] = f"{lens_name}"
-                lens_idx += 1
+        if "DATE" in original_metadata and "TIME" in original_metadata:
+            dt = datetime.strptime(
+                f"{original_metadata['DATE']} {original_metadata['TIME']}",
+                "%d-%b-%Y %H:%M",
+            )
+            template[f"/ENTRY[entry{identifier[0]}]/start_time"] = f"{dt.isoformat()}"
 
-        aperture_idx = 1
-        # condenser lenses
-        for lens_name in [
-            "C1",
-            "C2",
-            "C3",
-        ]:
-            if f"Optics/{lens_name} Aperture" in flat_orig_meta:
-                qnt = ureg.Quantity(
-                    string_to_number(flat_orig_meta[f"Optics/{lens_name} Aperture"]),
-                    ureg.micrometer,
-                )
-                template[f"{trg}/apertureID[aperture{aperture_idx}]/setting"] = (
-                    qnt.magnitude
-                )
-                template[f"{trg}/apertureID[aperture{aperture_idx}]/setting/@units"] = (
-                    qnt.units
-                )
-                template[
-                    f"/ENTRY[entry{identifier[0]}]/measurement/instrument/ebeam_column/apertureID[aperture{aperture_idx}]/name"
-                ] = f"{lens_name}"
-                aperture_idx += 1
+        for keyword in original_metadata:
+            if keyword.startswith("BEAMKV"):
+                trg = f"/ENTRY[entry{self.id_mgn['event_id']}]/measurement/eventID[event{self.id_mgn['event_id']}]instrument/ebeam_column/electron_source"
+                quantity = ureg.Quantity(
+                    np.float64(original_metadata[keyword]), ureg.kilovolt
+                ).to(ureg.volt)
+                template[f"{trg}/voltage"] = quantity.magnitude
+                template[f"{trg}/voltage/@units"] = f"{quantity.units}"
+                break
 
-        # other/special lenses
-        for lens_name in ["OBJ", "SA"]:
-            if f"Optics/{lens_name} Aperture" in flat_orig_meta:
-                template[f"{trg}/apertureID[aperture{aperture_idx}]/status"] = (
-                    flat_orig_meta[f"Optics/{lens_name} Aperture"]
-                )
-                template[
-                    f"/ENTRY[entry{identifier[0]}]/measurement/instrument/ebeam_column/apertureID[aperture{aperture_idx}]/name"
-                ] = f"{lens_name}"
-
-        for cfg in [
-            VELOX_STATIC_ENTRY_NX,
-            VELOX_STATIC_EBEAM_NX,
-            VELOX_DYNAMIC_SCAN_NX,
-            VELOX_DYNAMIC_VARIOUS_NX,
-            VELOX_DYNAMIC_OPTICS_NX,
-        ]:
-            add_specific_metadata_pint(cfg, flat_orig_meta, identifier, template)
-
-        add_specific_metadata_pint(
-            VELOX_STATIC_FABRICATION_NX, flat_orig_meta, identifier, template
-        )
-        add_specific_metadata_pint(
-            VELOX_DYNAMIC_STAGE_NX, flat_orig_meta, identifier, template
-        )
-        add_specific_metadata_pint(
-            VELOX_DYNAMIC_EBEAM_NX, flat_orig_meta, identifier, template
-        )
-        """
+        # TODO extend
         return template
 
     def process_event_data_em_data(self, obj: dict, template: dict) -> dict:
         """Map Velox-specifically formatted data arrays on NeXus NXdata/NXimage/NXspectrum."""
-        pass
-        """
-        flat_hspy_meta = fd.FlatDict(obj["metadata"], "/")
-        if "General/title" not in flat_hspy_meta:
+        metadata = fd.FlatDict(obj["metadata"], "/")
+        if "General/title" not in metadata:
+            logger.warning(f"Missing General/title metadata keyword")
             return template
 
-        # flat_orig_meta = fd.FlatDict(obj["original_metadata"], "/")
-        axes = obj["axes"]
-        unit_combination = velox_image_spectrum_or_generic_nxdata(axes)
-        if unit_combination == "":
+        original_metadata = fd.FlatDict(obj["original_metadata"], "/")
+        if not all(keyword in original_metadata for keyword in ["XUNITS", "NCOLUMNS"]):
+            logger.warning(
+                f"Spectrum with irrecoverable energy axis or unsupported formatting"
+            )
             return template
+        # TODO: check that NCOLUMNS int == 1 and XUNITS = "Energy (EV)"
+
+        axes = obj["axes"]
         if self.verbose:
             logger.debug(axes)
-            logger.debug(f"{unit_combination}, {np.shape(obj['data'])}")
             logger.debug(
                 f"entry_id {self.entry_id}, event_id {self.id_mgn['event_id']}"
             )
 
-        prfx = f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event{self.id_mgn['event_id']}]"
         # this is the place when you want to skip individually the writing of NXdata
         # return template
         axis_names = None
-        if unit_combination in VELOX_WHICH_SPECTRUM:
-            # self.annotate_information_source(
-            #     "",
-            #     f"{prfx}/spectrumID[spectrum1]",
-            #     self.file_path,
-            #     self.file_path_sha256,
-            #     template,
-            # )
-            trg = f"{prfx}/spectrumID[spectrum1]/{VELOX_WHICH_SPECTRUM[unit_combination][0]}"
-            template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
-            template[f"{trg}/@signal"] = f"intensity"
-            template[f"{trg}/intensity"] = {"compress": obj["data"], "strength": 1}
-            template[f"{trg}/intensity/@long_name"] = f"Counts"
-            axis_names = VELOX_WHICH_SPECTRUM[unit_combination][1]
-        elif unit_combination in VELOX_WHICH_IMAGE:
-            # self.annotate_information_source(
-            #     "",
-            #     f"{prfx}/imageID[image1]",
-            #     self.file_path,
-            #     self.file_path_sha256,
-            #     template,
-            # )
-            trg = f"{prfx}/imageID[image1]/{VELOX_WHICH_IMAGE[unit_combination][0]}"
-            template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
-            template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
-            template[f"{trg}/real"] = {"compress": obj["data"], "strength": 1}
-            template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
-            axis_names = VELOX_WHICH_IMAGE[unit_combination][1]
-        else:
-            # self.annotate_information_source(
-            #     "",
-            #     f"{prfx}/DATA[data1]",
-            #     self.file_path,
-            #     self.file_path_sha256,
-            #     template,
-            # )
-            trg = f"{prfx}/DATA[data1]"
-            template[f"{trg}/title"] = f"{flat_hspy_meta['General/title']}"
-            template[f"{trg}/@signal"] = f"data"
-            template[f"{trg}/data"] = {"compress": obj["data"], "strength": 1}
-            axis_names = ["axis_i", "axis_j", "axis_k", "axis_m", "axis_n"][
-                0 : len(unit_combination.split("_"))
-            ]  # TODO mind order
+        # TODO source annotation
+        trg = f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event{self.id_mgn['event_id']}]/spectrumID[spectrum1]/spectrum_0d"
+        template[f"{trg}/title"] = f"{metadata['General/title']}"
+        template[f"{trg}/@signal"] = f"intensity"
+        numpy_array = np.asarray(
+            obj["data"],
+            dtype=np.uint64
+            if all(value.is_integer() and value >= 0 for value in obj["data"])
+            else np.float64,
+        )
+        template[f"{trg}/intensity"] = {
+            "compress": numpy_array,
+            "strength": DEFAULT_COMPRESSION_LEVEL,
+            "chunks": prioritized_axes_heuristic(
+                numpy_array, np.arange(obj["data"].ndim)
+            ),
+        }
+        template[f"{trg}/intensity/@long_name"] = f"Counts"
+        template[f"{trg}/@AXISNAME_indices[axis_energy_indices]"] = np.uint32(0)
+        template[f"{trg}/@axes"] = ["axis_energy"]
 
-        if len(axis_names) >= 1:
-            # TODO arrays axis_names and dimensional_calibrations are aligned in order
-            # TODO but that order is reversed wrt to AXISNAME_indices !
-            for idx, axis_name in enumerate(axis_names):
-                template[f"{trg}/@AXISNAME_indices[{axis_name}_indices]"] = np.uint32(
-                    len(axis_names) - 1 - idx
-                )  # TODO::check with dissimilarly sized data array if this is idx !
-            template[f"{trg}/@axes"] = axis_names
-
-            for idx, axis in enumerate(axes):
-                axis_name = axis_names[idx]
-                offset = axis["offset"]
-                step = axis["scale"]
-                units = axis["units"]
-                count = np.shape(obj["data"])[idx]
-                if units == "":
-                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
-                        offset
-                        + np.linspace(0, count - 1, num=count, endpoint=True) * step,
-                        np.float32,
-                    )
-                    if unit_combination in VELOX_WHICH_SPECTRUM:
-                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Identifier spectrum"
-                        )
-                    elif unit_combination in VELOX_WHICH_IMAGE:
-                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Identifier image"
-                        )
-                    else:
-                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"{axis_name}"
-                            # unitless | dimensionless i.e. no unit in long_name
-                        )
-                else:
-                    template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(
-                        offset
-                        + np.linspace(0, count - 1, num=count, endpoint=True) * step,
-                        dtype=np.float32,
-                    )
-                    template[f"{trg}/AXISNAME[{axis_name}]/@units"] = (
-                        f"{ureg.Unit(units)}"
-                    )
-                    if (
-                        ureg.Quantity(units).to_base_units().units
-                        == "kilogram * meter ** 2 / second ** 2"
-                    ):
-                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Energy ({ureg.Unit(units)})"
-                        )
-                    else:
-                        template[f"{trg}/AXISNAME[{axis_name}]/@long_name"] = (
-                            f"Coordinate along {axis_name.replace('axis_', '')}-axis ({ureg.Unit(units)})"
-                        )
+        # axis_name = axis_names[idx]
+        offset = obj["axes"][0]["offset"]
+        step = obj["axes"][0]["scale"]
+        units = ureg.electron_volt
+        count = obj["axes"][0]["size"]
+        numpy_array = np.asarray(
+            offset + np.linspace(0, count - 1, num=count, endpoint=True) * step,
+            np.float32,
+        )
+        template[f"{trg}/AXISNAME[axis_energy]"] = {
+            "compress": numpy_array,
+            "strength": DEFAULT_COMPRESSION_LEVEL,
+            "chunks": prioritized_axes_heuristic(
+                numpy_array, np.arange(numpy_array.ndim)
+            ),
+        }
+        template[f"{trg}/AXISNAME[axis_energy]/@units"] = f"{ureg.Unit(units)}"
+        template[f"{trg}/AXISNAME[axis_energy]/@long_name"] = (
+            f"Energy ({ureg.Unit(units)})"
+        )
 
         self.process_event_data_em_metadata(obj, template)
-        self.id_mgn["event_id"] += 1
-        """
+        # only one spectrum for EMSA
+
         return template

@@ -59,3 +59,10 @@ OASISCFG_EM_SAMPLE_TO_NEXUS: dict[str, Any] = {
     "prefix_src": "sample/",
     "map_to_str": ["atom_types"],
 }
+
+
+OASISCFG_EM_PROJECT_TO_NEXUS: dict[str, str | list[str]] = {
+    "prefix_trg": "/ENTRY[entry*]/project",
+    "prefix_src": "project/",
+    "map_to_str": ["name"],
+}

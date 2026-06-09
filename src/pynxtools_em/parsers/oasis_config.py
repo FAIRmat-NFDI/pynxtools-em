@@ -27,6 +27,7 @@ from pynxtools_em.configurations.oasis_eln_config_cfg import (
     OASISCFG_EM_CITATION_TO_NEXUS,
     OASISCFG_EM_CSYS_TO_NEXUS,
     OASISCFG_EM_NOTE_TO_NEXUS,
+    OASISCFG_EM_PROJECT_TO_NEXUS,
     OASISCFG_EM_SAMPLE_TO_NEXUS,
 )
 from pynxtools_em.utils.custom_logging import logger
@@ -83,6 +84,7 @@ class NxEmNomadOasisConfigParser:
             self.parse_reference_frames(template)
             self.parse_citations(template)
             self.parse_notes(template)
+            self.parse_experiment_description(template)
             add_specific_metadata_pint(
                 OASISCFG_EM_SAMPLE_TO_NEXUS, self.flat_metadata, [1], template
             )
@@ -155,4 +157,49 @@ class NxEmNomadOasisConfigParser:
                             template,
                         )
                         note_id += 1
+        return template
+
+    def parse_experiment_description(self, template: dict) -> dict:
+        """Generate customized entryID/experiment_description field."""
+        composed_description: list[str] = []
+        # TODO other cases possible, e.g. AI summaries
+
+        src: str = "citation"
+        if src in self.flat_metadata:
+            if isinstance(self.flat_metadata[src], list):
+                if (
+                    all(isinstance(entry, dict) for entry in self.flat_metadata[src])
+                    is True
+                ):
+                    # custom schema delivers a list of dictionaries...
+                    cite_id: int = 1
+                    for cite_dict in self.flat_metadata[src]:
+                        if len(cite_dict) == 0:
+                            continue
+
+                        for field_name in [
+                            "title",
+                            "author",
+                            "doi",
+                        ]:
+                            if field_name in cite_dict:
+                                composed_description.append(
+                                    f"{cite_dict[field_name]}, "
+                                )
+                        break  # assume first reference is always to the dataset
+                        # do not add further references
+
+        if len(composed_description) > 0:
+            message = "\n".join(composed_description).strip()
+            template[f"/ENTRY[entry{self.entry_id}]/experiment_description"] = (
+                message[:-1] if message.endswith(",") else message
+            )
+
+        identifier = [self.entry_id]
+        add_specific_metadata_pint(
+            OASISCFG_EM_PROJECT_TO_NEXUS,
+            self.flat_metadata,
+            identifier,
+            template,
+        )
         return template
