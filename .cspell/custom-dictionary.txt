@@ -185,6 +185,7 @@ arange
 asarray
 atomtypes
 authorships
+autorecover
 autostem
 backscatter
 bibfile
@@ -347,6 +348,7 @@ rraw
 rrng
 rsciio
 rtol
+scidat
 sevenz
 sevenzip
 sgid
