@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Parse ELN metadata for the EM database use case."""
+"""Parse ELN metadata for C. Koch's NOMAD OASIS at HU Berlin, CSMB."""
 
 import pathlib
 
@@ -23,17 +23,18 @@ import flatdict as fd
 import yaml
 
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
-from pynxtools_em.examples.ebsd_database_eln_cfg import (
-    EBSD_DATABASE_CITATION_TO_NEXUS,
-    EBSD_DATABASE_SPECIMEN_TO_NEXUS,
+from pynxtools_em.examples.deu_berlin_koch.deu_berlin_koch_cfg import (
+    DEU_BERLIN_KOCH_GROUP_ECOLUMN_TO_NEXUS,
+    DEU_BERLIN_KOCH_GROUP_ESOURCE_TO_NEXUS,
+    DEU_BERLIN_KOCH_GROUP_INSTRUMENT_TO_NEXUS,
 )
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 
 
-class NxEmCustomElnEbsdDatabase:
-    """Parse example-specific metadata like coming from an external src e.g. ELN."""
+class NxEmCustomElnDeuBerlinKoch:
+    """Parse deployment specific configuration."""
 
     def __init__(
         self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
@@ -78,33 +79,24 @@ class NxEmCustomElnEbsdDatabase:
             logger.info(
                 f"Parsing {self.file_path} NOMAD Oasis/config with SHA256 {self.file_path_sha256} ..."
             )
-            self.parse_metadata(template)
+            self.parse_static_metadata_nion_microscope(template)
         return template
 
-    def parse_metadata(self, template: dict) -> dict:
+    def parse_static_metadata_nion_microscope(self, template: dict) -> dict:
         """Copy data from example-specific section into template."""
-        identifier = [self.entry_id]
-        add_specific_metadata_pint(
-            EBSD_DATABASE_SPECIMEN_TO_NEXUS,
-            self.flat_metadata,
-            identifier,
-            template,
+        logger.debug(
+            f"Mapping some of the Zeiss metadata on respective NeXus concepts..."
         )
-
-        src = "citation"
-        if src in self.flat_metadata:
-            if isinstance(self.flat_metadata[src], list):
-                if all(isinstance(entry, dict) for entry in self.flat_metadata[src]):
-                    cite_id = 1
-                    # custom schema delivers a list of dictionaries...
-                    for cite_dict in self.flat_metadata[src]:
-                        if len(cite_dict) > 0:
-                            identifier = [self.entry_id, cite_id]
-                            add_specific_metadata_pint(
-                                EBSD_DATABASE_CITATION_TO_NEXUS,
-                                cite_dict,
-                                identifier,
-                                template,
-                            )
-                            cite_id += 1
+        identifier = [self.entry_id]
+        for cfg in [
+            DEU_BERLIN_KOCH_GROUP_INSTRUMENT_TO_NEXUS,
+            DEU_BERLIN_KOCH_GROUP_ESOURCE_TO_NEXUS,
+            DEU_BERLIN_KOCH_GROUP_ECOLUMN_TO_NEXUS,
+        ]:
+            add_specific_metadata_pint(
+                cfg,
+                self.flat_metadata,
+                identifier,
+                template,
+            )
         return template

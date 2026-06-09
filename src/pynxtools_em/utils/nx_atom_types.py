@@ -22,7 +22,7 @@ import re
 
 from ase.data import chemical_symbols
 
-from pynxtools_em.examples.ebsd_database import (
+from pynxtools_em.examples.oasisb.ebsd_database import (
     CONCEPT_TO_ATOM_TYPES,
     FREE_TEXT_TO_CONCEPT,
 )

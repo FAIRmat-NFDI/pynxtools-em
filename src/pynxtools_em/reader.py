@@ -24,12 +24,14 @@ from typing import Any
 from pynxtools.dataconverter.readers.base.reader import BaseReader
 
 from pynxtools_em.concepts.nxs_concepts import NxEmAppDef
-from pynxtools_em.examples.custom_reference_frame import (
+from pynxtools_em.examples.deu_berlin_koch.deu_berlin_koch_eln import (
+    NxEmCustomElnDeuBerlinKoch,
+)
+from pynxtools_em.examples.oasisb.custom_reference_frame import (
     NxEmCustomElnCustomReferenceFrame,
 )
-from pynxtools_em.examples.deu_berlin_koch_eln import NxEmCustomElnDeuBerlinKoch
-from pynxtools_em.examples.ebsd_database_eln import NxEmCustomElnEbsdDatabase
-from pynxtools_em.examples.usa_evanston_yan_ebsd_patterns import (
+from pynxtools_em.examples.oasisb.ebsd_database_eln import NxEmCustomElnEbsdDatabase
+from pynxtools_em.examples.usa_evanston_yan.usa_evanston_yan_ebsd_patterns import (
     DiffractionPatternSetParser,
 )
 from pynxtools_em.parsers.hfive_apex import HdfFiveEdaxApexParser

@@ -18,5 +18,17 @@
 """Event logging capabilities."""
 
 import logging
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+
+class ISO8601Formatter(logging.Formatter):
+    def formatTime(self, record, datefmt=None):
+        dt = datetime.fromtimestamp(
+            record.created,
+            tz=ZoneInfo("Europe/Berlin"),
+        )
+        return dt.isoformat()
+
 
 logger = logging.getLogger("pynxtools-em")

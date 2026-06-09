@@ -22,7 +22,7 @@ import os
 import requests
 from requests.exceptions import HTTPError
 
-from pynxtools_em.examples.oasisb_bibliography import is_valid_doi
+from pynxtools_em.examples.oasisb.oasisb_bibliography import is_valid_doi
 
 
 def get_data_for_doi_from_openalex(bib: dict, bib_keys: str) -> int:
