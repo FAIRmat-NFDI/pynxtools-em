@@ -22,6 +22,7 @@ import mmap
 import flatdict as fd
 import numpy as np
 from PIL import Image, ImageSequence
+from pynxtools.dataconverter.chunk import prioritized_axes_heuristic
 
 # https://www.loc.gov/preservation/digital/formats/content/tiff_tags.shtml
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
@@ -37,7 +38,11 @@ from pynxtools_em.configurations.image_tiff_tfs_cfg import (
     TIFF_TFS_PARENT_CONCEPTS,
 )
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY, SEPARATOR
+from pynxtools_em.utils.default_config import (
+    DEFAULT_COMPRESSION_LEVEL,
+    DEFAULT_VERBOSITY,
+    SEPARATOR,
+)
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.image_utils import (
     if_str_represents_float,
@@ -188,7 +193,7 @@ class TfsTiffParser:
         identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
-                nparr = np.flipud(np.array(img))
+                numpy_array = np.flipud(np.array(img))
                 # logger.debug(f"type: {type(nparr)}, dtype: {nparr.dtype}, shape: {np.shape(nparr)}")
                 # TODO::discussion points
                 # - how do you know we have an image of real space vs. imaginary space (from the metadata?)
@@ -213,7 +218,13 @@ class TfsTiffParser:
                 template[f"{trg}/@axes"] = []
                 for dim in dims[::-1]:
                     template[f"{trg}/@axes"].append(f"axis_{dim}")
-                template[f"{trg}/real"] = {"compress": nparr, "strength": 1}
+                template[f"{trg}/real"] = {
+                    "compress": numpy_array,
+                    "strength": DEFAULT_COMPRESSION_LEVEL,
+                    "chunks": prioritized_axes_heuristic(
+                        numpy_array, np.arange(numpy_array.ndim)
+                    ),
+                }
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
@@ -235,7 +246,7 @@ class TfsTiffParser:
                     }
                 else:
                     logger.warning("Assuming pixel width and height unit is unitless!")
-                nxy = {"i": np.shape(nparr)[1], "j": np.shape(nparr)[0]}
+                nxy = {"i": np.shape(numpy_array)[1], "j": np.shape(numpy_array)[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # however the TIFF file gives no clue, TIFF just documents in which order
                 # it arranges a bunch of pixels that have stream in into a n-d tiling
@@ -250,13 +261,17 @@ class TfsTiffParser:
                 # and there is already a proper TIFF tag for the width and height of an
                 # image in number of pixel
                 for dim in dims:
+                    numpy_array = np.asarray(
+                        np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
+                        * sxy[dim].magnitude,
+                        dtype=np.float32,
+                    )
                     template[f"{trg}/AXISNAME[axis_{dim}]"] = {
-                        "compress": np.asarray(
-                            np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
-                            * sxy[dim].magnitude,
-                            dtype=np.float32,
+                        "compress": numpy_array,
+                        "strength": DEFAULT_COMPRESSION_LEVEL,
+                        "chunks": prioritized_axes_heuristic(
+                            numpy_array, np.arange(numpy_array.ndim)
                         ),
-                        "strength": 1,
                     }
                     template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
                         f"Coordinate along {dim}-axis ({sxy[dim].units if not sxy[dim].dimensionless else 'pixel'})"
@@ -266,7 +281,7 @@ class TfsTiffParser:
                             f"{sxy[dim].units}"
                         )
                 identifier_image += 1
-                del nparr
+                del numpy_array
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:

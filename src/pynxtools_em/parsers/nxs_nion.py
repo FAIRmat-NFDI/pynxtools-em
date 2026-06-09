@@ -28,6 +28,7 @@ import h5py
 import nion.swift.model.NDataHandler as nsnd
 import numpy as np
 import yaml
+from pynxtools.dataconverter.chunk import prioritized_axes_heuristic
 
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.nion_cfg import (
@@ -45,7 +46,7 @@ from pynxtools_em.configurations.nion_cfg import (
     NION_WHICH_SPECTRUM,
 )
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.default_config import SEPARATOR
+from pynxtools_em.utils.default_config import DEFAULT_COMPRESSION_LEVEL, SEPARATOR
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.nion_utils import (
     nion_image_spectrum_or_generic_nxdata,
@@ -488,14 +489,14 @@ class NionProjectParser:
     def process_event_data_em_data(
         self,
         ifo_src: str,
-        nparr: np.ndarray,
+        numpy_array: np.ndarray,
         flat_metadata: fd.FlatDict,
         template: dict,
     ) -> dict:
         """Map Nion-specifically formatted data arrays on NeXus NXdata/NXimage/NXspectrum."""
         axes = flat_metadata["dimensional_calibrations"]
         unit_combination = nion_image_spectrum_or_generic_nxdata(axes)
-        logger.debug(f"{unit_combination}, {np.shape(nparr)}")
+        logger.debug(f"{unit_combination}, {np.shape(numpy_array)}")
         if self.verbose:
             logger.debug(f"axes{SEPARATOR}{axes}")
         logger.debug(
@@ -524,7 +525,13 @@ class NionProjectParser:
             )
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"intensity"
-            template[f"{trg}/intensity"] = {"compress": nparr, "strength": 1}
+            template[f"{trg}/intensity"] = {
+                "compress": numpy_array,
+                "strength": DEFAULT_COMPRESSION_LEVEL,
+                "chunks": prioritized_axes_heuristic(
+                    numpy_array, np.arange(numpy_array.ndim)
+                ),
+            }
             template[f"{trg}/intensity/@long_name"] = f"Counts"
             axis_names = NION_WHICH_SPECTRUM[unit_combination][1]
         elif unit_combination in NION_WHICH_IMAGE:
@@ -536,7 +543,13 @@ class NionProjectParser:
             )
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"real"  # TODO::unless COMPLEX
-            template[f"{trg}/real"] = {"compress": nparr, "strength": 1}
+            template[f"{trg}/real"] = {
+                "compress": numpy_array,
+                "strength": DEFAULT_COMPRESSION_LEVEL,
+                "chunks": prioritized_axes_heuristic(
+                    numpy_array, np.arange(numpy_array.ndim)
+                ),
+            }
             template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
             axis_names = NION_WHICH_IMAGE[unit_combination][1]
         elif not any(
@@ -550,7 +563,13 @@ class NionProjectParser:
                 return template
             template[f"{trg}/title"] = f"{flat_metadata['title']}"
             template[f"{trg}/@signal"] = f"data"
-            template[f"{trg}/data"] = {"compress": nparr, "strength": 1}
+            template[f"{trg}/data"] = {
+                "compress": numpy_array,
+                "strength": DEFAULT_COMPRESSION_LEVEL,
+                "chunks": prioritized_axes_heuristic(
+                    numpy_array, np.arange(numpy_array.ndim)
+                ),
+            }
             axis_names = ["axis_i", "axis_j", "axis_k", "axis_m", "axis_n"][
                 0 : len(unit_combination.split("_"))
             ][::-1]
@@ -572,7 +591,7 @@ class NionProjectParser:
                 offset = axis["offset"]
                 step = axis["scale"]
                 units = axis["units"]
-                count = np.shape(nparr)[idx]
+                count = np.shape(numpy_array)[idx]
                 if units == "":
                     if unit_combination in NION_WHICH_SPECTRUM:
                         template[f"{trg}/AXISNAME[{axis_name}]"] = np.asarray(

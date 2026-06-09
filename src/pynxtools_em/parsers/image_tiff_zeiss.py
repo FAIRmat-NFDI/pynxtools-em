@@ -25,6 +25,7 @@ import flatdict as fd
 import numpy as np
 from PIL import Image, ImageSequence
 from pint import UndefinedUnitError
+from pynxtools.dataconverter.chunk import prioritized_axes_heuristic
 
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
 from pynxtools_em.configurations.image_tiff_zeiss_cfg import (
@@ -34,7 +35,11 @@ from pynxtools_em.configurations.image_tiff_zeiss_cfg import (
     ZEISS_STATIC_VARIOUS_NX,
 )
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY, SEPARATOR
+from pynxtools_em.utils.default_config import (
+    DEFAULT_COMPRESSION_LEVEL,
+    DEFAULT_VERBOSITY,
+    SEPARATOR,
+)
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.image_utils import (
     PILLOW_TIFF_MODE_EXOTIC,
@@ -189,14 +194,14 @@ class ZeissTiffParser:
             for img in ImageSequence.Iterator(fp):
                 if img.mode not in PILLOW_TIFF_MODE_EXOTIC:
                     if img.mode in PILLOW_TIFF_MODE_TO_GREYSCALE:
-                        nparr = np.flipud(np.array(img.convert("L")))
+                        numpy_array = np.flipud(np.array(img.convert("L")))
                     else:
-                        nparr = np.flipud(np.array(img))
+                        numpy_array = np.flipud(np.array(img))
                 else:
                     logger.warning(f"{img.mode} is an unsupported img.mode")
                     continue
                 logger.debug(
-                    f"Processing image {identifier_image} ... {type(nparr)}, {np.shape(nparr)}, {nparr.dtype}"
+                    f"Processing image {identifier_image} ... {type(numpy_array)}, {np.shape(numpy_array)}, {numpy_array.dtype}"
                 )
                 # eventually similar open discussions points as were raised for tiff_tfs parser
                 trg = (
@@ -215,7 +220,13 @@ class ZeissTiffParser:
                 template[f"{trg}/@axes"] = []
                 for dim in dims[::-1]:
                     template[f"{trg}/@axes"].append(f"axis_{dim}")
-                template[f"{trg}/real"] = {"compress": nparr, "strength": 1}
+                template[f"{trg}/real"] = {
+                    "compress": numpy_array,
+                    "strength": DEFAULT_COMPRESSION_LEVEL,
+                    "chunks": prioritized_axes_heuristic(
+                        numpy_array, np.arange(numpy_array.ndim)
+                    ),
+                }
                 #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                 template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
@@ -239,18 +250,22 @@ class ZeissTiffParser:
                         break
                 if not found:
                     logger.warning("Assuming pixel width and height unit is unitless!")
-                nxy = {"i": np.shape(nparr)[1], "j": np.shape(nparr)[0]}
+                nxy = {"i": np.shape(numpy_array)[1], "j": np.shape(numpy_array)[0]}
                 # TODO::be careful we assume here a very specific coordinate system
                 # however, these assumptions need to be confirmed by point electronic
                 # additional points as discussed already in comments to TFS TIFF reader
                 for dim in dims:
+                    numpy_array = np.asarray(
+                        np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
+                        * sxy[dim].magnitude,
+                        dtype=np.float32,
+                    )
                     template[f"{trg}/AXISNAME[axis_{dim}]"] = {
-                        "compress": np.asarray(
-                            np.linspace(0, nxy[dim] - 1, num=nxy[dim], endpoint=True)
-                            * sxy[dim].magnitude,
-                            dtype=np.float32,
+                        "compress": numpy_array,
+                        "strength": DEFAULT_COMPRESSION_LEVEL,
+                        "chunks": prioritized_axes_heuristic(
+                            numpy_array, np.arange(numpy_array.ndim)
                         ),
-                        "strength": 1,
                     }
                     template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
                         f"Coordinate along {dim}-axis ({sxy[dim].units if not sxy[dim].dimensionless else 'pixel'})"
@@ -260,7 +275,7 @@ class ZeissTiffParser:
                             f"{sxy[dim].units}"
                         )
                 identifier_image += 1
-                del nparr
+                del numpy_array
         return template
 
     def process_event_data_em_metadata(self, template: dict) -> dict:
