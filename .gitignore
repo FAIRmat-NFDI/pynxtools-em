@@ -206,6 +206,7 @@ tests/data
 tests/prod
 examples/oasisb/aaa_legacy_*
 examples/oasisb/openalex
+examples/oasisb/*.yaml
 !examples/oasisb/*.json
 !examples/oasisb/*.ipynb
 examples/oasisb/harvest.*

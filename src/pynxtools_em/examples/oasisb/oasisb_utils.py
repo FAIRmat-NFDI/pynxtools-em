@@ -23,11 +23,10 @@ import shutil
 import sys
 
 import pandas as pd
-import yaml
 from pycountry import countries
 
 from pynxtools_em import get_pynxtools_em_version
-from pynxtools_em.examples.get_file_from_archive_formats import (
+from pynxtools_em.utils.get_file_from_archive_formats import (
     get_file_from_rar,
     get_file_from_sevenzip,
     get_file_from_tar,
@@ -35,46 +34,11 @@ from pynxtools_em.examples.get_file_from_archive_formats import (
 )
 
 
-def get_project_id(project_name: str, typ: str = "D") -> str:
+def get_project_id(project_name: str) -> str:
     """Convert integer project_name ids like 1, 2, 3, ..., to three-digit format with prefix D for dataset or A for article."""
-    if 1 <= len(project_name) <= 3:  # typ == "D" or typ == "A" and
-        return f"{'0' * (3 - len(project_name))}{project_name}"  # {typ}
+    if 1 <= len(project_name) <= 3:
+        return f"{'0' * (3 - len(project_name))}{project_name}"
     return ""
-
-
-# print(get_project_id("1"))
-
-
-def snake_case_to_camel_case(snake_case: str) -> str:
-    camel_case = ""
-    for token in snake_case.split("_"):
-        camel_case += token.capitalize()
-    return camel_case
-
-
-# print(snake_case_to_camel_case("usa_portland_wang"))
-# print(snake_case_to_camel_case("usa_idaho_boise01"))
-
-
-def export_to_yaml(fpath: str, lookup_dict: dict):
-    """Write content of lookup_dict to yaml file."""
-    with open(fpath, "w") as fp:
-        yaml.dump(lookup_dict, fp, default_flow_style=False, width=float("inf"))
-
-
-def export_to_text(fpath: str, the_set: set[str]):
-    """Write sorted list of all entries of the_set."""
-    with open(fpath, "w") as fp:
-        for item in sorted(the_set):
-            fp.write(f"{item}\n")
-
-
-def alpha2_to_alpha3(alpha2: str) -> str:
-    country = countries.get(alpha_2=alpha2)
-    return country.alpha_3 if country else ""
-
-
-# print(alpha2_to_alpha3("US").lower())
 
 
 def is_valid_alpha3(code: str) -> bool:
@@ -84,6 +48,7 @@ def is_valid_alpha3(code: str) -> bool:
         return False
 
 
+"""
 APM_MIME_TYPES_SIDECAR: list[tuple[str, str]] = []
 
 APM_MIME_TYPES_SOLITARY: list[str] = [
@@ -117,6 +82,7 @@ APM_MIME_TYPES_SOLITARY: list[str] = [
     ".hits",  # newer, AP Suite results and parameter of hit finding and analysis steps up to reconstruction and ranging
     ".root",  # parameterization of reconstruction and ranging
 ]
+"""
 
 
 EM_MTEX_MIME_TYPES_SIDECAR: list[tuple[str, str]] = [
@@ -166,6 +132,7 @@ EM_IMAGE_MIME_TYPES_SOLITARY: list[str] = [
 
 EM_MIXED_MIME_TYPES_SIDECAR: list[tuple[str, str]] = [
     # common file formats for mixed content we process straight with pynxtools-em
+    (".emi", ".ser"),
 ]
 
 EM_MIXED_MIME_TYPES_SOLITARY: list[str] = [
@@ -173,6 +140,7 @@ EM_MIXED_MIME_TYPES_SOLITARY: list[str] = [
     ".ipj",  # Oxford Instruments INCA
     ".msa",  # EMSA/MSA
     ".bcf",
+    ".dm2",
     ".dm3",
     ".dm4",
     ".dm5",
