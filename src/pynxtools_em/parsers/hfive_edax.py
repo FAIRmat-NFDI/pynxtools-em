@@ -21,7 +21,7 @@ import h5py
 import numpy as np
 from diffpy.structure import Lattice, Structure
 
-from pynxtools_em.examples.ebsd_database import ASSUME_PHASE_NAME_TO_SPACE_GROUP
+from pynxtools_em.examples.oasisb.ebsd_database import ASSUME_PHASE_NAME_TO_SPACE_GROUP
 from pynxtools_em.methods.ebsd import (
     HEXAGONAL_FLAT_TOP_TILING,
     SQUARE_TILING,

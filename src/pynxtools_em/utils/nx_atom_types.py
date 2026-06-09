@@ -17,14 +17,17 @@
 #
 """Try to recover atom_types."""
 
+import logging
 import re
 
 from ase.data import chemical_symbols
 
-from pynxtools_em.examples.ebsd_database import (
+from pynxtools_em.examples.oasisb.ebsd_database import (
     CONCEPT_TO_ATOM_TYPES,
     FREE_TEXT_TO_CONCEPT,
 )
+
+logger = logging.getLogger("pynxtools-em")
 
 
 class NxEmAtomTypesResolver:
@@ -36,7 +39,7 @@ class NxEmAtomTypesResolver:
 
     def identify_atom_types(self, template: dict) -> dict:
         """Inspect template and find elements to eventually overwrite sample/atom_types."""
-        atom_types = set()
+        atom_types: set[str] = set()
         for key, free_text in template.items():
             if not key.startswith(f"/ENTRY[entry{self.entry_id}]/roiID[roi"):
                 continue
@@ -72,7 +75,12 @@ class NxEmAtomTypesResolver:
                         atom_types.add(symbol)
 
         trg = f"/ENTRY[entry{self.entry_id}]/sampleID[sample]/atom_types"
-        if len(atom_types) > 0 and trg not in template:
-            # do not overwrite what might have been provided already by an ELN
-            template[trg] = ", ".join(list(atom_types))
+        if trg not in template:
+            if len(atom_types) > 0:
+                # do not overwrite what might have been provided already by an ELN
+                template[trg] = ", ".join(list(atom_types))
+                logger.info(f"Identified atom_types {template[trg]}")
+            else:
+                logger.warning("Unable to identify atom_types")
+
         return template

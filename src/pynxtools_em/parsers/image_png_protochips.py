@@ -27,6 +27,7 @@ import flatdict as fd
 import numpy as np
 import xmltodict
 from PIL import Image
+from pynxtools.dataconverter.chunk import prioritized_axes_heuristic
 
 from pynxtools_em.concepts.mapping_functors_pint import (
     add_specific_metadata_pint,
@@ -42,7 +43,11 @@ from pynxtools_em.configurations.image_png_protochips_cfg import (
     specific_to_variadic,
 )
 from pynxtools_em.utils.custom_logging import logger
-from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY, SEPARATOR
+from pynxtools_em.utils.default_config import (
+    DEFAULT_COMPRESSION_LEVEL,
+    DEFAULT_VERBOSITY,
+    SEPARATOR,
+)
 from pynxtools_em.utils.get_checksum import (
     DEFAULT_CHECKSUM_ALGORITHM,
     get_sha256_of_file_content,
@@ -373,7 +378,7 @@ class ProtochipsPngSetParser:
                 identifier = [self.entry_id, event_id, 1]
                 with zip_file_hdl.open(file_name) as fp:
                     with Image.open(fp) as png:
-                        nparr = np.array(png)
+                        numpy_array = np.array(png)
                         identifier_image = 1
                         trg = (
                             f"/ENTRY[entry{self.entry_id}]/measurement/eventID[event"
@@ -392,7 +397,13 @@ class ProtochipsPngSetParser:
                         template[f"{trg}/@axes"] = []
                         for dim in dims[::-1]:
                             template[f"{trg}/@axes"].append(f"axis_{dim}")
-                        template[f"{trg}/real"] = {"compress": nparr, "strength": 1}
+                        template[f"{trg}/real"] = {
+                            "compress": numpy_array,
+                            "strength": DEFAULT_COMPRESSION_LEVEL,
+                            "chunks": prioritized_axes_heuristic(
+                                numpy_array, np.arange(numpy_array.ndim)
+                            ),
+                        }
                         #  0 is y while 1 is x for 2d, 0 is z, 1 is y, while 2 is x for 3d
                         template[f"{trg}/real/@long_name"] = (
                             f"Real part of the image intensity"
@@ -421,20 +432,27 @@ class ProtochipsPngSetParser:
                             logger.warning(
                                 "Assuming pixel width and height unit is unitless!"
                             )
-                        nxy = {"i": np.shape(nparr)[1], "j": np.shape(nparr)[0]}
-                        del nparr
+                        nxy = {
+                            "i": np.shape(numpy_array)[1],
+                            "j": np.shape(numpy_array)[0],
+                        }
+                        del numpy_array
                         # TODO::we assume here a very specific coordinate system see image_tiff_tfs.py
                         # parser for further details of the limitations of this approach
                         for dim in dims:
+                            numpy_array = np.asarray(
+                                np.linspace(
+                                    0, nxy[dim] - 1, num=nxy[dim], endpoint=True
+                                )
+                                * sxy[dim].magnitude,
+                                dtype=np.float32,
+                            )
                             template[f"{trg}/AXISNAME[axis_{dim}]"] = {
-                                "compress": np.asarray(
-                                    np.linspace(
-                                        0, nxy[dim] - 1, num=nxy[dim], endpoint=True
-                                    )
-                                    * sxy[dim].magnitude,
-                                    dtype=np.float32,
+                                "compress": numpy_array,
+                                "strength": DEFAULT_COMPRESSION_LEVEL,
+                                "chunks": prioritized_axes_heuristic(
+                                    numpy_array, np.arange(numpy_array.ndim)
                                 ),
-                                "strength": 1,
                             }
                             template[f"{trg}/AXISNAME[axis_{dim}]/@long_name"] = (
                                 f"Coordinate along {dim}-axis ({sxy[dim].units if not sxy[dim].dimensionless else 'pixel'})"

@@ -5,7 +5,8 @@ import py7zr
 import rarfile
 
 from pynxtools_em import get_pynxtools_em_version
-from pynxtools_em.examples.get_sha256_of_directories import (
+from pynxtools_em.examples.oasisb.oasisb_utils import CSV_HEADER_FOR_HASH_FILE
+from pynxtools_em.utils.get_sha256_of_directories import (
     SEPARATOR,
     analyze_file,
     analyze_rar_file,
@@ -13,7 +14,6 @@ from pynxtools_em.examples.get_sha256_of_directories import (
     analyze_tar_file,
     analyze_zip_file,
 )
-from pynxtools_em.examples.oasisb_utils import CSV_HEADER_FOR_HASH_FILE
 
 
 def hash_directory(root_path: str, prefix: str) -> None:

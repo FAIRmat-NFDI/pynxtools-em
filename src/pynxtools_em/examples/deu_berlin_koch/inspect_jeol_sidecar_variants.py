@@ -28,7 +28,7 @@ from pathlib import Path
 import puremagic  # modern, pythonic replacement but not that covering
 from charset_normalizer import from_bytes, from_path
 
-from pynxtools_em.examples.get_sha256_of_directories import SEPARATOR
+from pynxtools_em.utils.get_sha256_of_directories import SEPARATOR
 
 STRING_DECODER_CODECS = [
     "utf-8",

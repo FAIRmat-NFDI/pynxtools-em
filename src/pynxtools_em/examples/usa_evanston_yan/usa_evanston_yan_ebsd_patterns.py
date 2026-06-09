@@ -78,19 +78,19 @@ def get_materialsproject_id_and_space_group(
     fpath: str, verbose: bool = False
 ) -> tuple[str, int] | tuple[None, None]:
     if 1 <= int(fpath[fpath.rfind("/") - 3 : fpath.rfind("/")]) <= 230:
-        fname = fpath[fpath.rfind("/") + 1 :]
-        materialsproject_id = re.compile(r"^mp-(?:\d+)_").search(fname)
+        file_name = fpath[fpath.rfind("/") + 1 :]
+        materialsproject_id = re.compile(r"^mp-(?:\d+)_").search(file_name)
         mp = materialsproject_id.group()[0:-1]
         space_group_id = re.compile(r"^(?:\d{1}|\d{2}|\d{3})_").search(
-            fname.replace(materialsproject_id.group(), "")
+            file_name.replace(materialsproject_id.group(), "")
         )
         spc = space_group_id.group()[0:-1]
-        tail = fname.replace(
+        tail = file_name.replace(
             f"{materialsproject_id.group()}{space_group_id.group()}", ""
         )
         if verbose:
             logger.debug(
-                f"{fpath}\n{fname}\n{mp}{SEPARATOR}{type(mp)}\n{spc}{SEPARATOR}{type(spc)}\n{tail}{SEPARATOR}{type(tail)}"
+                f"{fpath}\n{file_name}\n{mp}{SEPARATOR}{type(mp)}\n{spc}{SEPARATOR}{type(spc)}\n{tail}{SEPARATOR}{type(tail)}"
             )
         return mp, int(spc)
     return None, None
