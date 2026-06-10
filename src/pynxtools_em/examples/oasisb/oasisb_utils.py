@@ -109,6 +109,14 @@ EM_HFIVE_MIME_TYPES_SOLITARY: list[str] = [
     ".edaxh5",
 ]
 
+EM_EDAX_MIME_TYPES_SIDECAR: list[tuple[str, str]] = []
+
+EM_EDAX_MIME_TYPES_SOLITARY: list[str] = [
+    ".spd",
+    ".spc",
+]
+
+
 EM_KPY_MIME_TYPES_SIDECAR: list[tuple[str, str]] = []
 
 EM_KPY_MIME_TYPES_SOLITARY: list[str] = [
@@ -122,6 +130,7 @@ EM_IMAGE_MIME_TYPES_SIDECAR: list[tuple[str, str]] = [
     (".tif", "-tif.hdr"),  # TESCAN
     (".tif", ".txt"),  # JEOL, Hitachi
     (".tiff", ".txt"),  #  JEOL, Hitachi
+    (".bmp", ".txt"),
 ]
 
 EM_IMAGE_MIME_TYPES_SOLITARY: list[str] = [

@@ -18,6 +18,7 @@
 
 """Script to batch-convert to NeXus/HDF5 using pynxtools-apm."""
 
+import gc
 import glob
 import json
 import logging
@@ -235,7 +236,7 @@ def process_project(
         logger.info(f"pynxtools-em {pynx_open_input_files}")
 
         try:
-            _ = convert(
+            convert(
                 input_file=tuple(pynx_open_input_files),
                 reader="em",
                 nxdl=nxdl,
@@ -247,6 +248,8 @@ def process_project(
             logger.info(f"pynxtools-em {output_file_path} success")
         except Exception:
             logger.exception(f"pynxtools-em {output_file_path} failed", exc_info=True)
+
+        gc.collect()
 
     # with open(
     #     f"{target_directory}{os.sep}{project_name}.{logger_file_path_suffix}.csv", "w"
