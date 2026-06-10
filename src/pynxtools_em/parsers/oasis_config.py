@@ -23,6 +23,7 @@ import flatdict as fd
 import yaml
 
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
+from pynxtools_em.configurations.oasis_eln_cfg import OASISELN_EM_USER_TO_NEXUS
 from pynxtools_em.configurations.oasis_eln_config_cfg import (
     OASISCFG_EM_CITATION_TO_NEXUS,
     OASISCFG_EM_CSYS_TO_NEXUS,
@@ -44,11 +45,11 @@ class NxEmNomadOasisConfigParser:
         if pathlib.Path(file_path).name.endswith(
             (".oasis.specific.yaml", ".oasis.specific.yml")
         ):
-            self.file_path = file_path
-            self.entry_id = entry_id if entry_id > 0 else 1
-            self.verbose = verbose
+            self.file_path: str = file_path
+            self.entry_id: int = entry_id if entry_id > 0 else 1
+            self.verbose: bool = verbose
             self.flat_metadata = fd.FlatDict({}, "/")
-            self.supported = False
+            self.supported: bool = False
             self.check_if_supported()
             if not self.supported:
                 logger.debug(
@@ -70,7 +71,7 @@ class NxEmNomadOasisConfigParser:
                         logger.info(f"key: {key}, val: {val}")
                 self.supported = True
         except (OSError, FileNotFoundError):
-            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either OS, or FileNotFound error")
             return
 
     def parse(self, template: dict) -> dict:
@@ -86,7 +87,13 @@ class NxEmNomadOasisConfigParser:
             self.parse_notes(template)
             self.parse_experiment_description(template)
             add_specific_metadata_pint(
-                OASISCFG_EM_SAMPLE_TO_NEXUS, self.flat_metadata, [1], template
+                OASISCFG_EM_SAMPLE_TO_NEXUS,
+                self.flat_metadata,
+                [self.entry_id],
+                template,
+            )
+            add_specific_metadata_pint(
+                OASISELN_EM_USER_TO_NEXUS, self.flat_metadata, [self.entry_id], template
             )
         return template
 
@@ -101,11 +108,10 @@ class NxEmNomadOasisConfigParser:
                     for csys_dict in self.flat_metadata[src]:
                         if len(csys_dict) == 0:
                             continue
-                        identifier = [self.entry_id, csys_id]
                         add_specific_metadata_pint(
                             OASISCFG_EM_CSYS_TO_NEXUS,
                             csys_dict,
-                            identifier,
+                            [self.entry_id, csys_id],
                             template,
                         )
                         csys_id += 1
@@ -125,11 +131,10 @@ class NxEmNomadOasisConfigParser:
                     for cite_dict in self.flat_metadata[src]:
                         if len(cite_dict) == 0:
                             continue
-                        identifier = [self.entry_id, cite_id]
                         add_specific_metadata_pint(
                             OASISCFG_EM_CITATION_TO_NEXUS,
                             cite_dict,
-                            identifier,
+                            [self.entry_id, cite_id],
                             template,
                         )
                         cite_id += 1
@@ -149,11 +154,10 @@ class NxEmNomadOasisConfigParser:
                     for note_dict in self.flat_metadata[src]:
                         if len(note_dict) == 0:
                             continue
-                        identifier = [self.entry_id, note_id]
                         add_specific_metadata_pint(
                             OASISCFG_EM_NOTE_TO_NEXUS,
                             note_dict,
-                            identifier,
+                            [self.entry_id, note_id],
                             template,
                         )
                         note_id += 1
@@ -195,11 +199,10 @@ class NxEmNomadOasisConfigParser:
                 message[:-1] if message.endswith(",") else message
             )
 
-        identifier = [self.entry_id]
         add_specific_metadata_pint(
             OASISCFG_EM_PROJECT_TO_NEXUS,
             self.flat_metadata,
-            identifier,
+            [self.entry_id],
             template,
         )
         return template
