@@ -54,12 +54,12 @@ EDAXH
 EFECT
 EFTEM
 ELEMENTOVRLAYIMGCOLLECTIONPARAMS
-Emsa
 EMSA
 ESBD
 ESEM
 ESOURCE
 Elstar
+Emsa
 Erdmann
 Erlangen
 Eucentric
@@ -185,11 +185,13 @@ affil
 amcsd
 analysisset
 angstroem
+annotable
 appdef
 arange
 asarray
 atomtypes
 authorships
+automaticstyles
 autorecover
 autostem
 backscatter
@@ -202,6 +204,7 @@ caplog
 childs
 chunker
 cnts
+columnwidth
 continously
 cought
 couhatched
@@ -364,7 +367,9 @@ skiprows
 sothree
 spotsize
 strct
+stringvalue
 stwo
+stylename
 superalloy
 surrogateescape
 sversion
@@ -377,6 +382,7 @@ tzone
 unipd
 unitless
 ureg
+valuetype
 varphi
 visititems
 voronoi
