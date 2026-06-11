@@ -97,13 +97,17 @@ class TfsTiffParser:
             return
 
         with Image.open(self.file_path, mode="r") as fp:
-            tfs_keys = [34682]
-            for tfs_key in tfs_keys:
+            for tfs_key in [34682]:
                 if tfs_key in fp.tag_v2:
                     if len(fp.tag_v2[tfs_key]) >= 1:
                         self.get_metadata()
-                        self.supported = True
-                        return
+
+        if len(self.metadata) > 0:
+            self.supported = True
+
+        if self.verbose:
+            for key, value in self.metadata.items():
+                logger.info(f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
 
     def get_metadata(self):
         """Extract metadata behind ThermoFisher specific tags if present."""
@@ -174,9 +178,6 @@ class TfsTiffParser:
                             )
                     else:
                         break
-        if self.verbose:
-            for key, value in self.metadata.items():
-                logger.info(f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing."""

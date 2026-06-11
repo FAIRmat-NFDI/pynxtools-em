@@ -54,6 +54,7 @@ from pynxtools_em.utils.image_utils import (
     PILLOW_IMAGE_MODE_NOT_GREYSCALE,
 )
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
+from pynxtools_em.utils.schema_version import EmSchemaVersion
 from pynxtools_em.utils.string_conversions import string_to_number
 from pynxtools_em.utils.xml_utils import flatten_xml_to_dict
 
@@ -65,26 +66,30 @@ FEI_LEGACY_HELIOS_SEM = 2
 
 class FeiLegacyTiffParser:
     def __init__(
-        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+        self,
+        file_path: str | None = None,
+        entry_id: int = 1,
+        verbose: bool = DEFAULT_VERBOSITY,
     ):
-        if file_path:
-            self.file_path = file_path
-            self.entry_id = entry_id if entry_id > 0 else 1
-            self.verbose = verbose
-            self.id_mgn: dict[str, int] = {"event_id": 1}
-            self.flat_dict_meta = fd.FlatDict({}, "/")
-            self.version: dict = {}
-            self.supported: int = FEI_LEGACY_UNKNOWN
-            self.check_if_tiff_fei_legacy()
-            if not self.supported:
-                logger.debug(
-                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
-                )
-        else:
+        self.file_path = file_path or ""
+        self.entry_id = max(1, entry_id)
+        self.verbose = verbose
+        self.id_mgn: dict[str, int] = {"event_id": 1}
+        self.metadata = fd.FlatDict({}, "/")
+        self.versions: list[EmSchemaVersion] = []
+        self.supported: int = FEI_LEGACY_UNKNOWN
+
+        if not self.file_path:
             logger.warning(
-                f"Parser {self.__class__.__name__} needs FEI legacy TIFF file !"
+                f"Parser {self.__class__.__name__} needs FEI legacy TIFF file"
             )
-            self.supported = False
+
+        self.check_if_tiff_fei_legacy()
+
+        if self.supported == FEI_LEGACY_UNKNOWN:
+            logger.info(
+                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+            )
 
     def check_if_tiff_fei_legacy(self):
         """Check if resource behind self.file_path is a TaggedImageFormat file."""
@@ -114,20 +119,20 @@ class FeiLegacyTiffParser:
                                 for suffix in ["Label", "Value", "Unit"]
                             ):
                                 try:
-                                    self.flat_dict_meta[tmp[f"{prefix}Label"]] = (
+                                    self.metadata[tmp[f"{prefix}Label"]] = (
                                         ureg.Quantity(
                                             f"""{tmp[f"{prefix}Value"]} {tmp[f"{prefix}Unit"]}"""
                                         )
                                     )
                                 except UndefinedUnitError:
                                     if tmp[f"{prefix}Value"] is not None:
-                                        self.flat_dict_meta[tmp[f"{prefix}Label"]] = (
+                                        self.metadata[tmp[f"{prefix}Label"]] = (
                                             string_to_number(tmp[f"{prefix}Value"])
                                         )
-                    if "Microscope" in self.flat_dict_meta:
-                        if "Tecnai" in self.flat_dict_meta["Microscope"]:
+                    if "Microscope" in self.metadata:
+                        if "Tecnai" in self.metadata["Microscope"]:
                             if self.verbose:
-                                for key, val in self.flat_dict_meta.items():
+                                for key, val in self.metadata.items():
                                     logger.info(f"{key}, {val}, {type(val)}")
                             self.supported = FEI_LEGACY_TECNAI_TEM
                             return
@@ -140,22 +145,22 @@ class FeiLegacyTiffParser:
                     tmp = flatten_xml_to_dict(xmltodict.parse(s.read(pos_e - pos_s)))
                     # TODO::Implement mapping for FEI_LEGACY_HELIOS_SEM
                     for key, val in tmp.items():
-                        self.flat_dict_meta[key] = string_to_number(val)
+                        self.metadata[key] = string_to_number(val)
                     if all(
-                        val in self.flat_dict_meta
+                        val in self.metadata
                         for val in [
                             "Metadata.Instrument.ControlSoftwareVersion",
                             "Metadata.Instrument.Manufacturer",
                             "Metadata.Instrument.InstrumentClass",
                         ]
                     ):
-                        if self.flat_dict_meta[
-                            "Metadata.Instrument.Manufacturer"
-                        ].startswith("FEI") and self.flat_dict_meta[
+                        if self.metadata["Metadata.Instrument.Manufacturer"].startswith(
+                            "FEI"
+                        ) and self.metadata[
                             "Metadata.Instrument.InstrumentClass"
                         ].startswith("Helios NanoLab"):
                             if self.verbose:
-                                for key, val in self.flat_dict_meta.items():
+                                for key, val in self.metadata.items():
                                     logger.info(f"{key}, {val}, {type(val)}")
                             self.supported = FEI_LEGACY_HELIOS_SEM
                             logger.warning(
@@ -167,7 +172,7 @@ class FeiLegacyTiffParser:
                             return
 
         except (OSError, FileNotFoundError):
-            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either OS or FileNotFound error !")
             return
 
     def parse(self, template: dict) -> dict:
@@ -186,13 +191,12 @@ class FeiLegacyTiffParser:
             logger.info(
                 f"Detected {self.file_path} qualifies as FEI_LEGACY_HELIOS_SEM. "
                 f"These can have conflicting metadata, will currently parse only "
-                f"when the image_tfs_tif parser picks content up!"
+                f"when the image_tiff_tfs parser picks content up!"
             )
         return template
 
     def process_event_data_em_data(self, template: dict) -> dict:
         """Add respective heavy data."""
-        # default display of the image(s) representing the data collected in this event
         logger.debug(
             f"Writing legacy FEI TIFF image data to NeXus concept instances..."
         )
@@ -256,7 +260,7 @@ class FeiLegacyTiffParser:
                     # may face CCD overview camera of chamber that has no calibration!
                     abbrev = "Metadata.BinaryResult.PixelSize"
                     if all(
-                        key in self.flat_dict_meta
+                        key in self.metadata
                         for key in [
                             f"{abbrev}.X.@unit",
                             f"{abbrev}.X.#text",
@@ -266,10 +270,10 @@ class FeiLegacyTiffParser:
                     ):
                         sxy = {
                             "i": ureg.Quantity(
-                                f"{self.flat_dict_meta[f'''{abbrev}.X.#text''']} {self.flat_dict_meta[f'''{abbrev}.X.@unit''']}"
+                                f"{self.metadata[f'''{abbrev}.X.#text''']} {self.metadata[f'''{abbrev}.X.@unit''']}"
                             ),
                             "j": ureg.Quantity(
-                                f"{self.flat_dict_meta[f'''{abbrev}.Y.#text''']} {self.flat_dict_meta[f'''{abbrev}.Y.@unit''']}"
+                                f"{self.metadata[f'''{abbrev}.Y.#text''']} {self.metadata[f'''{abbrev}.Y.@unit''']}"
                             ),
                         }
                     else:
@@ -336,7 +340,6 @@ class FeiLegacyTiffParser:
 
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
-        # contextualization to understand how the image relates to the EM session
         logger.debug(
             f"Mapping some of the FEI Legacy metadata on respective NeXus concepts..."
         )
@@ -347,11 +350,9 @@ class FeiLegacyTiffParser:
                 FEI_TECNAI_DYNAMIC_VARIOUS_NX,
                 FEI_TECNAI_STATIC_VARIOUS_NX,
             ]:  # TODO::static quantities may need to be splitted
-                add_specific_metadata_pint(
-                    cfg, self.flat_dict_meta, identifier, template
-                )
+                add_specific_metadata_pint(cfg, self.metadata, identifier, template)
             add_specific_metadata_pint(
-                FEI_TECNAI_DYNAMIC_STAGE_NX, self.flat_dict_meta, identifier, template
+                FEI_TECNAI_DYNAMIC_STAGE_NX, self.metadata, identifier, template
             )
         elif self.supported == FEI_LEGACY_HELIOS_SEM:
             for cfg in [
@@ -362,10 +363,8 @@ class FeiLegacyTiffParser:
                 FEI_HELIOS_DYNAMIC_VARIOUS_NX,
                 FEI_HELIOS_STATIC_VARIOUS_NX,
             ]:
-                add_specific_metadata_pint(
-                    cfg, self.flat_dict_meta, identifier, template
-                )
+                add_specific_metadata_pint(cfg, self.metadata, identifier, template)
             add_specific_metadata_pint(
-                FEI_HELIOS_DYNAMIC_STAGE_NX, self.flat_dict_meta, identifier, template
+                FEI_HELIOS_DYNAMIC_STAGE_NX, self.metadata, identifier, template
             )
         return template

@@ -82,12 +82,15 @@ class JeolTiffParser:
             if len(case_selector["txt"]) == 1:
                 self.txt_file_path = case_selector["txt"][0]
         else:
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs JEOL TIFF file, sidecar file optional"
+            )
             return
 
         self.check_if_tiff_jeol()
 
         if not self.supported:
-            logger.debug(
+            logger.info(
                 f"Parser {self.__class__.__name__} finds no content in {file_paths} that it supports"
             )
 
@@ -209,17 +212,17 @@ class JeolTiffParser:
                         if line.strip() != "" and line.startswith("$")
                     ]
                     for line in txt:
-                        tmp = line.split()
-                        if len(tmp) == 2:
-                            if tmp[0] not in self.metadata:
+                        parts = line.split()
+                        if len(parts) == 2:
+                            if parts[0] not in self.metadata:
                                 # replace with pint parsing and catching multiple exceptions
                                 # as it is exemplified in the tiff_zeiss parser
-                                if tmp[0] != "SM_MICRON_MARKER":
-                                    self.metadata[tmp[0]] = string_to_number(tmp[1])
+                                if parts[0] != "SM_MICRON_MARKER":
+                                    self.metadata[parts[0]] = string_to_number(parts[1])
                                 else:
-                                    self.metadata[tmp[0]] = ureg.Quantity(tmp[1])
+                                    self.metadata[parts[0]] = ureg.Quantity(parts[1])
                             else:
-                                logger.warning(f"Found duplicated key {tmp[0]} !")
+                                logger.warning(f"Found duplicated key {parts[0]} !")
                         else:
                             logger.debug(f"{line} is currently ignored !")
                 if all(

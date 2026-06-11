@@ -108,8 +108,8 @@ class PointElectronicTiffParser:
     def get_metadata(self, meta: fd.FlatDict):
         """Flatten point-electronic formatting of XMPMeta data."""
         for entry in meta["xmpmeta/RDF/Description"]:
-            tmp = fd.FlatDict(entry, "/")
-            for key, obj in tmp.items():
+            flat_dict = fd.FlatDict(entry, "/")
+            for key, obj in flat_dict.items():
                 if isinstance(obj, list):
                     for dct in obj:
                         if isinstance(dct, dict):

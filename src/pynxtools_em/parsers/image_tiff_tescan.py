@@ -93,7 +93,7 @@ class TescanTiffParser:
         self.check_if_tiff_tescan()
 
         if not self.supported:
-            logger.debug(
+            logger.info(
                 f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
             )
 

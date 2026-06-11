@@ -94,12 +94,16 @@ class ZeissTiffParser:
             return
 
         with Image.open(self.file_path, mode="r") as fp:
-            zeiss_keys = [34118]
-            for zeiss_key in zeiss_keys:
+            for zeiss_key in [34118]:
                 if zeiss_key in fp.tag_v2:
                     self.get_metadata(fp.tag_v2[zeiss_key])
-                    self.supported = True
-                    return
+
+        if len(self.metadata) > 0:
+            self.supported = True
+
+        if self.verbose:
+            for key, value in self.metadata.items():
+                logger.info(f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
 
     def get_metadata(self, payload: str):
         """Extract metadata behind Zeiss-specific tags if present."""
@@ -130,17 +134,17 @@ class ZeissTiffParser:
                     else:
                         logger.warning(f"Ignoring line {line} token {token} !")
                 else:
-                    tmp = [value.strip() for value in token[1].split()]
-                    if len(tmp) == 1 and tmp[0] in ["On", "Yes"]:
+                    parts = [value.strip() for value in token[1].split()]
+                    if len(parts) == 1 and parts[0] in ["On", "Yes"]:
                         self.metadata[line] = True
-                    elif len(tmp) == 1 and tmp[0] in ["Off", "No"]:
+                    elif len(parts) == 1 and parts[0] in ["Off", "No"]:
                         self.metadata[line] = False
-                    elif len(tmp) == 2 and tmp[1] == "°C":
-                        self.metadata[line] = ureg.Quantity(tmp[0], ureg.degC)
-                    elif len(tmp) == 2 and tmp[1] == "X":
-                        self.metadata[line] = ureg.Quantity(tmp[0])
-                    elif len(tmp) == 3 and tmp[1] == "K" and tmp[2] == "X":
-                        self.metadata[line] = ureg.Quantity(tmp[0]) * 1000.0
+                    elif len(parts) == 2 and parts[1] == "°C":
+                        self.metadata[line] = ureg.Quantity(parts[0], ureg.degC)
+                    elif len(parts) == 2 and parts[1] == "X":
+                        self.metadata[line] = ureg.Quantity(parts[0])
+                    elif len(parts) == 3 and parts[1] == "K" and parts[2] == "X":
+                        self.metadata[line] = ureg.Quantity(parts[0]) * 1000.0
                     else:
                         try:
                             self.metadata[line] = ureg.Quantity(token[1])
@@ -154,9 +158,6 @@ class ZeissTiffParser:
                             if token[1]:
                                 self.metadata[line] = string_to_number(token[1])
             idx += 1
-        if self.verbose:
-            for key, value in self.metadata.items():
-                logger.debug(f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing."""
