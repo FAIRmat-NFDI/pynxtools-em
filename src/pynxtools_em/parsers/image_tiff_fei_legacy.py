@@ -49,6 +49,10 @@ from pynxtools_em.utils.default_config import (
     DEFAULT_VERBOSITY,
 )
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
+from pynxtools_em.utils.image_utils import (
+    PILLOW_IMAGE_MODE_EXOTIC,
+    PILLOW_IMAGE_MODE_NOT_GREYSCALE,
+)
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
 from pynxtools_em.utils.xml_utils import flatten_xml_to_dict
@@ -196,7 +200,14 @@ class FeiLegacyTiffParser:
         identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
-                numpy_array = np.flipud(np.array(img))
+                if img.mode not in PILLOW_IMAGE_MODE_EXOTIC:
+                    if img.mode in PILLOW_IMAGE_MODE_NOT_GREYSCALE:
+                        numpy_array = np.flipud(np.array(img.convert("L")))
+                    else:
+                        numpy_array = np.flipud(np.array(img))
+                else:
+                    logger.warning(f"{img.mode} is an unsupported img.mode")
+                    continue
                 # logger.debug(f"type: {type(nparr)}, dtype: {nparr.dtype}, shape: {np.shape(nparr)}")
                 # TODO::discussion points
                 # - how do you know we have an image of real space vs. imaginary space (from the metadata?)

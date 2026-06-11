@@ -43,6 +43,10 @@ from pynxtools_em.utils.default_config import (
 )
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.get_xmp import extract_full_xmp
+from pynxtools_em.utils.image_utils import (
+    PILLOW_IMAGE_MODE_EXOTIC,
+    PILLOW_IMAGE_MODE_NOT_GREYSCALE,
+)
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
 
@@ -260,7 +264,14 @@ class JeolTiffParser:
         identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
-                numpy_array = np.flipud(np.array(img))
+                if img.mode not in PILLOW_IMAGE_MODE_EXOTIC:
+                    if img.mode in PILLOW_IMAGE_MODE_NOT_GREYSCALE:
+                        numpy_array = np.flipud(np.array(img.convert("L")))
+                    else:
+                        numpy_array = np.flipud(np.array(img))
+                else:
+                    logger.warning(f"{img.mode} is an unsupported img.mode")
+                    continue
                 logger.debug(
                     f"Processing image {identifier_image} ... {type(numpy_array)}, {np.shape(numpy_array)}, {numpy_array.dtype}"
                 )

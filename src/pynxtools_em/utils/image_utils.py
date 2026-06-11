@@ -39,7 +39,7 @@ def if_str_represents_float(s):
         return False
 
 
-PILLOW_TIFF_MODE_EXOTIC: tuple[str, ...] = (
+PILLOW_IMAGE_MODE_EXOTIC: tuple[str, ...] = (
     "P",
     "PA",
     "CMYK",
@@ -50,4 +50,4 @@ PILLOW_TIFF_MODE_EXOTIC: tuple[str, ...] = (
     "BGR;16",
     "BGR;24",
 )
-PILLOW_TIFF_MODE_TO_GREYSCALE: tuple[str, ...] = ("LA", "RGB", "RGBA", "RGBX", "RGBa")
+PILLOW_IMAGE_MODE_NOT_GREYSCALE: tuple[str, ...] = ("LA", "RGB", "RGBA", "RGBX", "RGBa")

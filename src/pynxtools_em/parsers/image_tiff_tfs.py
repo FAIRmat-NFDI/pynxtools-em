@@ -45,6 +45,8 @@ from pynxtools_em.utils.default_config import (
 )
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.image_utils import (
+    PILLOW_IMAGE_MODE_EXOTIC,
+    PILLOW_IMAGE_MODE_NOT_GREYSCALE,
     if_str_represents_float,
     sort_asc_by_second_argument,
 )
@@ -193,8 +195,18 @@ class TfsTiffParser:
         identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
+                if img.mode not in PILLOW_IMAGE_MODE_EXOTIC:
+                    if img.mode in PILLOW_IMAGE_MODE_NOT_GREYSCALE:
+                        numpy_array = np.flipud(np.array(img.convert("L")))
+                    else:
+                        numpy_array = np.flipud(np.array(img))
+                else:
+                    logger.warning(f"{img.mode} is an unsupported img.mode")
+                    continue
                 numpy_array = np.flipud(np.array(img))
-                # logger.debug(f"type: {type(nparr)}, dtype: {nparr.dtype}, shape: {np.shape(nparr)}")
+                logger.debug(
+                    f"Processing image {identifier_image} ... {type(numpy_array)}, {np.shape(numpy_array)}, {numpy_array.dtype}"
+                )
                 # TODO::discussion points
                 # - how do you know we have an image of real space vs. imaginary space (from the metadata?)
                 # - how do deal with the (ugly) scale bar that is typically stamped into the TIFF image content?

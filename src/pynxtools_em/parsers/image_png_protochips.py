@@ -378,6 +378,7 @@ class ProtochipsPngSetParser:
                 identifier = [self.entry_id, event_id, 1]
                 with zip_file_hdl.open(file_name) as fp:
                     with Image.open(fp) as png:
+                        # TODO check also PILLOW_IMAGE_MODE*
                         numpy_array = np.array(png)
                         identifier_image = 1
                         trg = (
