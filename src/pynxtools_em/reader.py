@@ -56,6 +56,7 @@ from pynxtools_em.parsers.oasis_config import NxEmNomadOasisConfigParser
 from pynxtools_em.parsers.oasis_eln import NxEmNomadOasisElnSchemaParser
 from pynxtools_em.parsers.rsciio_gatan import RsciioGatanParser
 from pynxtools_em.parsers.rsciio_mrc import RsciioMrcParser
+from pynxtools_em.parsers.rsciio_msa import RsciioEmsaParser
 from pynxtools_em.parsers.rsciio_velox import RsciioVeloxParser
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.default_config import SEPARATOR
@@ -159,6 +160,7 @@ class EMReader(BaseReader):
                 ZeissTiffParser,
                 PointElectronicTiffParser,
                 ProtochipsPngSetParser,
+                RsciioEmsaParser,
                 RsciioVeloxParser,
                 RsciioGatanParser,
                 NionProjectParser,

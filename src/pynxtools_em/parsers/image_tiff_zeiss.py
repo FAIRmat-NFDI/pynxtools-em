@@ -42,8 +42,8 @@ from pynxtools_em.utils.default_config import (
 )
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.image_utils import (
-    PILLOW_TIFF_MODE_EXOTIC,
-    PILLOW_TIFF_MODE_TO_GREYSCALE,
+    PILLOW_IMAGE_MODE_EXOTIC,
+    PILLOW_IMAGE_MODE_NOT_GREYSCALE,
 )
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.string_conversions import string_to_number
@@ -192,8 +192,8 @@ class ZeissTiffParser:
         identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
-                if img.mode not in PILLOW_TIFF_MODE_EXOTIC:
-                    if img.mode in PILLOW_TIFF_MODE_TO_GREYSCALE:
+                if img.mode not in PILLOW_IMAGE_MODE_EXOTIC:
+                    if img.mode in PILLOW_IMAGE_MODE_NOT_GREYSCALE:
                         numpy_array = np.flipud(np.array(img.convert("L")))
                     else:
                         numpy_array = np.flipud(np.array(img))

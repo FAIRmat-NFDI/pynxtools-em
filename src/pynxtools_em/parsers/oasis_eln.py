@@ -46,11 +46,11 @@ class NxEmNomadOasisElnSchemaParser:
         self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
     ):
         if pathlib.Path(file_path).name.endswith(("eln_data.yaml", "eln_data.yml")):
-            self.file_path = file_path
-            self.entry_id = entry_id if entry_id > 0 else 1
-            self.verbose = verbose
+            self.file_path: str = file_path
+            self.entry_id: int = entry_id if entry_id > 0 else 1
+            self.verbose: bool = verbose
             self.flat_metadata = fd.FlatDict({}, "/")
-            self.supported = False
+            self.supported: bool = False
             self.check_if_supported()
             if not self.supported:
                 logger.debug(
@@ -73,7 +73,7 @@ class NxEmNomadOasisElnSchemaParser:
                         logger.info(f"key: {key}, value: {val}")
             self.supported = True
         except (OSError, FileNotFoundError):
-            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either OS, or FileNotFound error")
             return
 
     def parse(self, template: dict) -> dict:
@@ -93,25 +93,22 @@ class NxEmNomadOasisElnSchemaParser:
 
     def parse_entry(self, template: dict) -> dict:
         """Copy data from entry section into template."""
-        identifier = [self.entry_id]
         add_specific_metadata_pint(
-            OASISELN_EM_ENTRY_TO_NEXUS, self.flat_metadata, identifier, template
+            OASISELN_EM_ENTRY_TO_NEXUS, self.flat_metadata, [self.entry_id], template
         )
         return template
 
     def parse_project(self, template: dict) -> dict:
         """Copy data from project section into template."""
-        identifier = [self.entry_id]
         add_specific_metadata_pint(
-            OASISELN_EM_PROJECT_TO_NEXUS, self.flat_metadata, identifier, template
+            OASISELN_EM_PROJECT_TO_NEXUS, self.flat_metadata, [self.entry_id], template
         )
         return template
 
     def parse_sample(self, template: dict) -> dict:
         """Copy data from entry section into template."""
-        identifier = [self.entry_id]
         add_specific_metadata_pint(
-            OASISELN_EM_SAMPLE_TO_NEXUS, self.flat_metadata, identifier, template
+            OASISELN_EM_SAMPLE_TO_NEXUS, self.flat_metadata, [self.entry_id], template
         )
         return template
 
@@ -128,9 +125,9 @@ class NxEmNomadOasisElnSchemaParser:
 
         src = "sample/atom_types"
         if src in self.flat_metadata:
-            unique_elements = set()
+            unique_elements: set[str] = set()
             for token in self.flat_metadata[src].split(","):
-                symbol = token.strip()
+                symbol: str = token.strip()
                 if symbol in chemical_symbols[1::]:
                     unique_elements.add(symbol)
                 # silently ignoring all incorrect user input
@@ -149,11 +146,10 @@ class NxEmNomadOasisElnSchemaParser:
                     for user_dict in self.flat_metadata[src]:
                         if len(user_dict) == 0:
                             continue
-                        identifier = [self.entry_id, user_id]
                         add_specific_metadata_pint(
                             OASISELN_EM_USER_TO_NEXUS,
                             user_dict,
-                            identifier,
+                            [self.entry_id, user_id],
                             template,
                         )
                         if "orcid" in user_dict:

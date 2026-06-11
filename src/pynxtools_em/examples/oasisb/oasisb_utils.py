@@ -109,6 +109,14 @@ EM_HFIVE_MIME_TYPES_SOLITARY: list[str] = [
     ".edaxh5",
 ]
 
+EM_EDAX_MIME_TYPES_SIDECAR: list[tuple[str, str]] = []
+
+EM_EDAX_MIME_TYPES_SOLITARY: list[str] = [
+    ".spd",
+    ".spc",
+]
+
+
 EM_KPY_MIME_TYPES_SIDECAR: list[tuple[str, str]] = []
 
 EM_KPY_MIME_TYPES_SOLITARY: list[str] = [
@@ -122,6 +130,7 @@ EM_IMAGE_MIME_TYPES_SIDECAR: list[tuple[str, str]] = [
     (".tif", "-tif.hdr"),  # TESCAN
     (".tif", ".txt"),  # JEOL, Hitachi
     (".tiff", ".txt"),  #  JEOL, Hitachi
+    (".bmp", ".txt"),
 ]
 
 EM_IMAGE_MIME_TYPES_SOLITARY: list[str] = [
@@ -167,7 +176,7 @@ def prepare_parsing(
     mime_type_sidecar: list[tuple[str, str]],
 ) -> dict[str, dict[str, int]]:
     """
-    Load EBSD files from a configuration file, identify MTex-processable files,
+    Load files from a configuration file, identify MTex-processable files,
     and decompress these to a target directory.
 
     Parameters
@@ -370,3 +379,119 @@ def prepare_parsing(
                 fp.write(log_buffer.getvalue())
 
     return status
+
+
+def prepare_parsing_via_config_file(
+    config_file_path: str,
+    src_directory: str,
+    project_id: str,
+    trg_directory: str,
+    report: bool,
+    write: bool,
+    mime_type: str,
+) -> None:
+    """
+    Decompress files based on a config file that specifies all files
+    to consider and decompress these to a target directory.
+
+    Parameters
+    ----------
+    config_file_path :
+        Configuration file (ODS spreadsheet) that lists files to consider.
+    src_directory :
+        Directory prefix where to find archive or files that should be processed.
+    project_id :
+        Three-digit integer string 001, 002, ..., 999 alias of the project.
+    trg_directory :
+        Directory where processable files will be decompressed.
+    report :
+        If True will write a csv file to trg_directory named {project_id}.decompressed.log
+    write :
+        If True will decompress files to disk.
+    mime_type :
+        Identifier used in log files to distinguish artifacts of different use cases
+    """
+
+    if report:
+        log_buffer = io.StringIO()
+        log_path = f"{trg_directory}{os.sep}{project_id}.{mime_type}.decompressed.csv"
+        print(log_path)
+        logger = logging.getLogger(f"{project_id}")
+        logger.setLevel(logging.DEBUG)
+        log_handler = logging.StreamHandler(log_buffer)
+        # log_handler = logging.FileHandler(log_path, mode="w")
+        line_formatting = "%(levelname)s;%(asctime)s;%(message)s"
+        time_formatting = "%Y-%m-%dT%H:%M:%S.%z"
+        formatter = logging.Formatter(line_formatting, time_formatting)
+        log_handler.setFormatter(formatter)
+        logger.addHandler(log_handler)
+
+        logger.info(f"python_version: {sys.version.replace(' ', '_')}")
+        logger.info(f"working_directory: {os.getcwd()}")
+        logger.info(f"pynxtools_em version: {get_pynxtools_em_version()}")
+        logger.info(f"src_directory: {src_directory}")
+        logger.info(f"project_id: {project_id}")
+        logger.info(f"trg_directory: {trg_directory}")
+        logger.info(f"report: {report}")
+        logger.info(f"write: {write}")
+        logger.info(f"mime_type: {mime_type}")
+
+    config_file = pd.read_excel(
+        config_file_path,
+        sheet_name=project_id,
+        engine="odf",
+        dtype=str,
+    ).fillna("")
+
+    decompressed: dict[str, str] = {}  # src file as key, trg file name as value
+    for row in config_file.itertuples(index=True):
+        print(row)
+        if row.src != "" and row.trg != "":
+            decompressed[row.src] = row.trg
+    logger.info(f"len(decompressed): {len(decompressed)}")
+
+    if write:
+        archive_handlers = {
+            get_file_from_zip: (".zip", ".eln"),
+            get_file_from_tar: (".tar", ".tar.gz", ".tar.bz2", ".tar.xz"),
+            get_file_from_rar: (".rar"),
+            get_file_from_sevenzip: (".7z"),
+        }
+
+        for src, trg in decompressed.items():
+            if src.count(":") == 1:
+                archive_file_path, file_path = src.split(":")
+                trg_directory, trg_file_name = trg.rsplit(os.sep, 1)
+
+                for handler, extensions in archive_handlers.items():
+                    if archive_file_path.lower().endswith(extensions):  # type: ignore
+                        success = handler(
+                            archive_file_path, file_path, trg_directory, trg_file_name
+                        )
+                        if report:
+                            if success:
+                                logger.info(f"{src};;{trg}")
+                            else:
+                                logger.error(f"{src};;{trg}")
+                        break  # stop checking other handlers once matched
+            else:
+                try:
+                    return_value: str = shutil.copy2(src, trg)
+                    if report:
+                        if return_value == trg:
+                            logger.info(f"{src};;{trg}")
+                        else:
+                            logger.error(f"{src};;{trg}")
+                except OSError:
+                    logger.error(f"{src};;{trg}")
+    else:
+        if report:
+            for src, trg in decompressed.items():
+                logger.info(f"{src};;{trg}")
+
+    if report:
+        # pro: allows writing log files only when these have content
+        # con: requires main memory for caching
+        if len(decompressed.keys()) > 0:
+            with open(log_path, "w") as fp:
+                fp.write(log_buffer.getvalue())

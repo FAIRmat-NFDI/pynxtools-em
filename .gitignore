@@ -204,6 +204,7 @@ tests/run_tests.sh
 .virtual_documents
 tests/data
 tests/prod
+examples/oasisb/04_batch_process.sh
 examples/oasisb/aaa_legacy_*
 examples/oasisb/openalex
 examples/oasisb/*.yaml

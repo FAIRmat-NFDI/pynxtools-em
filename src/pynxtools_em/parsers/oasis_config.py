@@ -23,10 +23,12 @@ import flatdict as fd
 import yaml
 
 from pynxtools_em.concepts.mapping_functors_pint import add_specific_metadata_pint
+from pynxtools_em.configurations.oasis_eln_cfg import OASISELN_EM_USER_TO_NEXUS
 from pynxtools_em.configurations.oasis_eln_config_cfg import (
     OASISCFG_EM_CITATION_TO_NEXUS,
     OASISCFG_EM_CSYS_TO_NEXUS,
     OASISCFG_EM_NOTE_TO_NEXUS,
+    OASISCFG_EM_PROJECT_TO_NEXUS,
     OASISCFG_EM_SAMPLE_TO_NEXUS,
 )
 from pynxtools_em.utils.custom_logging import logger
@@ -43,11 +45,11 @@ class NxEmNomadOasisConfigParser:
         if pathlib.Path(file_path).name.endswith(
             (".oasis.specific.yaml", ".oasis.specific.yml")
         ):
-            self.file_path = file_path
-            self.entry_id = entry_id if entry_id > 0 else 1
-            self.verbose = verbose
+            self.file_path: str = file_path
+            self.entry_id: int = entry_id if entry_id > 0 else 1
+            self.verbose: bool = verbose
             self.flat_metadata = fd.FlatDict({}, "/")
-            self.supported = False
+            self.supported: bool = False
             self.check_if_supported()
             if not self.supported:
                 logger.debug(
@@ -69,7 +71,7 @@ class NxEmNomadOasisConfigParser:
                         logger.info(f"key: {key}, val: {val}")
                 self.supported = True
         except (OSError, FileNotFoundError):
-            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either OS, or FileNotFound error")
             return
 
     def parse(self, template: dict) -> dict:
@@ -83,8 +85,15 @@ class NxEmNomadOasisConfigParser:
             self.parse_reference_frames(template)
             self.parse_citations(template)
             self.parse_notes(template)
+            self.parse_experiment_description(template)
             add_specific_metadata_pint(
-                OASISCFG_EM_SAMPLE_TO_NEXUS, self.flat_metadata, [1], template
+                OASISCFG_EM_SAMPLE_TO_NEXUS,
+                self.flat_metadata,
+                [self.entry_id],
+                template,
+            )
+            add_specific_metadata_pint(
+                OASISELN_EM_USER_TO_NEXUS, self.flat_metadata, [self.entry_id], template
             )
         return template
 
@@ -99,11 +108,10 @@ class NxEmNomadOasisConfigParser:
                     for csys_dict in self.flat_metadata[src]:
                         if len(csys_dict) == 0:
                             continue
-                        identifier = [self.entry_id, csys_id]
                         add_specific_metadata_pint(
                             OASISCFG_EM_CSYS_TO_NEXUS,
                             csys_dict,
-                            identifier,
+                            [self.entry_id, csys_id],
                             template,
                         )
                         csys_id += 1
@@ -123,11 +131,10 @@ class NxEmNomadOasisConfigParser:
                     for cite_dict in self.flat_metadata[src]:
                         if len(cite_dict) == 0:
                             continue
-                        identifier = [self.entry_id, cite_id]
                         add_specific_metadata_pint(
                             OASISCFG_EM_CITATION_TO_NEXUS,
                             cite_dict,
-                            identifier,
+                            [self.entry_id, cite_id],
                             template,
                         )
                         cite_id += 1
@@ -147,12 +154,55 @@ class NxEmNomadOasisConfigParser:
                     for note_dict in self.flat_metadata[src]:
                         if len(note_dict) == 0:
                             continue
-                        identifier = [self.entry_id, note_id]
                         add_specific_metadata_pint(
                             OASISCFG_EM_NOTE_TO_NEXUS,
                             note_dict,
-                            identifier,
+                            [self.entry_id, note_id],
                             template,
                         )
                         note_id += 1
+        return template
+
+    def parse_experiment_description(self, template: dict) -> dict:
+        """Generate customized entryID/experiment_description field."""
+        composed_description: list[str] = []
+        # TODO other cases possible, e.g. AI summaries
+
+        src: str = "citation"
+        if src in self.flat_metadata:
+            if isinstance(self.flat_metadata[src], list):
+                if (
+                    all(isinstance(entry, dict) for entry in self.flat_metadata[src])
+                    is True
+                ):
+                    # custom schema delivers a list of dictionaries...
+                    cite_id: int = 1
+                    for cite_dict in self.flat_metadata[src]:
+                        if len(cite_dict) == 0:
+                            continue
+
+                        for field_name in [
+                            "title",
+                            "author",
+                            "doi",
+                        ]:
+                            if field_name in cite_dict:
+                                composed_description.append(
+                                    f"{cite_dict[field_name]}, "
+                                )
+                        break  # assume first reference is always to the dataset
+                        # do not add further references
+
+        if len(composed_description) > 0:
+            message = "\n".join(composed_description).strip()
+            template[f"/ENTRY[entry{self.entry_id}]/experiment_description"] = (
+                message[:-1] if message.endswith(",") else message
+            )
+
+        add_specific_metadata_pint(
+            OASISCFG_EM_PROJECT_TO_NEXUS,
+            self.flat_metadata,
+            [self.entry_id],
+            template,
+        )
         return template

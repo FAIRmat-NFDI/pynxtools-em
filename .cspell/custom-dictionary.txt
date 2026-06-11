@@ -9,6 +9,7 @@ Apreo
 Aragonit
 Arfvedsonite
 Arvfedsonite
+BEAMKV
 BYTOWNITE
 Backscatter
 Benedikt
@@ -58,6 +59,7 @@ ESBD
 ESEM
 ESOURCE
 Elstar
+Emsa
 Erdmann
 Erlangen
 Eucentric
@@ -85,6 +87,7 @@ ICSD
 IUPAC
 IVAS
 Imager
+Iseconds
 JEOL
 JOMTAA
 Kernke
@@ -107,6 +110,7 @@ Merrillite
 Minicondenser
 Morawiec
 Mself
+NCOLUMNS
 NDATA
 NFDI
 NIAC
@@ -171,6 +175,7 @@ Wadsleyite
 Wehnelt
 Whitlockite
 XSTEP
+XUNITS
 YBCO
 YSTEP
 Zirc
@@ -180,11 +185,13 @@ affil
 amcsd
 analysisset
 angstroem
+annotable
 appdef
 arange
 asarray
 atomtypes
 authorships
+automaticstyles
 autorecover
 autostem
 backscatter
@@ -192,10 +199,12 @@ bibfile
 bibtex
 bibtexparser
 bijective
+bitdepth
 caplog
 childs
 chunker
 cnts
+columnwidth
 continously
 cought
 couhatched
@@ -219,6 +228,7 @@ edaxh
 edgecolor
 eiger
 emapp
+emsa
 emsoft
 endianness
 equi
@@ -357,7 +367,9 @@ skiprows
 sothree
 spotsize
 strct
+stringvalue
 stwo
+stylename
 superalloy
 surrogateescape
 sversion
@@ -370,6 +382,7 @@ tzone
 unipd
 unitless
 ureg
+valuetype
 varphi
 visititems
 voronoi

@@ -25,6 +25,8 @@ from pynxtools_em.utils.custom_logging import logger
 VALID_FILE_NAME_SUFFIX_CONFIG = [".yaml", ".yml"]
 VALID_FILE_NAME_SUFFIX_DATA = [
     ".emd",
+    ".msa",
+    ".dm2",
     ".dm3",
     ".dm4",
     ".dm5",
@@ -46,6 +48,7 @@ VALID_FILE_NAME_SUFFIX_DATA = [
     ".rawtlt",
     ".shifts",
     ".xml",
+    ".bmp",
 ]
 # the order of this list is significant to assure that whatever is found first and
 # valid will trigger acceptance but avoiding to load one dataset twice e.g.

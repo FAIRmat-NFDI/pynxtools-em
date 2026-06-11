@@ -24,7 +24,7 @@ classifiers = [
 dependencies = [
     "pynxtools>=0.14",
     "hyperspy>=1.7.6",
-    "rosettasciio",
+    "rosettasciio[eds-stream,hdf5,image,mrcz,speed,tiff]>=0.12.0",
     "kikuchipy",
     "pyxem",
     "nionswift",
