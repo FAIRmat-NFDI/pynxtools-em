@@ -51,34 +51,40 @@ from pynxtools_em.utils.image_utils import (
     sort_asc_by_second_argument,
 )
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
+from pynxtools_em.utils.schema_version import EmSchemaVersion
 from pynxtools_em.utils.tfs_utils import get_fei_childs
 
 
 class TfsTiffParser:
     def __init__(
-        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+        self,
+        file_path: str | None = None,
+        entry_id: int = 1,
+        verbose: bool = DEFAULT_VERBOSITY,
     ):
-        if file_path:
-            self.file_path = file_path
-            self.entry_id = entry_id if entry_id > 0 else 1
-            self.verbose = verbose
-            self.id_mgn: dict[str, int] = {"event_id": 1}
-            self.flat_dict_meta = fd.FlatDict({}, "/")
-            self.version: dict = {}
-            self.supported = False
-            self.check_if_tiff_tfs()
-            if not self.supported:
-                logger.debug(
-                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
-                )
-        else:
+        self.file_path = file_path or ""
+        self.entry_id = max(1, entry_id)
+        self.verbose = verbose
+        self.id_mgn: dict[str, int] = {"event_id": 1}
+        self.metadata = fd.FlatDict({}, "/")
+        self.versions: list[EmSchemaVersion] = []
+        self.supported = False
+
+        if not file_path:
             logger.warning(
-                f"Parser {self.__class__.__name__} needs ThermoFisher TIFF file !"
+                f"Parser {self.__class__.__name__} needs ThermoFisher TIFF file"
             )
-            self.supported = False
+            return
+
+        self.check_if_tiff_tfs()
+
+        if not self.supported:
+            logger.info(
+                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+            )
 
     def check_if_tiff_tfs(self):
-        """Check if resource behind self.file_path is a TaggedImageFormat file."""
+        """Evaluate if file_path content complies with ThermoFisher in its structure and metadata concepts."""
         self.supported = False
         try:
             with open(self.file_path, "rb", 0) as file:
@@ -87,7 +93,7 @@ class TfsTiffParser:
                 if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                     return
         except (OSError, FileNotFoundError):
-            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either OS or FileNotFound error")
             return
 
         with Image.open(self.file_path, mode="r") as fp:
@@ -95,10 +101,12 @@ class TfsTiffParser:
             for tfs_key in tfs_keys:
                 if tfs_key in fp.tag_v2:
                     if len(fp.tag_v2[tfs_key]) >= 1:
+                        self.get_metadata()
                         self.supported = True
+                        return
 
     def get_metadata(self):
-        """Extract metadata in TFS specific tags if present."""
+        """Extract metadata behind ThermoFisher specific tags if present."""
         logger.debug("Parsing TIFF tags...")
         tfs_parent_concepts_byte_offset = {}
         for concept in TIFF_TFS_PARENT_CONCEPTS:
@@ -148,30 +156,27 @@ class TfsTiffParser:
                     if -1 < pos < pos_e:  # check if pos_e is None
                         s.seek(pos, 0)
                         value = f"{s.readline().strip().decode('utf8').replace(f'{term}=', '')}"
-                        self.flat_dict_meta[f"{parent}/{term}"] = None
+                        self.metadata[f"{parent}/{term}"] = None
                         if isinstance(value, str):
                             if value != "":
                                 # execution order of the check here matters!
                                 if value.isdigit() is True:
-                                    self.flat_dict_meta[f"{parent}/{term}"] = np.int64(
+                                    self.metadata[f"{parent}/{term}"] = np.int64(value)
+                                elif if_str_represents_float(value) is True:
+                                    self.metadata[f"{parent}/{term}"] = np.float64(
                                         value
                                     )
-                                elif if_str_represents_float(value) is True:
-                                    self.flat_dict_meta[f"{parent}/{term}"] = (
-                                        np.float64(value)
-                                    )
                                 else:
-                                    self.flat_dict_meta[f"{parent}/{term}"] = value
+                                    self.metadata[f"{parent}/{term}"] = value
                         else:
                             logger.warning(
                                 f"Detected an unexpected case {parent}/{term}, type: {type(value)} !"
                             )
                     else:
                         break
-            if self.verbose:
-                for key, value in self.flat_dict_meta.items():
-                    if value:
-                        logger.info(f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
+        if self.verbose:
+            for key, value in self.metadata.items():
+                logger.info(f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing."""
@@ -179,9 +184,8 @@ class TfsTiffParser:
             with open(self.file_path, "rb", 0) as fp:
                 self.file_path_sha256 = get_sha256_of_file_content(fp)
             logger.info(
-                f"Parsing {self.file_path} TFS with SHA256 {self.file_path_sha256} ..."
+                f"Parsing {self.file_path} ThermoFisher TIFF with SHA256 {self.file_path_sha256} ..."
             )
-            self.get_metadata()
             self.process_event_data_em_metadata(template)
             self.process_event_data_em_data(template)
         return template
@@ -244,15 +248,15 @@ class TfsTiffParser:
                     "j": ureg.Quantity(1.0),
                 }
                 # may face CCD overview camera of chamber that has no calibration!
-                if ("EScan/PixelWidth" in self.flat_dict_meta) and (
-                    "EScan/PixelHeight" in self.flat_dict_meta
+                if ("EScan/PixelWidth" in self.metadata) and (
+                    "EScan/PixelHeight" in self.metadata
                 ):
                     sxy = {
                         "i": ureg.Quantity(
-                            self.flat_dict_meta["EScan/PixelWidth"], ureg.meter
+                            self.metadata["EScan/PixelWidth"], ureg.meter
                         ),
                         "j": ureg.Quantity(
-                            self.flat_dict_meta["EScan/PixelHeight"], ureg.meter
+                            self.metadata["EScan/PixelHeight"], ureg.meter
                         ),
                     }
                 else:
@@ -311,8 +315,8 @@ class TfsTiffParser:
             TFS_DYNAMIC_VARIOUS_NX,
             TFS_DYNAMIC_STIGMATOR_NX,
         ]:  # TODO::static quantities may need to be splitted
-            add_specific_metadata_pint(cfg, self.flat_dict_meta, identifier, template)
+            add_specific_metadata_pint(cfg, self.metadata, identifier, template)
         add_specific_metadata_pint(
-            TFS_DYNAMIC_STAGE_NX, self.flat_dict_meta, identifier, template
+            TFS_DYNAMIC_STAGE_NX, self.metadata, identifier, template
         )
         return template

@@ -18,6 +18,7 @@
 """Parser for harmonizing TESCAN-specific content in TIFF files."""
 
 import mmap
+from pathlib import Path
 
 import flatdict as fd
 import numpy as np
@@ -43,55 +44,63 @@ from pynxtools_em.utils.image_utils import (
     PILLOW_IMAGE_MODE_NOT_GREYSCALE,
 )
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
+from pynxtools_em.utils.schema_version import EmSchemaVersion
 from pynxtools_em.utils.string_conversions import string_to_number
 
 
 class TescanTiffParser:
     def __init__(
         self,
-        file_paths: list[str],
+        file_paths: list[str] = [],
         entry_id: int = 1,
         verbose: bool = DEFAULT_VERBOSITY,
     ):
-        # file and sidecar file may not come in a specific order need to find which is which if any supported
-        tif_hdr = ["", ""]
-        if len(file_paths) == 1 and file_paths[0].lower().endswith((".tif", ".tiff")):
-            tif_hdr[0] = file_paths[0]
-        elif (
-            len(file_paths) == 2
-            and file_paths[0][0 : file_paths[0].rfind(".")]
-            == file_paths[1][0 : file_paths[0].rfind(".")]
-        ):
-            for entry in file_paths:
-                if entry.lower().endswith((".tif", ".tiff")) and entry != "":
-                    tif_hdr[0] = entry
-                elif entry.lower().endswith(".hdr") and entry != "":
-                    tif_hdr[1] = entry
+        tif_file = None
+        hdr_file = None
 
-        if tif_hdr[0] != "":
-            self.file_path = tif_hdr[0]
-            self.entry_id = entry_id if entry_id > 0 else 1
-            self.verbose = verbose
-            self.id_mgn: dict[str, int] = {"event_id": 1}
-            self.flat_dict_meta = fd.FlatDict({}, "/")
-            self.version: dict = {}
-            self.supported = False
-            self.hdr_file_path = tif_hdr[1]
-            self.check_if_tiff_tescan()
-            if not self.supported:
-                logger.debug(
-                    f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+        if len(file_paths) == 1:
+            if file_paths[0].lower().endswith((".tif", ".tiff")):
+                tif_file = file_paths[0]
+
+        elif len(file_paths) == 2:
+            p0, p1 = map(Path, file_paths)
+
+            if p0.stem == p1.stem:
+                tif_file = next(
+                    (f for f in file_paths if f.lower().endswith((".tif", ".tiff"))),
+                    None,
                 )
-        else:
-            # logger.warning(
-            #     f"Parser {self.__class__.__name__} needs TIF and eventual HDR file !"
-            # )
-            self.supported = False
+                hdr_file = next(
+                    (f for f in file_paths if f.lower().endswith(".hdr")),
+                    None,
+                )
+
+        self.file_path = tif_file
+        self.hdr_file_path = hdr_file or ""
+        self.entry_id = max(1, entry_id)
+        self.verbose = verbose
+        self.id_mgn: dict[str, int] = {"event_id": 1}
+        self.metadata = fd.FlatDict({}, "/")
+        self.versions: list[EmSchemaVersion] = []
+        self.supported = False
+
+        if not self.file_path:
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs TESCAN TIFF file, sidecar file optional"
+            )
+            return
+
+        self.check_if_tiff_tescan()
+
+        if not self.supported:
+            logger.debug(
+                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+            )
 
     def check_if_tiff_tescan(self):
+        """Evaluate if file_path content complies with TESCAN in its structure and metadata concepts."""
+        # note, so far mostly seen TIMA and "MIRA3 LMH" "Device" instances
         self.supported = False
-        if not hasattr(self, "file_path"):
-            return
         try:
             with open(self.file_path, "rb", 0) as file:
                 s = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
@@ -99,10 +108,10 @@ class TescanTiffParser:
                 if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                     return
         except (OSError, FileNotFoundError):
-            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either OS or FileNotFound error")
             return
 
-        self.flat_dict_meta = fd.FlatDict({}, "/")
+        self.metadata = fd.FlatDict({}, "/")
         with Image.open(self.file_path, mode="r") as fp:
             tescan_keys = [50431]
             for tescan_key in tescan_keys:
@@ -113,67 +122,61 @@ class TescanTiffParser:
                         txt = payload[pos:].decode("utf8")
                     except UnicodeDecodeError:
                         logger.warning(
-                            f"{self.file_path} TESCAN TIFF tag {tescan_key} cannot be decoded using UTF8, trying to use sidecar file instead if available !"
+                            f"{self.file_path} TESCAN TIFF tag {tescan_key} cannot be decoded using UTF8, trying to use sidecar file instead if that is available"
                         )
-                        if hasattr(self, "hdr_file_path"):
-                            continue
-                        else:
+                        if self.hdr_file_path == "":
                             return
                     del payload
 
                     for line in txt.split():
-                        tmp = [value.strip() for value in line.split("=")]
-                        if len(tmp) == 1:
-                            logger.debug(f"Ignore line {line} !")
-                        elif len(tmp) == 2:
-                            if tmp[0] and tmp[0] not in self.flat_dict_meta:
-                                self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
+                        parts: list[str] = [value.strip() for value in line.split("=")]
+                        if len(parts) == 1:
+                            logger.debug(f"Ignore line {line}")
+                        elif len(parts) == 2:
+                            if parts[0] and parts[0] not in self.metadata:
+                                self.metadata[parts[0]] = string_to_number(parts[1])
                         else:
-                            logger.debug(f"Ignore line {line} !")
-        # very frequently using sidecar files create ambiguities: are the metadata in the
+                            logger.debug(f"Ignore line {line}")
+
+        # using sidecar files can create ambiguities: are the metadata in the
         # image and the sidecar file exactly the same, a subset, which information to
         # give preference in case of inconsistencies, system time when the sidecar file
         # is written differs from system time when the image was written, which time
         # to take for the event data?
-        if len(self.flat_dict_meta) == 0:
-            if self.hdr_file_path != "":
-                with open(self.hdr_file_path, encoding="utf8") as fp:
-                    txt = fp.read()
-                    txt = txt.replace("\r\n", "\n")  # windows to unix EOL conversion
-                    txt = [
-                        line.strip()
-                        for line in txt.split("\n")
-                        if line.strip() != "" and line.startswith("#") is False
-                    ]
-                    if not all(value in txt for value in ["[MAIN]", "[SEM]"]):
-                        logger.warning(
-                            f"TESCAN HDR sidecar file exists but does not contain expected section headers !"
-                        )
-                    txt = [line for line in txt if line not in ["[MAIN]", "[SEM]"]]
-                    for line in txt:
-                        tmp = [value.strip() for value in line.split("=")]
-                        if len(tmp) == 1:
-                            logger.debug(f"Ignore line {line} !")
-                        elif len(tmp) == 2:
-                            if tmp[0] and (tmp[0] not in self.flat_dict_meta):
-                                self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
-                        else:
-                            logger.debug(f"Ignore line {line} !")
+        if len(self.metadata) == 0 and self.hdr_file_path != "":
+            with open(self.hdr_file_path, encoding="utf8") as fp:
+                txt = fp.read()
+                txt = txt.replace("\r\n", "\n")  # windows to unix EOL conversion
+                txt = [
+                    line.strip()
+                    for line in txt.split("\n")
+                    if line.strip() != "" and line.startswith("#") is False
+                ]
+                if not all(value in txt for value in ["[MAIN]", "[SEM]"]):
+                    logger.warning(
+                        f"TESCAN HDR sidecar file exists but does not contain expected section headers"
+                    )
+                    return
+                txt = [line for line in txt if line not in ["[MAIN]", "[SEM]"]]
+                for line in txt:
+                    parts = [value.strip() for value in line.split("=")]
+                    if len(parts) == 1:
+                        logger.debug(f"Ignore line {line} !")
+                    elif len(parts) == 2:
+                        if parts[0] and (parts[0] not in self.metadata):
+                            self.metadata[parts[0]] = string_to_number(parts[1])
+                    else:
+                        logger.debug(f"Ignore line {line} !")
+
+        if len(self.metadata) > 0:
+            self.supported = True
 
         if self.verbose:
-            for key, value in self.flat_dict_meta.items():
+            for key, value in self.metadata.items():
                 logger.info(f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
 
-        # check if written about with supported DISS version
-        supported_versions = ["TIMA", "MIRA3 LMH"]
-        if "Device" in self.flat_dict_meta:
-            if self.flat_dict_meta["Device"] in supported_versions:
-                self.supported = True
-                # but this is quite a weak test, more instance data are required
-                # with TESCAN-specific concept names to make this here more robust
-
     def parse(self, template: dict) -> dict:
-        """Perform actual parsing filling cache."""
+        """Perform actual parsing."""
         if self.supported:
             # metadata have at this point already been collected into an fd.FlatDict
             with open(self.file_path, "rb", 0) as fp:
@@ -236,16 +239,11 @@ class TescanTiffParser:
                     "j": ureg.Quantity(1.0),
                 }
                 if all(
-                    value in self.flat_dict_meta
-                    for value in ["PixelSizeX", "PixelSizeY"]
+                    value in self.metadata for value in ["PixelSizeX", "PixelSizeY"]
                 ):
                     sxy = {
-                        "i": ureg.Quantity(
-                            self.flat_dict_meta["PixelSizeX"], ureg.meter
-                        ),
-                        "j": ureg.Quantity(
-                            self.flat_dict_meta["PixelSizeY"], ureg.meter
-                        ),
+                        "i": ureg.Quantity(self.metadata["PixelSizeX"], ureg.meter),
+                        "j": ureg.Quantity(self.metadata["PixelSizeY"], ureg.meter),
                     }
                 else:
                     logger.warning("Assuming pixel width and height unit is unitless!")
@@ -286,5 +284,5 @@ class TescanTiffParser:
             TESCAN_DYNAMIC_VARIOUS_NX,
             TESCAN_DYNAMIC_STAGE_NX,
         ]:
-            add_specific_metadata_pint(cfg, self.flat_dict_meta, identifier, template)
+            add_specific_metadata_pint(cfg, self.metadata, identifier, template)
         return template
