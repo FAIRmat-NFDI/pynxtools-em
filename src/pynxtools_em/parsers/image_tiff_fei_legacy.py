@@ -208,7 +208,9 @@ class FeiLegacyTiffParser:
                 else:
                     logger.warning(f"{img.mode} is an unsupported img.mode")
                     continue
-                # logger.debug(f"type: {type(nparr)}, dtype: {nparr.dtype}, shape: {np.shape(nparr)}")
+                logger.debug(
+                    f"Processing image {identifier_image} ... {type(numpy_array)}, {np.shape(numpy_array)}, {numpy_array.dtype}"
+                )
                 # TODO::discussion points
                 # - how do you know we have an image of real space vs. imaginary space (from the metadata?)
                 # - how do deal with the (ugly) scale bar that is typically stamped into the TIFF image content?

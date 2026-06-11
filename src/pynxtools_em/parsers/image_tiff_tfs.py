@@ -203,7 +203,6 @@ class TfsTiffParser:
                 else:
                     logger.warning(f"{img.mode} is an unsupported img.mode")
                     continue
-                numpy_array = np.flipud(np.array(img))
                 logger.debug(
                     f"Processing image {identifier_image} ... {type(numpy_array)}, {np.shape(numpy_array)}, {numpy_array.dtype}"
                 )
