@@ -391,7 +391,7 @@ def prepare_parsing_via_config_file(
     mime_type: str,
 ) -> None:
     """
-    Decompress files based on a config file that pecifies all files
+    Decompress files based on a config file that specifies all files
     to consider and decompress these to a target directory.
 
     Parameters
