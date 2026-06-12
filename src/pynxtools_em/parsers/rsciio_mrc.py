@@ -105,7 +105,7 @@ class RsciioMrcParser:
         status = self.check_if_mrc_serial_em_electron_tomography(mrc_txt)
         status = self.check_if_mrc_other_electron_tomography(mrc_txt)
         status = self.check_if_mrc_fei(mrc_txt)
-        if "mode" not in self.config:
+        if not (hasattr(self, "config") and "mode" in self.config):
             logger.debug(
                 f"Parser {self.__class__.__name__} finds no content in {file_paths} that it supports"
             )
@@ -337,6 +337,11 @@ class RsciioMrcParser:
         if file_paths[1] != "":
             if not file_paths[1].lower().endswith(".rawtlt"):
                 return False
+
+        if not hasattr(self, "config"):
+            return False
+        if "number_of_images" not in self.config:
+            return False
 
         for image_id in range(self.config["number_of_images"]):
             self.image_meta_data[image_id] = {}
