@@ -445,9 +445,11 @@ def process_task(
         if not has_default_plot:
             logger.warning(f"Deleting {output_file_path} as it has no default plot")
             trg = f"{target_directory}{os.sep}{nexus_file_name_prefix}.{mime_type}"
-            for sfx in [".nxs", ".oasis.specific.yaml", ".csv"]:
+            for sfx in [".nxs", ".csv"]:
                 if os.path.isfile(f"{trg}{sfx}"):
                     os.remove(f"{trg}{sfx}")
+            if os.path.isfile(eln_file_path):
+                os.remove(eln_file_path)
             return
 
     # gc.collect()
