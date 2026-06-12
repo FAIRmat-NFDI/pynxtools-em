@@ -416,7 +416,10 @@ def process_task(
             f"Unable to generate {eln_file_path} whereby to get references to original authors' work"
         )
 
-    pynx_open_input_files = input_file_paths
+    pynx_open_input_files: list[str] = []
+    for input_file_path in input_file_paths:
+        pynx_open_input_files.append(input_file_path)
+    pynx_open_input_files.append(eln_file_path)
     logger.info(f"pynxtools-em {pynx_open_input_files}")
 
     try:
@@ -441,10 +444,13 @@ def process_task(
                 has_default_plot = True
         if not has_default_plot:
             logger.warning(f"Deleting {output_file_path} as it has no default plot")
-            os.remove(output_file_path)
+            trg = f"{target_directory}{os.sep}{nexus_file_name_prefix}.{mime_type}"
+            for sfx in [".nxs", ".oasis.specific.yaml", ".csv"]:
+                if os.path.isfile(f"{trg}{sfx}"):
+                    os.remove(f"{trg}{sfx}")
+            return
 
     # gc.collect()
-
     # with open(
     #     f"{target_directory}{os.sep}{project_name}.{logger_file_path_suffix}.csv", "w"
     # ) as fp:
