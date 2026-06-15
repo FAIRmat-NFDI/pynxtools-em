@@ -146,8 +146,8 @@ class EMReader(BaseReader):
         logger.debug(
             "Parse and map pieces of information within files from tech partners..."
         )
-        # there are parsers with no, optional, or required sidecar file
-        if len(case.dat) == 1:
+
+        if len(case.dat) == 1:  # no sidecar file expected
             parsers_no_sidecar_file: list[type] = [
                 HdfFiveBrukerEspritParser,
                 # HdfFiveDreamThreedLegacyParser,
@@ -170,13 +170,13 @@ class EMReader(BaseReader):
                 parser = parser_type(case.dat[0], entry_id)
                 parser.parse(template)
 
-        if len(case.dat) >= 1:
+        if len(case.dat) >= 1:  # optional sidecar file
             parsers_opt_sidecar: list[type] = [TescanTiffParser, JeolTiffParser]
             for parser_type in parsers_opt_sidecar:
                 parser = parser_type(case.dat, entry_id)
                 parser.parse(template)
 
-        if len(case.dat) == 2:
+        if len(case.dat) == 2:  # mandatory sidecar file
             parsers_req_sidecar: list[type] = [HitachiTiffParser, RsciioMrcParser]
             for parser_type in parsers_req_sidecar:
                 parser = parser_type(case.dat, entry_id)

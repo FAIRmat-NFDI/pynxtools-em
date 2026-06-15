@@ -28,6 +28,8 @@ import sys
 
 import bibtexparser
 import flatdict as fd
+import h5py
+from pandas import read_excel
 from pynxtools.dataconverter.convert import convert
 from pynxtools.dataconverter.helpers import (
     get_nxdl_root_and_path,
@@ -263,3 +265,203 @@ def process_project(
             logger.info(
                 f"{name}, level {logging.getLevelName(object.level)}, effective level {logging.getLevelName(logger.getEffectiveLevel())}, handlers {object.handlers}, propagate {object.propagate}"
             )
+
+
+def get_parsing_tasks(project_id: str, config_file: str) -> dict[str, list[str]]:
+    """Reorganize a table with original file names (src) and copies of
+    these files named following the pattern f'''{project_id}.{hash}*'''
+    (trg) such that (trg) files with different ending, representing main file
+    and sidecar file are grouped together, as they should be fed to pynxtools-em
+    to generate one NeXus file using task_name as the prefix to the NeXus file."""
+
+    src_trg_table = read_excel(
+        config_file,
+        sheet_name=project_id,
+        engine="odf",
+        dtype=str,
+    ).fillna("")
+
+    hash_to_input: dict[str, list[str]] = {}
+    for row in src_trg_table.itertuples(index=True):
+        if row.src != "" and row.trg != "":
+            suffix = row.trg.rsplit(os.sep, 1)[1]
+            probe = re.search(r"^\d{3}.*", suffix)
+            project = suffix[0:3] if probe else None
+            del probe
+
+            probe_side = re.search(
+                r"^\d{3}\.[a-fA-F0-9]{64}\.[a-fA-F0-9]{64}.*$", suffix
+            )
+            if probe_side:
+                hash = f"{suffix[0 : 3 + 1 + 64 + 1 + 64]}"
+            else:
+                probe_main = re.search(r"^\d{3}\.[a-fA-F0-9]{64}.*$", suffix)
+                if probe_main:
+                    hash = f"{suffix[0 : 3 + 1 + 64]}"
+                del probe_main
+            del probe_side
+
+            if project and hash:
+                if hash in hash_to_input:
+                    hash_to_input[hash].append(row.trg)
+                else:
+                    hash_to_input[hash] = [row.trg]
+            del project, hash
+
+    tasks: dict[str, list[str]] = {}
+    for hash, input in hash_to_input.items():
+        tasks[f"{hash}"] = input
+    return tasks
+
+
+def process_task(
+    project_name: str,
+    input_file_paths: list[str],
+    nexus_file_name_prefix: str,
+    bib,
+    source_directory: str,
+    target_directory: str,
+    mime_type: str,
+    openalex_file: str = "",
+    logger_file_path_suffix: str = "image",
+    nomad_project_name: str = "",
+) -> None:
+    """TODO"""
+
+    config: dict[str, str] = {
+        "python_version": f"{sys.version}",
+        "working_directory": f"{os.getcwd()}",
+        "project_name": project_name,
+        # input_file_paths
+        "nexus_file_name_prefix": nexus_file_name_prefix,
+        "source_directory": source_directory,
+        "target_directory": target_directory,
+        "openalex_file": openalex_file,
+        "logger_file_path_suffix": logger_file_path_suffix,
+        "nomad_project_name": nomad_project_name,
+        "pynxtools_version": f"{get_pynxtools_version()}",
+        "pynxtools_em_version": f"{get_pynxtools_em_version()}",
+    }
+
+    # buffer = io.StringIO()
+    custom_formatter = ISO8601Formatter(
+        "%(asctime)s;%(name)s;%(levelname)s;%(message)s"
+    )
+    console = logging.StreamHandler(sys.stdout)
+    console.setFormatter(custom_formatter)
+    file = logging.FileHandler(
+        f"{target_directory}{os.sep}{nexus_file_name_prefix}.{logger_file_path_suffix}.csv",
+        mode="w",
+    )
+    file.setFormatter(custom_formatter)
+    logging.basicConfig(
+        level=logging.INFO,
+        handlers=[console, file],
+        force=True,  # to display also for jupyter notebooks
+    )
+
+    logger = logging.getLogger(project_name)
+    for key, value in config.items():
+        logger.info(f"{key};{value}")
+
+    nxdl = "NXem"
+    nxdl_root, nxdl_file = get_nxdl_root_and_path(nxdl)
+    if not os.path.exists(nxdl_file):
+        logger.error(f"Unable to load {nxdl_file}")
+        return
+
+    # see notes on process
+    alias_to_original: dict[str, str] = {}
+    logger.info(f"File name aliasing has {len(alias_to_original)} entries")
+
+    # we inject already queried content from the OpenAlex literature reference database
+    # to inject additional metadata, this would also allow to add orcid provided the
+    # original authors have individually added these upon publishing
+    # given that this is often though not the case and given that combining
+    # orcid and author name is legally an issue in Germany, we currently do not
+    # autorecover the authors' orcid
+    openalex = fd.FlatDict({}, "/")
+    if openalex_file != "":
+        try:
+            with open(openalex_file, encoding="utf-8") as fp:
+                openalex = fd.FlatDict(json.load(fp), "/")
+                # for key, value in openalex.items():
+                #     logger.info(f"openalex, {key}, {value}")
+        except (FileNotFoundError, json.JSONDecodeError, OSError, TypeError):
+            logger.error(f"Unable to load {openalex_file}")
+
+    output_file_path = (
+        f"{target_directory}{os.sep}{nexus_file_name_prefix}.{mime_type}.nxs"
+    )
+    if os.path.isfile(output_file_path):
+        logger.warning(f"Deleting older version of {output_file_path}")
+        os.remove(output_file_path)
+
+    logger.info(f"Compositing {output_file_path}")
+
+    # okay, there is at least some content that we wish to parse for the row
+    # collect all external metadata that is not stored in any atom probe specific file
+    eln_file_path = generate_oasis_specific_yaml(
+        target_directory,
+        project_name,
+        nexus_file_name_prefix,
+        bib,  # type: ignore
+        alias_to_original,
+        openalex,
+        nomad_project_name,
+        write_yaml_file=True,
+    )
+    if not os.path.isfile(eln_file_path):
+        logger.error(
+            f"Unable to generate {eln_file_path} whereby to get references to original authors' work"
+        )
+
+    pynx_open_input_files: list[str] = []
+    for input_file_path in input_file_paths:
+        pynx_open_input_files.append(input_file_path)
+    pynx_open_input_files.append(eln_file_path)
+    logger.info(f"pynxtools-em {pynx_open_input_files}")
+
+    try:
+        convert(
+            input_file=tuple(pynx_open_input_files),
+            reader="em",
+            nxdl=nxdl,
+            append=False,
+            skip_verify=True,
+            ignore_undocumented=True,
+            output=output_file_path,
+        )
+        logger.info(f"pynxtools-em {output_file_path} success")
+    except Exception:
+        logger.exception(f"pynxtools-em {output_file_path} failed", exc_info=True)
+
+    # check if file exists and has default plot
+    if os.path.isfile(output_file_path):
+        has_default_plot = False
+        with h5py.File(output_file_path, "r") as h5r:
+            if "default" in h5r.attrs:
+                has_default_plot = True
+        if not has_default_plot:
+            logger.warning(f"Deleting {output_file_path} as it has no default plot")
+            trg = f"{target_directory}{os.sep}{nexus_file_name_prefix}.{mime_type}"
+            for sfx in [".nxs", ".csv"]:
+                if os.path.isfile(f"{trg}{sfx}"):
+                    os.remove(f"{trg}{sfx}")
+            if os.path.isfile(eln_file_path):
+                os.remove(eln_file_path)
+            return
+
+    # gc.collect()
+    # with open(
+    #     f"{target_directory}{os.sep}{project_name}.{logger_file_path_suffix}.csv", "w"
+    # ) as fp:
+    #     fp.write(buffer.getvalue())
+
+    logger.info(f"Batch queue for project {project_name} processed successfully")
+    logger.info(f"Listing all instantiated loggers")
+    # for name, object in logging.root.manager.loggerDict.items():
+    #     if isinstance(object, logging.Logger) and name.startswith("pynxtools"):
+    #         logger.info(
+    #             f"{name}, level {logging.getLevelName(object.level)}, effective level {logging.getLevelName(logger.getEffectiveLevel())}, handlers {object.handlers}, propagate {object.propagate}"
+    #         )

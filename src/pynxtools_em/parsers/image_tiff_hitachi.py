@@ -18,6 +18,7 @@
 """Parser for harmonizing Hitachi-specific content in TIFF files."""
 
 import mmap
+from pathlib import Path
 from tokenize import TokenError
 from typing import Any
 
@@ -44,6 +45,7 @@ from pynxtools_em.utils.image_utils import (
     PILLOW_IMAGE_MODE_NOT_GREYSCALE,
 )
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
+from pynxtools_em.utils.schema_version import EmSchemaVersion
 from pynxtools_em.utils.string_conversions import string_to_number
 
 
@@ -54,40 +56,50 @@ class HitachiTiffParser:
         entry_id: int = 1,
         verbose: bool = DEFAULT_VERBOSITY,
     ):
-        tif_txt = ["", ""]
-        if (
-            len(file_paths) == 2
-            and file_paths[0][0 : file_paths[0].rfind(".")]
-            == file_paths[1][0 : file_paths[0].rfind(".")]
-        ):
-            for entry in file_paths:
-                if entry.lower().endswith((".tif", ".tiff")):
-                    tif_txt[0] = entry
-                elif entry.lower().endswith(".txt"):
-                    tif_txt[1] = entry
-            if all(value != "" for value in tif_txt):
-                self.file_path = tif_txt[0]
-                self.entry_id = entry_id if entry_id > 0 else 1
-                self.verbose = verbose
-                self.id_mgn: dict[str, int] = {"event_id": 1}
-                self.txt_file_path = tif_txt[1]
-                self.flat_dict_meta = fd.FlatDict({}, "/")
-                self.version: dict = {}
-                self.supported = False
-                self.check_if_tiff_hitachi()
-            else:
-                logger.warning(
-                    f"Parser {self.__class__.__name__} needs TIF and TXT file !"
-                )
-                self.supported = False
-        else:
+        if len(file_paths) != 2 or Path(file_paths[0]).stem != Path(file_paths[1]).stem:
             logger.debug(
                 f"Parser {self.__class__.__name__} finds no content in {file_paths} that it supports"
             )
             self.supported = False
+            return
+
+        tif_file = next(
+            (f for f in file_paths if f.lower().endswith((".tif", ".tiff"))),
+            None,
+        )
+        txt_file = next(
+            (f for f in file_paths if f.lower().endswith(".txt")),
+            None,
+        )
+
+        if not tif_file or not txt_file:
+            logger.warning(f"Parser {self.__class__.__name__} needs TIF and TXT file!")
+            self.supported = False
+            return
+
+        self.file_path = tif_file
+        self.txt_file_path = txt_file
+        self.entry_id = max(1, entry_id)
+        self.verbose = verbose
+        self.id_mgn: dict[str, int] = {"event_id": 1}
+        self.metadata = fd.FlatDict({}, "/")
+        self.versions: list[EmSchemaVersion] = []
+        self.supported = False
+
+        if not self.file_path:
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs HITACHI TIFF file, sidecar file optional"
+            )
+
+        self.check_if_tiff_hitachi()
+
+        if not self.supported:
+            logger.info(
+                f"Parser {self.__class__.__name__} finds no content in {file_paths} that it supports"
+            )
 
     def check_if_tiff_hitachi(self):
-        """Check if resource behind self.file_path is a TaggedImageFormat file."""
+        """Evaluate if file_path content complies with HITACHI in its structure and metadata concepts."""
         self.supported = False
         try:
             with open(self.file_path, "rb", 0) as file:
@@ -96,7 +108,7 @@ class HitachiTiffParser:
                 if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                     return
         except (OSError, FileNotFoundError):
-            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either OS or FileNotFound error")
             return
 
         with open(self.txt_file_path, encoding="utf8") as fp:
@@ -122,24 +134,26 @@ class HitachiTiffParser:
                 )
                 return
 
-            self.flat_dict_meta = fd.FlatDict({}, "/")
+            self.metadata = fd.FlatDict({}, "/")
             for line in txt[idx + 1 :]:  # + 1 to jump over the header line
-                tmp = [token.strip() for token in line.split("=")]
-                if len(tmp) == 2 and all(token != "" for token in tmp):
-                    if tmp[0] not in ["SerialNumber"]:
+                parts = [token.strip() for token in line.split("=")]
+                if len(parts) == 2 and all(token != "" for token in parts):
+                    if parts[0] not in ["SerialNumber"]:
                         try:
-                            self.flat_dict_meta[tmp[0]] = ureg.Quantity(tmp[1])
+                            self.metadata[parts[0]] = ureg.Quantity(parts[1])
                         except (UndefinedUnitError, TokenError, AssertionError):
-                            self.flat_dict_meta[tmp[0]] = string_to_number(tmp[1])
+                            self.metadata[parts[0]] = string_to_number(parts[1])
                     else:  # a few special cases need an extra treatment
                         # otherwise an example 123189-06 would be interpreted
                         # into 123189 by pint which is wrong
-                        self.flat_dict_meta["SerialNumber"] = f"{tmp[1]}"
+                        self.metadata["SerialNumber"] = f"{parts[1]}"
 
-            if self.verbose:
-                for key, value in self.flat_dict_meta.items():
-                    logger.info(f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
+        if len(self.metadata) > 0:
             self.supported = True
+
+        if self.verbose:
+            for key, value in self.metadata.items():
+                logger.info(f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing filling cache."""
@@ -205,13 +219,13 @@ class HitachiTiffParser:
                     "i": ureg.Quantity(1.0),
                     "j": ureg.Quantity(1.0),
                 }
-                if "PixelSize" in self.flat_dict_meta:
+                if "PixelSize" in self.metadata:
                     sxy = {
                         "i": ureg.Quantity(
-                            self.flat_dict_meta["PixelSize"].magnitude, ureg.nanometer
+                            self.metadata["PixelSize"].magnitude, ureg.nanometer
                         ).to(ureg.meter),
                         "j": ureg.Quantity(
-                            self.flat_dict_meta["PixelSize"].magnitude, ureg.nanometer
+                            self.metadata["PixelSize"].magnitude, ureg.nanometer
                         ).to(ureg.meter),
                     }
                 else:
@@ -253,5 +267,5 @@ class HitachiTiffParser:
         # we assume for now dynamic quantities can just be repeated
         identifier = [self.entry_id, self.id_mgn["event_id"], 1]
         for cfg in [HITACHI_DYNAMIC_VARIOUS_NX, HITACHI_STATIC_VARIOUS_NX]:
-            add_specific_metadata_pint(cfg, self.flat_dict_meta, identifier, template)
+            add_specific_metadata_pint(cfg, self.metadata, identifier, template)
         return template

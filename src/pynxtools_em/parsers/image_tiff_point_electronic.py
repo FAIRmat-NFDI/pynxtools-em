@@ -40,65 +40,42 @@ from pynxtools_em.utils.image_utils import (
     PILLOW_IMAGE_MODE_NOT_GREYSCALE,
 )
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
+from pynxtools_em.utils.schema_version import EmSchemaVersion
 from pynxtools_em.utils.string_conversions import string_to_number
 
 
 class PointElectronicTiffParser:
     def __init__(
-        self, file_path: str = "", entry_id: int = 1, verbose: bool = DEFAULT_VERBOSITY
+        self,
+        file_path: str | None = None,
+        entry_id: int = 1,
+        verbose: bool = DEFAULT_VERBOSITY,
     ):
-        if file_path:
-            self.file_path = file_path
-            self.entry_id = entry_id if entry_id > 0 else 1
-            self.verbose = verbose
-            self.id_mgn: dict[str, int] = {"event_id": 1}
-            self.flat_metadata = fd.FlatDict({}, "/")
-            self.version: dict = {
-                "trg": {
-                    "tech_partner": ["point electronic"],
-                    "schema_name": ["DISS"],
-                    "schema_version": ["5.15.31.0"],
-                }
-            }
-            self.supported = False
-            self.check_if_tiff_point_electronic()
-            if not self.supported:
-                logger.debug(
-                    f"Parser {self.__class__.__name__} finds no content in {file_path} that it supports"
-                )
-        else:
-            logger.warning(
-                f"Parser {self.__class__.__name__} needs point electronic DISS TIFF file !"
-            )
-            self.supported = False
+        self.file_path = file_path or ""
+        self.entry_id = max(1, entry_id)
+        self.verbose = verbose
+        self.id_mgn: dict[str, int] = {"event_id": 1}
+        self.metadata = fd.FlatDict({}, "/")
+        self.versions: list[EmSchemaVersion] = [
+            EmSchemaVersion("point electronic", "DISS", "5.15.31.0")
+        ]
+        self.supported = False
 
-    def xmpmeta_to_flat_dict(self, meta: fd.FlatDict):
-        """Flatten point-electronic formatting of XMPMeta data."""
-        for entry in meta["xmpmeta/RDF/Description"]:
-            tmp = fd.FlatDict(entry, "/")
-            for key, obj in tmp.items():
-                if isinstance(obj, list):
-                    for dct in obj:
-                        if isinstance(dct, dict):
-                            lst = fd.FlatDict(dct, "/")
-                            for sub_key, sub_obj in lst.items():
-                                if isinstance(sub_obj, str) and sub_obj != "":
-                                    if f"{key}/{sub_key}" not in self.flat_metadata:
-                                        self.flat_metadata[f"{key}/{sub_key}"] = (
-                                            string_to_number(sub_obj)
-                                        )
-                elif isinstance(obj, str) and obj != "":
-                    if key not in self.flat_metadata:
-                        self.flat_metadata[key] = string_to_number(obj)
-                    else:
-                        logger.warning(f"Duplicated key {key} !")
+        if not file_path:
+            logger.warning(
+                f"Parser {self.__class__.__name__} needs point electronic DISS TIFF file"
+            )
+            return
+
+        self.check_if_tiff_point_electronic()
+
+        if not self.supported:
+            logger.info(
+                f"Parser {self.__class__.__name__} finds no content in {self.file_path} that it supports"
+            )
 
     def check_if_tiff_point_electronic(self):
-        """Check if resource behind self.file_path is a TaggedImageFormat file.
-
-        This also loads the metadata first if possible as these contain details
-        about which software was used to process the image data, e.g. DISS software.
-        """
+        """Evaluate if file_path content complies with point electronic DISS in its structure and metadata concepts."""
         self.supported = False
         try:
             with open(self.file_path, "rb", 0) as file:
@@ -107,41 +84,50 @@ class PointElectronicTiffParser:
                 if magic != b"II*\x00":  # https://en.wikipedia.org/wiki/TIFF
                     return
         except (OSError, FileNotFoundError):
-            logger.warning(f"{self.file_path} either FileNotFound or IOError !")
+            logger.warning(f"{self.file_path} either OS or FileNotFound error !")
             return
 
-        votes_for_support = 0  # voting-based
         with Image.open(self.file_path, mode="r") as fp:
             # either hunt for metadata under tag_v2 key 700 or take advantage of the
             # fact that point electronic write xmpmeta/xmptk XMP Core 5.1.2
-            meta = fd.FlatDict(fp.getxmp(), "/")
-            if meta:
-                if "xmpmeta/xmptk" in meta:
-                    if meta["xmpmeta/xmptk"] == "XMP Core 5.1.2":
+            flat_xmp = fd.FlatDict(fp.getxmp(), "/")
+            if flat_xmp:
+                if "xmpmeta/xmptk" in flat_xmp:
+                    if flat_xmp["xmpmeta/xmptk"] == "XMP Core 5.1.2":
                         # load the metadata
-                        self.flat_metadata = fd.FlatDict({}, "/")
-                        self.xmpmeta_to_flat_dict(meta)
+                        self.metadata = fd.FlatDict({}, "/")
+                        self.get_metadata(flat_xmp)
 
-                        if self.verbose:
-                            for key, value in self.flat_metadata.items():
-                                logger.info(
-                                    f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{value}"
-                                )
-
-                        # check if written about with supported DISS version
-                        prefix = f"{self.version['trg']['tech_partner'][0]} {self.version['trg']['schema_name'][0]}"
-                        supported_versions = [
-                            f"{prefix} {val}"
-                            for val in self.version["trg"]["schema_version"]
-                        ]
-                        logger.debug(supported_versions)
-                        if self.flat_metadata["CreatorTool"] in supported_versions:
-                            votes_for_support += 1  # found specific XMP metadata
-        if votes_for_support == 1:
+        if len(self.metadata) > 0:
             self.supported = True
 
+        if self.verbose:
+            for key, value in self.metadata.items():
+                logger.info(f"{key}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
+
+    def get_metadata(self, meta: fd.FlatDict):
+        """Flatten point-electronic formatting of XMPMeta data."""
+        for entry in meta["xmpmeta/RDF/Description"]:
+            flat_dict = fd.FlatDict(entry, "/")
+            for key, obj in flat_dict.items():
+                if isinstance(obj, list):
+                    for dct in obj:
+                        if isinstance(dct, dict):
+                            lst = fd.FlatDict(dct, "/")
+                            for sub_key, sub_obj in lst.items():
+                                if isinstance(sub_obj, str) and sub_obj != "":
+                                    if f"{key}/{sub_key}" not in self.metadata:
+                                        self.metadata[f"{key}/{sub_key}"] = (
+                                            string_to_number(sub_obj)
+                                        )
+                elif isinstance(obj, str) and obj != "":
+                    if key not in self.metadata:
+                        self.metadata[key] = string_to_number(obj)
+                    else:
+                        logger.warning(f"Duplicated key {key} !")
+
     def parse(self, template: dict) -> dict:
-        """Perform actual parsing filling cache."""
+        """Perform actual parsing."""
         if self.supported:
             # metadata have at this point already been collected into an fd.FlatDict
             with open(self.file_path, "rb", 0) as fp:
@@ -155,11 +141,9 @@ class PointElectronicTiffParser:
 
     def process_event_data_em_data(self, template: dict) -> dict:
         """Add respective heavy data."""
-        # default display of the image(s) representing the data collected in this event
         logger.debug(
             f"Writing point electronic DISS TIFF image data to the respective NeXus concept instances..."
         )
-        # read image in-place
         identifier_image = 1
         with Image.open(self.file_path, mode="r") as fp:
             for img in ImageSequence.Iterator(fp):
@@ -202,16 +186,10 @@ class PointElectronicTiffParser:
                 template[f"{trg}/real/@long_name"] = f"Real part of the image intensity"
 
                 sxy = {"i": ureg.Quantity(1.0), "j": ureg.Quantity(1.0)}
-                if ("PixelSizeX" in self.flat_metadata) and (
-                    "PixelSizeY" in self.flat_metadata
-                ):
+                if ("PixelSizeX" in self.metadata) and ("PixelSizeY" in self.metadata):
                     sxy = {
-                        "i": ureg.Quantity(
-                            self.flat_metadata["PixelSizeX"], ureg.meter
-                        ),
-                        "j": ureg.Quantity(
-                            self.flat_metadata["PixelSizeY"], ureg.meter
-                        ),
+                        "i": ureg.Quantity(self.metadata["PixelSizeX"], ureg.meter),
+                        "j": ureg.Quantity(self.metadata["PixelSizeY"], ureg.meter),
                     }
                 else:
                     logger.warning("Assuming pixel width and height unit is unitless!")
@@ -245,15 +223,13 @@ class PointElectronicTiffParser:
 
     def process_event_data_em_metadata(self, template: dict) -> dict:
         """Add respective metadata."""
-        # contextualization to understand how the image relates to the EM session
         logger.debug(
             f"Mapping some of the point electronic DISS metadata on respective NeXus concepts..."
         )
-        identifier = [self.entry_id, self.id_mgn["event_id"], 1]
         add_specific_metadata_pint(
             DISS_DYNAMIC_VARIOUS_NX,
-            self.flat_metadata,
-            identifier,
+            self.metadata,
+            [self.entry_id, self.id_mgn["event_id"], 1],
             template,
         )
         return template
