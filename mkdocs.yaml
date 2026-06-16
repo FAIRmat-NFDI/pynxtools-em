@@ -29,10 +29,12 @@ nav:
     - reference/eln_and_cfg.md
     - reference/zip_png_axon.md
     - reference/hfive_apex.md
+    - reference/rsciio_edax.md
     - reference/rsciio_gatan.md
     - reference/tiff_hitachi.md
     - reference/tiff_jeol.md
     - reference/rsciio_mrc.md
+    - reference/rsciio_msa.md
     - reference/nxs_nion.md
     - reference/tiff_point.md
     - reference/tiff_tescan.md
