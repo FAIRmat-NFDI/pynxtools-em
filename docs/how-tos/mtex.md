@@ -13,5 +13,5 @@ of automatically converting MTex class objects to a standardized NeXus-based HDF
 | CTF | :heavy_check_mark: |
 
 
-This parser has been moved into `pynxtools-microstructure`, an own plugin.
+This parser has been moved into `pynxtools-microstructure`, [an own plugin](https://pypi.org/project/pynxtools-microstructure).
 

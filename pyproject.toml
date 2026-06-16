@@ -25,7 +25,7 @@ dependencies = [
     "pynxtools>=0.14",
     "hyperspy>=1.7.6",
     "rosettasciio[eds-stream,hdf5,image,mrcz,speed,tiff]>=0.12.0",
-    "kikuchipy",
+    "kikuchipy>=0.13.0",
     "pyxem",
     "nionswift",
     "flatdict>=4.1.0",
@@ -111,7 +111,7 @@ select = [
     "W", # pycodestyle
     "PL", # pylint
     "UP", # pyupgrade
-    # "F401", # remove unused import
+    "F401", # remove unused import
     "I001", # sort imports
     "NPY201", # upgrade numpy v2
 ]
