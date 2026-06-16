@@ -82,7 +82,7 @@ class JeolTiffParser:
             if len(case_selector["txt"]) == 1:
                 self.txt_file_path = case_selector["txt"][0]
         else:
-            logger.warning(
+            logger.debug(
                 f"Parser {self.__class__.__name__} needs JEOL TIFF file, sidecar file optional"
             )
             return

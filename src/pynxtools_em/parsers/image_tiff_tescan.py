@@ -85,7 +85,7 @@ class TescanTiffParser:
         self.supported = False
 
         if not self.file_path:
-            logger.warning(
+            logger.debug(
                 f"Parser {self.__class__.__name__} needs TESCAN TIFF file, sidecar file optional"
             )
             return
