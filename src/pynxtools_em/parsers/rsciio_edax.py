@@ -18,13 +18,13 @@
 """Parser for reading content from EDAX binary (SPC, SPD, etc.) via rosettasciio."""
 
 
-
 import flatdict as fd
 import numpy as np
 from pynxtools.dataconverter.chunk import prioritized_axes_heuristic
 from rsciio import edax
 
 from pynxtools_em.utils.custom_logging import logger
+from pynxtools_em.utils.datatypes import get_compact_integer_datatype
 from pynxtools_em.utils.default_config import (
     DEFAULT_COMPRESSION_LEVEL,
     DEFAULT_VERBOSITY,
@@ -34,31 +34,6 @@ from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 from pynxtools_em.utils.rsciio_hspy_utils import all_req_keywords_in_dict
 from pynxtools_em.utils.schema_version import EmSchemaVersion
-
-"""
-itemsize_to_numpy_dtype: dict[str, dict[int, Any]] = {
-    "unsigned": {1: np.uint8, 2: np.uint16, 4: np.uint32, 8: np.uint64},
-    "signed": {1: np.int8, 2: np.int16, 4: np.int32, 8: np.int64},
-}  # TODO type anno -> np.dtype
-
-
-def get_compact_integer_datatype(data: np.ndarray):  # TODO type anno -> np.dtype:
-    smallest = np.minimum(data)
-    largest = np.maximum(data)
-    if smallest >= 0:
-        for itemsize in [1, 2, 4, 8]:
-            if 2 ** (8 * itemsize) > largest:
-                return itemsize_to_numpy_dtype["unsigned"][itemsize]
-        return itemsize_to_numpy_dtype["unsigned"][8]
-    else:
-        for itemsize in [1, 2, 4, 8]:
-            if (
-                -1 * (2 ** (8 * itemsize)) / 2 < smallest
-                and (2 ** (8 * itemsize)) / 2 > largest
-            ):
-                return itemsize_to_numpy_dtype["signed"][itemsize]
-        return itemsize_to_numpy_dtype["signed"][8]
-"""
 
 
 class RsciioEdaxParser:
@@ -216,7 +191,7 @@ class RsciioEdaxParser:
         template[f"{trg}/@signal"] = f"intensity"
         numpy_array = np.asarray(
             obj["data"],
-            dtype=np.uint64  # get_compact_integer_datatype(obj["data"])
+            dtype=get_compact_integer_datatype(obj["data"])
             if all(value.is_integer() for value in obj["data"])
             else np.float64,
         )
