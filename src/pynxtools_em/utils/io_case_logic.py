@@ -49,6 +49,7 @@ VALID_FILE_NAME_SUFFIX_DATA = [
     ".shifts",
     ".xml",
     # ".bmp",
+    ".spc",
 ]
 # the order of this list is significant to assure that whatever is found first and
 # valid will trigger acceptance but avoiding to load one dataset twice e.g.

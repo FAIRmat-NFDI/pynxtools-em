@@ -54,6 +54,7 @@ from pynxtools_em.parsers.image_tiff_zeiss import ZeissTiffParser
 from pynxtools_em.parsers.nxs_nion import NionProjectParser
 from pynxtools_em.parsers.oasis_config import NxEmNomadOasisConfigParser
 from pynxtools_em.parsers.oasis_eln import NxEmNomadOasisElnSchemaParser
+from pynxtools_em.parsers.rsciio_edax import RsciioEdaxParser
 from pynxtools_em.parsers.rsciio_gatan import RsciioGatanParser
 from pynxtools_em.parsers.rsciio_mrc import RsciioMrcParser
 from pynxtools_em.parsers.rsciio_msa import RsciioEmsaParser
@@ -138,10 +139,12 @@ class EMReader(BaseReader):
                 if case.cst[0]["parser"] == parser_id:
                     custom_parser = parser_type(case.cst[0]["file"], entry_id)
                     custom_parser.parse(template)
+                    del custom_parser
 
         logger.debug("Parse NeXus appdef-specific content...")
         nxs = NxEmAppDef(entry_id)
         nxs.parse(template)
+        del nxs
 
         logger.debug(
             "Parse and map pieces of information within files from tech partners..."
@@ -169,24 +172,36 @@ class EMReader(BaseReader):
             for parser_type in parsers_no_sidecar_file:
                 parser = parser_type(case.dat[0], entry_id)
                 parser.parse(template)
+                del parser
 
         if len(case.dat) >= 1:  # optional sidecar file
             parsers_opt_sidecar: list[type] = [TescanTiffParser, JeolTiffParser]
             for parser_type in parsers_opt_sidecar:
                 parser = parser_type(case.dat, entry_id)
                 parser.parse(template)
+                del parser
 
         if len(case.dat) == 2:  # mandatory sidecar file
             parsers_req_sidecar: list[type] = [HitachiTiffParser, RsciioMrcParser]
             for parser_type in parsers_req_sidecar:
                 parser = parser_type(case.dat, entry_id)
                 parser.parse(template)
+                del parser
+
+        # sidecar-like-accepting EDAX binary parser that accepts
+        # case.dat representing a file_name stem with which to
+        # resolve individual *.ipr, and *.xml artifacts
+        edax_parser = RsciioEdaxParser(case.dat, entry_id)
+        edax_parser.parse(template)
+        del edax_parser
 
         nxplt = NxEmDefaultPlotResolver()
         nxplt.priority_select(template, entry_id)
+        del nxplt
 
         sample = NxEmAtomTypesResolver(entry_id)
         sample.identify_atom_types(template)
+        del sample
 
         debugging = False
         if debugging:

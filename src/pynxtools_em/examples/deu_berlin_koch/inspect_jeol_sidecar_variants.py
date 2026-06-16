@@ -26,7 +26,7 @@ import sys
 from pathlib import Path
 
 import puremagic  # modern, pythonic replacement but not that covering
-from charset_normalizer import from_bytes, from_path
+from charset_normalizer import from_path
 
 from pynxtools_em.utils.get_sha256_of_directories import SEPARATOR
 
