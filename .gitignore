@@ -207,6 +207,9 @@ tests/prod
 examples/oasisb/04_batch_process.sh
 examples/oasisb/aaa_legacy_*
 examples/oasisb/openalex
+examples/oasisb/alias_prefix_secret.txt
+examples/oasisb/source_directory.txt
+examples/oasisb/target_directory.txt
 examples/oasisb/*.yaml
 !examples/oasisb/*.json
 !examples/oasisb/*.ipynb
