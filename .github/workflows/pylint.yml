@@ -2,32 +2,28 @@ name: linting
 
 on: [push]
 
+env:
+  python-version: 3.12
+
 jobs:
   linting:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python_version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.2
+      - name: Install uv and Python ${{ env.python-version }}
+        uses: astral-sh/setup-uv@v8.2.0
         with:
-          fetch-depth: 0
-          submodules: recursive
-      - name: Install uv and set the python version to ${{ matrix.python_version }}
-        uses: astral-sh/setup-uv@v5
-        with:
-          python-version: ${{ matrix.python_version }}
-      - name: Install package and dev dependencies
+          python-version: ${{ env.python-version }}
+      - name: Install dependencies
         run: |
-          uv pip install ".[dev]"
+          uv sync --extra dev
       - name: ruff check
         run: |
-          ruff check src/pynxtools_em tests
+          uv run ruff check src/pynxtools_em tests
       - name: ruff format
         run: |
-          ruff format --check src/pynxtools_em tests
+          uv run ruff format --check src/pynxtools_em tests
       - name: mypy
         run: |
-          mypy src/pynxtools_em tests
+          uv run mypy src/pynxtools_em tests
