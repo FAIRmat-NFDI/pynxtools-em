@@ -17,12 +17,10 @@
 #
 """Dict mapping values for a specifically configured NOMAD Oasis."""
 
-from typing import Any
-
 # import datetime as dt
 # f"{dt.datetime.now(dt.timezone.utc).isoformat().replace('+00:00', 'Z')}",
 
-OASISCFG_EM_CSYS_TO_NEXUS: dict[str, Any] = {
+OASISCFG_EM_CSYS_TO_NEXUS: dict[str, str | list[str | tuple[str, str]]] = {
     "prefix_trg": "/ENTRY[entry*]/NAMED_reference_frameID[custom_reference_frame]",
     "prefix_src": "",
     "map_to_str": [
@@ -40,23 +38,24 @@ OASISCFG_EM_CSYS_TO_NEXUS: dict[str, Any] = {
 }
 
 
-OASISCFG_EM_CITATION_TO_NEXUS: dict[str, Any] = {
+OASISCFG_EM_CITATION_TO_NEXUS: dict[str, str | list[str]] = {
     "prefix_trg": "/ENTRY[entry*]/citeID[cite*]",
     "prefix_src": "",
     "map_to_str": ["author", "doi", "description", "url"],
 }
 
 
-OASISCFG_EM_NOTE_TO_NEXUS: dict[str, Any] = {
+OASISCFG_EM_NOTE_TO_NEXUS: dict[str, str | list[str]] = {
     "prefix_trg": "/ENTRY[entry*]/noteID[note*]",
     "prefix_src": "",
     "map_to_str": ["file_name"],
 }
 
 
-OASISCFG_EM_SAMPLE_TO_NEXUS: dict[str, Any] = {
-    "prefix_trg": "/ENTRY[entry*]/sample",
+OASISCFG_EM_SAMPLE_TO_NEXUS: dict[str, str | list[str]] = {
+    "prefix_trg": "/ENTRY[entry*]/sampleID[sample]",
     "prefix_src": "sample/",
+    "map_to_bool": ["is_simulation"],
     "map_to_str": ["atom_types"],
 }
 
@@ -65,4 +64,25 @@ OASISCFG_EM_PROJECT_TO_NEXUS: dict[str, str | list[str]] = {
     "prefix_trg": "/ENTRY[entry*]/project",
     "prefix_src": "project/",
     "map_to_str": ["name"],
+}
+
+OASISCFG_EM_INSTRUMENT_TO_NEXUS: dict[str, str | list[str]] = {
+    "prefix_trg": "/ENTRY[entry*]/measurement/instrument",
+    "prefix_src": "measurement/instrument/",
+    "map_to_str": ["fabrication/vendor", "fabrication/model"],
+}
+
+
+OASISCFG_EM_USER_TO_NEXUS: dict[str, str | list[str | tuple[str, str]]] = {
+    "prefix_trg": "/ENTRY[entry*]/userID[user*]",
+    "prefix_src": "",
+    "map_to_str": [
+        "name",
+        ("ORCID", "orcid"),
+        "affiliation",
+        "address",
+        "email",
+        "telephone_number",
+        "role",
+    ],
 }
