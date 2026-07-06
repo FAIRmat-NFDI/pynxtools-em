@@ -17,6 +17,9 @@
 #
 """Parser mapping concepts and content from Oxford Instruments *.h5oina files on NXem."""
 
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 import h5py
 import numpy as np
 from ase.data import chemical_symbols
@@ -172,10 +175,33 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                         self.ebsd = EbsdPointCloud()
 
                 # start of the example from Vitesh Shah
+                example_time_zone = ZoneInfo("Europe/Vienna")
+                time_stamp_mgn: dict[str, float] = {
+                    "min": float(np.iinfo(np.uint64).max),
+                    "max": float(np.iinfo(np.uint64).min),
+                }
                 ms = Microstructure()
                 for grpnm in h5r:
                     if not grpnm.isdigit():
                         continue
+                    if f"/{grpnm}/Electron Image/Header/Acquisition Date" in h5r:
+                        # year 2106 problem beyond which 64bit required
+                        unix_timestamp = (
+                            datetime.fromisoformat(
+                                h5r[
+                                    f"/{grpnm}/Electron Image/Header/Acquisition Date"
+                                ].asstr()[()][0]
+                            )
+                            .replace(tzinfo=example_time_zone)
+                            .timestamp()
+                        )
+                        time_stamp_mgn["min"] = min(
+                            time_stamp_mgn["min"], unix_timestamp
+                        )
+                        time_stamp_mgn["max"] = max(
+                            time_stamp_mgn["max"], unix_timestamp
+                        )
+
                     suffix_area = "Electron Image/Data/Feature/Area"
                     if f"/{grpnm}/{suffix_area}" not in h5r:
                         continue
@@ -218,6 +244,18 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
                 # therefore, we cannot compose the secondary electron image from the
                 # data in the original sample_reference_frame
                 # end of the example from Vitesh Shah
+
+                if (
+                    time_stamp_mgn["min"] > np.iinfo(np.uint64).min
+                    and time_stamp_mgn["max"] < np.iinfo(np.uint64).max
+                ):
+                    template[f"/ENTRY[entry{self.id_mgn['entry_id']}]/start_time"] = (
+                        f"{datetime.fromtimestamp(int(time_stamp_mgn['min']), tz=example_time_zone).isoformat()}"
+                    )
+                    template[f"/ENTRY[entry{self.id_mgn['entry_id']}]/end_time"] = (
+                        f"{datetime.fromtimestamp(int(time_stamp_mgn['max']), tz=example_time_zone).isoformat()}"
+                    )
+
                 self.id_mgn["roi_id"] += 1
                 self.id_mgn["img_id"] += 1
 
