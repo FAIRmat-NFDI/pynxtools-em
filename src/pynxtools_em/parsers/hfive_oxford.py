@@ -20,6 +20,7 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+# import exspy
 import h5py
 import numpy as np
 from ase.data import chemical_symbols
@@ -40,6 +41,7 @@ from pynxtools_em.parsers.hfive_base import HdfFiveBaseParser
 from pynxtools_em.utils.custom_logging import logger
 from pynxtools_em.utils.default_config import DEFAULT_VERBOSITY
 from pynxtools_em.utils.get_checksum import get_sha256_of_file_content
+from pynxtools_em.utils.get_xrayline_iupac_names import GREEK_TO_LATIN_CHARACTER_MAP
 from pynxtools_em.utils.hfive_utils import apply_euler_space_symmetry, read_strings
 from pynxtools_em.utils.pint_custom_unit_registry import ureg
 
@@ -162,17 +164,23 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
             with h5py.File(f"{self.file_path}", "r") as h5r:
                 slice_ids = sorted(list(h5r["/"]))
                 for slice_id in slice_ids:
-                    if slice_id == "1" and f"/{slice_id}/EBSD" in h5r:
+                    if slice_id == "1":
                         # non-negative int, parse for now only the first slice
                         self.prfx = f"/{slice_id}"
-                        self.ebsd = EbsdPointCloud()
-                        self.parse_and_normalize_slice_ebsd_header(h5r)
-                        self.parse_and_normalize_slice_ebsd_phases(h5r)
-                        self.parse_and_normalize_slice_ebsd_data(h5r)
-                        ebsd_roi_overview(self.ebsd, self.id_mgn, template)
-                        ebsd_roi_phase_ipf(self.ebsd, self.id_mgn, template)
+                        if f"/{slice_id}/EBSD" in h5r:
+                            self.ebsd = EbsdPointCloud()
+                            self.parse_and_normalize_slice_ebsd_header(h5r)
+                            self.parse_and_normalize_slice_ebsd_phases(h5r)
+                            self.parse_and_normalize_slice_ebsd_data(h5r)
+                            ebsd_roi_overview(self.ebsd, self.id_mgn, template)
+                            ebsd_roi_phase_ipf(self.ebsd, self.id_mgn, template)
+                            self.ebsd = EbsdPointCloud()
+                        if f"/{slice_id}/EDS" in h5r:
+                            self.eds_roi_element_maps(h5r, template)
+
+                        if f"/{slice_id}/Electron Image/Data" in h5r:
+                            self.em_images(h5r, template)
                         self.id_mgn["roi_id"] += 1
-                        self.ebsd = EbsdPointCloud()
 
                 # start of the example from Vitesh Shah
                 example_time_zone = ZoneInfo("Europe/Vienna")
@@ -458,3 +466,224 @@ class HdfFiveOxfordInstrumentsParser(HdfFiveBaseParser):
         self.ebsd.descr_value = np.asarray(fp[f"{grp_name}/Band Contrast"], np.int32)
         # inconsistency uint8 in file although specification states should be int32
         # promoting uint8 to int32 no problem
+
+    def eds_roi_element_maps(self, fp, template: dict) -> dict:
+        grp_name = f"{self.prfx}/EDS/Header"
+        if not all(
+            [
+                f"{grp_name}/{concept}" in fp
+                for concept in ["X Cells", "X Step", "Y Cells", "Y Step"]
+            ]
+        ):
+            return template
+        if not all(
+            [
+                fp[f"{grp_name}/{concept}"].attrs["Unit"] == "um"
+                for concept in ["X Step", "Y Step"]
+            ]
+        ):
+            return template
+        grp_name = f"{self.prfx}/EDS/Data"
+        if not all(
+            [f"{grp_name}/{concept}" in fp for concept in ["Window Integral", "X", "Y"]]
+        ):
+            return template
+
+        nyx: dict[str, int] = {
+            "j": fp[f"{self.prfx}/EDS/Header/Y Cells"][0],
+            "i": fp[f"{self.prfx}/EDS/Header/X Cells"][0],
+        }
+        syx: dict[str, ureg.Quantity] = {
+            "j": ureg.Quantity(
+                fp[f"{self.prfx}/EDS/Header/Y Step"][0], ureg.micrometer
+            ),
+            "i": ureg.Quantity(
+                fp[f"{self.prfx}/EDS/Header/X Step"][0], ureg.micrometer
+            ),
+        }
+
+        grp_name = f"{self.prfx}/EDS/Data/Window Integral"
+        atom_types: set[str] = set()
+        element_map_id = 0
+        for sub_grp_name in fp[grp_name]:
+            tokenize = [token.strip() for token in sub_grp_name.split()]
+            if len(tokenize) == 2 and tokenize[0] in chemical_symbols[1::]:
+                element = tokenize[0]
+                atom_types.add(element)
+                lines = "".join(
+                    GREEK_TO_LATIN_CHARACTER_MAP.get(ch, ch) for ch in tokenize[1]
+                )
+                # print(exspy.material.elements[tokenize[0]].Atomic_properties.Xray_lines)
+
+                prfx = f"/ENTRY[entry{self.id_mgn['entry_id']}]/roiID[roi{self.id_mgn['roi_id']}]/eds"
+                template[f"{prfx}/context"] = f"{self.prfx}/EDS/Data/Window Integral"
+                prfx = f"/ENTRY[entry{self.id_mgn['entry_id']}]/roiID[roi{self.id_mgn['roi_id']}]/eds/indexing"
+
+                trg = f"{prfx}/ELEMENT_SPECIFIC_MAP[{element}]"
+                template[f"{trg}/iupac_line_candidates"] = lines
+                template[f"{trg}/image_2d/@signal"] = "intensity"
+                template[f"{trg}/image_2d/@axes"] = ["axis_j", "axis_i"]
+                template[f"{trg}/image_2d/title"] = f"{element}, {lines}"
+                template[f"{trg}/image_2d/intensity"] = {
+                    "compress": np.asarray(
+                        fp[f"{self.prfx}/EDS/Data/Window Integral/{sub_grp_name}"]
+                    ).reshape(nyx["j"], nyx["i"]),
+                    "strength": 1,
+                }
+                template[f"{trg}/image_2d/intensity/@long_name"] = f"Counts"
+                for dim_idx, dim in enumerate(["i", "j"]):
+                    qnt = ureg.Quantity(
+                        np.asarray(
+                            0.0
+                            + np.linspace(
+                                0, nyx[dim] - 1, num=int(nyx[dim]), endpoint=True
+                            )
+                            * syx[dim].magnitude,
+                            dtype=np.float32,
+                        ),
+                        syx[dim].units,
+                    )
+                    template[
+                        f"{trg}/image_2d/@AXISNAME_indices[axis_{dim}_indices]"
+                    ] = np.uint32(dim_idx)
+                    template[f"{trg}/image_2d/AXISNAME[axis_{dim}]"] = {
+                        "compress": qnt.magnitude,
+                        "strength": 1,
+                    }
+
+                    template[f"{trg}/image_2d/AXISNAME[axis_{dim}]/@long_name"] = (
+                        f"Coordinate along {dim}-axis ({qnt.units})"
+                    )
+                    template[f"{trg}/image_2d/AXISNAME[axis_{dim}]/@units"] = (
+                        f"{qnt.units}"
+                    )
+                    element_map_id += 1
+        if element_map_id > 0 and len(atom_types) > 0:
+            template[
+                f"/ENTRY[entry{self.id_mgn['entry_id']}]/roiID[roi{self.id_mgn['roi_id']}]/eds/indexing/atom_types"
+            ] = ", ".join(list(atom_types))
+
+        return template
+
+    def em_images(self, fp, template: dict) -> dict:
+        grp_name = f"{self.prfx}/Electron Image/Header"
+        if not all(
+            [
+                f"{grp_name}/{concept}" in fp
+                for concept in ["X Cells", "X Step", "Y Cells", "Y Step"]
+            ]
+        ):
+            return template
+        if not all(
+            [
+                fp[f"{grp_name}/{concept}"].attrs["Unit"] == "um"
+                for concept in ["X Step", "Y Step"]
+            ]
+        ):
+            return template
+
+        nyx: dict[str, int] = {
+            "j": fp[f"{self.prfx}/Electron Image/Header/Y Cells"][0],
+            "i": fp[f"{self.prfx}/Electron Image/Header/X Cells"][0],
+        }
+        syx: dict[str, ureg.Quantity] = {
+            "j": ureg.Quantity(
+                fp[f"{self.prfx}/Electron Image/Header/Y Step"][0], ureg.micrometer
+            ),
+            "i": ureg.Quantity(
+                fp[f"{self.prfx}/Electron Image/Header/X Step"][0], ureg.micrometer
+            ),
+        }
+
+        if f"{self.prfx}/Electron Image/Data/SE/Electron Image 1":
+            trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/roiID[roi{self.id_mgn['roi_id']}]/img/imageID[image1]"
+            # template[f"{prfx}/context"] = f"{self.prfx}/Electron Image/Data/SE/Electron Image 1"
+            template[f"{trg}/imaging_mode"] = "secondary_electron"
+            template[f"{trg}/image_2d/@signal"] = "intensity"
+            template[f"{trg}/image_2d/@axes"] = ["axis_j", "axis_i"]
+            template[f"{trg}/image_2d/title"] = f"Secondary electron"
+            template[f"{trg}/image_2d/intensity"] = {
+                "compress": np.asarray(
+                    fp[f"{self.prfx}/Electron Image/Data/SE/Electron Image 1"]
+                ).reshape(nyx["j"], nyx["i"]),
+                "strength": 1,
+            }
+            template[f"{trg}/image_2d/intensity/@long_name"] = f"Counts"
+            for dim_idx, dim in enumerate(["i", "j"]):
+                qnt = ureg.Quantity(
+                    np.asarray(
+                        0.0
+                        + np.linspace(0, nyx[dim] - 1, num=int(nyx[dim]), endpoint=True)
+                        * syx[dim].magnitude,
+                        dtype=np.float32,
+                    ),
+                    syx[dim].units,
+                )
+                template[f"{trg}/image_2d/@AXISNAME_indices[axis_{dim}_indices]"] = (
+                    np.uint32(dim_idx)
+                )
+                template[f"{trg}/image_2d/AXISNAME[axis_{dim}]"] = {
+                    "compress": qnt.magnitude,
+                    "strength": 1,
+                }
+
+                template[f"{trg}/image_2d/AXISNAME[axis_{dim}]/@long_name"] = (
+                    f"Coordinate along {dim}-axis ({qnt.units})"
+                )
+                template[f"{trg}/image_2d/AXISNAME[axis_{dim}]/@units"] = f"{qnt.units}"
+
+        forward_detector_names = [
+            "Lower Centre",
+            "Lower Left",
+            "Lower Right",
+            "Upper Left",
+            "Upper Right",
+        ]
+        if all(
+            [
+                f"{self.prfx}/Electron Image/Data/FSE/{concept}" in fp
+                for concept in forward_detector_names
+            ]
+        ):
+            for detector_name in forward_detector_names:
+                trg = f"/ENTRY[entry{self.id_mgn['entry_id']}]/roiID[roi{self.id_mgn['roi_id']}]/img/imageID[image_{detector_name.lower().replace(' ', '_')}]"
+                template[f"{trg}/imaging_mode"] = "forward_scatter_electron"
+                template[f"{trg}/image_2d/@signal"] = "intensity"
+                template[f"{trg}/image_2d/@axes"] = ["axis_j", "axis_i"]
+                template[f"{trg}/image_2d/title"] = (
+                    f"{detector_name} forward scatter electron detector"
+                )
+                template[f"{trg}/image_2d/intensity"] = {
+                    "compress": np.asarray(
+                        fp[f"{self.prfx}/Electron Image/Data/FSE/{detector_name}"]
+                    ).reshape(nyx["j"], nyx["i"]),
+                    "strength": 1,
+                }
+                template[f"{trg}/image_2d/intensity/@long_name"] = f"Counts"
+                for dim_idx, dim in enumerate(["i", "j"]):
+                    qnt = ureg.Quantity(
+                        np.asarray(
+                            0.0
+                            + np.linspace(
+                                0, nyx[dim] - 1, num=int(nyx[dim]), endpoint=True
+                            )
+                            * syx[dim].magnitude,
+                            dtype=np.float32,
+                        ),
+                        syx[dim].units,
+                    )
+                    template[
+                        f"{trg}/image_2d/@AXISNAME_indices[axis_{dim}_indices]"
+                    ] = np.uint32(dim_idx)
+                    template[f"{trg}/image_2d/AXISNAME[axis_{dim}]"] = {
+                        "compress": qnt.magnitude,
+                        "strength": 1,
+                    }
+
+                    template[f"{trg}/image_2d/AXISNAME[axis_{dim}]/@long_name"] = (
+                        f"Coordinate along {dim}-axis ({qnt.units})"
+                    )
+                    template[f"{trg}/image_2d/AXISNAME[axis_{dim}]/@units"] = (
+                        f"{qnt.units}"
+                    )
+        return template

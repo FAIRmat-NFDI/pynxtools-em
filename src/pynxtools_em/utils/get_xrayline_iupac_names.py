@@ -38,3 +38,31 @@ def get_xrayline_candidates(e_min, e_max) -> list[str]:
             continue
         candidates.append(key)
     return candidates
+
+
+GREEK_TO_LATIN_CHARACTER_MAP = {
+    "α": "a",
+    "β": "b",
+    "γ": "c",
+    "δ": "d",
+    "ε": "e",
+    "ζ": "z",
+    "η": "h",
+    "θ": "th",
+    "ι": "i",
+    "κ": "k",
+    "λ": "l",
+    "μ": "m",
+    "ν": "n",
+    "ξ": "x",
+    "ο": "o",
+    "π": "p",
+    "ρ": "r",
+    "σ": "s",
+    "τ": "t",
+    "υ": "u",
+    "φ": "f",
+    "χ": "ch",
+    "ψ": "ps",
+    "ω": "w",
+}
