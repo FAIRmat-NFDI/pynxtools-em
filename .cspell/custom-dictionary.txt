@@ -189,6 +189,7 @@ annotable
 appdef
 arange
 asarray
+asstr
 atomtypes
 authorships
 automaticstyles

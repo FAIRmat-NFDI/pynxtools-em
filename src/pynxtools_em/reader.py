@@ -194,7 +194,7 @@ class EMReader(BaseReader):
                 "Reporting state of template before passing to HDF5 writing..."
             )
             for keyword, value in sorted(template.items()):
-                logger.info(f"{keyword}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
+                logger.warning(f"{keyword}{SEPARATOR}{type(value)}{SEPARATOR}{value}")
 
         logger.debug("Forward instantiated template to the NXS writer...")
         toc = perf_counter_ns()

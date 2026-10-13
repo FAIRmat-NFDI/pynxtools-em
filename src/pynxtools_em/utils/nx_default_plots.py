@@ -61,7 +61,7 @@ class NxEmDefaultPlotResolver:
         # find keys_of_priority for interesting default plots with some priority
         # priority ipf map > roi overview > eds map > spectra > complex image > real image
         keys_of_priority: dict[int, list[str]] = {}
-        priorities = [1, 2, 3, 4, 5]
+        priorities = [1, 2, 3, 4, 5, 6]
         for priority in priorities:
             keys_of_priority[priority] = []
 
@@ -128,6 +128,24 @@ class NxEmDefaultPlotResolver:
         )
         del eds_pattern
 
+        # microstructural features, 4
+        microstructural_feature_pattern = re.compile(
+            r"("
+            r"/ENTRY\[entry([1-9]\d*)\]/roiID\[roi([1-9]\d*)\]/img/imageID\[image([1-9]\d*)\]/microstructureID\[microstructure([1-9]\d*)\]/crystals/DATA\[area_distribution\]"
+            r")"
+        )
+        keys_of_priority[4] = list(
+            sorted(
+                {
+                    match.group(1)
+                    for key in template
+                    for match in microstructural_feature_pattern.finditer(key)
+                },
+                key=natural_key,
+            )
+        )
+        del microstructural_feature_pattern
+
         ebsd_pattern = re.compile(
             r"("
             r"/ENTRY\[entry([1-9]\d*)\]/roiID\[roi([1-9]\d*)\].*/ebsd/indexing"
@@ -144,14 +162,14 @@ class NxEmDefaultPlotResolver:
             )
         )
         for ebsd_key in ebsd_keys:
-            # ebsd, roi, 4
+            # ebsd, roi, 5
             if (
                 f"{ebsd_key}/roi" in template
                 and f"{ebsd_key}/roi" not in keys_of_priority[4]
             ):
-                keys_of_priority[4].append(f"{ebsd_key}/roi")
+                keys_of_priority[5].append(f"{ebsd_key}/roi")
 
-            # ebsd, ipf 5
+            # ebsd, ipf 6
             if f"{ebsd_key}/number_of_scan_points" in template:
                 n_scan_points_total = template[f"{ebsd_key}/number_of_scan_points"]
 
@@ -188,8 +206,8 @@ class NxEmDefaultPlotResolver:
                         )
                 vote_ipf_map = sort_list_of_tuples_desc_order(vote_ipf_map)
                 if len(vote_ipf_map) > 0:
-                    if vote_ipf_map[0][0] not in keys_of_priority[5]:
-                        keys_of_priority[5].append(vote_ipf_map[0][0])
+                    if vote_ipf_map[0][0] not in keys_of_priority[6]:
+                        keys_of_priority[6].append(vote_ipf_map[0][0])
                 del phase_pattern, phase_keys
         del ebsd_pattern, ebsd_keys
 

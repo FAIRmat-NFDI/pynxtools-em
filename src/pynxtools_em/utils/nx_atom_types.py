@@ -43,7 +43,7 @@ class NxEmAtomTypesResolver:
         for key, free_text in template.items():
             if not key.startswith(f"/ENTRY[entry{self.entry_id}]/roiID[roi"):
                 continue
-            # indexed phases from EBSD can be used to identify atom_types
+            # indexed phases from EBSD can be used for identifying atom_types
             if (
                 re.match(
                     rf"^/ENTRY\[entry{self.entry_id}\]/roiID\[roi[0-9]+\]/ebsd/indexing/phaseID\[phase[0-9]+\]/name",
@@ -62,7 +62,7 @@ class NxEmAtomTypesResolver:
                         for symbol in symbols:
                             if symbol in chemical_symbols[1::]:
                                 atom_types.add(symbol)
-            # indexed EDS element-specific mappings can be used to identify atom_types
+            # indexed EDS element-specific mappings can be used for identifying atom_types
             if (
                 re.match(
                     rf"^/ENTRY\[entry{self.entry_id}\]/roiID\[roi[0-9]+\]/eds/indexing/atom_types",
