@@ -1,0 +1,243 @@
+id: pynxtools-em
+metadata_schema_version: 1.0.0
+name: pynxtools-em
+description: pynxtools-em is a pynxtools reader plugin for electron microscopy (EM)
+  data.
+license: LICENSE
+upstream_repository: https://github.com/FAIRmat-NFDI/pynxtools-em
+documentation: https://fairmat-nfdi.github.io/pynxtools-em/
+homepage: https://github.com/FAIRmat-NFDI/pynxtools-em
+issue_tracker: https://github.com/FAIRmat-NFDI/pynxtools-em/issues
+authors:
+- name: "Markus K\xFChbach"
+- name: Sherjeel Shabih
+- name: Sandor Brockhauser
+- name: Erdmann Spiecker
+- name: Heiko B. Weber
+- name: Christoph Koch
+- name: Claudia Draxl
+entry_points:
+- id: nomad.plugin:em_example_upload_entry_point
+  entry_point_group: nomad.plugin
+  entry_point_name: em_example_upload_entry_point
+  python_object: pynxtools_em.nomad.example_uploads:em_example_upload_entry_point
+  capability_type: example_upload
+capabilities:
+- id: em_example_upload_entry_point
+  capability_type: example_upload
+  title: em_example_upload_entry_point
+  summary: "\n        This example presents the capabilities of the NOMAD platform\
+    \ to store and standardize electron microscopy data.\n        It shows the generation\
+    \ of a NeXus file according to the\n        [`NXem`](https://fairmat-nfdi.github.io/nexus_definitions/classes/applications/NXem.html#nxem)\n\
+    \        application definition.\n        The example contains a small SEM dataset\
+    \ to get started and keep the size of your\n        NOMAD installation small.\
+    \ Ones started, we recommend to change the respective input file in the NOMAD\
+    \ Oasis\n        ELN to run the example with your own datasets.\n    "
+schema_dependencies:
+- dependency_type: python_package
+  package_name: pynxtools
+  version_range: '>=0.12.0'
+  optional: false
+  purpose: runtime
+- dependency_type: python_package
+  package_name: hyperspy
+  version_range: '>=1.7.6'
+  optional: false
+  purpose: runtime
+- dependency_type: python_package
+  package_name: rosettasciio
+  version_range: ''
+  optional: false
+  purpose: runtime
+- dependency_type: python_package
+  package_name: kikuchipy
+  version_range: ''
+  optional: false
+  purpose: runtime
+- dependency_type: python_package
+  package_name: pyxem
+  version_range: ''
+  optional: false
+  purpose: runtime
+- dependency_type: python_package
+  package_name: nionswift
+  version_range: ''
+  optional: false
+  purpose: runtime
+- dependency_type: python_package
+  package_name: flatdict
+  version_range: ==4.0.0
+  optional: false
+  purpose: runtime
+- dependency_type: python_package
+  package_name: xmltodict
+  version_range: ''
+  optional: false
+  purpose: runtime
+- dependency_type: python_package
+  package_name: xraydb
+  version_range: ''
+  optional: false
+  purpose: runtime
+- dependency_type: python_package
+  package_name: tzlocal
+  version_range: ''
+  optional: false
+  purpose: runtime
+- dependency_type: python_package
+  package_name: mypy
+  version_range: ''
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: ruff
+  version_range: '>=0.14.0'
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: pytest
+  version_range: ''
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: pytest-cov
+  version_range: ''
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: pytest-timeout
+  version_range: ''
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: structlog
+  version_range: ''
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: types-pyyaml
+  version_range: ''
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: types-pytz
+  version_range: ''
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: types-requests
+  version_range: ''
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: pre-commit
+  version_range: ''
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: mkdocs
+  version_range: ''
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: mkdocs-material
+  version_range: ''
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: mkdocs-material-extensions
+  version_range: ''
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: mkdocs-macros-plugin
+  version_range: ''
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: pymdown-extensions
+  version_range: ''
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: mkdocs-click
+  version_range: ''
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: nomad-lab
+  version_range: '[infrastructure]>=1.3.17'
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: jupyter
+  version_range: ''
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: jupyterlab
+  version_range: ''
+  optional: true
+  purpose: optional
+- dependency_type: python_package
+  package_name: jupyterlab_h5web
+  version_range: ''
+  optional: true
+  purpose: optional
+metadata_provenance:
+- source: pyproject
+  extraction_method: deterministic
+  generated_at: '2026-03-19T15:05:50.731960+00:00'
+  generator_version: 0.1.0
+- source: plugin_entry_points
+  extraction_method: deterministic
+  generated_at: '2026-03-19T15:05:50.731996+00:00'
+  generator_version: 0.1.0
+- source: citation_cff
+  extraction_method: deterministic
+  generated_at: '2026-03-19T15:05:50.732010+00:00'
+  generator_version: 0.1.0
+stars: 3
+owner: FAIRmat-NFDI
+owner_type: Organization
+created: '2024-03-18T17:41:58Z'
+last_updated: '2026-02-11T15:06:16Z'
+archived: false
+subject:
+- measurements
+- microscopy
+- electron-microscopy
+- nexus
+- data-standardization
+maturity: beta
+repository_default_branch: main
+deployment:
+  on_central: true
+  on_pypi: true
+  pypi_package: pynxtools-em
+suggested_usages:
+- id: standardize-em-data-to-nxem
+  title: Standardize EM data to NXem
+  user_intent: Convert and structure electron microscopy data according to NXem
+  domain_category: measurements
+  technique: electron-microscopy
+  audience: intermediate
+  maturity: beta
+  tags:
+  - em
+  - tem
+  - sem
+  - nexus
+  - nxem
+- id: test-em-workflow-with-example-upload
+  title: Test NOMAD EM workflow with example upload
+  user_intent: Use the bundled EM example upload to validate NOMAD processing and
+    mapping
+  domain_category: workflow
+  technique: example-upload
+  audience: beginner
+  maturity: beta
+  tags:
+  - example-upload
+  - onboarding
+  - em
