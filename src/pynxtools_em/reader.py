@@ -78,9 +78,14 @@ class EMReader(BaseReader):
         template: dict | None = None,
         file_paths: tuple[str] = None,
         objects: tuple[Any] = None,
+        **kwargs,
     ):
         """
         Read method to prepare the template.
+
+        Extra keyword arguments from the converter (for example `config_file`
+        from `pynx convert -c`) are accepted and ignored, since this reader
+        does not use them.
         """
         logger.info(os.getcwd())
         tic = perf_counter_ns()
