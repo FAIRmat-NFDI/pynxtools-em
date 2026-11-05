@@ -50,11 +50,9 @@ VALID_FILE_NAME_SUFFIX_DATA = [
     ".xml",
     # ".bmp",
 ]
-# the order of this list is significant to assure that whatever is found first and
-# valid will trigger acceptance but avoiding to load one dataset twice e.g.
-# if .h5 would be tested before .mtex.h5 the .mtex.h5 qualifies two times if we
-# do not break, however, if we do break and test .mtex.h5 first it will be found only
-# one time
+# some suffixes end with others (e.g. .mtex.h5 ends with .h5), so each file is
+# assigned only to the longest suffix it ends with, see
+# sort_files_by_file_name_suffix; the order of this list does not matter
 
 
 class EmUseCaseSelector:
@@ -90,11 +88,16 @@ class EmUseCaseSelector:
         for suffix in self.supported_file_name_suffixes:
             self.case[suffix] = []
         for fpath in file_paths:
-            for suffix in self.supported_file_name_suffixes:
-                if (fpath.lower().endswith(suffix)) and (
-                    fpath not in self.case[suffix]
-                ):
-                    self.case[suffix].append(fpath)
+            matches = [
+                suffix
+                for suffix in self.supported_file_name_suffixes
+                if fpath.lower().endswith(suffix)
+            ]
+            if not matches:
+                continue
+            suffix = max(matches, key=len)  # a.mtex.h5 counts as .mtex.h5, not .h5
+            if fpath not in self.case[suffix]:
+                self.case[suffix].append(fpath)
 
     def check_validity_of_file_combinations(self):
         """Check if this combination of types of files is supported."""
@@ -103,8 +106,7 @@ class EmUseCaseSelector:
         for suffix in VALID_FILE_NAME_SUFFIX_DATA:
             if len(self.case[suffix]) > 0:
                 dat_input += len(self.case[suffix])
-                if suffix == ".mtex.h5":
-                    break
+
         for suffix in VALID_FILE_NAME_SUFFIX_CONFIG:
             if len(self.case[suffix]) > 0:
                 other_input += len(self.case[suffix])
@@ -115,8 +117,6 @@ class EmUseCaseSelector:
             for suffix in VALID_FILE_NAME_SUFFIX_DATA:
                 if len(self.case[suffix]) > 0:
                     self.dat += self.case[suffix]
-                    if suffix == ".mtex.h5":
-                        break
             yml: list[str] = []
             for suffix in VALID_FILE_NAME_SUFFIX_CONFIG:
                 if len(self.case[suffix]) > 0:
