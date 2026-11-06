@@ -176,3 +176,15 @@ def test_nexus_conversion(nxdl, sub_reader_data_dir, tmp_path, caplog):
     # test.check_reproducibility_of_nexus()
 
     # TODO remove if not working
+
+
+def test_read_accepts_converter_kwargs():
+    """
+    read() must accept extra keyword arguments from the converter
+    (Bug B3 in https://github.com/FAIRmat-NFDI/pynxtools-plugin-audit/blob/main/pynxtools-unification/FINDINGS.md).
+    """
+    # `pynx convert -c <file>` calls read(..., config_file=<file>). Without
+    # **kwargs in the signature, this failed with a TypeError.
+    reader = get_reader("em")()
+    template = reader.read(template={}, file_paths=(), config_file="not_used.json")
+    assert isinstance(template, dict)
