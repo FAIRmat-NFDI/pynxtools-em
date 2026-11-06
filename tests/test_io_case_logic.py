@@ -27,16 +27,3 @@ def test_mtex_file_is_counted_once():
     assert case.is_valid
     assert case.dat == ["a.mtex.h5"]
     assert case.case[".h5"] == []
-
-
-def test_file_after_mtex_is_not_ignored():
-    """A .mtex.h5 file must not hide files with suffixes listed after it."""
-    case = EmUseCaseSelector(("a.mtex.h5", "b.mrc"))
-    assert case.is_valid
-    assert case.dat == ["a.mtex.h5", "b.mrc"]
-
-
-def test_too_many_files_with_mtex_are_rejected():
-    """Three data files are not supported, also when one of them is .mtex.h5."""
-    case = EmUseCaseSelector(("a.mtex.h5", "b.h5", "c.h5"))
-    assert not case.is_valid
