@@ -125,7 +125,7 @@ def microstructure_to_template(
                 "compress": composition_table[symbol][qnt],
                 "strength": 1,
             }
-            template[f"{trg}/ELEMENT[{symbol}]/{qnt}/@units"] = "wt%"
+            template[f"{trg}/ELEMENT[{symbol}]/{qnt}/@units"] = "percent"
             inform_about_atom_types.add(symbol)
     if len(inform_about_atom_types) > 0:
         template[f"{trg}/normalization"] = "weight_percent"
