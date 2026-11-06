@@ -20,11 +20,13 @@
 from pynxtools_em.configurations.image_tiff_tfs_cfg import TIFF_TFS_ALL_CONCEPTS
 
 
-def get_fei_childs(parent_concept: str) -> list:
+def get_fei_childs(parent_concept: str) -> list[str]:
     """Get all children of FEI parent concept."""
-    child_concepts = set()
+    child_concepts: list[str] = []
     for entry in TIFF_TFS_ALL_CONCEPTS:
         if isinstance(entry, str) and entry.count("/") == 1:
-            if entry.startswith(f"{parent_concept}/") is True:
-                child_concepts.add(entry.split("/")[1])
-    return list(child_concepts)
+            if entry.startswith(f"{parent_concept}/"):
+                child = entry.split("/")[1]
+                if child not in child_concepts:
+                    child_concepts.append(child)
+    return child_concepts
