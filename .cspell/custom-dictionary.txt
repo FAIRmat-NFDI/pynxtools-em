@@ -244,6 +244,7 @@ flatfield
 flipud
 flytime
 fpath
+fromarray
 frombuffer
 functors
 geoscience
@@ -375,6 +376,7 @@ surrogateescape
 sversion
 taenite
 templatized
+tiffinfo
 timestamping
 troilite
 twod
