@@ -29,7 +29,7 @@ dependencies = [
     "orix",
     "nionswift",
     "flatdict>=4.1.0",
-    "xmltodict",
+    "xmltodict>=0.13",
     "xraydb",
     "tzlocal"
 ]
