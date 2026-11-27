@@ -156,9 +156,11 @@ class TfsTiffParser:
                 # fish metadata of e.g. the system section
                 for term in get_fei_childs(parent):
                     s.seek(pos_s, 0)
-                    pos = s.find(bytes(f"{term}=", "utf8"))
+                    # match the term only at the start of a line so that
+                    # e.g. "n=" does not match inside "ScanRotation="
+                    pos = s.find(bytes(f"\n{term}=", "utf8"))
                     if -1 < pos < pos_e:  # check if pos_e is None
-                        s.seek(pos, 0)
+                        s.seek(pos + 1, 0)
                         value = f"{s.readline().strip().decode('utf8').replace(f'{term}=', '')}"
                         self.metadata[f"{parent}/{term}"] = None
                         if isinstance(value, str):
@@ -176,8 +178,6 @@ class TfsTiffParser:
                             logger.warning(
                                 f"Detected an unexpected case {parent}/{term}, type: {type(value)} !"
                             )
-                    else:
-                        break
 
     def parse(self, template: dict) -> dict:
         """Perform actual parsing."""
