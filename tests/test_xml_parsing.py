@@ -30,7 +30,6 @@ PYPROJECT = Path(__file__).parents[1] / "pyproject.toml"
 
 def test_xmltodict_has_a_safe_minimum_version():
     """xmltodict before 0.11 expanded entities, so the dependency needs a minimum."""
-    # read pyproject.toml as text: tomllib is not available on Python 3.10
     (xmltodict_dep,) = re.findall(r'"(xmltodict[^"]*)"', PYPROJECT.read_text())
     xmltodict_req = Requirement(xmltodict_dep)
     assert not xmltodict_req.specifier.contains("0.10.2")
